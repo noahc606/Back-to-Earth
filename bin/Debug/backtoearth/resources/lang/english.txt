@@ -1,0 +1,6 @@
+INFO_Title=Back to Earth
+INFO_Version=1.0
+
+GUI_PLAY=Play
+GUI_OPTIONS=Options
+GUI_QUIT=Quit

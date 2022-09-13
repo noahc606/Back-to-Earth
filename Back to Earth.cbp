@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="Back to Earth" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="Debug">
+				<Option output="bin/Debug/Back to Earth" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Debug/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Option projectIncludeDirsRelation="0" />
+				<Option projectLibDirsRelation="0" />
+				<Compiler>
+					<Add option="-g" />
+				</Compiler>
+				<Linker>
+					<Add option="-lmingw32 -lSDL2main -lSDL2" />
+					<Add option="-lSDL2_image" />
+					<Add option="-lSDL2_mixer" />
+					<Add option="-lSDL2_ttf" />
+					<Add library="mingw32" />
+					<Add library="SDL2main" />
+					<Add library="SDL2.dll" />
+					<Add library="user32" />
+					<Add library="gdi32" />
+					<Add library="winmm" />
+					<Add library="dxguid" />
+				</Linker>
+			</Target>
+			<Target title="Release">
+				<Option output="bin/Release/Back to Earth" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Release/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Option projectIncludeDirsRelation="0" />
+				<Option projectLibDirsRelation="0" />
+				<Compiler>
+					<Add option="-O2" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+					<Add option="-lmingw32 -lSDL2main -lSDL2" />
+					<Add option="-lSDL2_image" />
+					<Add option="-lSDL2_mixer" />
+					<Add option="-lSDL2_ttf" />
+					<Add library="mingw32" />
+					<Add library="SDL2main" />
+					<Add library="SDL2.dll" />
+					<Add library="user32" />
+					<Add library="gdi32" />
+					<Add library="winmm" />
+					<Add library="dxguid" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-Wall" />
+			<Add option="-fexceptions" />
+			<Add directory="lib/SDL2-2.0.10-i686-w64-mingw32/include/SDL2" />
+			<Add directory="lib/SDL2_image-2.0.5-i686-w64-mingw32/include/SDL2" />
+			<Add directory="lib/SDL2_mixer-2.0.4-i686-w64-mingw32/include/SDL2" />
+			<Add directory="lib/SDL2_ttf-2.0.15-i686-w64-mingw32/include/SDL2" />
+			<Add directory="./" />
+			<Add directory="src" />
+			<Add directory="src/gfx" />
+			<Add directory="src/gfx/gui" />
+			<Add directory="src/gfx/texture" />
+			<Add directory="src/helper" />
+			<Add directory="src/helper/base" />
+			<Add directory="src/helper/type" />
+			<Add directory="src/io" />
+			<Add directory="src/io/debug" />
+			<Add directory="src/main" />
+			<Add directory="src/world" />
+			<Add directory="src/world/entity" />
+			<Add directory="src/world/gen" />
+			<Add directory="src/world/phys" />
+			<Add directory="src/world/tile" />
+			<Add directory="src/helper/math" />
+		</Compiler>
+		<Linker>
+			<Add option="-lmingw32 -lSDL2main -lSDL2" />
+			<Add option="-lSDL2_image" />
+			<Add option="-lSDL2_mixer" />
+			<Add option="-lSDL2_ttf" />
+			<Add library="mingw32" />
+			<Add library="SDL2main" />
+			<Add library="SDL2.dll" />
+			<Add library="user32" />
+			<Add library="gdi32" />
+			<Add library="winmm" />
+			<Add library="dxguid" />
+			<Add directory="lib/SDL2-2.0.10-i686-w64-mingw32/lib" />
+			<Add directory="lib/SDL2_image-2.0.5-i686-w64-mingw32/lib" />
+			<Add directory="lib/SDL2_mixer-2.0.4-i686-w64-mingw32/lib" />
+			<Add directory="lib/SDL2_ttf-2.0.15-i686-w64-mingw32/lib" />
+		</Linker>
+		<Unit filename="src/gfx/Camera.cpp" />
+		<Unit filename="src/gfx/Camera.h" />
+		<Unit filename="src/gfx/Canvas.h" />
+		<Unit filename="src/gfx/Color.h" />
+		<Unit filename="src/gfx/ColorPalette.h" />
+		<Unit filename="src/gfx/GUIHandler.cpp" />
+		<Unit filename="src/gfx/GUIHandler.h" />
+		<Unit filename="src/gfx/SpriteSheet.h" />
+		<Unit filename="src/gfx/SpriteSheetBuilder.h" />
+		<Unit filename="src/gfx/Text.cpp" />
+		<Unit filename="src/gfx/Text.h" />
+		<Unit filename="src/gfx/Texture.h" />
+		<Unit filename="src/gfx/TextureBuilder.h" />
+		<Unit filename="src/gfx/gui/Button.cpp" />
+		<Unit filename="src/gfx/gui/Button.h" />
+		<Unit filename="src/gfx/gui/GUI.cpp" />
+		<Unit filename="src/gfx/gui/GUI.h" />
+		<Unit filename="src/gfx/gui/GUIAlignable.cpp" />
+		<Unit filename="src/gfx/gui/GUIAlignable.h" />
+		<Unit filename="src/gfx/gui/TextBox.cpp" />
+		<Unit filename="src/gfx/gui/TextBox.h" />
+		<Unit filename="src/gfx/gui/Tooltip.cpp" />
+		<Unit filename="src/gfx/gui/Tooltip.h" />
+		<Unit filename="src/gfx/gui/Window.cpp" />
+		<Unit filename="src/gfx/gui/Window.h" />
+		<Unit filename="src/gfx/gui/WindowComponent.cpp" />
+		<Unit filename="src/gfx/gui/WindowComponent.h" />
+		<Unit filename="src/gfx/gui/WindowPanelData.cpp" />
+		<Unit filename="src/gfx/gui/WindowPanelData.h" />
+		<Unit filename="src/gfx/texture/Canvas.cpp" />
+		<Unit filename="src/gfx/texture/Canvas.h" />
+		<Unit filename="src/gfx/texture/Color.cpp" />
+		<Unit filename="src/gfx/texture/Color.h" />
+		<Unit filename="src/gfx/texture/ColorPalette.cpp" />
+		<Unit filename="src/gfx/texture/ColorPalette.h" />
+		<Unit filename="src/gfx/texture/SpriteSheet.cpp" />
+		<Unit filename="src/gfx/texture/SpriteSheet.h" />
+		<Unit filename="src/gfx/texture/SpriteSheetBuilder.cpp" />
+		<Unit filename="src/gfx/texture/SpriteSheetBuilder.h" />
+		<Unit filename="src/gfx/texture/Texture.cpp" />
+		<Unit filename="src/gfx/texture/Texture.h" />
+		<Unit filename="src/gfx/texture/TextureBuilder.cpp" />
+		<Unit filename="src/gfx/texture/TextureBuilder.h" />
+		<Unit filename="src/helper/MapHelper.cpp" />
+		<Unit filename="src/helper/MapHelper.h" />
+		<Unit filename="src/helper/base/BTEObject.cpp" />
+		<Unit filename="src/helper/base/BTEObject.h" />
+		<Unit filename="src/helper/base/DebugObject.cpp" />
+		<Unit filename="src/helper/base/DebugObject.h" />
+		<Unit filename="src/helper/math/Vec2D.cpp" />
+		<Unit filename="src/helper/math/Vec2D.h" />
+		<Unit filename="src/helper/type/Defs.cpp" />
+		<Unit filename="src/helper/type/Defs.h" />
+		<Unit filename="src/helper/type/Real.cpp" />
+		<Unit filename="src/helper/type/Real.h" />
+		<Unit filename="src/io/AudioLoader.cpp" />
+		<Unit filename="src/io/AudioLoader.h" />
+		<Unit filename="src/io/ButtonAction.cpp" />
+		<Unit filename="src/io/ButtonAction.h" />
+		<Unit filename="src/io/ControlBinding.cpp" />
+		<Unit filename="src/io/ControlBinding.h" />
+		<Unit filename="src/io/Controls.cpp" />
+		<Unit filename="src/io/Controls.h" />
+		<Unit filename="src/io/FileHandler.cpp" />
+		<Unit filename="src/io/FileHandler.h" />
+		<Unit filename="src/io/Settings.cpp" />
+		<Unit filename="src/io/Settings.h" />
+		<Unit filename="src/io/TextureLoader.cpp" />
+		<Unit filename="src/io/TextureLoader.h" />
+		<Unit filename="src/io/debug/Commands.cpp" />
+		<Unit filename="src/io/debug/Commands.h" />
+		<Unit filename="src/io/debug/DebugScreen.cpp" />
+		<Unit filename="src/io/debug/DebugScreen.h" />
+		<Unit filename="src/io/debug/Log.cpp" />
+		<Unit filename="src/io/debug/Log.h" />
+		<Unit filename="src/io/debug/Timer.cpp" />
+		<Unit filename="src/io/debug/Timer.h" />
+		<Unit filename="src/main/BTE.cpp" />
+		<Unit filename="src/main/BTE.h" />
+		<Unit filename="src/main/Main.cpp" />
+		<Unit filename="src/main/Main.h" />
+		<Unit filename="src/main/MainLoop.cpp" />
+		<Unit filename="src/main/MainLoop.h" />
+		<Unit filename="src/main/SDLHandler.cpp" />
+		<Unit filename="src/main/SDLHandler.h" />
+		<Unit filename="src/main/Tests.cpp" />
+		<Unit filename="src/main/Tests.h" />
+		<Unit filename="src/world/Player.cpp" />
+		<Unit filename="src/world/Player.h" />
+		<Unit filename="src/world/World.cpp" />
+		<Unit filename="src/world/World.h" />
+		<Unit filename="src/world/gen/Noise.cpp" />
+		<Unit filename="src/world/gen/Noise.h" />
+		<Unit filename="src/world/gen/NoiseOld.cpp" />
+		<Unit filename="src/world/gen/NoiseOld.h" />
+		<Unit filename="src/world/phys/Box3D.cpp" />
+		<Unit filename="src/world/phys/Box3D.h" />
+		<Unit filename="src/world/phys/CollidingVolume.cpp" />
+		<Unit filename="src/world/phys/Point3D.cpp" />
+		<Unit filename="src/world/phys/Point3D.h" />
+		<Unit filename="src/world/phys/collidingvolume.h" />
+		<Unit filename="src/world/tile/RegTexBuilder.cpp" />
+		<Unit filename="src/world/tile/RegTexBuilder.h" />
+		<Unit filename="src/world/tile/TileIterator.cpp" />
+		<Unit filename="src/world/tile/TileIterator.h" />
+		<Unit filename="src/world/tile/TileMap.cpp" />
+		<Unit filename="src/world/tile/TileMap.h" />
+		<Unit filename="src/world/tile/TileMapScreen.cpp" />
+		<Unit filename="src/world/tile/TileMapScreen.h" />
+		<Unit filename="src/world/tile/TileRegion.cpp" />
+		<Unit filename="src/world/tile/TileRegion.h" />
+		<Unit filename="src/world/tile/TileType.cpp" />
+		<Unit filename="src/world/tile/TileType.h" />
+		<Extensions>
+			<lib_finder disable_auto="1" />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>

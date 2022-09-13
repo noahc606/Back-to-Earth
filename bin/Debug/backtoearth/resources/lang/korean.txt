@@ -1,0 +1,6 @@
+INFO_Title=지구로 돌아가기
+INFO_Version=1.0
+
+GUI_PLAY=시작하다
+GUI_OPTIONS=설정
+GUI_QUIT=출구
