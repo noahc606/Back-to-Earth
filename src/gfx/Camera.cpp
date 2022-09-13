@@ -40,9 +40,9 @@ void Camera::tick()
         }
         double original = 1.5;
         double extremes = 7;
-        zoom = original*std::pow( std::pow(extremes, 0.1), zoomIndex );
+        zoom = original*pow( pow(extremes, 0.1), zoomIndex );
         //Round zoom to the next hundredth
-        zoom = std::ceil(zoom*100.0)/100.0;
+        zoom = ceil(zoom*100.0)/100.0;
 
     }
 }
@@ -50,7 +50,7 @@ void Camera::tick()
 double Camera::getX() { return x; }
 double Camera::getY() { return y; }
 double Camera::getZ() { return z; }
-long long Camera::getLayer() { return (long long)std::floor(z); }
+long long Camera::getLayer() { return (long long)floor(z); }
 double Camera::getZoom() { return zoom; }
 int Camera::getZoomIndex() { return zoomIndex; }
 bool Camera::isFocused() { return focused; }

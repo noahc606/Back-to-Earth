@@ -90,7 +90,7 @@ void Canvas::info(std::stringstream& ss, int& tabs)
     DebugScreen::newLine(ss);
 
     DebugScreen::indentLine(ss, tabs);
-    double onscreenSize = std::floor(1024*camera->getZoom());
+    double onscreenSize = floor(1024*camera->getZoom());
     ss << "Texture onscreen size (px)=" << onscreenSize << ";";
     DebugScreen::newLine(ss);
 }

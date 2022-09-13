@@ -126,9 +126,9 @@ void World::updateMouseAndCamInfo()
 {
     //Get mouseX and mouseY both in double and in long long (t_ll) form.
     mouseX = std::get<0>(csInteractions.getMouseXY());
-    mouseXLL = (t_ll)std::floor(mouseX);
+    mouseXLL = (t_ll)floor(mouseX);
     mouseY = std::get<1>(csInteractions.getMouseXY());
-    mouseYLL = (t_ll)std::floor(mouseY);
+    mouseYLL = (t_ll)floor(mouseY);
 
     //Get Z region of camera
     long cRZ = TileMap::getRegRXYZ(player.getCamera()->getLayer());
@@ -144,11 +144,11 @@ void World::entityInteractions()
 {
     //Get player x, y, and z both in double and in t_ll form.
     double pxd = std::get<0>(player.getPos());
-    int px = std::floor(pxd);
+    int px = floor(pxd);
     double pyd = std::get<1>(player.getPos());
-    int py = std::floor(pyd);
+    int py = floor(pyd);
     double pzd = std::get<2>(player.getPos());
-    int pz = std::floor(pzd);
+    int pz = floor(pzd);
 
     if( player.getAction()==player.Action::GM_Destroy_Tile ) {
         TileType tt;

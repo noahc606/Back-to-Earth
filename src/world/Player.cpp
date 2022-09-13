@@ -133,7 +133,7 @@ void Player::tick()
     anTimer++;
 
     //walk velocity
-    double walkingVelocity = std::abs(vx);
+    double walkingVelocity = abs(vx);
 
     //Set player direction / Make sure walkingVelocity is always positive
     if( vx<0 ) {

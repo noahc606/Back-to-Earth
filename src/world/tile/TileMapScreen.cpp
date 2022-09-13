@@ -77,10 +77,8 @@ void TileMapScreen::draw(Canvas* csTileMap)
 {
     if( csTileMap==nullptr ) return;
 
-    regTexUpdates(csTileMap, 256);
+    regTexUpdates(csTileMap, 64);
     csTileMap->draw();
-
-
 
     //csTileMap->setSrc(TextureLoader::WORLD_tile_type_a, 32, 64);
     //csTileMap->rcopy( *Commands::getInt("x1"), 0, 32, 32 );

@@ -25,18 +25,16 @@ void DebugScreen::draw()
 
 void DebugScreen::tick(GUIHandler* guiHandler)
 {
-    //If CTRL && ALT are pressed
-    bool ctrlAndAlt = false;
+    //If CTRL is pressed
+    bool ctrl = false;
     const Uint8 *state = SDL_GetKeyboardState(NULL);
-    if(
-       (state[SDL_SCANCODE_LCTRL] || state[SDL_SCANCODE_RCTRL]) &&
-       (state[SDL_SCANCODE_LALT] || state[SDL_SCANCODE_RALT]) )
+    if( (state[SDL_SCANCODE_LCTRL] || state[SDL_SCANCODE_RCTRL]) )
     {
-        ctrlAndAlt = true;
+        ctrl = true;
     }
 
     //If FUNC_DEBUG and CTRL and ALT are pressed
-    if( controls->isPressed("FUNC_DEBUG") && ctrlAndAlt ) {
+    if( controls->isPressed("FUNC_DEBUG") && ctrl ) {
         if( hax0rMode ) {
             guiHandler->removeGUI(GUIHandler::ID::tb_DEBUG);
             setHax0rMode(false);

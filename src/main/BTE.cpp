@@ -29,8 +29,8 @@ void BTE::init(SDLHandler* p_sdlHandler, FileHandler* p_fileHandler, Controls* p
         sdlHandler->toggleFullScreen();
     }
 
-    setGameState(GameState::TESTING);
-    //setGameState(GameState::MAIN_MENU);
+    //setGameState(GameState::TESTING);
+    setGameState(GameState::MAIN_MENU);
 
 }
 BTE::~BTE()
