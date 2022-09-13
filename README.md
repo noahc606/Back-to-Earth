@@ -1,1 +1,1 @@
-Anything not in the 'lib' folder is my own work.
+The SDL library files contained within the 'lib' folder were not made by me. There are credits to the creators of the audio files in bin/Debug/resources as well.
