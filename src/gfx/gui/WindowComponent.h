@@ -19,7 +19,9 @@ public:
 
     Window* getParentWindow();
 
-    void setPos(int x, int y);
+    void setTX(int tx);
+    void setTY(int ty);
+    void setTPos(int tx, int ty);
     virtual void updateProperties(bool preventInvalidTPos);
 
 protected:

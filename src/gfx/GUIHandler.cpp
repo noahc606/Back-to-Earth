@@ -144,18 +144,37 @@ void GUIHandler::onWindowUpdate()
         if( gui->getType()==BTEObject::Type::GUI_window ) {
             Window* win = ((Window*)gui);
             win->onWindowUpdate(true);
-        }
+        } else
         if( gui->getType()==BTEObject::Type::GUI_tooltip ) {
             Tooltip* ttp = ((Tooltip*)gui);
             ttp->onWindowUpdate(true);
         }
     }
 
-    //Align window components (buttons, textboxes, etc)
+    /** Prepare all guis that need to be aligned */
+    //Set horizontal GUIs' TX to 0, vertical GUIs' TY to 0.
+    for( GUI* gui : guis ) {
+        if (gui->getType()==BTEObject::GUI_button ||
+            gui->getType()==BTEObject::GUI_textbox ||
+            gui->getType()==BTEObject::GUI_tooltip
+            ) {
+            WindowComponent* wc = (WindowComponent*)gui;
+            if( wc->getAlignment(0)==WindowComponent::CENTER_H ) {
+                wc->setTX(0);
+            }
+            if( wc->getAlignment(1)==WindowComponent::CENTER_V ) {
+                wc->setTY(0);
+            }
+        }
+    }
+
+    /** Align window components (buttons, textboxes, etc) */
+    //Make sure to center GUIs vertically in the screen THEN horizontally.
+
+    //alignWindowComponents(GUIAlignable::L);
     alignWindowComponents(GUIAlignable::CENTER_V);
-    alignWindowComponents(GUIAlignable::L);
-    alignWindowComponents(GUIAlignable::CENTER_H );
-    alignWindowComponents(GUIAlignable::R);
+    alignWindowComponents(GUIAlignable::CENTER_H);
+    //alignWindowComponents(GUIAlignable::R);
 }
 
 void GUIHandler::passKeyboardInput(std::string text, bool special)
@@ -172,7 +191,6 @@ void GUIHandler::info(std::stringstream& ss, int& tabs)
 }
 
 int GUIHandler::getGUIActionID() { return guiActionID; }
-
 
 Window* GUIHandler::getWindow(int id)
 {
@@ -210,8 +228,7 @@ void GUIHandler::resetGUIAction(std::string methodName)
 
 void GUIHandler::addGUI(GUI* gui)
 {
-    switch(gui->getType())
-    {
+    switch(gui->getType()) {
         case BTEObject::GUI_tooltip: {
             gui->init(sdlHandler);
         } break;
@@ -316,118 +333,121 @@ void GUIHandler::alignWindowComponents(int p_alignment)
     std::set<GUI*> windows;
     std::set<int> compCoords;
     switch(p_alignment) {
-    case GUIAlignable::L: case GUIAlignable::CENTER_H: case GUIAlignable::R:
-    case GUIAlignable::U: case GUIAlignable::CENTER_V: case GUIAlignable::D:
-        for( GUI* gui : guis ) {
-            if (gui->getType()==BTEObject::GUI_button ||
-                gui->getType()==BTEObject::GUI_textbox ||
-                gui->getType()==BTEObject::GUI_tooltip
-                ) {
-                WindowComponent* wc = (WindowComponent*)gui;
-                Window* pWin = wc->getParentWindow();
-                if( pWin!=nullptr && pWin->getType()==BTEObject::GUI_window ) {
-                    windows.insert( wc->getParentWindow() );
-                    if( p_alignment==GUIAlignable::CENTER_H && wc->getHorAlignment()==GUIAlignable::CENTER_H ) {
-                        compCoords.insert( wc->getTY() );
-                    }
+        case GUIAlignable::L:
+        case GUIAlignable::CENTER_H:
+        case GUIAlignable::R:
+        case GUIAlignable::U:
+        case GUIAlignable::CENTER_V:
+        case GUIAlignable::D: {
+            for( GUI* gui : guis ) {
+                if (gui->getType()==BTEObject::GUI_button ||
+                    gui->getType()==BTEObject::GUI_textbox ||
+                    gui->getType()==BTEObject::GUI_tooltip
+                    ) {
+                    WindowComponent* wc = (WindowComponent*)gui;
+                    Window* pWin = wc->getParentWindow();
+                    if( pWin!=nullptr && pWin->getType()==BTEObject::GUI_window ) {
+                        windows.insert( wc->getParentWindow() );
+                        if( p_alignment==GUIAlignable::CENTER_H && wc->getHorAlignment()==GUIAlignable::CENTER_H ) {
+                            compCoords.insert( wc->getTY() );
+                        }
 
-                    if( p_alignment==GUIAlignable::CENTER_V && wc->getVerAlignment()==GUIAlignable::CENTER_V ) {
-                        compCoords.insert( wc->getTX() );
+                        if( p_alignment==GUIAlignable::CENTER_V && wc->getVerAlignment()==GUIAlignable::CENTER_V ) {
+                            compCoords.insert( wc->getTX() );
+                        }
                     }
                 }
             }
-        }
-    break;
+        } break;
     }
 
     switch(p_alignment) {
-    case GUIAlignable::L:
-        for( GUI* gui : guis ) {
-            if (gui->getType()==BTEObject::GUI_button ||
-                gui->getType()==BTEObject::GUI_textbox ||
-                gui->getType()==BTEObject::GUI_tooltip )
-            {
-                Button* btn = (Button*)gui;
-                btn->setPos( 12, btn->getTY() );
-            }
-        }
-
-    break;
-
-    case GUIAlignable::CENTER_V:
-    case GUIAlignable::CENTER_H: {
-        //Go through all windows
-        for(GUI* win : windows) {
-            ((Window*)win)->updateScreenPos();
-
-            for(int thisCoord : compCoords) {
-
-                int spacing = 48;
-                int tacw = -16;         //Total aligned components' widths
-                int tach = -spacing;    //Total aligned components' heights
-                int tac = 0;            //Total number of aligned components
-
-                /* Find 'tacw', 'tach', and 'tac' */
-                for( GUI* gui : guis ) {
-                    if (gui->getType()==BTEObject::GUI_button ||
-                        gui->getType()==BTEObject::GUI_textbox ||
-                        gui->getType()==BTEObject::GUI_tooltip )
-                    {
-                        WindowComponent* wc = (WindowComponent*)gui;
-                        Window* pWin = wc->getParentWindow();
-                        if( pWin!=nullptr && pWin->getType()==BTEObject::GUI_window ) {
-                            if( p_alignment==GUIAlignable::CENTER_H && wc->getHorAlignment()==GUIAlignable::CENTER_H ) {
-                                if( pWin==win && wc->getTY()==thisCoord ) {
-                                    tacw += ( wc->getWidth()+32-12 );
-                                }
-                            }
-                            if( p_alignment==GUIAlignable::CENTER_V && wc->getVerAlignment()==GUIAlignable::CENTER_V ) {
-                                if( pWin==win && wc->getTX()==thisCoord ) {
-                                    tach += ( wc->getHeight()+spacing );
-                                }
-                            }
-
-                            tac++;
-                        }
-                    }
+        case GUIAlignable::L: {
+            for( GUI* gui : guis ) {
+                if (gui->getType()==BTEObject::GUI_button ||
+                    gui->getType()==BTEObject::GUI_textbox ||
+                    gui->getType()==BTEObject::GUI_tooltip )
+                {
+                    Button* btn = (Button*)gui;
+                    btn->setTPos( 12, btn->getTY() );
                 }
+            }
+        } break;
 
-                /* Update each window's coordinate value so that all are displayed next to each other and centered in the window. */
-                if(tac==0) break;
+        case GUIAlignable::CENTER_V:
+        case GUIAlignable::CENTER_H: {
+            //Go through all windows
+            for(GUI* win : windows) {
+                ((Window*)win)->updateScreenPos();
 
+                for(int thisCoord : compCoords) {
 
-                int cxp = ( ((Window*)win)->getWidth()-tacw )/2;  //xPos to set the current component in the loop to.
-                int cyp = ( ((Window*)win)->getHeight()-tach )/2;  //yPos to set the current component in the loop to.
+                    int spacing = 48;
+                    int tacw = -16;         //Total aligned components' widths
+                    int tach = -spacing;    //Total aligned components' heights
+                    int tac = 0;            //Total number of aligned components
 
-                for( GUI* gui : guis ) {
-
-                    if (gui->getType()==BTEObject::GUI_button ||
-                        gui->getType()==BTEObject::GUI_textbox ||
-                        gui->getType()==BTEObject::GUI_tooltip )
-                    {
-                        WindowComponent* wc = (WindowComponent*)gui;
-                        Window* pWin = wc->getParentWindow();
-                        if( pWin!=nullptr && pWin->getType()==BTEObject::GUI_window ) {
-
-                            if( p_alignment==GUIAlignable::CENTER_H && wc->getHorAlignment()==GUIAlignable::CENTER_H ) {
-                                if( pWin==win && wc->getTY()==thisCoord ) {
-                                    wc->setPos( cxp-6, wc->getTY() );
-                                    wc->onWindowUpdate(true);
-                                    cxp += (wc->getWidth()+32 );
+                    /* Find 'tacw', 'tach', and 'tac' */
+                    for( GUI* gui : guis ) {
+                        if (gui->getType()==BTEObject::GUI_button ||
+                            gui->getType()==BTEObject::GUI_textbox ||
+                            gui->getType()==BTEObject::GUI_tooltip )
+                        {
+                            WindowComponent* wc = (WindowComponent*)gui;
+                            Window* pWin = wc->getParentWindow();
+                            if( pWin!=nullptr && pWin->getType()==BTEObject::GUI_window ) {
+                                if( p_alignment==GUIAlignable::CENTER_H && wc->getHorAlignment()==GUIAlignable::CENTER_H ) {
+                                    if( pWin==win && wc->getTY()==thisCoord ) {
+                                        tacw += ( wc->getWidth()+32-12 );
+                                    }
                                 }
-                            }
-                            if( p_alignment==GUIAlignable::CENTER_V && wc->getVerAlignment()==GUIAlignable::CENTER_V ) {
-                                if( pWin==win && wc->getTX()==thisCoord ) {
-                                    wc->setPos( wc->getTX(), cyp-6 );
-                                    wc->onWindowUpdate(true);
-                                    cyp += (wc->getHeight()+spacing );
+                                if( p_alignment==GUIAlignable::CENTER_V && wc->getVerAlignment()==GUIAlignable::CENTER_V ) {
+                                    if( pWin==win && wc->getTX()==thisCoord ) {
+                                        tach += ( wc->getHeight()+spacing );
+                                    }
                                 }
+
+                                tac++;
                             }
                         }
                     }
+
+                    /* Update each window's coordinate value so that all are displayed next to each other and centered in the window. */
+                    if(tac==0) break;
+
+
+                    int cxp = ( ((Window*)win)->getWidth()-tacw )/2;  //xPos to set the current component in the loop to.
+                    int cyp = ( ((Window*)win)->getHeight()-tach )/2;  //yPos to set the current component in the loop to.
+
+                    for( GUI* gui : guis ) {
+
+                        if (gui->getType()==BTEObject::GUI_button ||
+                            gui->getType()==BTEObject::GUI_textbox ||
+                            gui->getType()==BTEObject::GUI_tooltip )
+                        {
+                            WindowComponent* wc = (WindowComponent*)gui;
+                            Window* pWin = wc->getParentWindow();
+                            if( pWin!=nullptr && pWin->getType()==BTEObject::GUI_window ) {
+
+                                if( p_alignment==GUIAlignable::CENTER_H && wc->getHorAlignment()==GUIAlignable::CENTER_H ) {
+                                    if( pWin==win && wc->getTY()==thisCoord ) {
+                                        wc->setTPos( cxp-6, wc->getTY() );
+                                        wc->onWindowUpdate(true);
+                                        cxp += (wc->getWidth()+32 );
+                                    }
+                                }
+                                if( p_alignment==GUIAlignable::CENTER_V && wc->getVerAlignment()==GUIAlignable::CENTER_V ) {
+                                    if( pWin==win && wc->getTX()==thisCoord ) {
+                                        wc->setTPos( wc->getTX(), cyp-6 );
+                                        wc->onWindowUpdate(true);
+                                        cyp += (wc->getHeight()+spacing );
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
-        }
-    } break;
+        } break;
     }
 }
