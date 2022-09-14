@@ -136,22 +136,22 @@ void MainLoop::trackEvents()
                 controls.trackEvents(e);
             } break;
         }
-    }
 
+        //Pass normal keyboard input to BTE
+        if( e.type==SDL_TEXTINPUT ) {
+            std::stringstream ss;
+            ss << e.text.text;
 
-    //Pass keyboard input to BTE
-    if(e.type==SDL_TEXTINPUT) {
-        std::stringstream ss;
-        ss << e.text.text;
-        bte.getGUIHandler()->passKeyboardInput(ss.str(), false);
-    }
+            bte.getGUIHandler()->passKeyboardInput(ss.str(), false);
+        }
 
+        //Pass special keyboard input to BTE
+        Controls::KeyboardInput kbi = controls.getKeyboardInput();
+        if( kbi.inputReceived ) {
+            bte.getGUIHandler()->passKeyboardInput(kbi.inputString, kbi.inputSpecial);
+            controls.resetKBInput(__PRETTY_FUNCTION__);
+        }
 
-    //Pass keyboard input to BTE
-    Controls::KeyboardInput kbi = controls.getKeyboardInput();
-    if( kbi.inputReceived ) {
-        bte.getGUIHandler()->passKeyboardInput(kbi.inputString, kbi.inputSpecial);
-        controls.resetKBInput(__PRETTY_FUNCTION__);
     }
 }
 
