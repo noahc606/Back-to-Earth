@@ -273,6 +273,7 @@ void Controls::eventTextInput(SDL_Event e)
         //Any keystroke that can be represented as a string (numbers, symbols, letters);
         std::stringstream ss;
         ss << e.text.text;
+
         kbInfo.inputReceived = true;
         kbInfo.inputString = ss.str();
         kbInfo.inputSpecial = false;

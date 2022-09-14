@@ -63,7 +63,9 @@ void GUIHandler::tick()
             TextBox* txtb = ((TextBox*)gui);
             //If text box selected
             if( txtb->isSelected() ) {
+
                 if(kbInput!="") {
+
                     lastKBInput = kbInput;
                     lastKBInputSpecial = kbInputSpecial;
                     txtb->passKeyboardInput(kbInput, kbInputSpecial);

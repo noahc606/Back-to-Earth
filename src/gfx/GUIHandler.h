@@ -54,10 +54,13 @@ public:
 protected:
 
 private:
-    std::string kbInput;
-    bool kbInputSpecial;
-    std::string lastKBInput;
-    bool lastKBInputSpecial;
+    //Controls::KeyboardInput kbInput;
+    //Controls::KeyboardInput lastkbInput;
+
+    std::string kbInput = "";
+    bool kbInputSpecial = false;
+    std::string lastKBInput = "";
+    bool lastKBInputSpecial = false;
 
     std::vector<GUI*> guis;
 
