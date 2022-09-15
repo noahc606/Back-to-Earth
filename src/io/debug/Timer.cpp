@@ -22,8 +22,10 @@ Timer::~Timer()
     updateElapsedTime();
 
     //Log timer message
-    std::stringstream ss; ss << dT;
-    Log::log("Finished "+desc+" in "+ss.str()+"ms.");
+    if( logging ) {
+        std::stringstream ss; ss << dT;
+        Log::log("Finished "+desc+" in "+ss.str()+"ms.");
+    }
 }
 /**/
 
