@@ -48,6 +48,12 @@ private:
     double regScale = tileSize*regionSize*mapZoom;      //Size of the region in screen pixels based on camera's zoom.
     const int regSize = regionSize*tileSize;            //Size of region in pixels. Doesn't matter what camera zoom is.
 
+    /* RegTexUpdate performance gauging */
+    double regTexUpdateTime = -1.0;
+    double regTexUpdateTimeTotal = -1.0;
+    double regTexUpdateTimeAvg = -1.0;
+    uint64_t nextSecond = 0;
+    int drawsThisSecond = 0;
 
     bool regNeedsUpdate(long rX, long rY, long rZ);
     void mapUpdates();

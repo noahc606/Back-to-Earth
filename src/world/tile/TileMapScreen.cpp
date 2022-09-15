@@ -10,6 +10,7 @@
 #include "RegTexBuilder.h"
 #include "SDLHandler.h"
 #include "TileIterator.h"
+#include "Timer.h"
 
 void TileMapScreen::init( SDLHandler* sh, Controls* ctrls, TileMap* p_tm, Player* p_pl )
 {
@@ -77,20 +78,43 @@ void TileMapScreen::draw(Canvas* csTileMap)
 {
     if( csTileMap==nullptr ) return;
 
-    regTexUpdates(csTileMap, 64);
+    //Perform 'updates' number of regTexUpdates and do performance gauging
+    int updates = 256;
+    regTexUpdateTime = 0.0;
+    {
+        std::stringstream ss; ss << updates << " regTexUpdates";
+        Timer t(ss.str(), false);
+        regTexUpdates(csTileMap, 256);
+        regTexUpdateTime = t.getElapsedTimeMS();
+    }
+    regTexUpdateTimeTotal += regTexUpdateTime;
+
+    //Increment drawsThisSecond
+    drawsThisSecond++;
+    //When SDL_GetTicks() exceeds nextSecond
+    if( SDL_GetTicks()>nextSecond ) {
+        regTexUpdateTimeAvg = regTexUpdateTimeTotal/drawsThisSecond;    //Calculate average regTexUpdate time over the last second
+        nextSecond += 1000;             //Update when the nextSecond is
+        drawsThisSecond = 0;            //Reset drawsThisSecond
+        regTexUpdateTimeTotal = 0.0;    //Reset regTexUpdate total time
+    }
+
     csTileMap->draw();
-
-    //csTileMap->setSrc(TextureLoader::WORLD_tile_type_a, 32, 64);
-    //csTileMap->rcopy( *Commands::getInt("x1"), 0, 32, 32 );
-    //csTileMap->rcopy( *Commands::getInt("x1"), 32, 32, 32 );
-    //csTileMap->rcopy( *Commands::getInt("x1")+32, 0, 32, 32 );
-    //csTileMap->rcopy( *Commands::getInt("x1")+32, 32, 32, 32 );
-
 }
 
 void TileMapScreen::info(std::stringstream& ss, int& tabs, TileMap::t_ll mouseX, TileMap::t_ll mouseY, TileMap::t_ll mouseZ)
 {
     if( cam==nullptr ) return;
+
+    //Performance profiling
+    DebugScreen::newGroup(ss, tabs, "Performance");
+        DebugScreen::indentLine(ss, tabs);
+        ss << "256 regTexUpdates (time elapsed)=" << regTexUpdateTime << "ms; ";
+        DebugScreen::newLine(ss);
+        DebugScreen::indentLine(ss, tabs);
+        ss << "Total time taken by regTexUpdates (avg, last second)=" << regTexUpdateTimeAvg << "ms; ";
+        DebugScreen::newLine(ss);
+    DebugScreen::endGroup(tabs);
 
     //Camera
     DebugScreen::newGroup(ss, tabs, "Camera");
@@ -167,6 +191,7 @@ std::tuple<TileMap::t_ll, TileMap::t_ll, TileType> TileMapScreen::topTrackedTile
 
 bool TileMapScreen::regNeedsUpdate(long rX, long rY, long rZ)
 {
+    return false;
     //Imagine a 'side' x 'side' square. Area of square = "side^2".
     //The larger the square is, the longer it will take for any given region to update.
     int side = 16;
