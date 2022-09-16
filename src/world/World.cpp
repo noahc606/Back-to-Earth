@@ -75,9 +75,22 @@ void World::draw()
 
 void World::tick()
 {
-    /** World objects */
-    player.tick();
-    tileMapScreen.tick();
+    //Toggle between pause and unpause
+    if( controls->isPressed("INGAME_PAUSE") ) {
+        if( paused ) {
+            paused = false;
+        } else {
+            paused = true;
+        }
+        controls->stopPress("INGAME_PAUSE", __PRETTY_FUNCTION__);
+    }
+
+    /** Tick world objects if not paused */
+    if( !paused ) {
+        /** World objects */
+        player.tick();
+        tileMapScreen.tick();
+    }
 
     /** Canvases */
     csTileMap.tick();
@@ -87,13 +100,6 @@ void World::tick()
     /** Interactions with world */
     updateMouseAndCamInfo();
     entityInteractions();
-
-    if( controls->getMouseWheel()>0 ) {
-
-        //tileMap.collides(player.getBounds());
-
-        controls->resetWheel(__PRETTY_FUNCTION__);
-    }
 }
 
 void World::info(std::stringstream& ss, int& tabs)
