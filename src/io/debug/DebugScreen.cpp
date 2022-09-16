@@ -19,7 +19,7 @@ DebugScreen::~DebugScreen(){}
 void DebugScreen::draw()
 {
     if(visible) {
-        Text::draw(sdlHandler, debugString, 2, 2, 2, fg, bg);
+        Text::draw(sdlHandler, debugString, 2, 2, 2, fg, bg, TextureLoader::GUI_FONT_robot);
     }
 }
 
