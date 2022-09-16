@@ -84,7 +84,7 @@ void TileMapScreen::draw(Canvas* csTileMap)
     {
         std::stringstream ss; ss << updates << " regTexUpdates";
         Timer t(ss.str(), false);
-        regTexUpdates(csTileMap, 256);
+        regTexUpdates(csTileMap, updates);
         regTexUpdateTime = t.getElapsedTimeMS();
     }
     regTexUpdateTimeTotal += regTexUpdateTime;
@@ -191,7 +191,6 @@ std::tuple<TileMap::t_ll, TileMap::t_ll, TileType> TileMapScreen::topTrackedTile
 
 bool TileMapScreen::regNeedsUpdate(long rX, long rY, long rZ)
 {
-    return false;
     //Imagine a 'side' x 'side' square. Area of square = "side^2".
     //The larger the square is, the longer it will take for any given region to update.
     int side = 16;
