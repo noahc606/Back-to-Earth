@@ -60,6 +60,7 @@
 		</Build>
 		<Compiler>
 			<Add option="-Wall" />
+			<Add option="-std=c++11" />
 			<Add option="-fexceptions" />
 			<Add directory="lib/SDL2-2.0.10-i686-w64-mingw32/include/SDL2" />
 			<Add directory="lib/SDL2_image-2.0.5-i686-w64-mingw32/include/SDL2" />
@@ -215,6 +216,9 @@
 		<Unit filename="src/world/tile/TileType.h" />
 		<Extensions>
 			<lib_finder disable_auto="1" />
+			<code_completion />
+			<envvars />
+			<debugger />
 		</Extensions>
 	</Project>
 </CodeBlocks_project_file>
