@@ -82,7 +82,8 @@ void TextureLoader::load()
         missingSurf = addSurface("missing");
         addSurface("icon");
         //GUI
-        addSurface("gui\\bte_font");
+        addSurface("gui\\font\\bte");
+        addSurface("gui\\font\\robot");
         addSurface("gui\\button");
         addSurface("gui\\cursor");
         addSurface("gui\\player_interactions");

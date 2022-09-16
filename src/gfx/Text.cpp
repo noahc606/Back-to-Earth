@@ -1,4 +1,6 @@
 #include "Text.h"
+#include <sstream>
+#include "Log.h"
 
 /**/
 
@@ -18,7 +20,7 @@ void Text::init(SDLHandler* sh)
     SDL_Rect sr;
     getCharTexRect( '|', sr.x, sr.y, sr.w, sr.h );
     insertionBarTex.lock(0, 0, sr.w, sr.h);
-    insertionBarTex.blit(TextureLoader::GUI_bte_font, sr.x, sr.y);
+    insertionBarTex.blit(fontType, sr.x, sr.y);
 }
 Text::~Text(){}
 
@@ -42,7 +44,7 @@ void Text::draw()
     Perfectly fine for small to medium sized strings (n<~200).
     For large strings, it is recommended to create a Text object and change the string line by line.
 */
-void Text::draw(SDLHandler* sdlHandler, std::string s, int x, int y, int scale, const Color& fg, const Color& bg)
+void Text::draw(SDLHandler* sdlHandler, std::string s, int x, int y, int scale, const Color& fg, const Color& bg, int fontType)
 {
     //Make sure x and y are divisible by the scale, in order to avoid misalignments of pixels
     x = x/scale*scale;
@@ -73,8 +75,8 @@ void Text::draw(SDLHandler* sdlHandler, std::string s, int x, int y, int scale, 
             //SDL_SetRenderDrawColor(sdlHandler->getRenderer(), bg.r, bg.g, bg.b, bg.a);
             //SDL_RenderFillRect(sdlHandler->getRenderer(), &dst );
 
-            sdlHandler->setColorMod(TextureLoader::GUI_bte_font, fg);
-            sdlHandler->renderCopy(TextureLoader::GUI_bte_font, &src, &dst);
+            sdlHandler->setColorMod(fontType, fg);
+            sdlHandler->renderCopy(fontType, &src, &dst);
         }
 
         //Add 6 to x to get position ready for the next character
@@ -82,52 +84,59 @@ void Text::draw(SDLHandler* sdlHandler, std::string s, int x, int y, int scale, 
 
         int dX = 0;
         int dY = 0;
-        //Based on the size of the character, change dr.x by a few pixels
-        switch(c) {
-        case 16:  dX = -1; break;
-        case 17:  dX = -1; break;
-        case 18:  dX = -2; break;
-        case ' ': dX = -1; break;
-        case '!': dX = -3; break;
-        case '"': dX = -2; break;
-        case '\'':dX = -4; break;
-        case '(': dX = -3; break;
-        case ')': dX = -3; break;
-        case '*': dX = -2; break;
-        case '+': dX = -2; break;
-        case ',': dX = -3; break;
-        case '-': dX = -2; break;
-        case '.': dX = -4; break;
-        case '/': dX = -2; break;
-        case ':': dX = -4; break;
-        case ';': dX = -3; break;
-        case 'I': dX = -2; break;
-        case '[': dX = -3; break;
-        case '\\':dX = -3; break;
-        case ']': dX = -3; break;
-        case '^': dX = -2; break;
-        case '`': dX = -3; break;
-        case 'b': dX = -1; break;
-        case 'd': dX = -1; break;
-        case 'f': dX = -1; break;
-        case 'i': dX = -4; break;
-        case 'j': dX = -2; break;
-        case 'k': dX = -1; break;
-        case 'l': dX = -3; break;
-        case 'p': dX = -1; break;
-        case 'q': dX = -1; break;
-        case 'r': dX = -1; break;
-        case 't': dX = -1; break;
-        case 'u': dX = -1; break;
-        case '{': dX = -2; break;
-        case '|': dX = -4; break;
-        case '}': dX = -2; break;
 
-        case '\t': dX = 11; break;
-        case '\n':
-            dY = 10;
-            x = x0;
-        break;
+        //IF we are using the 'bte' font:
+        if( fontType==TextureLoader::GUI_FONT_bte ) {
+            //Based on the size of the character, change dX by a few pixels
+            switch(c) {
+                case 16:  dX = -1; break;
+                case 17:  dX = -1; break;
+                case 18:  dX = -2; break;
+                case ' ': dX = -1; break;
+                case '!': dX = -3; break;
+                case '"': dX = -2; break;
+                case '\'':dX = -4; break;
+                case '(': dX = -3; break;
+                case ')': dX = -3; break;
+                case '*': dX = -2; break;
+                case '+': dX = -2; break;
+                case ',': dX = -3; break;
+                case '-': dX = -2; break;
+                case '.': dX = -4; break;
+                case '/': dX = -2; break;
+                case ':': dX = -4; break;
+                case ';': dX = -3; break;
+                case 'I': dX = -2; break;
+                case '[': dX = -3; break;
+                case '\\':dX = -3; break;
+                case ']': dX = -3; break;
+                case '^': dX = -2; break;
+                case '`': dX = -3; break;
+                case 'b': dX = -1; break;
+                case 'd': dX = -1; break;
+                case 'f': dX = -1; break;
+                case 'i': dX = -4; break;
+                case 'j': dX = -2; break;
+                case 'k': dX = -1; break;
+                case 'l': dX = -3; break;
+                case 'p': dX = -1; break;
+                case 'q': dX = -1; break;
+                case 'r': dX = -1; break;
+                case 't': dX = -1; break;
+                case 'u': dX = -1; break;
+                case '{': dX = -2; break;
+                case '|': dX = -4; break;
+                case '}': dX = -2; break;
+            }
+        }
+
+        //Change dX and dY when encountering tabs, newlines, etc
+        switch(c) {
+            case '\t': dX = 11; break;
+            case '\n': {
+                dY = 10;
+                x = x0;
+            } break;
         }
 
         //Make sure the amount being added is scaled
@@ -138,6 +147,11 @@ void Text::draw(SDLHandler* sdlHandler, std::string s, int x, int y, int scale, 
         x += dX;
         y += dY;
     }
+}
+
+void Text::draw(SDLHandler* sdlHandler, std::string s, int x, int y, int scale, const Color& fg, const Color& bg)
+{
+    draw(sdlHandler, s, x, y, scale, Color(), Color(0, 0, 0, 0), TextureLoader::GUI_FONT_bte);
 }
 
 void Text::draw(SDLHandler* sdlHandler, std::string s, int x, int y, int scale)
@@ -237,6 +251,23 @@ void Text::setPos(int p_sX, int p_sY)
     sX = p_sX/scale*scale;
     sY = p_sY/scale*scale;
     txtTex.setDrawPos(sX, sY);
+}
+
+void Text::setFontType(int ft)
+{
+    //Set font type
+    fontType = ft;
+    //Make sure font type is valid. If not use the default 'bte' font type
+    switch(ft) {
+        case TextureLoader::GUI_FONT_bte:
+        case TextureLoader::GUI_FONT_robot: { } break;
+
+        default: {
+            std::stringstream ss; ss << "Using default font for unknown font ID '" << ft << "'";
+            Log::warn(__PRETTY_FUNCTION__, ss.str());
+            fontType = TextureLoader::GUI_FONT_bte;
+        } break;
+    }
 }
 
 void Text::modifyCurrentCharX(char& c, int& x, bool p_scale)

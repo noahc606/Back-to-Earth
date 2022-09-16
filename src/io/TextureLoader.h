@@ -28,7 +28,8 @@ public:
         missing, //Always keep missing first
         icon,
 
-        GUI_bte_font,
+        GUI_FONT_bte,
+        GUI_FONT_robot,
         GUI_button,
         GUI_cursor,
         GUI_player_interactions,
