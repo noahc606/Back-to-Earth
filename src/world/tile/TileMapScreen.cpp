@@ -68,13 +68,17 @@ void TileMapScreen::tick()
 
     idleLoadTimer++;
 
+    //Find tile scale
+    mapZoom = cam->getZoom();
+    tileScale = tileSize*mapZoom;
+
     //Translations depending on window width/height. Ensures that current camera's location is at the center of the window.
     screenTX = sdlHandler->getWidth()/2;
     screenTY = sdlHandler->getHeight()/2;
 
-    //Find tile scale
-    mapZoom = cam->getZoom();
-    tileScale = tileSize*mapZoom;
+    int padding = 2;
+    screenWidth = sdlHandler->getWidth()/tileScale;
+    screenHeight = sdlHandler->getHeight()/tileScale;
 }
 
 void TileMapScreen::draw(Canvas* csTileMap)
@@ -91,6 +95,8 @@ void TileMapScreen::draw(Canvas* csTileMap)
         regTexUpdateTime = t.getElapsedTimeMS();
     }
     regTexUpdateTimeTotal += regTexUpdateTime;
+
+    idleRegTexUpdates(128);
 
     //Increment drawsThisSecond
     drawsThisSecond++;
@@ -121,7 +127,13 @@ void TileMapScreen::info(std::stringstream& ss, int& tabs, TileMap::t_ll mouseX,
 
     //Camera
     DebugScreen::newGroup(ss, tabs, "Camera");
+        int scrRW = ceil(screenTX/tileScale/regionSize);
+        int scrRH = ceil(screenTY/tileScale/regionSize);
+
         //Zoom, scale
+        DebugScreen::indentLine(ss, tabs);
+        ss << "Screen (rW, rH)=(" << scrRW << ", " << scrRH << "); ";
+        DebugScreen::newLine(ss);
         DebugScreen::indentLine(ss, tabs);
         ss << "Zoom=" << mapZoom << "; ";
         ss << "Tile Scale(px)=" << tileScale << "; ";
@@ -178,9 +190,9 @@ std::tuple<TileMap::t_ll, TileMap::t_ll, TileType> TileMapScreen::topTrackedTile
     //Find top-most tile at current x, y
     TileType topTileFromCam;
     for(int i = 0; i<32; i++) {
-        topTileFromCam = ti.peekTrackedTile(0, 0, -i);
+        topTileFromCam = ti.peekTrackedTile(0, 0, i);
         if( topTileFromCam.isVisionBlocking() ) {
-            height = -i;
+            height = i;
             break;
         }
     }
@@ -190,22 +202,6 @@ std::tuple<TileMap::t_ll, TileMap::t_ll, TileType> TileMapScreen::topTrackedTile
     //2nd object: Depth of the toptile from the camera
     //3nd object: TileType which represents the top tile from the camera.
     return std::make_tuple( height, -height, topTileFromCam );
-}
-
-bool TileMapScreen::regNeedsUpdate(long rX, long rY, long rZ)
-{
-    //Imagine a 'side' x 'side' square. Area of square = "side^2".
-    //The larger the square is, the longer it will take for any given region to update.
-    int side = 32;
-    //"(idleLoadTimer) mod (side^2)" -> idleLoadTimer is in [0, side^2-1].
-    int idleLoadValue = (idleLoadTimer)%(side*side);
-    //"rX, rY mod side" -> rX, rY are in [0, side-1].
-    rX %= side; if( rX<0 ) rX += side;
-    rY %= side; if( rY<0 ) rY += side;
-    //Each pair (rX, rY) can be mapped to an idleLoadValue with the forumla "rX*side+rY".
-    bool success = ( (rX*side+rY)==idleLoadValue );
-
-    return success;
 }
 
 void TileMapScreen::mapUpdates()
@@ -256,19 +252,11 @@ void TileMapScreen::mapUpdates()
 
                     //Check if this region is on screen and its Z coordinate (height in world) == the camera's Z region coordinate.
                     if( onscreen && rZ==camRZ ) {
-                        //The region tex needs an update
-                        //  1) If the region is marked for an RTU.
-                        //  2) If the region needs an idle update
+                        //The region tex needs an update if the region is marked for an RTU.
                         TileRegion* tr = tileMap->getRegByRXYZ(rX, rY, rZ);
                         if( tr!=nullptr ) {
                             if( tr->getRegTexState()==tr->RegTexState::NONE ) {
                                 tr->setRegTexState(tr->RegTexState::SHOULD_UPDATE);
-                            }
-
-
-                            if( tr->getRegTexState()==tr->RegTexState::SHOULD_UPDATE || regNeedsUpdate(rX, rY, rZ) ) {
-                                tileMap->addRegionUpdate(rX, rY, cam->getLayer());
-                                tr->setRegTexState(tr->RegTexState::UPDATED);
                             }
                         }
                     }
@@ -330,6 +318,18 @@ void TileMapScreen::mapUpdates()
         } else {
             itrRM++;
         }
+    }
+}
+
+void TileMapScreen::idleRegTexUpdates(int updates)
+{
+    TileMap::t_ll scrRW = screenTX/tileScale;   //Distance from left side of screen to center of screen.
+    TileMap::t_ll scrRH = screenTY/tileScale;   //Distance from upper side of screen to center of screen.
+    TileMap::t_ll scrCX = cam->getX();          //X pos of camera
+    TileMap::t_ll scrCY = cam->getY();          //Y pos of camera
+
+    for( int i = 0; i<updates; i++ ) {
+        tileMap->addTileUpdate( scrCX-scrRW+rand()%screenWidth, scrCY-scrRH+rand()%screenHeight, cam->getLayer() );
     }
 }
 
