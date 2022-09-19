@@ -204,8 +204,8 @@ void Player::tick()
         if( controls->isHeld("PLAYER_MOVE_EAST")  ) vx =  speed;
 
         if( godMode ) {
-            if( controls->isHeld("PLAYER_MOVE_UP")   ) vz =  speed;
-            if( controls->isHeld("PLAYER_MOVE_DOWN") ) vz = -speed;
+            if( controls->isHeld("PLAYER_MOVE_UP")   ) vz = -speed;
+            if( controls->isHeld("PLAYER_MOVE_DOWN") ) vz = speed;
         }
     }
 
