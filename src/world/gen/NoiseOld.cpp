@@ -117,7 +117,7 @@ TileRegion NoiseOld::getRegion(long rZ)
     tt.setSolid(true);
     int rock = tr.addToPaletteFast(tt);
 
-    if( rZ>-1 ) {
+    if( rZ<-1 ) {
         for( int sx = 0; sx<32; sx++ ) {
             for( int sy = 0; sy<32; sy++ ) {
                 for( int sz = 0; sz<32; sz++ ) {
@@ -130,20 +130,20 @@ TileRegion NoiseOld::getRegion(long rZ)
         for( int sx = 0; sx<32; sx++ ) {
             for( int sy = 0; sy<32; sy++ ) {
 
-                for( int sz = 0; sz<27; sz++ )
+                for( int sz = 5; sz<31; sz++ )
                     tr.setTile(sx, sy, sz, rock);
 
-                for( int sz = 27; sz<31; sz++ )
+                for( int sz = 1; sz<5; sz++ )
                     tr.setTile(sx, sy, sz, soil);
 
-                for( int sz = 31; sz<32; sz++ )
+                for( int sz = 0; sz<1; sz++ )
                     tr.setTile(sx, sy, sz, topsoil);
 
 
             }
         }
     } else
-    if( rZ<-1 ) {
+    if( rZ>-1 ) {
         for( int sx = 0; sx<32; sx++ ) {
             for( int sy = 0; sy<32; sy++ ) {
                 for( int sz = 0; sz<32; sz++ ) {
