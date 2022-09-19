@@ -31,10 +31,6 @@ TileMapScreen::~TileMapScreen() { destroy(); }
 
 void TileMapScreen::tick()
 {
-    if(controls->isHeld("TEST1234")) {
-        std::cout << "t";
-    }
-
     if( cam==nullptr || tileMap==nullptr || tileMap->getRegionMap()==nullptr )
         return;
 
@@ -62,7 +58,14 @@ void TileMapScreen::tick()
     }
 
     //Map updates (regionMap, updatesMap)
-    mapUpdates();
+
+    std::string* cmd = Commands::getString("stopMapUpdates");
+    if( cmd!=nullptr ) {
+
+    } else {
+        mapUpdates();
+    }
+
     idleLoadTimer++;
 
     //Translations depending on window width/height. Ensures that current camera's location is at the center of the window.
@@ -193,7 +196,7 @@ bool TileMapScreen::regNeedsUpdate(long rX, long rY, long rZ)
 {
     //Imagine a 'side' x 'side' square. Area of square = "side^2".
     //The larger the square is, the longer it will take for any given region to update.
-    int side = 16;
+    int side = 32;
     //"(idleLoadTimer) mod (side^2)" -> idleLoadTimer is in [0, side^2-1].
     int idleLoadValue = (idleLoadTimer)%(side*side);
     //"rX, rY mod side" -> rX, rY are in [0, side-1].
