@@ -37,8 +37,9 @@ private:
 
     Camera* cam = nullptr;                              //Area of the world shown on screen. Also tracks size of each tile (zoom factor).
     TileMap* tileMap = nullptr;
-    int screenTX = 0;                                   //Translate everything on screen horizontally based on screen size
-    int screenTY = 0;                                   //Translate everything on screen vertically based on screen size
+    int screenTX = 0; int screenTY = 0;                 //Translate everything on screen horizontally/vertically based on screen size
+    int screenWidth = 0; int screenHeight = 0;
+
     int camRX = 0; int camRY = 0; int camRZ = 0;        //Coordinates of region which the center of the screen occupies. e.g. As player moves regionSize tiles to the right, cameraRX increases by 1.
     int camL = 0;
 
@@ -55,8 +56,8 @@ private:
     uint64_t nextSecond = 0;
     int drawsThisSecond = 0;
 
-    bool regNeedsUpdate(long rX, long rY, long rZ);
     void mapUpdates();
+    void idleRegTexUpdates(int updates);
     void regTexUpdates(Canvas* csTileMap, int maxUpdates);
 
     void regTexUpdate(TileIterator& ti, Texture* tex);
