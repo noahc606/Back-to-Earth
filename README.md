@@ -1,1 +1,2 @@
-The SDL library files contained within the 'lib' folder were not made by me. There are credits to the creators of the audio files in bin/Debug/backtoearth/resources/audio as well.
+The SDL library files (https://www.libsdl.org/) contained within the 'lib' folder were not made by me.
+There are also credits to the creators of the audio files in 'bin/Debug/backtoearth/resources/audio'.
