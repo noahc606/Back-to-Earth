@@ -12,7 +12,6 @@ public:
     MainLoop();
     virtual ~MainLoop();
     /**/
-    /* Accessors */
     static int getCurrentTPS(); static int getCurrentFPS();
     static double getCurrentMSPT(); static double getCurrentMSPF();
     static uint64_t getFrames();
@@ -20,6 +19,7 @@ public:
     static uint64_t getNextSecond();
     static bool isInitialized();
     /**/
+    static void setMaxFPS(int maxFPS);
     static void quit();
 
 private:
@@ -34,6 +34,7 @@ private:
     BTE bte;
 
     /* Frames and ticks */
+    static double maxFPS;
     static double msPerTick; static uint64_t ticks; static int ticksThisSecond; static int currentTPS; static double currentMSPT;
     static double msPerFrame; static uint64_t frames; static int framesThisSecond; static int currentFPS; static double currentMSPF;
 

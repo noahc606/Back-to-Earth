@@ -9,7 +9,8 @@
 bool MainLoop::running = true;
 bool MainLoop::initialized = false;
 
-double MainLoop::msPerTick = 1000.0 / 60.0; double MainLoop::msPerFrame = 1000.0 / 120.0;
+double MainLoop::maxFPS = 120.0;
+double MainLoop::msPerTick = 1000.0 / 60.0; double MainLoop::msPerFrame = 1000.0/maxFPS;
 uint64_t MainLoop::ticks = 0; uint64_t MainLoop::frames = 0;
 int MainLoop::ticksThisSecond = 0; int MainLoop::framesThisSecond = 0;
 int MainLoop::currentTPS = 0; int MainLoop::currentFPS = 0;
@@ -20,6 +21,8 @@ uint64_t MainLoop::nextSecond = 0;
 
 MainLoop::MainLoop()
 {
+    setMaxFPS(120);
+
     //Create Back to Earth subsystems
     Log::trbshoot(__PRETTY_FUNCTION__, "Creating BTE subsystems");
     sdlHandler.init();
@@ -52,6 +55,14 @@ uint64_t MainLoop::getNextSecond() { return nextSecond; }
 
 
 bool MainLoop::isInitialized() { return initialized; }
+
+void MainLoop::setMaxFPS(int maxFPS) {
+    std::stringstream ss; ss << "Setting max FPS to '" << maxFPS << "'...";
+    Log::log(ss.str());
+
+    MainLoop::maxFPS = maxFPS;
+    MainLoop::msPerFrame = 1000.0/MainLoop::maxFPS;
+}
 
 void MainLoop::quit() { running = false; }
 
