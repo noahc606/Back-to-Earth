@@ -96,7 +96,7 @@ void TileMapScreen::draw(Canvas* csTileMap)
     }
     regTexUpdateTimeTotal += regTexUpdateTime;
 
-    idleRegTexUpdates(128);
+    //idleRegTexUpdates(128);
 
     //Increment drawsThisSecond
     drawsThisSecond++;
@@ -323,13 +323,15 @@ void TileMapScreen::mapUpdates()
 
 void TileMapScreen::idleRegTexUpdates(int updates)
 {
+    if(tileMap==nullptr) return;
+
     TileMap::t_ll scrRW = screenTX/tileScale;   //Distance from left side of screen to center of screen.
     TileMap::t_ll scrRH = screenTY/tileScale;   //Distance from upper side of screen to center of screen.
     TileMap::t_ll scrCX = cam->getX();          //X pos of camera
     TileMap::t_ll scrCY = cam->getY();          //Y pos of camera
 
     for( int i = 0; i<updates; i++ ) {
-        tileMap->addTileUpdate( scrCX-scrRW+rand()%screenWidth, scrCY-scrRH+rand()%screenHeight, cam->getLayer() );
+        //tileMap->addTileUpdate( scrCX-scrRW+rand()%screenWidth, scrCY-scrRH+rand()%screenHeight, cam->getLayer() );
     }
 }
 

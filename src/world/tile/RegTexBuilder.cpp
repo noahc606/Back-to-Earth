@@ -7,8 +7,8 @@ RegTexBuilder::RegTexBuilder(Texture* tex, TileIterator& ti, int dstX, int dstY,
         detailDepth0Tiles(tex, ti, dstX, dstY);
     }
 
-    if( dZ<0 ) {
-        detailDepthPTiles(tex, ti, dstX, dstY, dZ);
+    if( dZ>0 ) {
+        detailDepthPTiles(tex, ti, dstX, dstY, -dZ);
     }
 
 }

@@ -213,7 +213,7 @@ void Player::tick()
     camera.tick();
     double tx = 0.5;
     double ty = 1.0;
-    camera.setXYZ( (int)(x*32.0)/32.0+tx, (int)(y*32.0)/32.0+ty, z+1);
+    camera.setXYZ( (int)(x*32.0)/32.0+tx, (int)(y*32.0)/32.0+ty, z-1);
 
     /** Set bounding box */
 }
