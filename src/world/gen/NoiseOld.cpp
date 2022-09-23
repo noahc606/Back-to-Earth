@@ -117,29 +117,8 @@ TileRegion NoiseOld::getRegion(long rZ)
     tt.setSolid(true);
     int rock = tr.addToPaletteFast(tt);
 
-    if( rZ!=-1 ) {
-        for( int sx = 0; sx<32; sx++ ) {
-            for( int sy = 0; sy<32; sy++ ) {
-                for( int sz = 0; sz<32; sz++ ) {
-                    tr.setTile(sx, sy, sz, air);
-                }
-            }
-        }
-    }
 
-
-
-    if( rZ==-1 ) {
-        for( int sx = 0; sx<32; sx++ ) {
-            for( int sy = 0; sy<32; sy++ ) {
-                for( int sz = 0; sz<32; sz++ ) {
-                    tr.setTile(sx, sy, sz, rock);
-                }
-            }
-        }
-    }
-    /*
-    if( rZ<-1 ) {
+    if( rZ<0 ) {
         for( int sx = 0; sx<32; sx++ ) {
             for( int sy = 0; sy<32; sy++ ) {
                 for( int sz = 0; sz<32; sz++ ) {
@@ -148,7 +127,7 @@ TileRegion NoiseOld::getRegion(long rZ)
             }
         }
     } else
-    if( rZ==-1 ) {
+    if( rZ==0 ) {
         for( int sx = 0; sx<32; sx++ ) {
             for( int sy = 0; sy<32; sy++ ) {
 
@@ -165,7 +144,7 @@ TileRegion NoiseOld::getRegion(long rZ)
             }
         }
     } else
-    if( rZ>-1 ) {
+    if( rZ>0 ) {
         for( int sx = 0; sx<32; sx++ ) {
             for( int sy = 0; sy<32; sy++ ) {
                 for( int sz = 0; sz<32; sz++ ) {
@@ -174,7 +153,7 @@ TileRegion NoiseOld::getRegion(long rZ)
             }
         }
     }
-    */
+
 
     return tr;
 }
