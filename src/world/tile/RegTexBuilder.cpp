@@ -2,13 +2,13 @@
 
 RegTexBuilder::RegTexBuilder(Texture* tex, TileIterator& ti, int dstX, int dstY, TileType ttfc, int dZ)
 {
-    drawTypeA( tex, dstX, dstY, ttfc, dZ-1 );
+    drawTypeA( tex, dstX, dstY, ttfc, dZ );
     if(dZ==0) {
         detailDepth0Tiles(tex, ti, dstX, dstY);
     }
 
     if( dZ>0 ) {
-        detailDepthPTiles(tex, ti, dstX, dstY, -dZ);
+        detailDepthPTiles(tex, ti, dstX, dstY, dZ);
     }
 
 }
@@ -182,13 +182,16 @@ void RegTexBuilder::detailDepthPTiles(Texture* tex, TileIterator& ti, int dstX, 
     drawOverlay( tex, dstX, dstY, osx, osy );
 }
 
+/**
+    Draw a tile image with a given color and depending on depth, shade it.
+*/
 void RegTexBuilder::drawTypeA(Texture* tex, int dstX, int dstY, int srcX, int srcY, Color c, int dZ)
 {
     tex->lock( dstX, dstY, 32, 32 );
     tex->setColorMod(c.r, c.g, c.b);
     tex->blit(TextureLoader::WORLD_TILE_type_a, srcX, srcY );
 
-    int depth = -dZ-1;
+    int depth = dZ;
     if( depth!=0 ) {
         if(depth>4) {
             depth = 4;
