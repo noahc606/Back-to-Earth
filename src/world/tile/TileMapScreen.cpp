@@ -31,6 +31,12 @@ TileMapScreen::~TileMapScreen() { destroy(); }
 
 void TileMapScreen::tick()
 {
+    //Calculate screen width and screen height
+    screenWidth = sdlHandler->getWidth()/tileScale;
+    if( screenWidth==0 ) screenWidth = 1;
+    screenHeight = sdlHandler->getHeight()/tileScale;
+    if( screenHeight==0 ) screenHeight = 1;
+
     if( cam==nullptr || tileMap==nullptr || tileMap->getRegionMap()==nullptr )
         return;
 
@@ -58,15 +64,10 @@ void TileMapScreen::tick()
     }
 
     //Map updates (regionMap, updatesMap)
-
     std::string* cmd = Commands::getString("stopMapUpdates");
-    if( cmd!=nullptr ) {
-
-    } else {
+    if( cmd!=nullptr ) {} else {
         mapUpdates();
     }
-
-    idleLoadTimer++;
 
     //Find tile scale
     mapZoom = cam->getZoom();
@@ -75,10 +76,6 @@ void TileMapScreen::tick()
     //Translations depending on window width/height. Ensures that current camera's location is at the center of the window.
     screenTX = sdlHandler->getWidth()/2;
     screenTY = sdlHandler->getHeight()/2;
-
-    int padding = 2;
-    screenWidth = sdlHandler->getWidth()/tileScale;
-    screenHeight = sdlHandler->getHeight()/tileScale;
 }
 
 void TileMapScreen::draw(Canvas* csTileMap)
@@ -96,7 +93,7 @@ void TileMapScreen::draw(Canvas* csTileMap)
     }
     regTexUpdateTimeTotal += regTexUpdateTime;
 
-    //idleRegTexUpdates(128);
+    idleRegTexUpdates(128);
 
     //Increment drawsThisSecond
     drawsThisSecond++;
@@ -132,7 +129,7 @@ void TileMapScreen::info(std::stringstream& ss, int& tabs, TileMap::t_ll mouseX,
 
         //Zoom, scale
         DebugScreen::indentLine(ss, tabs);
-        ss << "Screen (rW, rH)=(" << scrRW << ", " << scrRH << "); ";
+        ss << "Screen (width, height)=(" << screenWidth << ", " << screenHeight << "); ";
         DebugScreen::newLine(ss);
         DebugScreen::indentLine(ss, tabs);
         ss << "Zoom=" << mapZoom << "; ";
@@ -259,6 +256,11 @@ void TileMapScreen::mapUpdates()
                                 tr->setRegTexState(tr->RegTexState::SHOULD_UPDATE);
                             }
                         }
+
+                        if( tr->getRegTexState()==tr->RegTexState::SHOULD_UPDATE ) {
+                            tileMap->addRegionUpdate(rX, rY, cam->getLayer());
+                            tr->setRegTexState(tr->RegTexState::UPDATED);
+                        }
                     }
                 }
             }
@@ -321,6 +323,9 @@ void TileMapScreen::mapUpdates()
     }
 }
 
+/**
+    Place regTexUpdates randomly throughout the map on any tile that is onscreen
+*/
 void TileMapScreen::idleRegTexUpdates(int updates)
 {
     if(tileMap==nullptr) return;
@@ -331,6 +336,7 @@ void TileMapScreen::idleRegTexUpdates(int updates)
     TileMap::t_ll scrCY = cam->getY();          //Y pos of camera
 
     for( int i = 0; i<updates; i++ ) {
+        tileMap->addTileUpdate( scrCX-scrRW+rand()%screenWidth, scrCY-scrRH+rand()%screenHeight, cam->getLayer() );
         //tileMap->addTileUpdate( scrCX-scrRW+rand()%screenWidth, scrCY-scrRH+rand()%screenHeight, cam->getLayer() );
     }
 }
@@ -407,7 +413,7 @@ void TileMapScreen::regTexUpdates(Canvas* csTileMap, int maxUpdates)
 
 void TileMapScreen::regTexUpdate(TileIterator& ti, Texture* tex)
 {
-    //If tex is nullptr for some reason, stop method execution
+    //If tex is nullptr for some reason, stop method
     if( tex==nullptr ) return;
 
     //Get data of the top tile from the camera

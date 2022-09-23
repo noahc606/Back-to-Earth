@@ -33,12 +33,10 @@ public:
     static const int tileSize = 32;                     //Size of a tile in pixels
 
 private:
-    uint64_t idleLoadTimer = 0;
-
     Camera* cam = nullptr;                              //Area of the world shown on screen. Also tracks size of each tile (zoom factor).
     TileMap* tileMap = nullptr;
     int screenTX = 0; int screenTY = 0;                 //Translate everything on screen horizontally/vertically based on screen size
-    int screenWidth = 0; int screenHeight = 0;
+    int screenWidth = 1; int screenHeight = 1;
 
     int camRX = 0; int camRY = 0; int camRZ = 0;        //Coordinates of region which the center of the screen occupies. e.g. As player moves regionSize tiles to the right, cameraRX increases by 1.
     int camL = 0;
