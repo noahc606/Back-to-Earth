@@ -1,4 +1,5 @@
 #include "RegTexBuilder.h"
+#include "DebugScreen.h"
 
 RegTexBuilder::RegTexBuilder(Texture* tex, TileIterator& ti, int dstX, int dstY, TileType ttfc, int dZ)
 {

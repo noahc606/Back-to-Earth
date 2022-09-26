@@ -1,4 +1,5 @@
 #pragma once
+#include <sstream>
 #include "Color.h"
 #include "Texture.h"
 #include "TileIterator.h"
