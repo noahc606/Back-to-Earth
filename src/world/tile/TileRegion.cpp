@@ -15,6 +15,7 @@ TileRegion::TileRegion()
     //Create 'empty' tile
     TileType space;
     space.init();
+    space.setVisionBlocking(false);
     int id = addToPaletteFast(space);
 
     //Fill region with empty tile
