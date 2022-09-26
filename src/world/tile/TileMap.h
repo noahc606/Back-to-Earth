@@ -4,7 +4,6 @@
 #include <string>
 #include <tuple>
 #include "Box3D.h"
-#include "NoiseOld.h"
 #include "Player.h"
 #include "Texture.h"
 #include "TileRegion.h"
@@ -62,8 +61,6 @@ private:
     //Maps
     t_regionMap regionMap;
     t_updatesMap updatesMap;
-
-    NoiseOld noise;
 
     std::vector<Player>* players;
 };
