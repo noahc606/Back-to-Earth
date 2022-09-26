@@ -22,6 +22,9 @@ public:
     t_ll floor();
     t_ll ceil();
 
+    Real operator+ (int other);
+    Real operator- (int other);
+
     Real operator- ( const Real& other );
     Real operator+ ( const Real& other );
 

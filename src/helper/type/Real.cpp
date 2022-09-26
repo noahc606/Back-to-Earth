@@ -61,6 +61,16 @@ Real::t_ll Real::ceil()
     return integer;
 }
 
+Real Real::operator+ (int other)
+{
+    return Real((*this).getInteger()+other, decimal);
+}
+
+Real Real::operator- (int other)
+{
+    return Real((*this).getInteger()-other, decimal);
+}
+
 Real Real::operator- ( const Real& other )
 {
     Real temp = other;
