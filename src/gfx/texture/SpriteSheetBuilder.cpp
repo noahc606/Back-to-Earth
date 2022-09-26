@@ -1,4 +1,5 @@
 #include "SpriteSheetBuilder.h"
+#include "Player.h"
 
 SpriteSheetBuilder::SpriteSheetBuilder(SDLHandler* sh)
 {
@@ -28,10 +29,12 @@ void SpriteSheetBuilder::buildSpriteSheet(int type, SpriteSheet& spsh, ColorPale
             spsh.addSpriteToRow(TextureLoader::PLAYER_middle_body, 0, 0, 6);
 
             spsh.setSpriteColor(pal.get("leggings"));
-            spsh.addSpritesToRow(TextureLoader::PLAYER_lower_body, 10, 0, 7);
+            spsh.addSpritesToRow(TextureLoader::PLAYER_lower_body, 12, 0, 7);
+            spsh.addSpritesToRow(TextureLoader::PLAYER_lower_body, 12, 32, 8);
+            spsh.addSpritesToRow(TextureLoader::PLAYER_lower_body, 12, 64, 9);
 
             spsh.setSpriteColor(pal.get("shoes"));
-            spsh.addSpriteToRow(TextureLoader::PLAYER_feet, 0, 0, 8);
+            spsh.addSpriteToRow(TextureLoader::PLAYER_feet, 0, 0, Player::Components::FEET);
         } break;
     }
 

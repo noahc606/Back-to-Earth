@@ -18,4 +18,6 @@ protected:
 private:
     SDLHandler* sdlHandler;
 
+
+
 };
