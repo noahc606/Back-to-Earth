@@ -46,51 +46,73 @@ void Player::draw(Canvas* csEntities)
     playerTex.clear();
     Texture* sst = spsh.getTexture();
 
+    //Render spritesheet on screen if it should be shown (debug feature)
+    int* show_ss = Commands::getInt("player.show_ss");
+    if( show_ss!=nullptr && *show_ss!=0 ) {
+        sst->setDrawPos(0, 0);
+        sst->draw();
+    }
+
+    //Determine player flip depending on if they are facing west or east
     int flip = sst->Flip::NONE;
     if(facing==WEST) {
         flip = sst->Flip::H;
     }
 
-
-    //Draw head base
+    /** Head */
+    //Head base
     playerTex.lock(0, 0, 32, 32);
-    //playerTex.blit(sst, 0, 32, 32, 32);
     playerTex.blitEx(sst, 0, 32, 32, 32, flip);
 
-    //Draw eyes layer 1
-    if(timerBlink<0) {
+    //Eyes layer 1
+    if(anBlinkTimer<0) {
         playerTex.lock(0, 0, 32, 32);
         playerTex.blitEx(sst, 0, 64, 32, 32, flip);
     }
 
-    //Draw eyes layer 2
-    if(timerBlink<0) {
+    //Eyes layer 2
+    if(anBlinkTimer<0) {
         playerTex.lock(0, 0, 32, 32);
         playerTex.blitEx(sst, 0, 96, 32, 32, flip);
     }
 
-    //Draw lips
+    //Lips
     playerTex.lock(0, 0, 32, 32);
     playerTex.blitEx(sst, 0, 128, 32, 32, flip);
 
-    //Draw Arms
-    int aTX = (anWalkFrame%2);
+    /** Arms */
+    //Arms
+    int aTX = (anWalkFrameX%2);
     playerTex.lock(0+aTX, 16, 32+aTX, 32);
     playerTex.blitEx(sst, 0, 160, flip);
 
-    //Draw Lower body
+    /** Body */
+    //Legs
+
     playerTex.lock(0, 29, 32, 32);
-    playerTex.blitEx(sst, 32*anWalkFrame, 224, 32, 32, flip);
+    if( anWalkState!=0 ) {
+        int dy = 1;
+        if( facing==SOUTH || facing==NORTH ) {
+            dy = 2;
+        }
+        playerTex.blitEx(sst, 32*anWalkFrameX, (LOWER_BODY+dy)*32, 32, 32, flip);
+    } else {
+        playerTex.blitEx(sst, 32*anWalkFrameX, (LOWER_BODY)*32, 32, 32, flip);
+    }
+    //Middle body
+    {
+        playerTex.lock(0+aTX, 9, 32+aTX, 32);
 
-    //Draw Middle body
-    playerTex.lock(0+aTX, 9, 32+aTX, 32);
-    playerTex.blitEx(sst, 0, 192, 32, 32, flip);
+        playerTex.blitEx(sst, 0, (MIDDLE_BODY)*32, 32, 32, flip);
+    }
 
-    //Draw Feet
+
+    /** Extra */
+    //Shoes
     playerTex.lock(1, 48, 32, 32);
-    playerTex.blitEx(sst, 0, 256, 31, 32, flip);
+    playerTex.blitEx(sst, 0, FEET*32, 31, 32, flip);
 
-    //Draw hair
+    //Hair
     playerTex.lock(0, 0, 32, 32);
     playerTex.blitEx(sst, 0, 0, 32, 32, flip);
 
@@ -116,48 +138,55 @@ void Player::tick()
 
     /** Animations */
     /* Blinking */
-    if(timerBlink==-1) {
-        if( rand()%240==0 ) timerBlink++;
+    if(anBlinkTimer==-1) {
+        if( rand()%240==0 ) anBlinkTimer++;
     } else {
-        timerBlink++;
+        anBlinkTimer++;
     }
-    if(timerBlink>12) {
-        timerBlink = -480;
+    if(anBlinkTimer>12) {
+        anBlinkTimer = -480;
     }
 
     /**
         Walking
 
     */
-    //If the player is moving horizontally
-    anTimer++;
 
     //walk velocity
-    double walkingVelocity = abs(vx);
+    walkSpeed = abs( sqrt(vx*vx+vy*vy) );
 
-    //Set player direction / Make sure walkingVelocity is always positive
+    //Set player direction / Make sure walkSpeed is always positive
+    if( vy<0 ) {
+        facing = Directions::NORTH;
+    } else
+    if( vy>0 ) {
+        facing = Directions::SOUTH;
+    }
+
     if( vx<0 ) {
         facing = Directions::WEST;
     } else
-    if( vx>0 )
-    {
+    if( vx>0 ) {
         facing = Directions::EAST;
     }
 
-    if( anTimer>6.0/walkingVelocity*0.05 ) {
+    /* Animation */
+    //Animation timer. This timer increments every draw() call
+    anTimer++;
+    //The block below runs when anTimer is above a certain threshold.
+    //This threshold is lower the faster the player is walking, resulting in a faster animation.
+    if( anTimer>6.0/(walkSpeed/0.05) ) {
+        //Reset anTimer.
         anTimer = 0;
-        if( walkingVelocity>=0.02 ) {
+        //Play the player's walking animation
+        if( walkSpeed>0 ) {
             if(anWalkState==0) anWalkState = 1;
-            anWalkFrame += anWalkState;
-            if( anWalkState==1 && anWalkFrame==10 ) {
-                anWalkFrame = 3;
+            anWalkFrameX += anWalkState;
+            if( anWalkState==1 && anWalkFrameX==12 ) {
+                anWalkFrameX = 0;
             }
         } else {
-            //Reset aWalkState
-            anWalkState = 0;
 
-            if( anWalkFrame>0 ) anWalkFrame-=1;
-            if( anWalkFrame>0 ) anWalkFrame-=1;
         }
     }
 
@@ -222,6 +251,12 @@ void Player::info(std::stringstream& ss, int& tabs)
 {
     DebugScreen::indentLine(ss, tabs);
     ss << "Player(x, y, z)=(" << x << ", " << y << ", " << z << "); ";
+    ss << "Player(vx, vy, vz)=(" << vx << ", " << vy << ", " << vz << "); ";
+    DebugScreen::newLine(ss);
+
+    DebugScreen::indentLine(ss, tabs);
+    ss << "Player(anWalkFrameX, anWalkState)=(" << anWalkFrameX << ", " << anWalkState << "); ";
+    ss << "Player(walkSpeed)=(" << walkSpeed << "); ";
     DebugScreen::newLine(ss);
 }
 

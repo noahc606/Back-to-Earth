@@ -40,9 +40,9 @@ public:
         HAIR,
         HEAD_BASE, HEAD_EYES, HEAD_PUPILS, HEAD_MOUTH,
         ARMS,
-        MIDDLE_BODY,
-        LOWER_BODY,
-        FEET,
+        MIDDLE_BODY = 6,
+        LOWER_BODY = 7,
+        FEET = 10,
 
         LAST_INDEX
     };
@@ -61,8 +61,12 @@ private:
     Texture playerTex;
     SpriteSheet spsh;
     int anTimer = 0;
-    int anWalkFrame = 0; int anWalkState = 0;
+    int anStandFrame = 0;
+    int anWalkFrameX = 0; int anWalkState = 0;
     int anWalkShirtFrame = 0; int anWalkShirtState = 0;
+    int anBlinkTimer = 0;
+
+    double walkSpeed = 0.0;
     char facing = NORTH;
 
     bool godMode = true;
@@ -78,6 +82,5 @@ private:
     double ay = -9.81/3600.0;                       //Vertical acceleration in world (meters per tick^2)
     Box3D bounds;
 
-    int timerBlink = 0;
 
 };
