@@ -3,6 +3,7 @@
 #include <sstream>
 #include "DebugScreen.h"
 #include "Log.h"
+#include "Noise.h"
 #include "TileIterator.h"
 #include "TileType.h"
 
@@ -168,15 +169,14 @@ int TileMap::setTile(t_ll x, t_ll y, t_ll z, TileType tt)
 }
 
 
-int TileMap::loadRegion(long x, long y, long z)
+int TileMap::loadRegion(long rX, long rY, long rZ)
 {
-    t_regionMap::iterator itr = regionMap.find( std::make_tuple(x, y, z) );
+    t_regionMap::iterator itr = regionMap.find( std::make_tuple(rX, rY, rZ) );
     if( itr==regionMap.end() ) {
-        //TileRegion* tr = new TileRegion();
-        //TileRegion* tr = noise.getRegion(100, x, y, z);
-        //TileRegion* tr = noise.getRegion(z);
-        TileRegion tr = noise.getRegion(z);
-        regionMap.insert( std::make_pair(std::make_tuple(x, y, z), tr) );
+        Noise noise;
+        TileRegion tr;
+        noise.populateRegion(tr, rX, rY, rZ);
+        regionMap.insert( std::make_pair(std::make_tuple(rX, rY, rZ), tr) );
         return 0;
     }
     return -1;
