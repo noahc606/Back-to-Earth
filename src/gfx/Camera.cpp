@@ -33,8 +33,11 @@ void Camera::tick()
             int mw = controls->getMouseWheel();
             zoomIndex += mw;
 
-            if(zoomIndex>=10) zoomIndex = 10;
-            if(zoomIndex<=-5) zoomIndex = -5;
+            int cz = 10;    //Closest possible zoom
+            int fz = -8;    //Furthest possible zoom
+
+            if(zoomIndex>=cz) zoomIndex = cz;
+            if(zoomIndex<=fz) zoomIndex = fz;
 
             if( mw!=0) controls->resetWheel(__PRETTY_FUNCTION__);
         }
