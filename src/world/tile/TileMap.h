@@ -53,6 +53,7 @@ public:
     int addTileUpdates(t_ll x, t_ll y, t_ll layer);
     int addRegionUpdate(long rX, long rY, t_ll layer);
     int stopRegionUpdate(long rX, long rY, t_ll layer);
+    int stopAllUpdates();
 
 protected:
 

@@ -22,10 +22,7 @@ void TileMap::destroy()
         regionMap.erase(itr);
     }
 
-    //Delete elements in updatesMap
-    for( t_updatesMap::iterator itr = updatesMap.begin(); itr!=updatesMap.end(); itr = updatesMap.begin() ) {
-        updatesMap.erase(itr);
-    }
+    stopAllUpdates();
 }
 
 void TileMap::info(std::stringstream& ss, int& tabs, t_ll p_mouseX, t_ll p_mouseY, t_ll p_selZ)
@@ -168,7 +165,6 @@ int TileMap::setTile(t_ll x, t_ll y, t_ll z, TileType tt)
     return -1;
 }
 
-
 int TileMap::loadRegion(long rX, long rY, long rZ)
 {
     t_regionMap::iterator itr = regionMap.find( std::make_tuple(rX, rY, rZ) );
@@ -251,4 +247,16 @@ int TileMap::stopRegionUpdate(long rX, long rY, t_ll layer)
         return 0;
     }
     return -1;
+}
+
+int TileMap::stopAllUpdates()
+{
+    int count = 0;
+    //Delete elements in updatesMap
+    for( t_updatesMap::iterator itr = updatesMap.begin(); itr!=updatesMap.end(); itr = updatesMap.begin() ) {
+        updatesMap.erase(itr);
+        count++;
+    }
+
+    return count;
 }
