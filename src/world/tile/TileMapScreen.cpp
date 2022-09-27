@@ -31,6 +31,9 @@ TileMapScreen::~TileMapScreen() { destroy(); }
 
 void TileMapScreen::tick()
 {
+    tickTime = 0.0;
+    Timer localTimer;
+
     //Calculate screen width and screen height
     screenWidth = sdlHandler->getWidth()/tileScale;
     if( screenWidth==0 ) screenWidth = 1;
@@ -54,13 +57,15 @@ void TileMapScreen::tick()
     }
 
     if( cL!=camL ) {
-        camL = cL;
 
+        camL = cL;
         for(TileMap::t_regionMap::iterator itrRM = tileMap->getRegionMap()->begin(); itrRM!=tileMap->getRegionMap()->end(); itrRM++ ) {
             TileRegion* tr = &itrRM->second;
             if( tr==nullptr ) continue;
             tr->setRegTexState(tr->RegTexState::SHOULD_UPDATE);
         }
+
+        tileMap->stopAllUpdates();
     }
 
     //Map updates (regionMap, updatesMap)
@@ -76,36 +81,54 @@ void TileMapScreen::tick()
     //Translations depending on window width/height. Ensures that current camera's location is at the center of the window.
     screenTX = sdlHandler->getWidth()/2;
     screenTY = sdlHandler->getHeight()/2;
+
+    tickTime = localTimer.getElapsedTimeMS();
 }
 
 void TileMapScreen::draw(Canvas* csTileMap)
 {
+    drawTime = 0.0;
+    Timer localTimer;
+
     if( csTileMap==nullptr ) return;
 
-    //Perform 'updates' number of regTexUpdates and do performance gauging
-    int updates = 256;
-    regTexUpdateTime = 0.0;
+    //Perform 'rtUpdates' number of regTexUpdates and do performance gauging
+    rtUpdatesTime = 0.0;
     {
-        std::stringstream ss; ss << updates << " regTexUpdates";
+        std::stringstream ss; ss << "Performing " << rtUpdatesToDo << " regTexUpdates";
         Timer t(ss.str(), false);
-        regTexUpdates(csTileMap, updates);
-        regTexUpdateTime = t.getElapsedTimeMS();
+        regTexUpdates(csTileMap, rtUpdatesToDo);
+        rtUpdatesTime = t.getElapsedTimeMS();
     }
-    regTexUpdateTimeTotal += regTexUpdateTime;
+    rtUpdatesTimeTotal += rtUpdatesTime;
 
-    idleRegTexUpdates(128);
+    double rtUpdatesTimeMax = 8;
+    if(rtUpdatesTime < rtUpdatesTimeMax) {
+        //Increase rtUpdatesToDo if rtUpdatesTimeMax is NOT exceeded
+        rtUpdatesToDo = (double)rtUpdatesToDo*rtUpdatesTimeMax/rtUpdatesTime;
+    } else {
+        //Decrease rtUpdatesToDo if rtUpdatesTimeMax IS exceeded
+        rtUpdatesToDo = (double)rtUpdatesToDo*rtUpdatesTimeMax/rtUpdatesTime;
+    }
+
+    int rtUpdatesLimit = 512;
+    if(rtUpdatesToDo>rtUpdatesLimit) rtUpdatesToDo = rtUpdatesLimit;
+
+    idleRegTexUpdates(rtUpdatesToDo/2);
 
     //Increment drawsThisSecond
     drawsThisSecond++;
     //When SDL_GetTicks() exceeds nextSecond
     if( SDL_GetTicks()>nextSecond ) {
-        regTexUpdateTimeAvg = regTexUpdateTimeTotal/drawsThisSecond;    //Calculate average regTexUpdate time over the last second
+        rtUpdatesTimeAvg = rtUpdatesTimeTotal/drawsThisSecond;    //Calculate average regTexUpdate time over the last second
         nextSecond += 1000;             //Update when the nextSecond is
         drawsThisSecond = 0;            //Reset drawsThisSecond
-        regTexUpdateTimeTotal = 0.0;    //Reset regTexUpdate total time
+        rtUpdatesTimeTotal = 0.0;    //Reset regTexUpdate total time
     }
 
     csTileMap->draw();
+
+    drawTime = localTimer.getElapsedTimeMS();
 }
 
 void TileMapScreen::info(std::stringstream& ss, int& tabs, TileMap::t_ll mouseX, TileMap::t_ll mouseY, TileMap::t_ll mouseZ)
@@ -115,18 +138,23 @@ void TileMapScreen::info(std::stringstream& ss, int& tabs, TileMap::t_ll mouseX,
     //Performance profiling
     DebugScreen::newGroup(ss, tabs, "Performance");
         DebugScreen::indentLine(ss, tabs);
-        ss << "256 regTexUpdates (time elapsed)=" << regTexUpdateTime << "ms; ";
+        ss << "Tick time=" << tickTime << "ms; ";
         DebugScreen::newLine(ss);
         DebugScreen::indentLine(ss, tabs);
-        ss << "Total time taken by regTexUpdates (avg, last second)=" << regTexUpdateTimeAvg << "ms; ";
+        ss << "Draw time=" << drawTime << "ms; ";
+        DebugScreen::newLine(ss);
+
+        DebugScreen::indentLine(ss, tabs);
+        ss << rtUpdatesToDo << " rtUpdates (time elapsed)=" << rtUpdatesTime << "ms; ";
+        DebugScreen::newLine(ss);
+
+        DebugScreen::indentLine(ss, tabs);
+        ss << "Total time taken by rtUpdates (avg, last second)=" << rtUpdatesTimeAvg << "ms; ";
         DebugScreen::newLine(ss);
     DebugScreen::endGroup(tabs);
 
     //Camera
     DebugScreen::newGroup(ss, tabs, "Camera");
-        int scrRW = ceil(screenTX/tileScale/regionSize);
-        int scrRH = ceil(screenTY/tileScale/regionSize);
-
         //Zoom, scale
         DebugScreen::indentLine(ss, tabs);
         ss << "Screen (width, height)=(" << screenWidth << ", " << screenHeight << "); ";
@@ -276,40 +304,48 @@ void TileMapScreen::mapUpdates()
 
     TileMap::t_regionMap::iterator itrRM = tileMap->getRegionMap()->begin();
     while( itrRM!=tileMap->getRegionMap()->end() ) {
+        /** Check if this tileRegion is not null */
+        //If this tileRegion is null...
+        //... stop this iteration and continue to the next one
+        TileRegion* tr = &itrRM->second;
+        if(tr==nullptr) {
+            continue;
+        }
+
+        /** Get basic info */
         //Get rX, rY, and rZ of itr.
         int rX = std::get<0>(itrRM->first);
         int rY = std::get<1>(itrRM->first);
         int rZ = std::get<2>(itrRM->first);
         int sz = TileMap::getRegSubPos( cam->getLayer() );
 
-        TileRegion* tr = &itrRM->second;
-        if(tr==nullptr) {
-            continue;
-        }
-
-
-        //If a region is far offscreen or not on the same rZ as the camera
-        if( rX<camRX-scrRW || rX>camRX+scrRW ||
-            rY<camRY-scrRH || rY>camRY+scrRH ||
-            rZ!=camRZ
-        ) {
-            //Reset region state and stop all region updates
-            tr->resetRegTexState();
-            for(int i = 0; i<32; i++) {
-                tileMap->stopRegionUpdate( rX, rY, rZ*32+i );
-            }
-        }
-
-        //Stop region updates wherever their Z!=cam->getLayer()
-        if( rZ==camRZ ) {
-            for(int i = 0; i<32; i++) {
-                if( i!=sz ) {
+        /** Manage regTexState */
+        //If a tileRegion's regTexState is not NONE (aka not reset)...
+        //... we need to check if it does need to be reset.
+        if( tr->getRegTexState()!=TileRegion::RegTexState::NONE ) {
+            //If a region is far offscreen or not on the same rZ as the camera
+            if( rX<camRX-scrRW || rX>camRX+scrRW ||
+                rY<camRY-scrRH || rY>camRY+scrRH ||
+                rZ!=camRZ
+            ) {
+                //Reset region state and stop all region updates
+                tr->resetRegTexState();
+                for(int i = 0; i<32; i++) {
                     tileMap->stopRegionUpdate( rX, rY, rZ*32+i );
+                }
+            }
+
+            //Stop region updates wherever their Z!=cam->getLayer()
+            if( rZ==camRZ ) {
+                for(int i = 0; i<32; i++) {
+                    if( i!=sz ) {
+                        tileMap->stopRegionUpdate( rX, rY, rZ*32+i );
+                    }
                 }
             }
         }
 
-
+        /** Manage regionMap */
         //If a region is outside of a rectangular prism of regions defined by (rX, rY, and rZ) and radius + verticalRadius
         if( rX<camRX-radius || rX>camRX+radius ||
             rY<camRY-radius || rY>camRY+radius ||
