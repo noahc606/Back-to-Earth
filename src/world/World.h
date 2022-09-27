@@ -41,6 +41,8 @@ private:
     Canvas csInteractions;
     Canvas csEntities;
 
+    double performanceCounter = 0;
+
     void updateMouseAndCamInfo();
     void entityInteractions();
 };

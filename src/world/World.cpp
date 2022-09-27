@@ -3,6 +3,7 @@
 #include "TextureBuilder.h"
 #include "Log.h"
 #include "MainLoop.h"
+#include "Timer.h"
 
 void World::init(SDLHandler* sh, Controls* ctrls)
 {
@@ -15,6 +16,7 @@ void World::init(SDLHandler* sh, Controls* ctrls)
 
     //Init player, tileMap, tileMapScreen.
     player.init(sh, ctrls);
+    player.setPos(0, 0, -32);
     tileMap.init();
     tileMapScreen.init(sdlHandler, controls, &tileMap, &player);
 
@@ -75,6 +77,9 @@ void World::draw()
 
 void World::tick()
 {
+    performanceCounter = 0;
+    Timer t("World tick timer", false);
+
     //Toggle between pause and unpause
     if( controls->isPressed("INGAME_PAUSE") ) {
         if( paused ) {
@@ -100,6 +105,8 @@ void World::tick()
     /** Interactions with world */
     updateMouseAndCamInfo();
     entityInteractions();
+
+    performanceCounter = t.getElapsedTimeMS();
 }
 
 void World::info(std::stringstream& ss, int& tabs)
@@ -110,6 +117,10 @@ void World::info(std::stringstream& ss, int& tabs)
     DebugScreen::indentLine(ss, tabs);
     ss << "Mouse(x, y, z)=(" << mouseX << ", " << mouseY << ", " << mouseZLL << ");";
     DebugScreen::newLine(ss);
+    DebugScreen::indentLine(ss, tabs);
+    ss << "World tick=" << performanceCounter << "ms; ";
+    DebugScreen::newLine(ss);
+
 
     //Player
     DebugScreen::newGroup(ss, tabs, "World::player");
