@@ -1,4 +1,5 @@
 #include "Player.h"
+#include <cmath>
 #include <math.h>
 #include <iostream>
 #include "DebugScreen.h"
@@ -153,7 +154,7 @@ void Player::tick()
     */
 
     //walk velocity
-    walkSpeed = abs( sqrt(vx*vx+vy*vy) );
+    walkSpeed = std::abs((double)sqrt(vx*vx+vy*vy));
 
     //Set player direction / Make sure walkSpeed is always positive
     if( vy<0 ) {
@@ -265,3 +266,10 @@ std::tuple<double, double, double> Player::getPos() { return std::make_tuple(x, 
 std::tuple<double, double, double> Player::getVelComponents() { return std::make_tuple(vx, vy, vz); }
 double Player::getVel() { return sqrt( vx*vx + vy*vy + vz*vz ); }
 Camera* Player::getCamera() { return &camera; }
+
+void Player::setPos(double x, double y, double z)
+{
+    Player::x = x;
+    Player::y = y;
+    Player::z = z;
+}

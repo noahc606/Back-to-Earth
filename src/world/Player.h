@@ -29,6 +29,7 @@ public:
     double getVel();
     Camera* getCamera();
     /**/
+    void setPos(double, double, double);
 
     enum Action {
         NONE,
