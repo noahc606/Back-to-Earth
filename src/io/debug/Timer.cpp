@@ -13,9 +13,9 @@ Timer::Timer(std::string p_desc, bool p_logging)
     //Start timer
     t0 = SDL_GetPerformanceCounter()/10000.0;
 }
-Timer::Timer(std::string p_desc):
-Timer::Timer(p_desc, true){
-}
+Timer::Timer(std::string p_desc): Timer::Timer(p_desc, true){}
+Timer::Timer(): Timer::Timer("Generic timer", false){}
+
 Timer::~Timer()
 {
     //Update elapsed time

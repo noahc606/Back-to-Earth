@@ -7,6 +7,7 @@ public:
     /**/
     Timer(std::string desc, bool logging);
     Timer(std::string desc);
+    Timer();
     virtual ~Timer();
     /**/
     double getElapsedTimeMS();
