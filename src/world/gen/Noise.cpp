@@ -116,10 +116,15 @@ void Noise::populateRegion(TileRegion& tr, int rX, int rY, int rZ)
     int rock = tr.addToPaletteFast(tt);
 
 
-    float zoom = 32.0;
+    float zoom1 = 64.0;
+    float zoom2 = 256.0;
     float verticalScaling = 32.0;
 
+    float nx1 = 0.0; float ny1 = 0.0;
+    float nx2 = 0.0; float ny2 = 0.0;
+
     float baseNoise = 0.0;
+    float extraNoise = 0.0;
 
     //nd = noise depth
     int nd = 0;
@@ -128,8 +133,12 @@ void Noise::populateRegion(TileRegion& tr, int rX, int rY, int rZ)
     for( int sx = 0; sx<32; sx++ ) {
         for( int sy = 0; sy<32; sy++ ) {
 
-            baseNoise = clampedNoise2D((x+sx)/zoom,(y+sy)/zoom)*verticalScaling;
-            nd = -z-baseNoise;
+            nx1 = (x+sx)/zoom1; ny1 = (y+sy)/zoom1;
+            nx2 = (x+sx)/zoom2; ny2 = (y+sy)/zoom2;
+
+            baseNoise = clampedNoise2D(nx1,ny1)*verticalScaling;
+            extraNoise = clampedNoise2D(nx2,ny2)*verticalScaling;
+            nd = -z-baseNoise-extraNoise;
 
             for( int sz = 0; sz<32; sz++ ) {
                 depth = sz-nd;
