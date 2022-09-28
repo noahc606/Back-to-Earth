@@ -147,10 +147,20 @@ void TileMapScreen::info(std::stringstream& ss, int& tabs, TileMap::t_ll mouseX,
         DebugScreen::indentLine(ss, tabs);
         ss << rtUpdatesToDo << " rtUpdates (time elapsed)=" << rtUpdatesTime << "ms; ";
         DebugScreen::newLine(ss);
-
         DebugScreen::indentLine(ss, tabs);
         ss << "Total time taken by rtUpdates (avg, last second)=" << rtUpdatesTimeAvg << "ms; ";
         DebugScreen::newLine(ss);
+
+        DebugScreen::indentLine(ss, tabs);
+        ss << "regLoadCount=" << regLoadCount << "; ";
+        DebugScreen::newLine(ss);
+        DebugScreen::indentLine(ss, tabs);
+        ss << "regLoadTime (latest)=" << regLoadTimeLatest << "ms; ";
+        DebugScreen::newLine(ss);
+        DebugScreen::indentLine(ss, tabs);
+        ss << "regLoadTime (avg out of last " << regLoadDivisor << ")=" << regLoadTimeAvg << "ms; ";
+        DebugScreen::newLine(ss);
+
     DebugScreen::endGroup(tabs);
 
     //Camera
@@ -236,6 +246,7 @@ void TileMapScreen::mapUpdates()
     int maxRegionInserts = 2;
     int numRegionInserts = 0;
 
+    /** Region loading */
     //Load Regions, RegTexes, nearby in a ring
     int radius = 5;
     int verticalRadius = 1;
@@ -264,7 +275,11 @@ void TileMapScreen::mapUpdates()
                     //Load region if numRegionInserts<maxRegionInserts
                     if( numRegionInserts<maxRegionInserts ) {
                         //If region has not been loaded yet, load the region.
+
+                        Timer rlt;
+                        bool loadedReg = false;
                         if( tileMap->loadRegion(rX, rY, rZ)==0 ) {
+                            loadedReg = true;
                             //If the region is onscreen and !=nullptr, mark it for a regTexUpdate (RTU).
                             TileRegion* tr = tileMap->getRegByRXYZ(rX, rY, rZ);
                             if(tr!=nullptr ) {
@@ -272,6 +287,11 @@ void TileMapScreen::mapUpdates()
                             }
                             //Increment numRegionInserts
                             ++numRegionInserts;
+                        }
+                        if( loadedReg ) {
+                            regLoadTimeLatest = rlt.getElapsedTimeMS();
+                            regLoadCount++;
+                            regLoadTime += regLoadTimeLatest;
                         }
                     }
 
@@ -295,6 +315,7 @@ void TileMapScreen::mapUpdates()
         }
     }
 
+    /** Region unloading */
     /*
         Region unloading:
         TileRegions will be deleted from the map if:
@@ -357,6 +378,16 @@ void TileMapScreen::mapUpdates()
             itrRM++;
         }
     }
+
+    /** Performance gauging */
+    if(regLoadCount>regLoadDivisor) {
+        //Calculate avg reg load time
+        regLoadTimeAvg = regLoadTime/(double)regLoadCount;
+        //Reset regionsLoaded count and regionLoadTime
+        regLoadCount = 0;
+        regLoadTime = 0.0;
+    }
+
 }
 
 /**

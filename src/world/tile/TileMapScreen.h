@@ -58,6 +58,12 @@ private:
     double tickTime = 0.0;
     double drawTime = 0.0;
 
+    int regLoadDivisor = 20;
+    int regLoadCount = 0;
+    double regLoadTime = 0.0;
+    double regLoadTimeLatest = 0.0;
+    double regLoadTimeAvg = 0.0;
+
     void mapUpdates();
     void idleRegTexUpdates(int updates);
     void regTexUpdates(Canvas* csTileMap, int maxUpdates);
