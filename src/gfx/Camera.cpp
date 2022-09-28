@@ -34,7 +34,7 @@ void Camera::tick()
             zoomIndex += mw;
 
             int cz = 10;    //Closest possible zoom
-            int fz = -8;    //Furthest possible zoom
+            int fz = -10;   //Furthest possible zoom
 
             if(zoomIndex>=cz) zoomIndex = cz;
             if(zoomIndex<=fz) zoomIndex = fz;
