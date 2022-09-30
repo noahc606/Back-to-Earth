@@ -228,52 +228,61 @@ void Texture::blit(int id)
 /**
     Fill area based on lock settings and color mod settings.
 */
-void Texture::fill()
+void Texture::fill(SDL_BlendMode newBlending)
 {
     //Pixel's color at missing.png(16, 16) will always = (255, 255, 255, 255), making it perfect for color/alpha modding.
     //1x1 pixel can easily be stretched to a rectangle of any size.
 
     //Store blend setting
-    SDL_BlendMode bm = blendMode;
+    SDL_BlendMode oldBlending = blendMode;
 
     //Set blend setting to NONE + blit
-    setBlendMode(SDL_BLENDMODE_NONE);
+    setBlendMode(newBlending);
     blit(TextureLoader::missing, 16, 16, 1, 1);
 
     //Reset blend setting
-    setBlendMode(bm);
+    setBlendMode(oldBlending);
+}
+void Texture::fill()
+{
+    fill(SDL_BLENDMODE_NONE);
 }
 
-void Texture::rect(int x, int y, int w, int h, uint8_t r, uint8_t g, uint8_t b, uint8_t a)
+void Texture::rect(int x, int y, int w, int h, uint8_t r, uint8_t g, uint8_t b, uint8_t a, SDL_BlendMode bm)
 {
     //Store lock and color settings
     int lx = lockedXPos; int ly = lockedYPos; int lw = lockedWidth; int lh = lockedHeight;
     uint8_t lr = colorMod.r; uint8_t lg = colorMod.g; uint8_t lb = colorMod.b; uint8_t la = colorMod.a;
 
-
     //Set lock and color settings + blit rectangle
     lock(x, y, w, h);
     setColorMod(r, g, b, a);
-    fill();
+    fill(bm);
 
     //Reset lock, color, and blend settings
     lockedXPos = lx; lockedYPos = ly; lockedWidth = lw; lockedHeight = lh;
     colorMod.r = lr; colorMod.g = lg; colorMod.b = lb;  colorMod.a = la;
 }
-
+void Texture::rect(int x, int y, int w, int h, uint8_t r, uint8_t g, uint8_t b, uint8_t a)
+{
+    rect(x, y, w, h, r, g, b, a, SDL_BLENDMODE_NONE);
+}
 void Texture::rect(int x, int y, int w, int h, uint8_t r, uint8_t g, uint8_t b)
 {
     rect(x, y, w, h, r, g, b, 255);
 }
 
-void Texture::px(int x, int y, uint8_t r, uint8_t g, uint8_t b, uint8_t a)
+void Texture::pixel(int x, int y, uint8_t r, uint8_t g, uint8_t b, uint8_t a, SDL_BlendMode bm)
+{
+    rect(x, y, 1, 1, r, g, b, a, bm);
+}
+void Texture::pixel(int x, int y, uint8_t r, uint8_t g, uint8_t b, uint8_t a)
 {
     rect(x, y, 1, 1, r, g, b, a);
 }
-
-void Texture::px(int x, int y, uint8_t r, uint8_t g, uint8_t b)
+void Texture::pixel(int x, int y, uint8_t r, uint8_t g, uint8_t b)
 {
-    px(x, y, r, g, b, 255);
+    pixel(x, y, r, g, b, 255);
 }
 
 void Texture::clear()

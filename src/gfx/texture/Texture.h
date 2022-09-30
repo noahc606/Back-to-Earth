@@ -41,11 +41,14 @@ public:
     void blit(Texture* src, int srcX, int srcY);
     void blit(int id, int srcX, int srcY);
     void blit(int id);
+    void fill(SDL_BlendMode bm);
     void fill();
+    void rect(int x, int y, int w, int h, uint8_t r, uint8_t g, uint8_t b, uint8_t a, SDL_BlendMode bm);
     void rect(int x, int y, int w, int h, uint8_t r, uint8_t g, uint8_t b, uint8_t a);
     void rect(int x, int y, int w, int h, uint8_t r, uint8_t g, uint8_t b);
-    void px(int x, int y, uint8_t r, uint8_t g, uint8_t b, uint8_t a);
-    void px(int x, int y, uint8_t r, uint8_t g, uint8_t b);
+    void pixel(int x, int y, uint8_t r, uint8_t g, uint8_t b, uint8_t a, SDL_BlendMode bm);
+    void pixel(int x, int y, uint8_t r, uint8_t g, uint8_t b, uint8_t a);
+    void pixel(int x, int y, uint8_t r, uint8_t g, uint8_t b);
     void clear();
 
     void setColorMod();
