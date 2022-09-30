@@ -115,44 +115,56 @@ void Noise::populateRegion(TileRegion& tr, int rX, int rY, int rZ)
     tt.setVisionBlocking(true); tt.setTextureXY(2, 1); tt.setRGB(240, 240, 240); tt.setSolid(true);
     int rock = tr.addToPaletteFast(tt);
 
+    tt.setVisionBlocking(true); tt.setTextureXY(0, 4); tt.setRGB(10, 80, 180); tt.setSolid(false);
+    int water = tr.addToPaletteFast(tt);
 
-    float zoom1 = 64.0;
-    float zoom2 = 256.0;
+    //Height scale
     float verticalScaling = 32.0;
 
-    float nx1 = 0.0; float ny1 = 0.0;
-    float nx2 = 0.0; float ny2 = 0.0;
+    //Tiny noise: Small variations
+    float tNoise = 0.0; float tZoom = 64.0;
+    //Medium noise: Small hills, valleys, and ponds
+    float mNoise = 0.0; float mZoom = 256.0;
+    //Large noise: Mountains, large valleys and seas
+    float lNoise = 0.0; float lZoom = 2048.0;
+    //Continental Noise: Continents and oceans
+    float cNoise = 0.0; float cZoom = 32768.0;
 
-    float baseNoise = 0.0;
-    float extraNoise = 0.0;
-
-    //nd = noise depth
+    //ND: noise depth
     int nd = 0;
-    int depth = 0;
+    //LD: Local depth. Based on noise depth but within a region.
+    int ld = 0;
 
     for( int sx = 0; sx<32; sx++ ) {
         for( int sy = 0; sy<32; sy++ ) {
 
-            nx1 = (x+sx)/zoom1; ny1 = (y+sy)/zoom1;
-            nx2 = (x+sx)/zoom2; ny2 = (y+sy)/zoom2;
+            //Calculate noise components at this location
+            tNoise = clampedNoise2D((x+sx)/tZoom,(y+sy)/tZoom)*verticalScaling;
+            mNoise = clampedNoise2D((x+sx)/mZoom,(y+sy)/mZoom)*verticalScaling;
+            lNoise = noise2D((x+sx)/lZoom,(y+sy)/lZoom)*verticalScaling;
+            cNoise = noise2D((x+sx)/cZoom,(y+sy)/cZoom)*verticalScaling;
 
-            baseNoise = clampedNoise2D(nx1,ny1)*verticalScaling;
-            extraNoise = clampedNoise2D(nx2,ny2)*verticalScaling;
-            nd = -z-baseNoise-extraNoise;
+            //Calculate total noise depth.
+            nd = -z-tNoise-mNoise-lNoise-cNoise;
 
             for( int sz = 0; sz<32; sz++ ) {
-                depth = sz-nd;
+                ld = sz-nd;
 
-                if(depth>5) {
+                if(ld>5) {
                     tr.setTile(sx, sy, sz, rock);
                 } else
-                if(depth>0) {
+                if(ld>0) {
                     tr.setTile(sx, sy, sz, soil);
                 } else
-                if(depth==0) {
+                if(ld==0) {
                     tr.setTile(sx, sy, sz, topsoil);
                 } else {
-                    tr.setTile(sx, sy, sz, air);
+
+                    if( z+sz>-20 ) {
+                        tr.setTile(sx, sy, sz, water);
+                    } else {
+                        tr.setTile(sx, sy, sz, air);
+                    }
                 }
             }
 
