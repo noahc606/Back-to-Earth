@@ -194,11 +194,20 @@ void RegTexBuilder::drawTypeA(Texture* tex, int dstX, int dstY, int srcX, int sr
 
     int depth = dZ;
     if( depth!=0 ) {
-        if(depth>4) {
-            depth = 4;
+        if(depth>6) {
+            depth = 6;
         }
-        tex->setColorMod();
-        tex->blit(TextureLoader::WORLD_TILE_OVERLAY_depth, 32*depth, 0 );
+
+        //int sky[] = { 135, 206, 235 }; //Sky blue
+        //int sky[] = { 135, 206, 250 }; //Light sky blue
+        int sky[] = {  25,  25, 112 }; //Midnight blue
+        //int sky[] = {   0,   0, 128 }; //Navy blue
+
+
+        //tex->setColorMod(sky[0], sky[1], sky[2], 192);
+        tex->rect( dstX, dstY, 32, 32, sky[0]/6, sky[1]/6, sky[2]/6, 51*(depth-1), SDL_BLENDMODE_BLEND);
+
+        //tex->blit(TextureLoader::WORLD_TILE_OVERLAY_depth, 32*depth, 0 );
     }
 }
 void RegTexBuilder::drawTypeA(Texture* tex, int dstX, int dstY, TileType tt, int depth)
