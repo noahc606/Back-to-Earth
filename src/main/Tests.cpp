@@ -32,7 +32,7 @@ void Tests::init(SDLHandler* sh, FileHandler* fh, Controls* ctrls)
         for( int y = 0; y<512; y++ ) {
             float n = noise.noise2D((float)x/zoom+tx, (float)y/zoom+ty);
             int c = (n*0.5d+0.5d)*256.0;
-            tex.px(x+1, y+1, c, c, c );
+            tex.pixel(x+1, y+1, c, c, c );
         }
     }
 
