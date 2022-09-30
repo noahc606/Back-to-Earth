@@ -29,10 +29,10 @@ public:
     //Get info about the Canvas.
     void info(std::stringstream& ss, int& tabs);
     //Get sub position, or position of a region given t_ll (long long) coordinates.
-    static void getSubPos(t_ll& x, t_ll& y, t_ll& z);
-    static t_ll getSubPos(t_ll c);
-    static void getRXYZ(t_ll& x, t_ll& y, t_ll& z);
-    static t_ll getRXYZ(t_ll c);
+    void getSubPos(t_ll& x, t_ll& y, t_ll& z);
+    t_ll getSubPos(t_ll c);
+    void getRXYZ(t_ll& x, t_ll& y, t_ll& z);
+    t_ll getRXYZ(t_ll c);
     /**/
 
     //Canvas manipulation
@@ -63,7 +63,7 @@ private:
     bool croppingRendering = false;
     bool forcingBlits = false;
 
-    //
+    //Handle when to draw if limiting FPS
     uint64_t nextSecond = 0;
     bool frameFinished = false;
     int framesThisSecond = 0;
@@ -75,9 +75,12 @@ private:
 
     //Map of texes
     t_texMap texes;
+    int texSize = 1024;
 
+    //Camera object
     Camera* camera; double zoom = 0;
 
+    //Mouse info
     double mouseX = 0; double mouseY = 0;
 
 };

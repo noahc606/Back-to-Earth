@@ -90,16 +90,16 @@ void Canvas::info(std::stringstream& ss, int& tabs)
     DebugScreen::newLine(ss);
 
     DebugScreen::indentLine(ss, tabs);
-    double onscreenSize = floor(1024*camera->getZoom());
+    double onscreenSize = floor(((double)texSize)*camera->getZoom());
     ss << "Texture onscreen size (px)=" << onscreenSize << ";";
     DebugScreen::newLine(ss);
 }
 
 
 void Canvas::getSubPos(t_ll& x, t_ll& y, t_ll& z) { x = getSubPos(x); y = getSubPos(y); z = getSubPos(z); }
-Canvas::t_ll Canvas::getSubPos(t_ll c) { c %= 1024; if( c<0 ) c+=1024; return c; }
+Canvas::t_ll Canvas::getSubPos(t_ll c) { c %= texSize; if( c<0 ) c+=texSize; return c; }
 void Canvas::getRXYZ(t_ll& x, t_ll& y, t_ll& z) { x = getRXYZ(x); y = getRXYZ(y); z = getRXYZ(z); }
-Canvas::t_ll Canvas::getRXYZ(t_ll c) { c = floor(c/1024.0); return c; }
+Canvas::t_ll Canvas::getRXYZ(t_ll c) { c = floor(c/((double)texSize)); return c; }
 
 Texture* Canvas::getTex(long rX, long rY)
 {
@@ -169,12 +169,12 @@ void Canvas::rcopy(t_ll dx, t_ll dy, t_ll dw, t_ll dh)
     if(sw==-1) { sw = dw; }
     if(sh==-1) { sh = dh; }
 
-    if( dw<=0 || dh<=0 || dw>1024 || dh>1024 ) {
+    if( dw<=0 || dh<=0 || dw>texSize || dh>texSize ) {
         Log::warn(__PRETTY_FUNCTION__, "invalid args for Canvas blit");
         return;
     }
 
-    //Get region (1024x1024) coordinates of dx, dy, dx+dw, and dy+dh
+    //Get region (texSize x texSize) coordinates of dx, dy, dx+dw, and dy+dh
     int rdX0 = getRXYZ(dx);
     int rdY0 = getRXYZ(dy);
     int rdX1 = getRXYZ(dx+dw);
@@ -188,7 +188,7 @@ void Canvas::rcopy(t_ll dx, t_ll dy, t_ll dw, t_ll dh)
     Texture* tex11 = getTex(rdX1, rdY1);
 
 
-    //Get sub pos within 1024x1024 region. A subpos coordinate thus is any number in [0, 1023].
+    //Get sub pos within texSize x texSize region. A subpos coordinate thus is any number in [0, texSize-1].
     int sdx = getSubPos(dx);
     int sdy = getSubPos(dy);
     int sdw = getSubPos(dx+dw);
@@ -201,19 +201,19 @@ void Canvas::rcopy(t_ll dx, t_ll dy, t_ll dw, t_ll dh)
         tex00->blit(source, sx, sy);
     }
     //Upper right tex
-    if( tex10!=nullptr && sdx+dw>1024 ) {
+    if( tex10!=nullptr && sdx+dw>texSize ) {
         tex10->lock(0, sdy, sdw, dh);
-        tex10->blit(source, sx+1024-sdx, sy);
+        tex10->blit(source, sx+texSize-sdx, sy);
     }
     //Lower left tex
-    if( tex01!=nullptr && sdy+dh>1024 ) {
+    if( tex01!=nullptr && sdy+dh>texSize ) {
         tex01->lock(sdx, 0, dw, sdh);
-        tex01->blit(source, sx, sy+1024-sdy);
+        tex01->blit(source, sx, sy+texSize-sdy);
     }
     //Lower right tex
-    if( tex11!=nullptr && sdx+dw>1024 && sdy+dh>1024 ) {
+    if( tex11!=nullptr && sdx+dw>texSize && sdy+dh>texSize ) {
         tex11->lock(0, 0, sdw, sdh);
-        tex11->blit(source, sx+1024-sdx, sy+1024-sdy);
+        tex11->blit(source, sx+texSize-sdx, sy+texSize-sdy);
     }
 
 
@@ -226,7 +226,7 @@ int Canvas::loadTex(long rX, long rY)
         Texture* tex = new Texture();
         tex->init(sdlHandler);
         tex->setBlendMode(SDL_BLENDMODE_BLEND);
-        tex->setTexDimensions(1024, 1024);
+        tex->setTexDimensions(texSize, texSize);
         texes.insert( std::make_pair(std::make_pair(rX, rY), tex) );
         return 0;
     }
@@ -313,8 +313,8 @@ void Canvas::updateDrawSettings()
         //Set draw scale of tex to be 1 pixel larger than it "should" be:
         //  otherwise there might be tiny visible lines in between regions, breaking continuity.
         //  correctionFactor variable which always == a tiny more than 1.0.
-        double correctionFactor = (zoom*1024.0)/(zoom*1024.0-1);
-        //correctionFactor = (zoom*1024.0)/(zoom*1024.0-1)*1.4; //for fun
+        double correctionFactor = (zoom*((double)texSize))/(zoom*((double)texSize)-1);
+        //correctionFactor = (zoom*((double)texSize))/(zoom*((double)texSize)-1)*1.4; //for fun
         //correctionFactor = 1.0;
         tex->setDrawScale( zoom*correctionFactor );
 
@@ -322,7 +322,7 @@ void Canvas::updateDrawSettings()
         //Reset location of tex
         tex->setDrawPos(0, 0);
         //Translate tex according to the world region's physical location
-        tex->translate( tX*1024.0*zoom, tY*1024.0*zoom );
+        tex->translate( tX*((double)texSize)*zoom, tY*((double)texSize)*zoom );
         //Translate tex according to location of the camera
         tex->translate( -camera->getX()*tileScale, -camera->getY()*tileScale );
         //Translate tex so that the center of the screen corresponds to (0, 0) if camera(x, y) = (0, 0).
