@@ -105,17 +105,10 @@
 		</Linker>
 		<Unit filename="src/gfx/Camera.cpp" />
 		<Unit filename="src/gfx/Camera.h" />
-		<Unit filename="src/gfx/Canvas.h" />
-		<Unit filename="src/gfx/Color.h" />
-		<Unit filename="src/gfx/ColorPalette.h" />
 		<Unit filename="src/gfx/GUIHandler.cpp" />
 		<Unit filename="src/gfx/GUIHandler.h" />
-		<Unit filename="src/gfx/SpriteSheet.h" />
-		<Unit filename="src/gfx/SpriteSheetBuilder.h" />
 		<Unit filename="src/gfx/Text.cpp" />
 		<Unit filename="src/gfx/Text.h" />
-		<Unit filename="src/gfx/Texture.h" />
-		<Unit filename="src/gfx/TextureBuilder.h" />
 		<Unit filename="src/gfx/gui/Button.cpp" />
 		<Unit filename="src/gfx/gui/Button.h" />
 		<Unit filename="src/gfx/gui/GUI.cpp" />
@@ -218,6 +211,9 @@
 		<Unit filename="src/world/tile/TileType.h" />
 		<Extensions>
 			<lib_finder disable_auto="1" />
+			<code_completion />
+			<envvars />
+			<debugger />
 		</Extensions>
 	</Project>
 </CodeBlocks_project_file>
