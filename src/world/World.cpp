@@ -159,13 +159,15 @@ void World::updateMouseAndCamInfo()
 
 void World::entityInteractions()
 {
-    //Get player x, y, and z both in double and in t_ll form.
-    double pxd = std::get<0>(player.getPos());
-    int px = floor(pxd);
-    double pyd = std::get<1>(player.getPos());
-    int py = floor(pyd);
-    double pzd = std::get<2>(player.getPos());
-    int pz = floor(pzd);
+    /*
+        //Get player x, y, and z both in double and in t_ll form.
+        double pxd = std::get<0>(player.getPos());
+        int px = floor(pxd);
+        double pyd = std::get<1>(player.getPos());
+        int py = floor(pyd);
+        double pzd = std::get<2>(player.getPos());
+        int pz = floor(pzd);
+    */
 
     if( player.getAction()==player.Action::GM_Destroy_Tile ) {
         TileType tt;
