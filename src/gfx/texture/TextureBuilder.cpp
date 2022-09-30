@@ -117,7 +117,7 @@ void TextureBuilder::tile(Texture& tex)
     tex.setTexDimensions(32, 32);
     for( int x = 0; x<32; x++ ) {
         for( int y = 0; y<32; y++ ) {
-            tex.px(x, y, 128, x*8, y*8);
+            tex.pixel(x, y, 128, x*8, y*8);
         }
     }
     tex.setDrawScale(4);
