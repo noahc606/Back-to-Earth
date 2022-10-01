@@ -34,7 +34,7 @@ void TileMapScreen::tick()
     tickTime = 0.0;
     Timer localTimer;
 
-    //Calculate screen width and screen height
+    //Calculate screen width and screen height (in tiles)
     screenWidth = sdlHandler->getWidth()/tileScale;
     if( screenWidth==0 ) screenWidth = 1;
     screenHeight = sdlHandler->getHeight()/tileScale;
@@ -57,14 +57,12 @@ void TileMapScreen::tick()
     }
 
     if( cL!=camL ) {
-
         camL = cL;
         for(TileMap::t_regionMap::iterator itrRM = tileMap->getRegionMap()->begin(); itrRM!=tileMap->getRegionMap()->end(); itrRM++ ) {
             TileRegion* tr = &itrRM->second;
             if( tr==nullptr ) continue;
             tr->setRegTexState(tr->RegTexState::SHOULD_UPDATE);
         }
-
         tileMap->stopAllUpdates();
     }
 
@@ -102,7 +100,7 @@ void TileMapScreen::draw(Canvas* csTileMap)
     }
     rtUpdatesTimeTotal += rtUpdatesTime;
 
-    double rtUpdatesTimeMax = 8;
+    double rtUpdatesTimeMax = 6;
     if(rtUpdatesTime < rtUpdatesTimeMax) {
         //Increase rtUpdatesToDo if rtUpdatesTimeMax is NOT exceeded
         rtUpdatesToDo = (double)rtUpdatesToDo*rtUpdatesTimeMax/rtUpdatesTime;
@@ -167,7 +165,8 @@ void TileMapScreen::info(std::stringstream& ss, int& tabs, TileMap::t_ll mouseX,
     DebugScreen::newGroup(ss, tabs, "Camera");
         //Zoom, scale
         DebugScreen::indentLine(ss, tabs);
-        ss << "Screen (width, height)=(" << screenWidth << ", " << screenHeight << "); ";
+        ss << "Screen(width, height)=(" << screenWidth << ", " << screenHeight << "); ";
+        ss << "Screen(scrRW, scrRH)=(" << screenTX/tileScale/regionSize << ", " << screenTY/tileScale/regionSize << "); ";
         DebugScreen::newLine(ss);
         DebugScreen::indentLine(ss, tabs);
         ss << "Zoom=" << mapZoom << "; ";
@@ -248,8 +247,8 @@ void TileMapScreen::mapUpdates()
 
     /** Region loading */
     //Load Regions, RegTexes, nearby in a ring
-    int radius = 5;
-    int verticalRadius = 1;
+    int radius = 6;
+    int verticalRadius = 2;
 
     int scrRW = screenTX/tileScale/regionSize+2;
     int scrRH = screenTY/tileScale/regionSize+2;
@@ -422,7 +421,7 @@ void TileMapScreen::regTexUpdates(Canvas* csTileMap, int maxUpdates)
     int sz = TileMap::getRegSubPos(z);
 
     int radius = 6;
-    //We want to region texes in a rectangular ring pattern.
+    //We want to load region texes in a rectangular ring pattern.
     //This rectangular area of regions should barely cover the entire screen (visible area based on camera zoom, x, y, and z).
     int scrRW = screenTX/tileScale/regionSize+3;
     int scrRH = screenTY/tileScale/regionSize+3;
@@ -492,5 +491,5 @@ void TileMapScreen::regTexUpdate(TileIterator& ti, Texture* tex)
     int dstX = 32*ti.getTrackerSub(0);  //32*X
     int dstY = 32*ti.getTrackerSub(1);  //32*Y
 
-    RegTexBuilder rtb(tex, ti, dstX, dstY, topTileFromCam, dZ);
+    RegTexBuilder rtb(tex, ti, dstX, dstY, tileScale, topTileFromCam, dZ);
 }
