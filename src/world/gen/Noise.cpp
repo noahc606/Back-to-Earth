@@ -120,6 +120,7 @@ void Noise::populateRegion(TileRegion& tr, int rX, int rY, int rZ)
 
     //Height scale
     float verticalScaling = 32.0;
+    float verticalScaling2 = 128.0;
 
     //Tiny noise: Small variations
     float tNoise = 0.0; float tZoom = 64.0;
@@ -128,7 +129,7 @@ void Noise::populateRegion(TileRegion& tr, int rX, int rY, int rZ)
     //Large noise: Mountains, large valleys and seas
     float lNoise = 0.0; float lZoom = 2048.0;
     //Continental Noise: Continents and oceans
-    float cNoise = 0.0; float cZoom = 32768.0;
+    float cNoise = 0.0; float cZoom = 16.0*32768.0;
 
     //ND: noise depth
     int nd = 0;
@@ -142,7 +143,7 @@ void Noise::populateRegion(TileRegion& tr, int rX, int rY, int rZ)
             tNoise = clampedNoise2D((x+sx)/tZoom,(y+sy)/tZoom)*verticalScaling;
             mNoise = clampedNoise2D((x+sx)/mZoom,(y+sy)/mZoom)*verticalScaling;
             lNoise = noise2D((x+sx)/lZoom,(y+sy)/lZoom)*verticalScaling;
-            cNoise = noise2D((x+sx)/cZoom,(y+sy)/cZoom)*verticalScaling;
+            cNoise = noise2D((x+sx)/cZoom,(y+sy)/cZoom)*verticalScaling2;
 
             //Calculate total noise depth.
             nd = -z-tNoise-mNoise-lNoise-cNoise;
