@@ -46,7 +46,6 @@ public:
         WORLD_region0,
         WORLD_region1,
         WORLD_TILE_type_a,
-        WORLD_TILE_OVERLAY_depth,
         WORLD_TILE_OVERLAY_wall,
     };
 

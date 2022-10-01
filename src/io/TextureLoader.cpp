@@ -51,7 +51,7 @@ SDL_Texture* TextureLoader::getTexture(int index)
     }
     catch (const std::out_of_range &err) {
         std::stringstream ss; ss << "index '" << index << "' out of range";
-        Log::warn(__PRETTY_FUNCTION__, "index out of range", "using 'missing' texture");
+        Log::warn(__PRETTY_FUNCTION__, ss.str(), "using 'missing' texture");
         return textures.at(missing);
     }
 
@@ -100,7 +100,6 @@ void TextureLoader::load()
         addSurface("world\\region0");
         addSurface("world\\region1");
         addSurface("world\\tile\\type_a");
-        addSurface("world\\tile\\overlay\\depth");
         addSurface("world\\tile\\overlay\\wall");
 
         //Create textures from all surfaces
