@@ -70,5 +70,6 @@ private:
     /**/
     void removeAllGUIs();
     void removeGUIByIndex(int index);
+    void alignWindows();
     void alignWindowComponents(int alignment);
 };

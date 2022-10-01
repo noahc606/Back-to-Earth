@@ -15,11 +15,13 @@ public:
     int getVerAlignment();
     int getAlignment(bool dim);
 
-    int getSX(); int getSY();
-    int getSPos(bool dim);              //Get sX or sY
-
-    int getWidth(); int getHeight();
-    int getDim(bool dim);               //Get width or height
+    int getSX(); int getSY();               //Get sX or sY
+    int getSPos(bool dim);                  //Get both sX or sY
+    int getWidth(); int getHeight();        //Get width or height
+    int getDim(bool dim);                   //Get both width or height
+    /**/
+    void setSX(int sx); void setSY(int sy); //Set sX or sY
+    void setSPos(int sx, int sy);           //Set both sX and sy
 
     enum HorizontalAlignments {
         NO_H = 10,
@@ -35,6 +37,8 @@ public:
     };
 
 protected:
+    int scale = 2;
+
     int horAlignment = NO_H;
     int verAlignment = NO_V;
 

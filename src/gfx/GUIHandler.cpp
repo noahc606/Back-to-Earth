@@ -168,13 +168,13 @@ void GUIHandler::onWindowUpdate()
         }
     }
 
-    /** Align window components (buttons, textboxes, etc) */
+    /** Align GUIs */
+    //Align windows
+    alignWindows();
+    //Align window components (buttons, textboxes, etc)
     //Make sure to center GUIs vertically in the screen THEN horizontally.
-
-    //alignWindowComponents(GUIAlignable::L);
     alignWindowComponents(GUIAlignable::CENTER_V);
     alignWindowComponents(GUIAlignable::CENTER_H);
-    //alignWindowComponents(GUIAlignable::R);
 }
 
 void GUIHandler::passKeyboardInput(std::string text, bool special)
@@ -261,10 +261,10 @@ void GUIHandler::setGUIs(int guis)
             removeAllUserGUIs();
             removeGUIs(btn_MAIN_play, 199);
 
-            //addGUI(new Window( GUIAlignable::CENTER_H, GUIAlignable::CENTER_V, 800, 800, "Options", "", win_OPTIONS ));
-            addGUI(new Window( 300, 300, 500, 500, "Options", "", win_OPTIONS ));
-            addGUI(new Button( getWindow(win_OPTIONS), GUIAlignable::CENTER_H, GUIAlignable::CENTER_V, 450, "Graphics Settings", btn_OPTIONS_gs ));
-            addGUI(new Button( getWindow(win_OPTIONS), GUIAlignable::CENTER_H, GUIAlignable::CENTER_V, 450, "Back", btn_OPTIONS_back ));
+            addGUI(new Window(win_MAIN));
+            addGUI(new Window( GUIAlignable::CENTER_H, GUIAlignable::CENTER_V, 800, 800, "Options", "", win_OPTIONS ));
+            addGUI(new Button( getWindow(win_OPTIONS), GUIAlignable::CENTER_H, GUIAlignable::CENTER_V, 300, "Graphics Settings", btn_OPTIONS_gs ));
+            addGUI(new Button( getWindow(win_OPTIONS), GUIAlignable::CENTER_H, GUIAlignable::CENTER_V, 300, "Back", btn_OPTIONS_back ));
 
         } break;
         case WORLD: {
@@ -327,12 +327,33 @@ void GUIHandler::removeGUIByIndex(int index)
     gui->destroy();
 }
 
-void GUIHandler::alignWindowComponents(int p_alignment)
+void GUIHandler::alignWindows()
+{
+    if( sdlHandler==nullptr )
+        return;
+
+    for( GUI* gui : guis ) {
+        if ( gui->getType()==BTEObject::GUI_window ) {
+            Window* win = (Window*)gui;
+
+            if( win->getHorAlignment()==GUIAlignable::CENTER_H ) {
+                win->setSX( (sdlHandler->getWidth()/2-win->getWidth()/2) );
+                win->onWindowUpdate(true);
+            }
+            if( win->getVerAlignment()==GUIAlignable::CENTER_V ) {
+                win->setSY( (sdlHandler->getHeight()/2-win->getHeight()/2) );
+                win->onWindowUpdate(true);
+            }
+        }
+    }
+}
+
+void GUIHandler::alignWindowComponents(int align)
 {
     /* Create a set of parent windows and a set of component (x/y) values rounded to the nearest 16. */
     std::set<GUI*> windows;
     std::set<int> compCoords;
-    switch(p_alignment) {
+    switch(align) {
         case GUIAlignable::L:
         case GUIAlignable::CENTER_H:
         case GUIAlignable::R:
@@ -340,7 +361,7 @@ void GUIHandler::alignWindowComponents(int p_alignment)
         case GUIAlignable::CENTER_V:
         case GUIAlignable::D: {
             for( GUI* gui : guis ) {
-                if (gui->getType()==BTEObject::GUI_button ||
+                if( gui->getType()==BTEObject::GUI_button ||
                     gui->getType()==BTEObject::GUI_textbox ||
                     gui->getType()==BTEObject::GUI_tooltip
                     ) {
@@ -348,11 +369,11 @@ void GUIHandler::alignWindowComponents(int p_alignment)
                     Window* pWin = wc->getParentWindow();
                     if( pWin!=nullptr && pWin->getType()==BTEObject::GUI_window ) {
                         windows.insert( wc->getParentWindow() );
-                        if( p_alignment==GUIAlignable::CENTER_H && wc->getHorAlignment()==GUIAlignable::CENTER_H ) {
+                        if( align==GUIAlignable::CENTER_H && wc->getHorAlignment()==GUIAlignable::CENTER_H ) {
                             compCoords.insert( wc->getTY() );
                         }
 
-                        if( p_alignment==GUIAlignable::CENTER_V && wc->getVerAlignment()==GUIAlignable::CENTER_V ) {
+                        if( align==GUIAlignable::CENTER_V && wc->getVerAlignment()==GUIAlignable::CENTER_V ) {
                             compCoords.insert( wc->getTX() );
                         }
                     }
@@ -361,7 +382,8 @@ void GUIHandler::alignWindowComponents(int p_alignment)
         } break;
     }
 
-    switch(p_alignment) {
+    switch(align) {
+        /** Left alignment */
         case GUIAlignable::L: {
             for( GUI* gui : guis ) {
                 if (gui->getType()==BTEObject::GUI_button ||
@@ -374,6 +396,7 @@ void GUIHandler::alignWindowComponents(int p_alignment)
             }
         } break;
 
+        /** Center vertically/horizontally alignment */
         case GUIAlignable::CENTER_V:
         case GUIAlignable::CENTER_H: {
             //Go through all windows
@@ -396,12 +419,12 @@ void GUIHandler::alignWindowComponents(int p_alignment)
                             WindowComponent* wc = (WindowComponent*)gui;
                             Window* pWin = wc->getParentWindow();
                             if( pWin!=nullptr && pWin->getType()==BTEObject::GUI_window ) {
-                                if( p_alignment==GUIAlignable::CENTER_H && wc->getHorAlignment()==GUIAlignable::CENTER_H ) {
+                                if( align==GUIAlignable::CENTER_H && wc->getHorAlignment()==GUIAlignable::CENTER_H ) {
                                     if( pWin==win && wc->getTY()==thisCoord ) {
                                         tacw += ( wc->getWidth()+32-12 );
                                     }
                                 }
-                                if( p_alignment==GUIAlignable::CENTER_V && wc->getVerAlignment()==GUIAlignable::CENTER_V ) {
+                                if( align==GUIAlignable::CENTER_V && wc->getVerAlignment()==GUIAlignable::CENTER_V ) {
                                     if( pWin==win && wc->getTX()==thisCoord ) {
                                         tach += ( wc->getHeight()+spacing );
                                     }
@@ -429,14 +452,14 @@ void GUIHandler::alignWindowComponents(int p_alignment)
                             Window* pWin = wc->getParentWindow();
                             if( pWin!=nullptr && pWin->getType()==BTEObject::GUI_window ) {
 
-                                if( p_alignment==GUIAlignable::CENTER_H && wc->getHorAlignment()==GUIAlignable::CENTER_H ) {
+                                if( align==GUIAlignable::CENTER_H && wc->getHorAlignment()==GUIAlignable::CENTER_H ) {
                                     if( pWin==win && wc->getTY()==thisCoord ) {
                                         wc->setTPos( cxp-6, wc->getTY() );
                                         wc->onWindowUpdate(true);
                                         cxp += (wc->getWidth()+32 );
                                     }
                                 }
-                                if( p_alignment==GUIAlignable::CENTER_V && wc->getVerAlignment()==GUIAlignable::CENTER_V ) {
+                                if( align==GUIAlignable::CENTER_V && wc->getVerAlignment()==GUIAlignable::CENTER_V ) {
                                     if( pWin==win && wc->getTX()==thisCoord ) {
                                         wc->setTPos( wc->getTX(), cyp-6 );
                                         wc->onWindowUpdate(true);

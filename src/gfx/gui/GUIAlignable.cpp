@@ -10,8 +10,12 @@ GUIAlignable::~GUIAlignable()
     //dtor
 }
 
+/**/
+
 void GUIAlignable::updateScreenPos() {}
 void GUIAlignable::onWindowUpdate(bool preventInvalidTPos) {}
+
+/**/
 
 int GUIAlignable::getHorAlignment() { return horAlignment; }
 int GUIAlignable::getVerAlignment() { return verAlignment; }
@@ -24,3 +28,15 @@ int GUIAlignable::getSPos(bool dim) { if(dim==0) return sX; return sY; }
 int GUIAlignable::getWidth() { return width; }
 int GUIAlignable::getHeight() { return height; }
 int GUIAlignable::getDim(bool dim) { if(dim==0) return width; return height; }
+
+/**/
+
+void GUIAlignable::setSX(int sx) { sX = sx/scale*scale; }
+void GUIAlignable::setSY(int sy) { sY = sy/scale*scale; }
+void GUIAlignable::setSPos(int sx, int sy)
+{
+    setSX(sx);
+    setSY(sy);
+}
+
+/**/
