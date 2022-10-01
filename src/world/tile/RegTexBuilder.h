@@ -7,7 +7,7 @@
 class RegTexBuilder
 {
 public:
-    RegTexBuilder(Texture* tex, TileIterator& ti, int dstX, int dstY, TileType ttfc, int dZ);
+    RegTexBuilder(Texture* tex, TileIterator& ti, int dstX, int dstY, int tileScale, TileType ttfc, int dZ);
     virtual ~RegTexBuilder();
 
     static void info(std::stringstream& ss, int& tabs, TileIterator& ti, int dZ);
@@ -28,11 +28,11 @@ protected:
 
 private:
 
-    void detailDepth0Tiles(Texture* tex, TileIterator& ti, int dstX, int dstY); //Depth 0
-    void detailDepthPTiles(Texture* tex, TileIterator& ti, int dstX, int dstY, int dZ); //Depth positive (>0)
+    void detailDepth0Tiles(Texture* tex, TileIterator& ti, int dstX, int dstY, int tileScale); //Depth 0
+    void detailDepthPTiles(Texture* tex, TileIterator& ti, int dstX, int dstY, int tileScale, int dZ); //Depth positive (>0)
 
-    void drawTypeA(Texture* tex, int dstX, int dstY, int srcX, int srcY, Color c, int dZ);
-    void drawTypeA(Texture* tex, int dstX, int dstY, TileType tt, int dZ);
-    void drawTypeA(Texture* tex, int dstX, int dstY, int srcX, int srcY);
-    void drawOverlay(Texture* tex, int dstX, int dstY, int srcX, int srcY);
+    void drawTypeA(Texture* tex, int dstX, int dstY, int tileScale, int srcX, int srcY, Color c, int dZ);
+    void drawTypeA(Texture* tex, int dstX, int dstY, int tileScale, TileType tt, int dZ);
+    void drawTypeA(Texture* tex, int dstX, int dstY, int tileScale, int srcX, int srcY);
+    void drawOverlay(Texture* tex, int dstX, int dstY, int tileScale, int srcX, int srcY);
 };
