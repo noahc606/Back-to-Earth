@@ -2457,7 +2457,7 @@
 	<string>
 	<vector>
 
-1664377542 c:\users\noahc\desktop\git\back to earth\back-to-earth\src\io\textureloader.h
+1664598262 c:\users\noahc\desktop\git\back to earth\back-to-earth\src\io\textureloader.h
 	<iostream>
 	<memory>
 	<SDL.h>
@@ -2480,11 +2480,11 @@
 	"Color.h"
 	"SDLHandler.h"
 
-1664377542 c:\users\noahc\desktop\git\back to earth\back-to-earth\src\gfx\gui\windowcomponent.h
+1664597564 c:\users\noahc\desktop\git\back to earth\back-to-earth\src\gfx\gui\windowcomponent.h
 	"GUIAlignable.h"
 	"Window.h"
 
-1664377542 c:\users\noahc\desktop\git\back to earth\back-to-earth\src\gfx\gui\guialignable.h
+1664597574 c:\users\noahc\desktop\git\back to earth\back-to-earth\src\gfx\gui\guialignable.h
 	"GUI.h"
 
 1664377542 c:\users\noahc\desktop\git\back to earth\back-to-earth\src\gfx\gui\gui.h
@@ -2520,7 +2520,7 @@
 	<vector>
 	"Settings.h"
 
-1664377542 c:\users\noahc\desktop\git\back to earth\back-to-earth\src\gfx\gui\window.h
+1664597026 c:\users\noahc\desktop\git\back to earth\back-to-earth\src\gfx\gui\window.h
 	"GUIAlignable.h"
 	"Text.h"
 	"Texture.h"
@@ -2532,7 +2532,7 @@
 	"Color.h"
 	"Texture.h"
 
-1664377542 c:\users\noahc\desktop\git\back to earth\back-to-earth\src\gfx\guihandler.h
+1664597596 c:\users\noahc\desktop\git\back to earth\back-to-earth\src\gfx\guihandler.h
 	<vector>
 	"BTEObject.h"
 	"GUI.h"
@@ -2546,7 +2546,7 @@
 	"GUI.h"
 	"GUIHandler.h"
 
-1664377542 source:c:\users\noahc\desktop\git\back to earth\back-to-earth\src\gfx\gui\guialignable.cpp
+1664597589 source:c:\users\noahc\desktop\git\back to earth\back-to-earth\src\gfx\gui\guialignable.cpp
 	"GUIAlignable.h"
 
 1664377542 source:c:\users\noahc\desktop\git\back to earth\back-to-earth\src\gfx\gui\textbox.cpp
@@ -2584,7 +2584,7 @@
 	"WindowPanelData.h"
 	<sstream>
 
-1664377542 source:c:\users\noahc\desktop\git\back to earth\back-to-earth\src\gfx\guihandler.cpp
+1664598057 source:c:\users\noahc\desktop\git\back to earth\back-to-earth\src\gfx\guihandler.cpp
 	"GUIHandler.h"
 	<set>
 	"Log.h"
@@ -2631,7 +2631,7 @@
 	"Color.h"
 	"Texture.h"
 
-1664580287 c:\users\noahc\desktop\git\back to earth\back-to-earth\src\gfx\texture\canvas.h
+1664599134 c:\users\noahc\desktop\git\back to earth\back-to-earth\src\gfx\texture\canvas.h
 	<map>
 	"Camera.h"
 	"Texture.h"
@@ -2841,7 +2841,7 @@
 	<SDL.h>
 	"Main.h"
 
-1664580203 source:c:\users\noahc\desktop\git\back to earth\back-to-earth\src\gfx\texture\canvas.cpp
+1664599236 source:c:\users\noahc\desktop\git\back to earth\back-to-earth\src\gfx\texture\canvas.cpp
 	"Canvas.h"
 	<math.h>
 	"Log.h"
@@ -2879,7 +2879,7 @@
 	"Main.h"
 	"MainLoop.h"
 
-1664377542 source:c:\users\noahc\desktop\git\back to earth\back-to-earth\src\io\textureloader.cpp
+1664598208 source:c:\users\noahc\desktop\git\back to earth\back-to-earth\src\io\textureloader.cpp
 	"TextureLoader.h"
 	<iostream>
 	<sstream>
@@ -2927,7 +2927,7 @@
 	"Real.h"
 	"Noise.h"
 
-1664581330 source:c:\users\noahc\desktop\git\back to earth\back-to-earth\src\world\gen\noise.cpp
+1664581786 source:c:\users\noahc\desktop\git\back to earth\back-to-earth\src\world\gen\noise.cpp
 	"Noise.h"
 	<math.h>
 
@@ -2953,11 +2953,11 @@
 	"Point3D.h"
 	"Defs.h"
 
-1664509007 source:c:\users\noahc\desktop\git\back to earth\back-to-earth\src\world\tile\regtexbuilder.cpp
+1664600371 source:c:\users\noahc\desktop\git\back to earth\back-to-earth\src\world\tile\regtexbuilder.cpp
 	"RegTexBuilder.h"
 	"DebugScreen.h"
 
-1664377542 c:\users\noahc\desktop\git\back to earth\back-to-earth\src\world\tile\regtexbuilder.h
+1664599580 c:\users\noahc\desktop\git\back to earth\back-to-earth\src\world\tile\regtexbuilder.h
 	<sstream>
 	"Color.h"
 	"Texture.h"
@@ -2981,7 +2981,7 @@
 	"TileIterator.h"
 	"TileType.h"
 
-1664377542 source:c:\users\noahc\desktop\git\back to earth\back-to-earth\src\world\tile\tilemapscreen.cpp
+1664600282 source:c:\users\noahc\desktop\git\back to earth\back-to-earth\src\world\tile\tilemapscreen.cpp
 	"TileMapScreen.h"
 	<iomanip>
 	<iostream>
