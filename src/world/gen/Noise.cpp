@@ -61,18 +61,14 @@ float Noise::noise2D(float x, float y)
 {
     // Determine grid cell coordinates
     int x0 = (int)floor(x);
-    int x1 = x0 + 1;
+    int x1 = x0+1;
     int y0 = (int)floor(y);
-    int y1 = y0 + 1;
-
-    //std::cout << "From (" << x0 << ", " << y0 << ") to (" << x1 << ", " << y1 << ");\n";
+    int y1 = y0+1;
 
     // Determine interpolation weights
     // Could also use higher order polynomial/s-curve here
     float sx = x-(float)x0;
     float sy = y-(float)y0;
-
-    //std::cout << "Weights: (sx, sy)=(" << sx << ", " << sy << ")\n";
 
     // Interpolate between grid point gradients
     float n0, n1, ix0, ix1, value;
