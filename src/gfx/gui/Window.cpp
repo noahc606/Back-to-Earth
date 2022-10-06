@@ -2,6 +2,7 @@
 #include "TextureBuilder.h"
 #include "Log.h"
 /**/
+int Window::bkgdScroll = 0;
 
 Window::Window(int x, int y, WindowPanelData* panelData, int id)
 {
@@ -115,7 +116,6 @@ void Window::destroy()
 void Window::draw()
 {
     if( bkgd ) {
-
         int wtx = 0; int wty = 0; double wts = 0;
         windowTex.queryDrawInfo(wtx, wty, wts);
         int wtw = 0; int wth = 0;
@@ -124,12 +124,12 @@ void Window::draw()
         windowTex.setDrawPos(wtx-wtw*wts, wty);
         windowTex.draw();
         windowTex.setDrawPos(wtx, wty);
+
         windowTex.draw();
     } else {
         windowTex.draw();
         upperPanelText.draw();
         lowerPanelText.draw();
-        //Text::draw(sdlHandler, lower)
     }
 
 
@@ -138,14 +138,17 @@ void Window::draw()
 void Window::tick()
 {
     if( bkgd ) {
+        bkgdScroll+=1;
+
         int wtx = 0; int wty = 0; double wts = 0;
         windowTex.queryDrawInfo(wtx, wty, wts);
         int wtw = 0; int wth = 0;
         windowTex.queryTexInfo(wtw, wth);
 
-        windowTex.translate(wts, 0);
-        if( wtx>wtw*wts ) {
+        windowTex.setDrawPos(bkgdScroll*wts, 0);
+        if( bkgdScroll>wtw ) {
             windowTex.setDrawPos(0, 0);
+            bkgdScroll = 0;
         }
     }
 }

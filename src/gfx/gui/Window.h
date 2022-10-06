@@ -23,11 +23,11 @@ public:
 protected:
 
 private:
-
     Texture windowTex;
     Text upperPanelText;
     Text lowerPanelText;
     WindowPanelData* panelData = nullptr;
 
     bool bkgd = false;
+    static int bkgdScroll;
 };
