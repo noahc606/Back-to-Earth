@@ -55,7 +55,9 @@ private:
     int gamestate = TESTING;
     GUIHandler guiHandler;
     Commands commands;
+
     World* world = nullptr;
+    bool paused = false;
 
     /* Debugging, testing */
     DebugScreen debugScreen;

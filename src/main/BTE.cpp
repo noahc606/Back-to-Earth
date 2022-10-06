@@ -65,37 +65,64 @@ void BTE::draw()
 
 void BTE::tick()
 {
-    //Gamestate specific objects
+    /** Gamestate specific objects */
     switch(gamestate) {
 
         case TESTING:
         case TEXTURES: {
-            if( tests!=nullptr )
+            if( tests!=nullptr ) {
                 tests->tick();
+            }
         } break;
 
         case GameState::WORLD: {
             if( world!=nullptr ) {
-                world->tick();
+                //Toggle between pause and unpause
+                if( controls->isPressed("INGAME_PAUSE") ) {
+                    if( paused ) {
+                        paused = false;
+                        guiHandler.setGUIs( GUIHandler::GUIs::UNPAUSE );
+                    } else {
+                        paused = true;
+                        guiHandler.setGUIs( GUIHandler::GUIs::PAUSE );
+                    }
+                    controls->stopPress("INGAME_PAUSE", __PRETTY_FUNCTION__);
+                }
+
+                //Tick world
+                world->tick(paused);
             }
         } break;
     }
 
-    //GUI handler and debug screen exists for all gamestates
+    /** GUIHandler/DebugScreen */
     if( guiHandler.exists() ) {
         /** GUI handler */
         //Tick
         guiHandler.tick();
-        //GUI Action
+
+        //GUI Button Action
         if( guiHandler.getGUIActionID()>-1 ) {
             ButtonAction ba(sdlHandler, &guiHandler);
-
             //Game state switching through buttons
-            if( guiHandler.getGUIActionID()==GUIHandler::btn_MAIN_play ) {
-                setGameState(GameState::WORLD);
-            }
-            if( guiHandler.getGUIActionID()==GUIHandler::btn_MAIN_exit ) {
-                setGameState(GameState::EXIT);
+
+            switch( guiHandler.getGUIActionID() ) {
+                /** Main Menu */
+                case GUIHandler::btn_MAIN_play:
+                    setGameState(GameState::WORLD);
+                break;
+                case GUIHandler::btn_MAIN_exit:
+                    setGameState(GameState::EXIT);
+                break;
+
+                /** Pause Menu */
+                case GUIHandler::btn_PAUSED_back:
+                    paused = false;
+                    guiHandler.setGUIs(GUIHandler::GUIs::UNPAUSE);
+                break;
+                case GUIHandler::btn_PAUSED_exit:
+                    setGameState(GameState::MAIN_MENU);
+                break;
             }
 
             //Reset gui action
