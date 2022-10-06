@@ -259,7 +259,6 @@ void GUIHandler::setGUIs(int guis)
         } break;
         case OPTIONS: {
             removeAllUserGUIs();
-            removeGUIs(btn_MAIN_play, 199);
 
             addGUI(new Window(win_MAIN));
             addGUI(new Window( GUIAlignable::CENTER_H, GUIAlignable::CENTER_V, 800, 800, "Options", "", win_OPTIONS ));
@@ -267,6 +266,16 @@ void GUIHandler::setGUIs(int guis)
             addGUI(new Button( getWindow(win_OPTIONS), GUIAlignable::CENTER_H, GUIAlignable::CENTER_V, 300, "Back", btn_OPTIONS_back ));
 
         } break;
+        case PAUSE: {
+
+            addGUI(new Window( GUIAlignable::CENTER_H, GUIAlignable::CENTER_V, 500, 400, "Paused", "", win_PAUSED ));
+            addGUI(new Button( getWindow(win_PAUSED), GUIAlignable::CENTER_H, GUIAlignable::CENTER_V, 300, "Back to Game", btn_PAUSED_back ));
+            addGUI(new Button( getWindow(win_PAUSED), GUIAlignable::CENTER_H, GUIAlignable::CENTER_V, 300, "Options", btn_PAUSED_options ));
+            addGUI(new Button( getWindow(win_PAUSED), GUIAlignable::CENTER_H, GUIAlignable::CENTER_V, 300, "Save & Exit", btn_PAUSED_exit ));
+        } break;
+        case UNPAUSE: {
+        }
+
         case WORLD: {
             removeAllUserGUIs();
         } break;

@@ -42,12 +42,17 @@ public:
         win_OPTIONS = 200,
         btn_OPTIONS_gs,
         btn_OPTIONS_back,
+
+        win_PAUSED = 300,
+        btn_PAUSED_back,
+        btn_PAUSED_options,
+        btn_PAUSED_exit,
     };
 
     enum GUIs {
         MAIN_MENU,
         OPTIONS,
-        PAUSE,
+        PAUSE, UNPAUSE,
         WORLD,
     };
 

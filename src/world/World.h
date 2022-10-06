@@ -15,7 +15,7 @@ public:
     virtual ~World();
     /**/
     void draw();
-    void tick();
+    void tick(bool paused);
     /**/
     void info(std::stringstream& ss, int& tabs);
 protected:
@@ -30,8 +30,6 @@ private:
     Player player;
     double mouseX = 0; double mouseY = 0;
     t_ll mouseXLL = 0; t_ll mouseYLL = 0; t_ll mouseZLL = 0;
-
-    bool paused = false;
 
     TileMap tileMap;
     TileMapScreen tileMapScreen;
