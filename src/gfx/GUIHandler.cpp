@@ -245,7 +245,6 @@ void GUIHandler::setGUIs(int guis)
     switch(guis) {
         case MAIN_MENU: {
             AudioLoader* al = sdlHandler->getAudioLoader();
-
             al->play(AudioLoader::TITLE_impact);
 
             removeAllUserGUIs();
@@ -258,9 +257,13 @@ void GUIHandler::setGUIs(int guis)
 
         } break;
         case OPTIONS: {
-            removeAllUserGUIs();
+            removeGUI(ttp_MAIN_title);
+            removeGUI(btn_MAIN_play);
+            removeGUI(btn_MAIN_options);
+            removeGUI(btn_MAIN_exit);
 
-            addGUI(new Window(win_MAIN));
+            removeGUI(win_PAUSED);
+
             addGUI(new Window( GUIAlignable::CENTER_H, GUIAlignable::CENTER_V, 800, 800, "Options", "", win_OPTIONS ));
             addGUI(new Button( getWindow(win_OPTIONS), GUIAlignable::CENTER_H, GUIAlignable::CENTER_V, 300, "Graphics Settings", btn_OPTIONS_gs ));
             addGUI(new Button( getWindow(win_OPTIONS), GUIAlignable::CENTER_H, GUIAlignable::CENTER_V, 300, "Back", btn_OPTIONS_back ));
@@ -268,7 +271,9 @@ void GUIHandler::setGUIs(int guis)
         } break;
         case PAUSE: {
 
-            addGUI(new Window( GUIAlignable::CENTER_H, GUIAlignable::CENTER_V, 500, 400, "Paused", "", win_PAUSED ));
+            removeGUI(win_OPTIONS);
+
+            addGUI(new Window( GUIAlignable::CENTER_H, GUIAlignable::CENTER_V, 600, 500, "Paused", "", win_PAUSED ));
             addGUI(new Button( getWindow(win_PAUSED), GUIAlignable::CENTER_H, GUIAlignable::CENTER_V, 300, "Back to Game", btn_PAUSED_back ));
             addGUI(new Button( getWindow(win_PAUSED), GUIAlignable::CENTER_H, GUIAlignable::CENTER_V, 300, "Options", btn_PAUSED_options ));
             addGUI(new Button( getWindow(win_PAUSED), GUIAlignable::CENTER_H, GUIAlignable::CENTER_V, 300, "Save & Exit", btn_PAUSED_exit ));
@@ -311,7 +316,23 @@ void GUIHandler::removeGUIs(int idMin, int idMax)
         }
 
         //Log message
-        Log::warn(__PRETTY_FUNCTION__, ss.str());
+        Log::trbshoot(__PRETTY_FUNCTION__, ss.str());
+    }
+}
+
+void GUIHandler::removeChildGUIs(int id)
+{
+    GUI* parentGUI = guis[id];
+    if( parentGUI->getType()==BTEObject::Type::GUI_window ) {
+
+        for( int i = (int)guis.size()-1; i>=0; i-- ) {
+            GUI* tempGUI = guis.at(i);
+            if( tempGUI->isWindowComponent() ) {
+                if( ((WindowComponent*)tempGUI)->getParentWindow()==(Window*)parentGUI ) {
+                    removeGUIByIndex(i);
+                }
+            }
+        }
     }
 }
 
@@ -332,6 +353,11 @@ void GUIHandler::removeAllUserGUIs()
 void GUIHandler::removeGUIByIndex(int index)
 {
     GUI* gui = guis[index];
+
+    if( gui->getType()==BTEObject::Type::GUI_window ) {
+        removeChildGUIs(index);
+    }
+
     //Call texture destructor
     gui->destroy();
 }

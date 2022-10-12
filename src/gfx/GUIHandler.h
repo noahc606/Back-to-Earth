@@ -26,6 +26,7 @@ public:
     void setGUIs(int guis);
     void removeGUI(int id);
     void removeGUIs(int idMin, int idMax);
+    void removeChildGUIs(int id);
     void removeAllUserGUIs();
     /**/
     enum ID {
