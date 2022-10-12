@@ -21,6 +21,8 @@ WindowComponent::WindowComponent(Window* p_parentWindow, int p_x, int p_y, int p
     if(p_width<8) width = 8;
 
     height = 16;
+
+    windowComponent = true;
 }
 WindowComponent::WindowComponent(Window* p_parentWindow, int p_x, int p_y)
 : WindowComponent::WindowComponent(p_parentWindow, p_x, p_y, 0)

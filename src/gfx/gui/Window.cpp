@@ -84,7 +84,6 @@ void Window::init(SDLHandler* sh, Controls* ctrls)
         }
         */
         upperPanelText.init(sdlHandler);
-        upperPanelText.setPos(0, 0);
         upperPanelText.setString(panelData->getUpperPanel());
 
         //Lower panel
@@ -97,7 +96,6 @@ void Window::init(SDLHandler* sh, Controls* ctrls)
         }
         */
         lowerPanelText.init(sdlHandler);
-        lowerPanelText.setPos(0, 0);
         lowerPanelText.setString(panelData->getLowerPanel());
     }
 
@@ -140,12 +138,10 @@ void Window::tick()
     if( bkgd ) {
         bkgdScroll+=1;
 
-        int wtx = 0; int wty = 0; double wts = 0;
-        windowTex.queryDrawInfo(wtx, wty, wts);
         int wtw = 0; int wth = 0;
         windowTex.queryTexInfo(wtw, wth);
 
-        windowTex.setDrawPos(bkgdScroll*wts, 0);
+        windowTex.setDrawPos(bkgdScroll*windowTex.getDrawScale(), 0);
         if( bkgdScroll>wtw ) {
             windowTex.setDrawPos(0, 0);
             bkgdScroll = 0;
@@ -157,9 +153,15 @@ void Window::onWindowUpdate(bool preventInvalidTPos)
 {
     windowTex.setDrawPos(sX, sY);
 
+    upperPanelText.setPos( sX+width/2-upperPanelText.getWidth()/4, sY+32 );
+    lowerPanelText.setPos( sX+width/2-upperPanelText.getWidth()/2, sY+height-64 );
+
+
     if(bkgd) {
         width = sdlHandler->getWidth();
         height = sdlHandler->getHeight();
+
+        windowTex.setDrawPos(bkgdScroll*windowTex.getDrawScale(), 0);
     }
 }
 
