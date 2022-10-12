@@ -139,8 +139,8 @@
 		<Unit filename="src/gfx/texture/Texture.h" />
 		<Unit filename="src/gfx/texture/TextureBuilder.cpp" />
 		<Unit filename="src/gfx/texture/TextureBuilder.h" />
-		<Unit filename="src/helper/MapHelper.cpp" />
-		<Unit filename="src/helper/MapHelper.h" />
+		<Unit filename="src/helper/NameBuilder.cpp" />
+		<Unit filename="src/helper/NameBuilder.h" />
 		<Unit filename="src/helper/base/BTEObject.cpp" />
 		<Unit filename="src/helper/base/BTEObject.h" />
 		<Unit filename="src/helper/base/DebugObject.cpp" />
@@ -189,8 +189,6 @@
 		<Unit filename="src/world/World.h" />
 		<Unit filename="src/world/gen/Noise.cpp" />
 		<Unit filename="src/world/gen/Noise.h" />
-		<Unit filename="src/world/gen/NoiseOld.cpp" />
-		<Unit filename="src/world/gen/NoiseOld.h" />
 		<Unit filename="src/world/phys/Box3D.cpp" />
 		<Unit filename="src/world/phys/Box3D.h" />
 		<Unit filename="src/world/phys/CollidingVolume.cpp" />
@@ -211,9 +209,6 @@
 		<Unit filename="src/world/tile/TileType.h" />
 		<Extensions>
 			<lib_finder disable_auto="1" />
-			<code_completion />
-			<envvars />
-			<debugger />
 		</Extensions>
 	</Project>
 </CodeBlocks_project_file>
