@@ -4,7 +4,6 @@
 #include "Texture.h"
 #include "BTEObject.h"
 #include "DebugObject.h"
-#include "NoiseOld.h"
 
 class Tests : public BTEObject, public DebugObject
 {
