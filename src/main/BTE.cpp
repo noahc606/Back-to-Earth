@@ -115,6 +115,18 @@ void BTE::tick()
                     setGameState(GameState::EXIT);
                 break;
 
+                /** Options menu buttons */
+                case GUIHandler::btn_OPTIONS_back:
+
+                    if( gamestate==GameState::MAIN_MENU ) {
+                        guiHandler.setGUIs(GUIHandler::GUIs::MAIN_MENU);
+                    } else
+                    if( gamestate==GameState::WORLD ) {
+                        guiHandler.setGUIs(GUIHandler::GUIs::PAUSE);
+                    }
+
+                break;
+
                 /** Pause Menu */
                 case GUIHandler::btn_PAUSED_back:
                     paused = false;
@@ -122,6 +134,7 @@ void BTE::tick()
                 break;
                 case GUIHandler::btn_PAUSED_exit:
                     setGameState(GameState::MAIN_MENU);
+                    paused = false;
                 break;
             }
 

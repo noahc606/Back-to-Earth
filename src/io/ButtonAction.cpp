@@ -13,11 +13,6 @@ ButtonAction::ButtonAction(SDLHandler* sh, GUIHandler* gh)
             gh->setGUIs(GUIHandler::GUIs::OPTIONS);
         break;
 
-        /** Options menu buttons */
-        case GUIHandler::btn_OPTIONS_back:
-            gh->setGUIs(GUIHandler::GUIs::MAIN_MENU);
-        break;
-
         /** Pause menu buttons */
         case GUIHandler::btn_PAUSED_options:
             gh->setGUIs(GUIHandler::GUIs::OPTIONS);
