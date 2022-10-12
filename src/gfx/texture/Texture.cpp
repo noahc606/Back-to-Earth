@@ -46,6 +46,8 @@ SDL_Texture* Texture::getSDLTexture() { return tex; }
 
 int Texture::getTexWidth() { return texW; }
 int Texture::getTexHeight() { return texH; }
+double Texture::getDrawScale() { return drawScale; }
+
 
 void Texture::queryTexInfo(int &w, int &h)
 {

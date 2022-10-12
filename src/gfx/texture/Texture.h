@@ -20,6 +20,7 @@ public:
 
     int getTexWidth();
     int getTexHeight();
+    double getDrawScale();
     void queryTexInfo(int &texW, int &texH);
     void queryDrawInfo(int &drawX, int &drawY, double &drawScale);
 
