@@ -17,8 +17,10 @@ public:
     virtual void tick();
     /**/
     bool isUserGUI();
+    bool isWindowComponent();
 
 protected:
+    bool windowComponent = false;
 
 private:
     void setUserGUI();

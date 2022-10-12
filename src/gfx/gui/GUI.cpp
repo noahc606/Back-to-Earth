@@ -34,3 +34,4 @@ void GUI::draw(){}
 void GUI::tick(){}
 
 bool GUI::isUserGUI() { return userGUI; }
+bool GUI::isWindowComponent() { return windowComponent; };
