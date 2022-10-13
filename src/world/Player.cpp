@@ -123,7 +123,7 @@ void Player::draw(Canvas* csEntities)
 
     /** Draw player texture to canvas */
     //playerTex.rect(0, 0, 32, 64, 255, 0, 0);
-    csEntities->setSrc(&playerTex);
+    csEntities->setSourceTex(&playerTex);
     csEntities->rcopy(x*32, y*32, 32, 64);
 }
 

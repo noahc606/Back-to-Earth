@@ -35,17 +35,23 @@ public:
     t_ll getRXYZ(t_ll c);
     /**/
 
-    //Canvas manipulation
-    void setSrc(Texture* src, int srcX, int srcY);
-    void setSrc(int srcID, int srcX, int srcY);
-    void setSrc(Texture* src);
-    void unlock();
+
+    //Canvas texture details
+    void resetTexes();
+    void setTexLOD(float lod);
+    //Canvas blitting (src)
+    void setSourceTex(Texture* src, int srcX, int srcY);
+    void setSourceTex(int srcID, int srcX, int srcY);
+    void setSourceTex(Texture* src);
+    //Canvas blitting (dst)
     void clearCanvas();
-    void rcopyLazy(t_ll dx, t_ll dy, t_ll dw, t_ll dh);
+    void rcopyNI(t_ll dx, t_ll dy, t_ll dw, t_ll dh);
     void rcopy(t_ll dx, t_ll dy, t_ll dw, t_ll dh);
-    //Set optimization options for Canvas
-    void setFPS(int fps);
-    void cropRendering(bool cr);
+
+    //Optimization options
+    void setMaximumFPS(int fps);
+    void setCroppingRendering(bool cr);
+    void setUsingDynamicLOD(bool dLod);
 
     /**/
 
@@ -70,12 +76,14 @@ private:
     double msPerFrame = 0;
 
     //Source texture and (x, y, w, h) info used in rcopy().
-    SDL_Texture* source;
+    SDL_Texture* sourceTex;
     int sourceX = 32; int sourceY = 32; int sourceW = -1; int sourceH = -1;
 
     //Map of texes
     t_texMap texes;
     int texSize = 1024;
+    float texLOD = 1.0;
+    bool dynamicLOD = false;
 
     //Camera object
     Camera* camera; double zoom = 0;

@@ -25,7 +25,7 @@ void World::init(SDLHandler* sh, Controls* ctrls)
 
     //Init csInteractions
     csInteractions.init(sdlHandler, controls, player.getCamera());
-    csInteractions.setFPS(20);
+    csInteractions.setMaximumFPS(20);
 
     //Init csEntities
     csEntities.init(sdlHandler, controls, player.getCamera());
@@ -69,8 +69,8 @@ void World::draw()
 
     /** Interactions Canvas */
     csInteractions.clearCanvas();
-    csInteractions.setSrc(TextureLoader::GUI_player_interactions, 0, 0);
-    csInteractions.rcopy( 32*mouseXLL, 32*mouseYLL, 32, 32 );
+    csInteractions.setSourceTex(TextureLoader::GUI_player_interactions, 0, 0);
+    csInteractions.rcopyNI( 32*mouseXLL, 32*mouseYLL, 32, 32 );
     csInteractions.draw();
 
 }

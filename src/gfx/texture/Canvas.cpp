@@ -9,8 +9,8 @@ void Canvas::init(SDLHandler* sh, Controls* ctrls, Camera* cam)
     BTEObject::init(sh, nullptr, ctrls);
     camera = cam;
 
-    setFPS(200);
-    cropRendering(false);
+    setMaximumFPS(200);
+    setCroppingRendering(false);
 }
 
 void Canvas::destroy()
@@ -69,8 +69,13 @@ void Canvas::clearCanvas()
     }
 }
 
-void Canvas::setFPS(int fps) { msPerFrame = 1000.0 / (double)fps; }
-void Canvas::cropRendering(bool cr) { croppingRendering = cr; }
+void Canvas::setMaximumFPS(int fps) { msPerFrame = 1000.0 / (double)fps; }
+void Canvas::setCroppingRendering(bool cr) { croppingRendering = cr; }
+/**
+    Dynamic LOD is when the lod changes itself depending on
+    the camera's zoom.
+*/
+void Canvas::setUsingDynamicLOD(bool dLod) { dynamicLOD = dLod; }
 
 void Canvas::info(std::stringstream& ss, int& tabs)
 {
@@ -115,37 +120,60 @@ std::tuple<double, double> Canvas::getMouseXY()
     return std::make_tuple ( mouseX, mouseY );
 }
 
-void Canvas::setSrc(Texture* src, int srcX, int srcY)
+void Canvas::setSourceTex(Texture* src, int srcX, int srcY)
 {
-    source = src->getSDLTexture();
+    sourceTex = src->getSDLTexture();
     sourceX = srcX;
     sourceY = srcY;
     sourceW = -1;
     sourceH = -1;
 }
 
-void Canvas::setSrc(int srcID, int srcX, int srcY)
+void Canvas::setSourceTex(int srcID, int srcX, int srcY)
 {
-    source = sdlHandler->getTextureLoader()->getTexture(srcID);
+    sourceTex = sdlHandler->getTextureLoader()->getTexture(srcID);
     sourceX = srcX;
     sourceY = srcY;
     sourceW = -1;
     sourceH = -1;
 }
 
-void Canvas::setSrc(Texture* src)
+void Canvas::setSourceTex(Texture* src)
 {
-    setSrc(src, 0, 0);
+    setSourceTex(src, 0, 0);
 }
 
-void Canvas::unlock()
+/**
+    Reset all textures belonging to the canvas
+    (reset lock settings)
+*/
+void Canvas::resetTexes()
 {
     for( t_texMap::iterator itrTM = texes.begin(); itrTM!=texes.end(); itrTM++ ) {
         (itrTM->second)->unlock();
     }
 }
 
-void Canvas::rcopyLazy(t_ll dx, t_ll dy, t_ll dw, t_ll dh)
+/**
+    Set the textures' LOD (Level of Detail).
+    Default is 1.0.
+
+    Blitting becomes easier for example when map is zoomed
+    out so far that a 32x32 tile becomes smaller than 32x32
+    onscreen.
+*/
+void Canvas::setTexLOD(float lod)
+{
+    texLOD = lod;
+}
+
+/**
+    rcopyNI = RenderCopy Non-Intersecting
+    If a drawn object is known not to cross any canvas
+    texture borders (for example, tiles),
+    use this function which performs a single blit.
+*/
+void Canvas::rcopyNI(t_ll dx, t_ll dy, t_ll dw, t_ll dh)
 {
     if(!shouldRendRect(dx, dy, dw, dh)) return;
 
@@ -153,10 +181,15 @@ void Canvas::rcopyLazy(t_ll dx, t_ll dy, t_ll dw, t_ll dh)
 
     if( tex!=nullptr ) {
         tex->lock(getSubPos(dx), getSubPos(dy), dw, dh);
-        tex->blit(source, sourceX, sourceY);
+        tex->blit(sourceTex, sourceX, sourceY);
     }
 }
 
+/**
+    General canvas blit function:
+    May perform multiple blits if an object crosses
+    a texture border.
+*/
 void Canvas::rcopy(t_ll dx, t_ll dy, t_ll dw, t_ll dh)
 {
     if(!shouldRendRect(dx, dy, dw, dh)) return;
@@ -198,22 +231,22 @@ void Canvas::rcopy(t_ll dx, t_ll dy, t_ll dw, t_ll dh)
     //Upper left tex
     if( tex00!=nullptr ) {
         tex00->lock(sdx, sdy, dw, dh);
-        tex00->blit(source, sx, sy);
+        tex00->blit(sourceTex, sx, sy);
     }
     //Upper right tex
     if( tex10!=nullptr && sdx+dw>texSize ) {
         tex10->lock(0, sdy, sdw, dh);
-        tex10->blit(source, sx+texSize-sdx, sy);
+        tex10->blit(sourceTex, sx+texSize-sdx, sy);
     }
     //Lower left tex
     if( tex01!=nullptr && sdy+dh>texSize ) {
         tex01->lock(sdx, 0, dw, sdh);
-        tex01->blit(source, sx, sy+texSize-sdy);
+        tex01->blit(sourceTex, sx, sy+texSize-sdy);
     }
     //Lower right tex
     if( tex11!=nullptr && sdx+dw>texSize && sdy+dh>texSize ) {
         tex11->lock(0, 0, sdw, sdh);
-        tex11->blit(source, sx+texSize-sdx, sy+texSize-sdy);
+        tex11->blit(sourceTex, sx+texSize-sdx, sy+texSize-sdy);
     }
 
 
