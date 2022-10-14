@@ -65,6 +65,7 @@ private:
     double regLoadTimeAvg = 0.0;
 
     void mapUpdates();
+    void updateEntireScreen();
     void idleRegTexUpdates(int updates);
     void regTexUpdates(Canvas* csTileMap, int maxUpdates);
 

@@ -63,7 +63,6 @@ private:
     /**/
     bool shouldRendRect(t_ll dx, t_ll dy, t_ll dw, t_ll dh);
     /**/
-    void updateDrawSettings();
 
     //Extra information for optimizing render functions.
     bool croppingRendering = false;
@@ -81,7 +80,8 @@ private:
 
     //Map of texes
     t_texMap texes;
-    int texSize = 1024;
+    int defaultTexSize = 1024;
+    int currentTexSize = 1024;
     float texLOD = 1.0;
     bool dynamicLOD = false;
 

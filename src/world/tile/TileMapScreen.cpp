@@ -58,12 +58,15 @@ void TileMapScreen::tick()
 
     if( cL!=camL ) {
         camL = cL;
-        for(TileMap::t_regionMap::iterator itrRM = tileMap->getRegionMap()->begin(); itrRM!=tileMap->getRegionMap()->end(); itrRM++ ) {
-            TileRegion* tr = &itrRM->second;
-            if( tr==nullptr ) continue;
-            tr->setRegTexState(tr->RegTexState::SHOULD_UPDATE);
-        }
-        tileMap->stopAllUpdates();
+        updateEntireScreen();
+    }
+
+    if( mapZoom!=cam->getZoom() ) {
+        //Find tile scale
+        mapZoom = cam->getZoom();
+        tileScale = tileSize*mapZoom;
+
+        updateEntireScreen();
     }
 
     //Map updates (regionMap, updatesMap)
@@ -71,10 +74,6 @@ void TileMapScreen::tick()
     if( cmd!=nullptr ) {} else {
         mapUpdates();
     }
-
-    //Find tile scale
-    mapZoom = cam->getZoom();
-    tileScale = tileSize*mapZoom;
 
     //Translations depending on window width/height. Ensures that current camera's location is at the center of the window.
     screenTX = sdlHandler->getWidth()/2;
@@ -389,6 +388,16 @@ void TileMapScreen::mapUpdates()
 
 }
 
+void TileMapScreen::updateEntireScreen()
+{
+    for(TileMap::t_regionMap::iterator itrRM = tileMap->getRegionMap()->begin(); itrRM!=tileMap->getRegionMap()->end(); itrRM++ ) {
+        TileRegion* tr = &itrRM->second;
+        if( tr==nullptr ) continue;
+        tr->setRegTexState(tr->RegTexState::SHOULD_UPDATE);
+    }
+    tileMap->stopAllUpdates();
+}
+
 /**
     Place regTexUpdates randomly throughout the map on any tile that is onscreen
 */
@@ -487,9 +496,13 @@ void TileMapScreen::regTexUpdate(TileIterator& ti, Texture* tex)
     TileMap::t_ll dZ = std::get<0>(tttData);        //Relative height of top tile ( topmost==0, one below==-1, etc. )
     TileType topTileFromCam = std::get<2>(tttData); //TileType of top tile from camera
 
-    //Get the destination of texture blit on the canvas region
-    int dstX = 32*ti.getTrackerSub(0);  //32*X
-    int dstY = 32*ti.getTrackerSub(1);  //32*Y
+    int blitScalePx = tileSize*mapZoom;
+    if( blitScalePx>tileSize )
+        blitScalePx = tileSize;
 
-    RegTexBuilder rtb(tex, ti, dstX, dstY, tileScale, topTileFromCam, dZ);
+    //Get the destination of texture blit on the canvas region
+    int dstX = blitScalePx*ti.getTrackerSub(0);  //32*X
+    int dstY = blitScalePx*ti.getTrackerSub(1);  //32*Y
+
+    RegTexBuilder rtb(tex, ti, dstX, dstY, blitScalePx, topTileFromCam, dZ);
 }

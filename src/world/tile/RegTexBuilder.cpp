@@ -1,15 +1,16 @@
 #include "RegTexBuilder.h"
 #include "DebugScreen.h"
+#include <math.h>
 
-RegTexBuilder::RegTexBuilder(Texture* tex, TileIterator& ti, int dstX, int dstY, int tileScale, TileType ttfc, int dZ)
+RegTexBuilder::RegTexBuilder(Texture* tex, TileIterator& ti, int dstX, int dstY, int blitScalePx, TileType ttfc, int dZ)
 {
-    drawTypeA( tex, dstX, dstY, tileScale, ttfc, dZ );
+    drawTypeA( tex, dstX, dstY, blitScalePx, ttfc, dZ );
     if(dZ==0) {
-        detailDepth0Tiles(tex, ti, dstX, dstY, tileScale);
+        detailDepth0Tiles(tex, ti, dstX, dstY, blitScalePx);
     }
 
     if( dZ>0 ) {
-        detailDepthPTiles(tex, ti, dstX, dstY, tileScale, dZ);
+        detailDepthPTiles(tex, ti, dstX, dstY, blitScalePx, dZ);
     }
 
 }
@@ -94,7 +95,7 @@ void RegTexBuilder::infoCoSiSh(bool bl[8], bool co[4], bool si[4], bool sh[4])
     infoSh(co, si, sh);
 }
 
-void RegTexBuilder::detailDepth0Tiles(Texture* tex, TileIterator& ti, int dstX, int dstY, int tileScale)
+void RegTexBuilder::detailDepth0Tiles(Texture* tex, TileIterator& ti, int dstX, int dstY, int blitScalePx)
 {
     bool bl[8] = { false };
     infoBl(ti, bl);
@@ -121,7 +122,7 @@ void RegTexBuilder::detailDepth0Tiles(Texture* tex, TileIterator& ti, int dstX, 
     if( sh[2] ) osx+=2;
     if( sh[3] ) osx+=1;
 
-    drawOverlay( tex, dstX, dstY, tileScale, osx, osy );
+    drawOverlay( tex, dstX, dstY, blitScalePx, osx, osy );
 
     //If shadows <= 1 || special2Shadow
     //Decides locations of the corner and side texture
@@ -135,7 +136,7 @@ void RegTexBuilder::detailDepth0Tiles(Texture* tex, TileIterator& ti, int dstX, 
         if( co[2] ) osx += 2;
         if( co[3] ) osx += 1;
 
-        drawOverlay( tex, dstX, dstY, tileScale, osx, osy );
+        drawOverlay( tex, dstX, dstY, blitScalePx, osx, osy );
 
         /* Draw side(s) */
         osx = 4;
@@ -145,12 +146,12 @@ void RegTexBuilder::detailDepth0Tiles(Texture* tex, TileIterator& ti, int dstX, 
         if( si[2] ) osx += 2;
         if( si[3] ) osx += 1;
 
-        drawOverlay( tex, dstX, dstY, tileScale, osx, osy );
+        drawOverlay( tex, dstX, dstY, blitScalePx, osx, osy );
     }
 
 }
 
-void RegTexBuilder::detailDepthPTiles(Texture* tex, TileIterator& ti, int dstX, int dstY, int tileScale, int dZ)
+void RegTexBuilder::detailDepthPTiles(Texture* tex, TileIterator& ti, int dstX, int dstY, int blitScalePx, int dZ)
 {
     bool bl[8] = { false };
     infoBl(ti, bl, dZ);
@@ -170,7 +171,7 @@ void RegTexBuilder::detailDepthPTiles(Texture* tex, TileIterator& ti, int dstX, 
     if( co[2] ) osx += 2;
     if( co[3] ) osx += 1;
 
-    drawOverlay( tex, dstX, dstY, tileScale, osx, osy );
+    drawOverlay( tex, dstX, dstY, blitScalePx, osx, osy );
 
     /* Draw side(s) */
     osx = 4;
@@ -180,15 +181,15 @@ void RegTexBuilder::detailDepthPTiles(Texture* tex, TileIterator& ti, int dstX, 
     if( si[2] ) osx += 2;
     if( si[3] ) osx += 1;
 
-    drawOverlay( tex, dstX, dstY, tileScale, osx, osy );
+    drawOverlay( tex, dstX, dstY, blitScalePx, osx, osy );
 }
 
 /**
     Draw a tile image with a given color and depending on depth, shade it.
 */
-void RegTexBuilder::drawTypeA(Texture* tex, int dstX, int dstY, int tileScale, int srcX, int srcY, Color c, int dZ)
+void RegTexBuilder::drawTypeA(Texture* tex, int dstX, int dstY, int blitScalePx, int srcX, int srcY, Color c, int dZ)
 {
-    tex->lock( dstX, dstY, 32, 32 );
+    tex->lock( dstX, dstY, blitScalePx, blitScalePx);
     tex->setColorMod(c.r, c.g, c.b);
     tex->blit(TextureLoader::WORLD_TILE_type_a, srcX, srcY, 32, 32 );
 
@@ -203,10 +204,10 @@ void RegTexBuilder::drawTypeA(Texture* tex, int dstX, int dstY, int tileScale, i
         int sky[] = {  25,  25, 112 }; //Midnight blue
         //int sky[] = {   0,   0, 128 }; //Navy blue
 
-        tex->rect( dstX, dstY, 32, 32, sky[0]/6, sky[1]/6, sky[2]/6, 40*(depth-1), SDL_BLENDMODE_BLEND);
+        tex->rect( dstX, dstY, blitScalePx, blitScalePx, sky[0]/6, sky[1]/6, sky[2]/6, 40*(depth-1), SDL_BLENDMODE_BLEND);
     }
 }
-void RegTexBuilder::drawTypeA(Texture* tex, int dstX, int dstY, int tileScale, TileType tt, int depth)
+void RegTexBuilder::drawTypeA(Texture* tex, int dstX, int dstY, int blitScalePx, TileType tt, int depth)
 {
     int srcX = 32*std::get<0>(tt.getTextureXY());
     int srcY = 32*std::get<1>(tt.getTextureXY());
@@ -214,18 +215,18 @@ void RegTexBuilder::drawTypeA(Texture* tex, int dstX, int dstY, int tileScale, T
     int g = std::get<1>(tt.getRGB());
     int b = std::get<2>(tt.getRGB());
 
-    drawTypeA(tex, dstX, dstY, tileScale, srcX, srcY, Color(r, g, b), depth );
+    drawTypeA(tex, dstX, dstY, blitScalePx, srcX, srcY, Color(r, g, b), depth );
 }
-void RegTexBuilder::drawTypeA(Texture* tex, int dstX, int dstY, int tileScale, int srcX, int srcY)
+void RegTexBuilder::drawTypeA(Texture* tex, int dstX, int dstY, int blitScalePx, int srcX, int srcY)
 {
-    drawTypeA( tex, dstX, dstY, tileScale, srcX, srcY, Color(255, 255, 255), 0 );
+    drawTypeA( tex, dstX, dstY, blitScalePx, srcX, srcY, Color(255, 255, 255), 0 );
 }
 
-void RegTexBuilder::drawOverlay(Texture* tex, int dstX, int dstY, int tileScale, int srcX, int srcY)
+void RegTexBuilder::drawOverlay(Texture* tex, int dstX, int dstY, int blitScalePx, int srcX, int srcY)
 {
-    int sx32 = srcX*32;
-    int sy32 = srcY*32;
+    int sx32 = (srcX*32);
+    int sy32 = (srcY*32);
 
-    tex->lock( dstX, dstY, 32, 32 );
-    tex->blit( TextureLoader::WORLD_TILE_OVERLAY_wall, sx32, sy32 );
+    tex->lock( dstX, dstY, blitScalePx, blitScalePx );
+    tex->blit( TextureLoader::WORLD_TILE_OVERLAY_wall, sx32, sy32, 32, 32 );
 }

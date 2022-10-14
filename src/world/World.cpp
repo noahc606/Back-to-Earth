@@ -22,6 +22,7 @@ void World::init(SDLHandler* sh, Controls* ctrls)
 
     //Init csTileMap
     csTileMap.init(sdlHandler, controls, player.getCamera());
+    csTileMap.setUsingDynamicLOD(true);
 
     //Init csInteractions
     csInteractions.init(sdlHandler, controls, player.getCamera());
