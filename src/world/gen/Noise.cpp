@@ -11,6 +11,11 @@
 Noise::Noise(){}
 Noise::~Noise(){}
 
+inline int32_t Noise::fastfloor(float fp) {
+    int32_t i = static_cast<int32_t>(fp);
+    return (fp < i) ? (i - 1) : (i);
+}
+
 float Noise::interpolate(float a0, float a1, float w) {
 
     //if (0.0 > w) return a0;
@@ -44,7 +49,7 @@ Noise::vec2D Noise::gradient2D(int ix, int iy) {
     Grid coordinates = (ix, iy). ix and iy are both any integer value.
     Gradient vector components = (x, y). (x, y) are the components of a unit vector.
 */
-float Noise::dotGridGradient2D(int ix, int iy, float x, float y) {
+float Noise::dotGridGradient2D(int32_t ix, int32_t iy, float x, float y) {
     //Get gradient from integer coordinates
     vec2D gradient = gradient2D(ix, iy);
 
@@ -60,10 +65,10 @@ float Noise::dotGridGradient2D(int ix, int iy, float x, float y) {
 float Noise::noise2D(float x, float y)
 {
     // Determine grid cell coordinates
-    int x0 = (int)floor(x);
-    int x1 = x0+1;
-    int y0 = (int)floor(y);
-    int y1 = y0+1;
+    int32_t x0 = fastfloor(x);
+    int32_t x1 = x0+1;
+    int32_t y0 = fastfloor(y);
+    int32_t y1 = y0+1;
 
     // Determine interpolation weights
     // Could also use higher order polynomial/s-curve here
@@ -132,8 +137,8 @@ void Noise::populateRegion(TileRegion& tr, int rX, int rY, int rZ)
     //LD: Local depth. Based on noise depth but within a region.
     int ld = 0;
 
-    for( int sx = 0; sx<32; sx++ ) {
-        for( int sy = 0; sy<32; sy++ ) {
+    for( char sx = 0; sx<32; sx++ ) {
+        for( char sy = 0; sy<32; sy++ ) {
 
             //Calculate noise components at this location
             tNoise = clampedNoise2D((x+sx)/tZoom,(y+sy)/tZoom)*verticalScaling;

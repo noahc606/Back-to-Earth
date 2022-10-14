@@ -12,6 +12,8 @@ public:
     Noise();
     virtual ~Noise();
 
+    static inline int32_t fastfloor(float fp);
+
     float interpolate(float a0, float a1, float w);
     vec2D gradient2D(int ix, int iy);
     float dotGridGradient2D(int ix, int iy, float x, float y);
