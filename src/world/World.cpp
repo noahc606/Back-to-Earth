@@ -8,7 +8,6 @@
 void World::init(SDLHandler* sh, Controls* ctrls)
 {
     if( exists() ) return;
-
     BTEObject::init(sh, nullptr, ctrls);
 
     Commands::cKV("x1", -16);
@@ -76,7 +75,7 @@ void World::draw()
 
 }
 
-void World::tick(bool paused)
+void World::tick(bool paused, GUIHandler& guiHandler)
 {
     performanceCounter = 0;
     Timer t("World tick timer", false);
@@ -95,7 +94,7 @@ void World::tick(bool paused)
 
     /** Interactions with world */
     updateMouseAndCamInfo();
-    entityInteractions();
+    playerInteractions(guiHandler);
 
     performanceCounter = t.getElapsedTimeMS();
 }
@@ -148,7 +147,7 @@ void World::updateMouseAndCamInfo()
     mouseZLL = player.getCamera()->getLayer() +( std::get<0>(tileMapScreen.topTrackedTile(ti)) );
 }
 
-void World::entityInteractions()
+void World::playerInteractions(GUIHandler& guiHandler)
 {
     /*
         //Get player x, y, and z both in double and in t_ll form.
@@ -160,22 +159,33 @@ void World::entityInteractions()
         int pz = floor(pzd);
     */
 
-    if( player.getAction()==player.Action::GM_Destroy_Tile ) {
-        TileType tt;
-        tt.init();
-        tt.setVisionBlocking(false);
-        tileMap.setTile(mouseXLL, mouseYLL, player.getCamera()->getLayer(), tt);
-        tileMap.addTileUpdates(mouseXLL, mouseYLL, player.getCamera()->getLayer());
-    } else
-    if( player.getAction()==player.Action::GM_Place_Tile ) {
-        TileType tt;
-        tt.init();
-        tt.setRGB(20, 255, 255);
-        tt.setSolid(true);
-        tt.setTextureXY(0, 2);
-        tt.setVisionBlocking(true);
+    switch( player.getAction() )
+    {
+        case Player::Action::GM_Destroy_Tile: {
+            TileType tt;
+            tt.init();
+            tt.setVisionBlocking(false);
+            tileMap.setTile(mouseXLL, mouseYLL, player.getCamera()->getLayer(), tt);
+            tileMap.addTileUpdates(mouseXLL, mouseYLL, player.getCamera()->getLayer());
+        }; break;
+        case Player::Action::GM_Place_Tile: {
+            TileType tt;
 
-        tileMap.setTile(mouseXLL, mouseYLL, player.getCamera()->getLayer(), tt);
-        tileMap.addTileUpdates(mouseXLL, mouseYLL, player.getCamera()->getLayer());
+            tt.init();
+            tt.setRGB(20, 255, 255);
+            tt.setSolid(true);
+            tt.setTextureXY(0, 2);
+            tt.setVisionBlocking(true);
+
+            tileMap.setTile(mouseXLL, mouseYLL, player.getCamera()->getLayer(), tt);
+            tileMap.addTileUpdates(mouseXLL, mouseYLL, player.getCamera()->getLayer());
+        }; break;
+
+        case Player::Action::INVENTORY: {
+            guiHandler.setGUIs(GUIHandler::GUIs::WORLD_character);
+        } break;
+
+
+
     }
 }

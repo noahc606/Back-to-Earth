@@ -35,6 +35,8 @@ public:
         NONE,
         GM_Place_Tile,
         GM_Destroy_Tile,
+
+        INVENTORY,
     };
 
     enum Components {
@@ -57,6 +59,8 @@ private:
         SOUTH,
         WEST,
     };
+
+    void updateFacingDirection();
 
     ColorPalette playerPal;
     Texture playerTex;

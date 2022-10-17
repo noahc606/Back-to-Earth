@@ -1,6 +1,7 @@
 #pragma once
 #include "BTEObject.h"
 #include "Canvas.h"
+#include "GUIHandler.h"
 #include "Player.h"
 #include "Texture.h"
 #include "TileMap.h"
@@ -15,7 +16,7 @@ public:
     virtual ~World();
     /**/
     void draw();
-    void tick(bool paused);
+    void tick(bool paused, GUIHandler& guiHandler);
     /**/
     void info(std::stringstream& ss, int& tabs);
 protected:
@@ -42,5 +43,5 @@ private:
     double performanceCounter = 0;
 
     void updateMouseAndCamInfo();
-    void entityInteractions();
+    void playerInteractions(GUIHandler& guiHandler);
 };

@@ -41,20 +41,33 @@ public:
         btn_MAIN_exit,
 
         win_OPTIONS = 200,
+        btn_OPTIONS_controls,
         btn_OPTIONS_gs,
         btn_OPTIONS_back,
 
-        win_PAUSED = 300,
+            win_CONTROLS = 300,
+            btn_CONTROLS_keybind,
+            btn_CONTROLS_back,
+
+            win_GRAPHICS_SETTINGS = 300,
+
+        win_PAUSED = 1000,
         btn_PAUSED_back,
         btn_PAUSED_options,
         btn_PAUSED_exit,
+
+        win_CHARACTER = 2000,
+        btn_CHARACTER_inventory,
     };
 
     enum GUIs {
         MAIN_MENU,
         OPTIONS,
+            CONTROLS,
+
         PAUSE, UNPAUSE,
         WORLD,
+            WORLD_character,
     };
 
 protected:

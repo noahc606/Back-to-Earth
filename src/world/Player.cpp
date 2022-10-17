@@ -153,23 +153,10 @@ void Player::tick()
 
     */
 
-    //walk velocity
+    //Set walk speed from velocity
     walkSpeed = std::abs((double)sqrt(vx*vx+vy*vy));
-
-    //Set player direction / Make sure walkSpeed is always positive
-    if( vy<0 ) {
-        facing = Directions::NORTH;
-    } else
-    if( vy>0 ) {
-        facing = Directions::SOUTH;
-    }
-
-    if( vx<0 ) {
-        facing = Directions::WEST;
-    } else
-    if( vx>0 ) {
-        facing = Directions::EAST;
-    }
+    //Set player facing direction (NESW)
+    updateFacingDirection();
 
     /* Animation */
     //Animation timer. This timer increments every draw() call
@@ -197,11 +184,10 @@ void Player::tick()
     y+=vy;
     z+=vz;
 
-
-
+    //Reset player action
+    action = NONE;
 
     /** God mode actions */
-    action = NONE;
     if( godMode ) {
         if( controls->isHeld("HARDCODE_RIGHT_CLICK") ) {
             action = Action::GM_Place_Tile;
@@ -210,9 +196,9 @@ void Player::tick()
         }
     }
 
-    /** Player movement */
+    /** Player control */
+    //Movement (sprint/crouch, walk)
     if( !camera.isFreecam() ) {
-
         double speed = 0.05;
         if( controls->isHeld("PLAYER_SPRINT") ) speed = 0.10;
         if( controls->isHeld("PLAYER_CROUCH") ) speed = 0.005;
@@ -237,6 +223,11 @@ void Player::tick()
             if( controls->isHeld("PLAYER_MOVE_UP")   ) vz = -speed;
             if( controls->isHeld("PLAYER_MOVE_DOWN") ) vz = speed;
         }
+    }
+    //Open inventory
+    if( controls->isPressed("PLAYER_INVENTORY") ) {
+        action = Action::INVENTORY;
+        controls->stopPress("PLAYER_INVENTORY", __PRETTY_FUNCTION__);
     }
 
     /** Camera set to player's (x, y, z) - keep as last */
@@ -272,4 +263,21 @@ void Player::setPos(double x, double y, double z)
     Player::x = x;
     Player::y = y;
     Player::z = z;
+}
+
+void Player::updateFacingDirection()
+{
+    if( vy<0 ) {
+        facing = Directions::NORTH;
+    } else
+    if( vy>0 ) {
+        facing = Directions::SOUTH;
+    }
+
+    if( vx<0 ) {
+        facing = Directions::WEST;
+    } else
+    if( vx>0 ) {
+        facing = Directions::EAST;
+    }
 }

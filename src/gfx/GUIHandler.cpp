@@ -1,5 +1,6 @@
 #include "GUIHandler.h"
 #include <set>
+#include "Color.h"
 #include "Log.h"
 #include "MainLoop.h"
 #include "TextBox.h"
@@ -264,13 +265,31 @@ void GUIHandler::setGUIs(int guis)
 
             removeGUI(win_PAUSED);
 
+            removeGUI(win_CONTROLS);
+            removeGUI(win_GRAPHICS_SETTINGS);
+
+            int width = 300;
             addGUI(new Window( GUIAlignable::CENTER_H, GUIAlignable::CENTER_V, 800, 800, "Options", "", win_OPTIONS ));
-            addGUI(new Button( getWindow(win_OPTIONS), GUIAlignable::CENTER_H, GUIAlignable::CENTER_V, 300, "Graphics Settings", btn_OPTIONS_gs ));
-            addGUI(new Button( getWindow(win_OPTIONS), GUIAlignable::CENTER_H, GUIAlignable::CENTER_V, 300, "Back", btn_OPTIONS_back ));
+            addGUI(new Button( getWindow(win_OPTIONS), GUIAlignable::CENTER_H, GUIAlignable::CENTER_V, width, "Controls", btn_OPTIONS_controls ));
+            addGUI(new Button( getWindow(win_OPTIONS), GUIAlignable::CENTER_H, GUIAlignable::CENTER_V, width, "Graphics Settings", btn_OPTIONS_gs ));
+            addGUI(new Button( getWindow(win_OPTIONS), GUIAlignable::CENTER_H, GUIAlignable::CENTER_V, width, "Back", btn_OPTIONS_back ));
 
         } break;
-        case PAUSE: {
+        case CONTROLS: {
+            removeGUI(win_OPTIONS);
 
+            int width = 300;
+            addGUI(new Window( GUIAlignable::CENTER_H, GUIAlignable::CENTER_V, 800, 800, "Controls", "", win_CONTROLS ));
+            addGUI(new Button( getWindow(win_CONTROLS), GUIAlignable::CENTER_H, 80, width, "Move North: [w]", btn_CONTROLS_keybind ));
+            addGUI(new Button( getWindow(win_CONTROLS), GUIAlignable::CENTER_H, 80, width, "Move East: [d]", btn_CONTROLS_keybind ));
+            addGUI(new Button( getWindow(win_CONTROLS), GUIAlignable::CENTER_H, 120, width, "Move South: [s]", btn_CONTROLS_keybind ));
+            addGUI(new Button( getWindow(win_CONTROLS), GUIAlignable::CENTER_H, 120, width, "Move West: [a]", btn_CONTROLS_keybind ));
+            addGUI(new Button( getWindow(win_CONTROLS), GUIAlignable::CENTER_H, 160, width, "Back", btn_CONTROLS_back ));
+
+        } break;
+
+
+        case PAUSE: {
             removeGUI(win_OPTIONS);
 
             addGUI(new Window( GUIAlignable::CENTER_H, GUIAlignable::CENTER_V, 600, 500, "Paused", "", win_PAUSED ));
@@ -279,10 +298,43 @@ void GUIHandler::setGUIs(int guis)
             addGUI(new Button( getWindow(win_PAUSED), GUIAlignable::CENTER_H, GUIAlignable::CENTER_V, 300, "Save & Exit", btn_PAUSED_exit ));
         } break;
         case UNPAUSE: {
-        }
+            removeGUI(win_PAUSED);
+        } break;
 
         case WORLD: {
             removeAllUserGUIs();
+        } break;
+
+        case WORLD_character: {
+
+            if( getGUI(BTEObject::GUI_window, ID::win_CHARACTER)==nullptr ) {
+
+                int w = 16;
+                int h = 10;
+
+                WindowPanelData wpd(w, h);
+                wpd.setPanelData(0, "xxxxxxxxxxxxxxxx");
+                wpd.setPanelData(1, "xxxxxxxxxxxxxxxx");
+                wpd.setPanelData(2, "xxxaaaaaaaaaxxxx");
+                wpd.setPanelData(3, "xxxxxxxxxxxxxxxx");
+                wpd.setPanelData(4, "xxxxxxxaaaaxxxxx");
+                wpd.setPanelData(5, "xxxxxxxaaaxxxxxx");
+                wpd.setPanelData(6, "xxxxxxxaaaxxxxxx");
+                wpd.setPanelData(7, "xaaaaaaaaaxxxxxx");
+                wpd.setPanelData(8, "xxxxxxxxxxxxxxxx");
+                wpd.setPanelData(9, "xxxxxxxxxxxxxxxx");
+
+                Color c1(0, 255, 0);
+                Color c2(255, 0, 0);
+
+                wpd.setPanelColor('x', c1 );
+                wpd.setPanelColor('a', c2 );
+
+                addGUI(new Window( GUIAlignable::CENTER_H, GUIAlignable::CENTER_V, &wpd, win_CHARACTER ));
+            } else {
+                removeGUI(win_CHARACTER);
+            }
+
         } break;
 
 

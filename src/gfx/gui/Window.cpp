@@ -19,8 +19,11 @@ Window::Window(int x, int y, WindowPanelData* panelData, int id)
 
     //Window::panelData = &panelData;
 
-    Window::width = (panelData->getWidth()*64);
-    Window::height = (panelData->getHeight()*64);
+    if( panelData!=nullptr ) {
+        Window::width = (panelData->getWidth()*64);
+        Window::height = (panelData->getHeight()*64);
+    }
+
 
     /**
         111222333333
@@ -104,9 +107,13 @@ void Window::init(SDLHandler* sh, Controls* ctrls)
 
 void Window::destroy()
 {
+    if(panelData!=nullptr) {
+        //delete panelData;
+        //panelData = nullptr;
+    }
+
     BTEObject::destroy();
     windowTex.destroy();
-    delete panelData;
 }
 
 /**/

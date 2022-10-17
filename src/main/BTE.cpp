@@ -90,7 +90,7 @@ void BTE::tick()
                 }
 
                 //Tick world
-                world->tick(paused);
+                world->tick(paused, guiHandler);
             }
         } break;
     }
@@ -117,14 +117,12 @@ void BTE::tick()
 
                 /** Options menu buttons */
                 case GUIHandler::btn_OPTIONS_back:
-
                     if( gamestate==GameState::MAIN_MENU ) {
                         guiHandler.setGUIs(GUIHandler::GUIs::MAIN_MENU);
                     } else
                     if( gamestate==GameState::WORLD ) {
                         guiHandler.setGUIs(GUIHandler::GUIs::PAUSE);
                     }
-
                 break;
 
                 /** Pause Menu */

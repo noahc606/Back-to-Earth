@@ -17,19 +17,30 @@ Settings::Settings()
     addTo(s, "FUNC_DEBUG", SDLK_F12);
     addTo(s, "INGAME_PAUSE", SDLK_ESCAPE);
     addTo(s, "MAP_USE_ZOOM", SDLK_LCTRL);
+
+    /** Player */
+    //Movement
     addTo(s, "PLAYER_MOVE_NORTH", SDLK_w);
     addTo(s, "PLAYER_MOVE_SOUTH", SDLK_s);
     addTo(s, "PLAYER_MOVE_WEST", SDLK_a);
     addTo(s, "PLAYER_MOVE_EAST", SDLK_d);
     addTo(s, "PLAYER_MOVE_UP", SDLK_SPACE);
-    addTo(s, "PLAYER_MOVE_DOWN", SDLK_LSHIFT);
+    addTo(s, "PLAYER_MOVE_DOWN", SDLK_v);
+
+    //Advanced Movement
     addTo(s, "PLAYER_SPRINT", SDLK_x);
     addTo(s, "PLAYER_CROUCH", SDLK_c);
+
+    //Player Interactions
+    addTo(s, "PLAYER_INVENTORY", SDLK_LSHIFT);
     addTo(s, "PLAYER_SELECT", "MOUSE_LEFT");
+
+
     addTo(s, "HARDCODE_LEFT_CLICK", "MOUSE_LEFT");
     addTo(s, "HARDCODE_MIDDLE_CLICK", "MOUSE_MIDDLE");
     addTo(s, "HARDCODE_RIGHT_CLICK", "MOUSE_RIGHT");
-    addTo(s, "DEBUG_0", SDLK_0);
+
+    /** Number keys */
     addTo(s, "DEBUG_1", SDLK_1);
     addTo(s, "DEBUG_2", SDLK_2);
     addTo(s, "DEBUG_3", SDLK_3);
@@ -39,6 +50,7 @@ Settings::Settings()
     addTo(s, "DEBUG_7", SDLK_7);
     addTo(s, "DEBUG_8", SDLK_8);
     addTo(s, "DEBUG_9", SDLK_9);
+    addTo(s, "DEBUG_0", SDLK_0);
     addTo(s, "TEST1234", SDLK_BACKSPACE);
 
     s = &(defaultSettings[games]);

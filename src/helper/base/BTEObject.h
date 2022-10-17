@@ -29,11 +29,11 @@ public:
         null = -1,
         none = 0,
 
-        GUIHandler = 100,
-        GUI_window,
-        GUI_button,
-        GUI_textbox,
-        GUI_tooltip,
+        BTE_GUIHandler = 100,
+            GUI_window,
+            GUI_button,
+            GUI_textbox,
+            GUI_tooltip,
     };
 
 protected:

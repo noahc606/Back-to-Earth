@@ -125,6 +125,7 @@ void WindowPanelData::buildTex(Texture* windowTex)
                         case 1: case 2: { lw = 02; lh = 28; } break;
                     }
 
+                    windowTex->lock(0, 0, 64, 64);
                     windowTex->lock(4+32*x+dlx, 4+32*y+dly, lw, lh);
                     windowTex->blit(img, bx, by);
                 }
