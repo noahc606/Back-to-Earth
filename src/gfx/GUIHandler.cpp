@@ -5,6 +5,8 @@
 #include "MainLoop.h"
 #include "TextBox.h"
 #include "Tooltip.h"
+#include "WindowData.h"
+
 GUIHandler::GUIHandler(){}
 void GUIHandler::init(SDLHandler* sh, FileHandler* fh, Controls* ctrls)
 {
@@ -323,26 +325,27 @@ void GUIHandler::setGUIs(int guis)
                     'b': Bottom tab for extra pages (next/prev)
 
                 */
-                WindowPanelData* wpd = new WindowPanelData(w, h);
-                wpd->setPanelData(0, "ssssssddddcccccccc");
-                wpd->setPanelData(1, "ssssssxxxxcccccccc");
-                wpd->setPanelData(2, "ssssssxxxxcccccccc");
-                wpd->setPanelData(3, "ssssssxxxxcccccccc");
-                wpd->setPanelData(4, "ssssssxxxxcccccccc");
-                wpd->setPanelData(5, "ssssssxxxxcccccccc");
-                wpd->setPanelData(6, "ssssssddddcccccccc");
-                wpd->setPanelData(7, "ssssssddddcccccccc");
-                wpd->setPanelData(8, "eeeeeeeeeeeeeeeeee");
-                wpd->setPanelData(9, "eeeeeeeeeeeeeeeeee");
-                wpd->setPanelData(10,"bbbbbbbbbbbbbbbbbb");
+                WindowData* wd = new WindowData(w, h);
+                wd->setPanelData(0, "ssssssddddcccccccc");
+                wd->setPanelData(1, "ssssssxxxxcccccccc");
+                wd->setPanelData(2, "ssssssxxxxcccccccc");
+                wd->setPanelData(3, "ssssssxxxxcccccccc");
+                wd->setPanelData(4, "ssssssxxxxcccccccc");
+                wd->setPanelData(5, "ssssssxxxxcccccccc");
+                wd->setPanelData(6, "ssssssddddcccccccc");
+                wd->setPanelData(7, "ssssssddddcccccccc");
+                wd->setPanelData(8, "eeeeeeeeeeeeeeeeee");
+                wd->setPanelData(9, "eeeeeeeeeeeeeeeeee");
+                wd->setPanelData(10,"bbbbbbbbbbbbbbbbbb");
 
-                Color c1(0, 255, 0);
-                Color c2(255, 0, 0);
+                wd->setPanelColor('s', Color(0, 0, 200, 240) );
+                wd->setPanelColor('d', Color(150, 105, 55, 240) );
+                wd->setPanelColor('c', Color(255, 255, 255, 240) );
+                wd->setPanelColor('x', Color(0, 100, 0, 240) );
+                wd->setPanelColor('e', Color(100, 0, 0, 240) );
+                wd->setPanelColor('b', Color(130, 210, 180, 240) );
 
-                wpd->setPanelColor('x', c1 );
-                wpd->setPanelColor('a', c2 );
-
-                addGUI(new Window( GUIAlignable::CENTER_H, GUIAlignable::CENTER_V, wpd, win_CHARACTER ));
+                addGUI(new Window( GUIAlignable::CENTER_H, GUIAlignable::CENTER_V, wd, win_CHARACTER ));
             } else {
                 removeGUI(win_CHARACTER);
             }

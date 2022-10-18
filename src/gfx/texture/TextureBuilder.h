@@ -1,19 +1,20 @@
 #pragma once
 #include "SDLHandler.h"
 #include "Texture.h"
+#include "WindowData.h"
 
 class TextureBuilder
 {
 public:
     /**/
     TextureBuilder(SDLHandler* sh);
-    /**/
-    /**/
     void init( int type, Texture& tex, int arg1, int arg2, int arg3, int arg4 );
     void init( int type, Texture& tex, int arg1, int arg2, int arg3 );
     void init( int type, Texture& tex, int arg1, int arg2 );
     void init( int type, Texture& tex, int arg1 );
     void init( int type, Texture& tex );
+    /**/
+    void buildWindow(Texture& tex, WindowData* wd, int width, int height);
     /**/
     enum TextureTypes
     {
@@ -30,7 +31,6 @@ private:
     /**/
     void btn_tex(Texture &tex, int arg1, int arg2, int arg3, int arg4);
     void btn_shineTex(Texture &tex);
-    void window(Texture& tex, int width, int height);
     void tile(Texture& tex);
     /**/
     SDLHandler* sdlHandler;

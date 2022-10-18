@@ -4457,27 +4457,28 @@
 1666122828 c:\users\noahc\desktop\git\back-to-earth\src\gfx\gui\gui.h
 	"BTEObject.h"
 
-1666123057 c:\users\noahc\desktop\git\back-to-earth\src\gfx\gui\window.h
+1666127397 c:\users\noahc\desktop\git\back-to-earth\src\gfx\gui\window.h
 	"GUIAlignable.h"
 	"Text.h"
 	"Texture.h"
-	"WindowPanelData.h"
+	"WindowData.h"
 
-1666122828 c:\users\noahc\desktop\git\back-to-earth\src\gfx\gui\windowpaneldata.h
+1666125843 c:\users\noahc\desktop\git\back-to-earth\src\gfx\gui\windowpaneldata.h
 	<map>
 	<string>
 	"Color.h"
 	"Texture.h"
 
-1666122828 c:\users\noahc\desktop\git\back-to-earth\src\gfx\guihandler.h
+1666127353 c:\users\noahc\desktop\git\back-to-earth\src\gfx\guihandler.h
 	<vector>
 	"BTEObject.h"
 	"GUI.h"
 	"Window.h"
 
-1666122828 c:\users\noahc\desktop\git\back-to-earth\src\gfx\texture\texturebuilder.h
+1666127406 c:\users\noahc\desktop\git\back-to-earth\src\gfx\texture\texturebuilder.h
 	"SDLHandler.h"
 	"Texture.h"
+	"WindowData.h"
 
 1666122828 source:c:\users\noahc\desktop\git\back-to-earth\src\gfx\gui\gui.cpp
 	"GUI.h"
@@ -4508,7 +4509,7 @@
 1666122828 c:\users\noahc\desktop\git\back-to-earth\src\gfx\gui\tooltip.h
 	"WindowComponent.h"
 
-1666123984 source:c:\users\noahc\desktop\git\back-to-earth\src\gfx\gui\window.cpp
+1666127484 source:c:\users\noahc\desktop\git\back-to-earth\src\gfx\gui\window.cpp
 	"Window.h"
 	"TextureBuilder.h"
 	"Log.h"
@@ -4517,11 +4518,11 @@
 	"WindowComponent.h"
 	"Log.h"
 
-1666122828 source:c:\users\noahc\desktop\git\back-to-earth\src\gfx\gui\windowpaneldata.cpp
+1666126868 source:c:\users\noahc\desktop\git\back-to-earth\src\gfx\gui\windowpaneldata.cpp
 	"WindowPanelData.h"
 	<sstream>
 
-1666123861 source:c:\users\noahc\desktop\git\back-to-earth\src\gfx\guihandler.cpp
+1666127489 source:c:\users\noahc\desktop\git\back-to-earth\src\gfx\guihandler.cpp
 	"GUIHandler.h"
 	<set>
 	"Color.h"
@@ -4529,6 +4530,7 @@
 	"MainLoop.h"
 	"TextBox.h"
 	"Tooltip.h"
+	"WindowData.h"
 
 1666122828 c:\users\noahc\desktop\git\back-to-earth\src\main\mainloop.h
 	<memory>
@@ -4703,7 +4705,7 @@
 	<sstream>
 	"Log.h"
 
-1666122828 source:c:\users\noahc\desktop\git\back-to-earth\src\gfx\texture\texturebuilder.cpp
+1666128119 source:c:\users\noahc\desktop\git\back-to-earth\src\gfx\texture\texturebuilder.cpp
 	"TextureBuilder.h"
 	"TextureLoader.h"
 
@@ -5935,4 +5937,14 @@
 	"Log.h"
 	"MainLoop.h"
 	"Timer.h"
+
+1666128025 source:c:\users\noahc\desktop\git\back-to-earth\src\gfx\gui\windowdata.cpp
+	"WindowData.h"
+	<sstream>
+
+1666128125 c:\users\noahc\desktop\git\back-to-earth\src\gfx\gui\windowdata.h
+	<map>
+	<string>
+	"Color.h"
+	"Texture.h"
 

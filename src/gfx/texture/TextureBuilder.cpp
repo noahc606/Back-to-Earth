@@ -12,8 +12,6 @@ void TextureBuilder::init(int type, Texture &tex, int arg1, int arg2, int arg3, 
     {
         case BTN_Tex:       btn_tex(tex, arg1, arg2, arg3, arg4); break;
         case BTN_ShineTex:  btn_shineTex(tex); break;
-        case WINDOW:        window(tex, arg1, arg2); break;
-
         case TILE_default:  tile(tex); break;
     }
 }
@@ -79,14 +77,16 @@ void TextureBuilder::btn_shineTex(Texture &tex)
     tex.blit(btn, 0, 51);
 }
 
-void TextureBuilder::window(Texture& tex, int texW, int texH)
+void TextureBuilder::buildWindow(Texture& tex, WindowData* winData, int texW, int texH)
 {
     tex.init(sdlHandler);
     tex.setTexDimensions(texW+8, texH+8);
 
     int img = TextureLoader::GUI_window;
 
-    /* Window */
+    /** Window corners/borders */
+    //Set border color
+    tex.setColorMod( winData->getBorderColor() );
     //4 corners of window
     tex.lock(     0,      0, 4, 4); tex.blit(img,  0,  0); //Top left
     tex.lock(texW+4,      0, 4, 4); tex.blit(img, 38,  0); //Top right
@@ -101,13 +101,20 @@ void TextureBuilder::window(Texture& tex, int texW, int texH)
         tex.lock(   4+i,      0, 32,  4); tex.blit(img,  5,  0); //Top border
         tex.lock(   4+i, texH+4, 32,  4); tex.blit(img,  5, 38); //Bottom border
     }
+
+    /** Window interior */
     //Middle 32x32 squares
     for(int i = 0; i<texW; i+=32) {
         for(int j = 0; j<texH; j+=32) {
+
+            tex.setColorMod( winData->getPanelColor(i/32, j/32) );
+
             tex.lock(4+i, 4+j, 32, 32);
             tex.blit(img, 5, 5);
         }
     }
+
+    tex.setColorMod(255, 255, 255);
 }
 
 void TextureBuilder::tile(Texture& tex)

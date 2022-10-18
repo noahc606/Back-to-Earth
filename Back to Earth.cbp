@@ -123,8 +123,8 @@
 		<Unit filename="src/gfx/gui/Window.h" />
 		<Unit filename="src/gfx/gui/WindowComponent.cpp" />
 		<Unit filename="src/gfx/gui/WindowComponent.h" />
-		<Unit filename="src/gfx/gui/WindowPanelData.cpp" />
-		<Unit filename="src/gfx/gui/WindowPanelData.h" />
+		<Unit filename="src/gfx/gui/WindowData.cpp" />
+		<Unit filename="src/gfx/gui/WindowData.h" />
 		<Unit filename="src/gfx/texture/Canvas.cpp" />
 		<Unit filename="src/gfx/texture/Canvas.h" />
 		<Unit filename="src/gfx/texture/Color.cpp" />

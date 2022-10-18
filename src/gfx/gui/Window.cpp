@@ -4,10 +4,10 @@
 /**/
 int Window::bkgdScroll = 0;
 
-Window::Window(int x, int y, WindowPanelData* panelData, int id)
+Window::Window(int x, int y, WindowData* winData, int id)
 {
     setTypeAndID(BTEObject::GUI_window, id);
-    Window::panelData = panelData;
+    Window::winData = winData;
 
     //Set alignments
     if( x<-1000 ) { horAlignment = x; }
@@ -17,11 +17,11 @@ Window::Window(int x, int y, WindowPanelData* panelData, int id)
     sX = (x/2*2);
     sY = (y/2*2);
 
-    Window::panelData = panelData;
+    Window::winData = winData;
 
-    if( panelData!=nullptr ) {
-        Window::width = (panelData->getWidth()*64);
-        Window::height = (panelData->getHeight()*64);
+    if( winData!=nullptr ) {
+        Window::width = (winData->getWidth()*64);
+        Window::height = (winData->getHeight()*64);
     }
 
 
@@ -40,7 +40,7 @@ Window::Window(int x, int y, WindowPanelData* panelData, int id)
 }
 
 Window::Window(int x, int y, int width, int height, std::string upperPanel, std::string lowerPanel, int id):
-Window(x, y, new WindowPanelData(width/64, height/64, upperPanel, lowerPanel), id){}
+Window(x, y, new WindowData(width/64, height/64, upperPanel, lowerPanel), id){}
 
 Window::Window(int id): Window(0, 0, 0, 0, "", "", id)
 {
@@ -49,8 +49,8 @@ Window::Window(int id): Window(0, 0, 0, 0, "", "", id)
 
 Window::~Window()
 {
-    if(panelData!=nullptr) {
-        delete panelData;
+    if(winData!=nullptr) {
+        delete winData;
     }
 }
 
@@ -64,28 +64,29 @@ void Window::init(SDLHandler* sh, Controls* ctrls)
     int img = TextureLoader::Textures::GUI_window;
     int img2 = TextureLoader::Textures::WORLD_background_space_interstellar;
 
-    //Build application sub-window
-    if(!bkgd) {
-        tb.init(tb.WINDOW, windowTex, texW, texH);
-        windowTex.setDrawScale(2);
-    //Build a 'background' scrolling window
-    } else {
-        windowTex.init(sdlHandler);
-        windowTex.setTexDimensions(1024, 1024);
-        windowTex.lock(0, 0, 1024, 1024);
-        windowTex.blit(img2);
-        windowTex.setDrawScale(2);
-    }
+    if( winData!=nullptr ) {
 
-    if( panelData!=nullptr ) {
-        panelData->buildTex(&windowTex);
+        //Build application sub-window
+        if(!bkgd) {
+            tb.buildWindow(windowTex, winData, texW, texH);
+            windowTex.setDrawScale(2);
+        //Build a 'background' scrolling window
+        } else {
+            windowTex.init(sdlHandler);
+            windowTex.setTexDimensions(1024, 1024);
+            windowTex.lock(0, 0, 1024, 1024);
+            windowTex.blit(img2);
+            windowTex.setDrawScale(2);
+        }
+
+        winData->buildTex(&windowTex);
     }
 
     /* Upper and lower panels */
     //Upper panel
-    if( panelData!=nullptr ) {
+    if( winData!=nullptr ) {
         /*
-        if( panelData->getUpperPanel()!="" ) {
+        if( winData->getUpperPanel()!="" ) {
             for(int i = 0; i<texW; i+=32) {
                 windowTex.lock( 4+i, 5, 32, 30 );
                 windowTex.blit(img, 48,  0);
@@ -93,11 +94,11 @@ void Window::init(SDLHandler* sh, Controls* ctrls)
         }
         */
         upperPanelText.init(sdlHandler);
-        upperPanelText.setString(panelData->getUpperPanel());
+        upperPanelText.setString(winData->getUpperPanel());
 
         //Lower panel
         /*
-        if( panelData->getLowerPanel()!="" ) {
+        if( winData->getLowerPanel()!="" ) {
             for(int i = 0; i<texW; i+=32) {
                 windowTex.lock( 4+i,texH-26, 32, 30 );
                 windowTex.blit(img, 48, 31);
@@ -105,7 +106,7 @@ void Window::init(SDLHandler* sh, Controls* ctrls)
         }
         */
         lowerPanelText.init(sdlHandler);
-        lowerPanelText.setString(panelData->getLowerPanel());
+        lowerPanelText.setString(winData->getLowerPanel());
     }
 
     onWindowUpdate(true);
@@ -173,9 +174,9 @@ void Window::onWindowUpdate(bool preventInvalidTPos)
     }
 }
 
-WindowPanelData* Window::getWindowPanelData()
+WindowData* Window::getWindowData()
 {
-    return panelData;
+    return winData;
 }
 
 /**/

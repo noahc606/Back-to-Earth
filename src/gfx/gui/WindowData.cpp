@@ -1,10 +1,12 @@
-#include "WindowPanelData.h"
+#include "WindowData.h"
 #include <sstream>
 
-WindowPanelData::WindowPanelData(int w, int h)
+WindowData::WindowData(int w, int h)
 {
     width = w;
     height = h;
+
+    setBorderColor(Color(40, 40, 180));
 
     std::string line = "";
     for( int x = 0; x<w; x++ ) line += "x";
@@ -13,11 +15,11 @@ WindowPanelData::WindowPanelData(int w, int h)
     }
 }
 
-WindowPanelData::WindowPanelData(int w, int h, std::string upperPanel, std::string lowerPanel):
-WindowPanelData::WindowPanelData(w, h)
+WindowData::WindowData(int w, int h, std::string upperPanel, std::string lowerPanel):
+WindowData::WindowData(w, h)
 {
-    WindowPanelData::lowerPanel = lowerPanel;
-    WindowPanelData::upperPanel = upperPanel;
+    WindowData::lowerPanel = lowerPanel;
+    WindowData::upperPanel = upperPanel;
 
     for( int j = 0; j<height; j++ ) {
         std::string thisLine = "";
@@ -32,15 +34,15 @@ WindowPanelData::WindowPanelData(w, h)
     }
 }
 
-WindowPanelData::~WindowPanelData()
+WindowData::~WindowData()
 {
 }
 
-std::string WindowPanelData::getLowerPanel() { return lowerPanel; }
-std::string WindowPanelData::getUpperPanel() { return upperPanel; }
-int WindowPanelData::getWidth() { return width; }
-int WindowPanelData::getHeight() { return height; }
-char WindowPanelData::getPanelData(int x, int y)
+std::string WindowData::getLowerPanel() { return lowerPanel; }
+std::string WindowData::getUpperPanel() { return upperPanel; }
+int WindowData::getWidth() { return width; }
+int WindowData::getHeight() { return height; }
+char WindowData::getPanelData(int x, int y)
 {
     auto obj = panelData.find(y);
     if( obj!=panelData.end() ) {
@@ -51,9 +53,28 @@ char WindowPanelData::getPanelData(int x, int y)
     }
     return '\0';
 }
+Color WindowData::getPanelColor(char ch) {
+    auto obj = colors.find(ch);
+    if( obj!=colors.end() ) {
+        return obj->second;
+    }
+
+    return Color(80, 80, 80);
+}
+Color WindowData::getPanelColor(int x, int y) { return getPanelColor( getPanelData(x, y) ); }
+Color WindowData::getBorderColor() { return borderColor; }
+std::string WindowData::toString()
+{
+    std::stringstream ss;
+    for(auto pdItr = panelData.begin(); pdItr!=panelData.end(); pdItr++ ) {
+        ss << pdItr->second << "\n";
+    }
+
+    return ss.str();
+}
 
 
-void WindowPanelData::setPanelData(int line, std::string data)
+void WindowData::setPanelData(int line, std::string data)
 {
     auto obj = panelData.find(line);
     if( obj!=panelData.end() ) {
@@ -63,7 +84,7 @@ void WindowPanelData::setPanelData(int line, std::string data)
     panelData.insert(std::make_pair(line, data));
 }
 
-void WindowPanelData::setPanelColor(char ch, Color& col)
+void WindowData::setPanelColor(char ch, const Color& col)
 {
     auto obj = colors.find(ch);
     if( obj!=colors.end() ) {
@@ -73,8 +94,12 @@ void WindowPanelData::setPanelColor(char ch, Color& col)
     colors.insert(std::make_pair(ch, col));
 }
 
-void WindowPanelData::buildTex(Texture* windowTex)
+void WindowData::setBorderColor(const Color& col) { borderColor = col; }
+
+void WindowData::buildTex(Texture* windowTex)
 {
+    windowTex->setColorMod( borderColor );
+
     int img = TextureLoader::GUI_window;
 
     int dx0[] = { 00, -1, 01, 00 };
@@ -139,8 +164,6 @@ void WindowPanelData::buildTex(Texture* windowTex)
                 /* Lock depending on if i is nw, ne, sw, or se */
                 //Change in lock x, lock y
                 int dlx = 0; int dly = 0;
-                //Change in blit x, blit y
-                int dbx = 0; int dby = 0;
 
                 //Set lock x and lock y
                 switch(i) {
@@ -189,12 +212,3 @@ void WindowPanelData::buildTex(Texture* windowTex)
     }
 }
 
-std::string WindowPanelData::toString()
-{
-    std::stringstream ss;
-    for(auto pdItr = panelData.begin(); pdItr!=panelData.end(); pdItr++ ) {
-        ss << pdItr->second << "\n";
-    }
-
-    return ss.str();
-}
