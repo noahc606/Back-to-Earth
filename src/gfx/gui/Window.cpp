@@ -47,6 +47,12 @@ Window::Window(int id): Window(0, 0, 0, 0, "", "", id)
     bkgd = true;
 }
 
+Window::~Window()
+{
+    if(panelData!=nullptr) {
+        delete panelData;
+    }
+}
 
 void Window::init(SDLHandler* sh, Controls* ctrls)
 {
@@ -107,11 +113,6 @@ void Window::init(SDLHandler* sh, Controls* ctrls)
 
 void Window::destroy()
 {
-    if(panelData!=nullptr) {
-        //delete panelData;
-        //panelData = nullptr;
-    }
-
     BTEObject::destroy();
     windowTex.destroy();
 }

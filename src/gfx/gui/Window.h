@@ -11,6 +11,7 @@ public:
     Window(int x, int y, WindowPanelData* panelData, int id);
     Window(int x, int y, int width, int height, std::string upperPanel, std::string lowerPanel, int id);
     Window(int id);
+    virtual ~Window();
     void init(SDLHandler* sh, Controls* ctrls);
     void destroy();
     /**/

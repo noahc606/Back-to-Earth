@@ -309,20 +309,31 @@ void GUIHandler::setGUIs(int guis)
 
             if( getGUI(BTEObject::GUI_window, ID::win_CHARACTER)==nullptr ) {
 
-                int w = 16;
+                int w = 18;
                 int h = 10;
 
+                /*
+                    's': Scroll through buttons representing other menu options
+                    'd': Brief Character description. Can be clicked on to view even more info
+                    'c': Character menu which is dynamic
+                    'x': Character graphic. Translucent background
+                    'e': Essential info. 3 graphics which represent Health, oxygen, and nutrition + buttons
+                         to view specifics of these 3 graphics. More on the right half.
+                    'b': Bottom tab for extra pages (next/prev)
+
+                */
                 WindowPanelData wpd(w, h);
-                wpd.setPanelData(0, "xxxxxxxxxxxxxxxx");
-                wpd.setPanelData(1, "xxxxxxxxxxxxxxxx");
-                wpd.setPanelData(2, "xxxaaaaaaaaaxxxx");
-                wpd.setPanelData(3, "xxxxxxxxxxxxxxxx");
-                wpd.setPanelData(4, "xxxxxxxaaaaxxxxx");
-                wpd.setPanelData(5, "xxxxxxxaaaxxxxxx");
-                wpd.setPanelData(6, "xxxxxxxaaaxxxxxx");
-                wpd.setPanelData(7, "xaaaaaaaaaxxxxxx");
-                wpd.setPanelData(8, "xxxxxxxxxxxxxxxx");
-                wpd.setPanelData(9, "xxxxxxxxxxxxxxxx");
+                wpd.setPanelData(0, "ssssssddddcccccccc");
+                wpd.setPanelData(1, "ssssssxxxxcccccccc");
+                wpd.setPanelData(2, "ssssssxxxxcccccccc");
+                wpd.setPanelData(3, "ssssssxxxxcccccccc");
+                wpd.setPanelData(4, "ssssssxxxxcccccccc");
+                wpd.setPanelData(5, "ssssssxxxxcccccccc");
+                wpd.setPanelData(6, "ssssssddddcccccccc");
+                wpd.setPanelData(7, "ssssssddddcccccccc");
+                wpd.setPanelData(8, "eeeeeeeeeeeeeeeeee");
+                wpd.setPanelData(9, "eeeeeeeeeeeeeeeeee");
+                wpd.setPanelData(10,"bbbbbbbbbbbbbbbbbb");
 
                 Color c1(0, 255, 0);
                 Color c2(255, 0, 0);
@@ -412,6 +423,8 @@ void GUIHandler::removeGUIByIndex(int index)
 
     //Call texture destructor
     gui->destroy();
+    //Call object destructor
+    delete gui;
 }
 
 void GUIHandler::alignWindows()
