@@ -51,6 +51,7 @@ void GUIHandler::tick()
         if( id==-1 && type==BTEObject::Type::null ) {
             //Call object destructor
             delete guis[i];
+
             //Erase object from guis vector
             guis.erase( guis.begin()+i );
         }
@@ -322,26 +323,26 @@ void GUIHandler::setGUIs(int guis)
                     'b': Bottom tab for extra pages (next/prev)
 
                 */
-                WindowPanelData wpd(w, h);
-                wpd.setPanelData(0, "ssssssddddcccccccc");
-                wpd.setPanelData(1, "ssssssxxxxcccccccc");
-                wpd.setPanelData(2, "ssssssxxxxcccccccc");
-                wpd.setPanelData(3, "ssssssxxxxcccccccc");
-                wpd.setPanelData(4, "ssssssxxxxcccccccc");
-                wpd.setPanelData(5, "ssssssxxxxcccccccc");
-                wpd.setPanelData(6, "ssssssddddcccccccc");
-                wpd.setPanelData(7, "ssssssddddcccccccc");
-                wpd.setPanelData(8, "eeeeeeeeeeeeeeeeee");
-                wpd.setPanelData(9, "eeeeeeeeeeeeeeeeee");
-                wpd.setPanelData(10,"bbbbbbbbbbbbbbbbbb");
+                WindowPanelData* wpd = new WindowPanelData(w, h);
+                wpd->setPanelData(0, "ssssssddddcccccccc");
+                wpd->setPanelData(1, "ssssssxxxxcccccccc");
+                wpd->setPanelData(2, "ssssssxxxxcccccccc");
+                wpd->setPanelData(3, "ssssssxxxxcccccccc");
+                wpd->setPanelData(4, "ssssssxxxxcccccccc");
+                wpd->setPanelData(5, "ssssssxxxxcccccccc");
+                wpd->setPanelData(6, "ssssssddddcccccccc");
+                wpd->setPanelData(7, "ssssssddddcccccccc");
+                wpd->setPanelData(8, "eeeeeeeeeeeeeeeeee");
+                wpd->setPanelData(9, "eeeeeeeeeeeeeeeeee");
+                wpd->setPanelData(10,"bbbbbbbbbbbbbbbbbb");
 
                 Color c1(0, 255, 0);
                 Color c2(255, 0, 0);
 
-                wpd.setPanelColor('x', c1 );
-                wpd.setPanelColor('a', c2 );
+                wpd->setPanelColor('x', c1 );
+                wpd->setPanelColor('a', c2 );
 
-                addGUI(new Window( GUIAlignable::CENTER_H, GUIAlignable::CENTER_V, &wpd, win_CHARACTER ));
+                addGUI(new Window( GUIAlignable::CENTER_H, GUIAlignable::CENTER_V, wpd, win_CHARACTER ));
             } else {
                 removeGUI(win_CHARACTER);
             }
@@ -418,7 +419,7 @@ void GUIHandler::removeGUIByIndex(int index)
     GUI* gui = guis[index];
 
     if( gui->getType()==BTEObject::Type::GUI_window ) {
-        removeChildGUIs(index);
+        //removeChildGUIs(index);
     }
 
     //Call texture destructor
