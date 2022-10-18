@@ -419,7 +419,7 @@ void GUIHandler::removeGUIByIndex(int index)
     GUI* gui = guis[index];
 
     if( gui->getType()==BTEObject::Type::GUI_window ) {
-        //removeChildGUIs(index);
+        removeChildGUIs(index);
     }
 
     //Call texture destructor
