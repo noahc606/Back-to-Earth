@@ -423,6 +423,8 @@ void GUIHandler::removeGUIByIndex(int index)
 
     //Call texture destructor
     gui->destroy();
+    //Call object destructor
+    delete gui;
 }
 
 void GUIHandler::alignWindows()

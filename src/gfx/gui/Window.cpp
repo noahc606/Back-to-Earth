@@ -50,7 +50,11 @@ Window::Window(int id): Window(0, 0, 0, 0, "", "", id)
 Window::~Window()
 {
     if(panelData!=nullptr) {
+<<<<<<< HEAD
         //delete panelData;
+=======
+        delete panelData;
+>>>>>>> 387c11a63967f0e5cdf952e98b7189a737469018
     }
 }
 
