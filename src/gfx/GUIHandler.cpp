@@ -67,21 +67,18 @@ void GUIHandler::tick()
             TextBox* txtb = ((TextBox*)gui);
             //If text box selected
             if( txtb->isSelected() ) {
-
                 if(kbInput!="") {
-
                     lastKBInput = kbInput;
                     lastKBInputSpecial = kbInputSpecial;
                     txtb->passKeyboardInput(kbInput, kbInputSpecial);
                 }
             }
-
+            //If pressing enter in textbox
             if( txtb->isEntered() ) {
                 Commands::executeCMD(txtb->getString());
                 txtb->setEntered(false);
                 txtb->setString("");
             }
-
             int a = txtb->getActionID();
             if( a!=TextBox::Actions::NONE ) {
 
@@ -111,7 +108,6 @@ void GUIHandler::tick()
 
                 txtb->resetActionID(__PRETTY_FUNCTION__);
             }
-
         }
         //If gui is a button
         if( gui->getType()==BTEObject::GUI_button ) {
@@ -121,6 +117,30 @@ void GUIHandler::tick()
             if( btn->isSelected() ) {
                 guiActionID = btn->getID();
                 removeGUI( btn->getID() );
+            }
+        }
+        //If gui is a radiobutton
+        if( gui->getType()==BTEObject::GUI_radiobutton ) {
+            //cast gui to radiobutton
+            RadioButton* rbtn = ((RadioButton*)gui);
+            //If radiobutton clicked
+            if( rbtn->isSelected() ) {
+                int idMin = rbtn->getMinGroupMemberID();
+                int idMax = rbtn->getMaxGroupMemberID();
+
+                for( GUI* potentialRBtn : guis ) {
+                    if( potentialRBtn->getType()==BTEObject::GUI_radiobutton ) {
+
+                        RadioButton* potentialGroupMember = (RadioButton*)potentialRBtn;
+                        int thisID = potentialGroupMember->getID();
+
+                        if( thisID>=idMin && thisID<=idMax ){
+                            rbtn->
+                        }
+
+                    }
+                }
+
             }
         }
 
@@ -136,22 +156,11 @@ void GUIHandler::tick()
 void GUIHandler::onWindowUpdate()
 {
     //Update properties of all buttons or tooltips in case the window was just resized.
+    //Update all window GUIs
     for( GUI* gui : guis ) {
-        if( gui->getType()==BTEObject::Type::GUI_button ) {
-            Button* btn = ((Button*)gui);
-            btn->onWindowUpdate(true);
-        } else
-        if( gui->getType()==BTEObject::Type::GUI_textbox ) {
-            TextBox* txtb = ((TextBox*)gui);
-            txtb->onWindowUpdate(true);
-        } else
         if( gui->getType()==BTEObject::Type::GUI_window ) {
             Window* win = ((Window*)gui);
             win->onWindowUpdate(true);
-        } else
-        if( gui->getType()==BTEObject::Type::GUI_tooltip ) {
-            Tooltip* ttp = ((Tooltip*)gui);
-            ttp->onWindowUpdate(true);
         }
     }
 
@@ -179,6 +188,22 @@ void GUIHandler::onWindowUpdate()
     //Make sure to center GUIs vertically in the screen THEN horizontally.
     alignWindowComponents(GUIAlignable::CENTER_V);
     alignWindowComponents(GUIAlignable::CENTER_H);
+
+    //Update all non-window guis
+    for( GUI* gui : guis ) {
+        if( gui->getType()==BTEObject::Type::GUI_button ) {
+            Button* btn = ((Button*)gui);
+            btn->onWindowUpdate(true);
+        } else
+        if( gui->getType()==BTEObject::Type::GUI_textbox ) {
+            TextBox* txtb = ((TextBox*)gui);
+            txtb->onWindowUpdate(true);
+        } else
+        if( gui->getType()==BTEObject::Type::GUI_tooltip ) {
+            Tooltip* ttp = ((Tooltip*)gui);
+            ttp->onWindowUpdate(true);
+        }
+    }
 }
 
 void GUIHandler::passKeyboardInput(std::string text, bool special)
@@ -346,6 +371,8 @@ void GUIHandler::setGUIs(int guis)
                 wd->setPanelColor('b', Color(130, 210, 180, 240) );
 
                 addGUI(new Window( GUIAlignable::CENTER_H, GUIAlignable::CENTER_V, wd, win_CHARACTER ));
+                addGUI(new Tooltip( getWindow(win_CHARACTER), 30, 30, "Character Tabs", ttp_CHARACTER_tabs_desc ) );
+                addGUI(new RadioButton( getWindow(win_CHARACTER), 30, 60, "Inventory", rbtn_CHARACTER_inventory ) );
             } else {
                 removeGUI(win_CHARACTER);
             }
@@ -503,7 +530,7 @@ void GUIHandler::alignWindowComponents(int align)
         case GUIAlignable::CENTER_H: {
             //Go through all windows
             for(GUI* win : windows) {
-                ((Window*)win)->updateScreenPos();
+                ((Window*)win)->translateSPos();
 
                 for(int thisCoord : compCoords) {
 

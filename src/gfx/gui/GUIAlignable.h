@@ -8,7 +8,7 @@ public:
     GUIAlignable();
     virtual ~GUIAlignable();
     /**/
-    virtual void updateScreenPos();
+    virtual void translateSPos();
     virtual void onWindowUpdate(bool preventInvalidTPos);
     /**/
     int getHorAlignment();

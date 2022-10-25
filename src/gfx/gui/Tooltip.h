@@ -12,6 +12,7 @@ public:
     /**/
     void draw();
     void tick();
+    void onWindowUpdate(bool pitp);
 protected:
 
 private:

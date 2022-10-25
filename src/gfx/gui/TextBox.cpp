@@ -18,7 +18,7 @@ TextBox::TextBox(int p_x, int p_y, int p_width, int p_id)
 
     height = 16;
 
-    textbox = true;
+    buttonType = TEXTBOX;
 }
 void TextBox::init(SDLHandler* sh, Controls* ctrls)
 {
@@ -40,11 +40,6 @@ void TextBox::tick()
     if(entered) {
         selected = false;
     }
-}
-
-void TextBox::updateScreenPos()
-{
-    Button::updateScreenPos();
 }
 
 void TextBox::onWindowUpdate(bool preventInvalidTPos)

@@ -12,7 +12,7 @@ GUIAlignable::~GUIAlignable()
 
 /**/
 
-void GUIAlignable::updateScreenPos() {}
+void GUIAlignable::translateSPos() {}
 void GUIAlignable::onWindowUpdate(bool preventInvalidTPos) {}
 
 /**/

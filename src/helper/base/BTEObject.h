@@ -31,8 +31,7 @@ public:
 
         BTE_GUIHandler = 100,
             GUI_window,
-            GUI_button,
-            GUI_textbox,
+            GUI_button, GUI_radiobutton, GUI_textbox,
             GUI_tooltip,
     };
 

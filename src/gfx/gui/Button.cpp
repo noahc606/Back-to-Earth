@@ -31,7 +31,7 @@ void Button::init(SDLHandler* sh, Controls* ctrls)
     //Build button textures
     TextureBuilder tb(sdlHandler);
 
-    if(textbox) {
+    if( buttonType==TEXTBOX ) {
         tb.init(TextureBuilder::BTN_Tex, btnTex0, texW, texH,  0,  0);
         tb.init(TextureBuilder::BTN_Tex, btnTex1, texW, texH, 41,  0);
         tb.init(TextureBuilder::BTN_Tex, btnTex2, texW, texH,  0, 17);
@@ -81,7 +81,7 @@ void Button::draw()
 
     //If button is selected, draw selection texture
     if(selected) {
-        if(textbox) {
+        if( buttonType==TEXTBOX ) {
             btnTex2.draw();
         } else {
             btnTex3.draw();
@@ -129,7 +129,7 @@ void Button::tick()
     if( hovering ) {
         if( controls->isPressed("HARDCODE_LEFT_CLICK") ) {
 
-            if(textbox) {
+            if( buttonType==TEXTBOX ) {
                 btnText.setInsertionPointByPx( mX-sX );
             }
 
@@ -149,22 +149,9 @@ void Button::tick()
     }
 }
 
-void Button::updateScreenPos()
-{
-    if( parentWindow!=nullptr ) {
-        if( parentWindow->getType()==BTEObject::Type::GUI_window ) {
-            sX = tX+parentWindow->getSX();
-            sY = tY+parentWindow->getSY();
-        }
-    } else {
-        sX = tX;
-        sY = tY;
-    }
-}
-
 void Button::onWindowUpdate(bool preventInvalidTPos)
 {
-    updateScreenPos();
+    translateSPos();
 
     if(getID()==GUIHandler::ID::tb_DEBUG) {
         sY = sdlHandler->getHeight()-height*2;
@@ -179,7 +166,7 @@ void Button::onWindowUpdate(bool preventInvalidTPos)
 
     //If not textbox, center the text.
     int txtX = 0;
-    if( textbox ) {
+    if( buttonType==TEXTBOX ) {
         txtX = sX+4*2;
     } else {
         int txtW = btnText.getWidth()/2;

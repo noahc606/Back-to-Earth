@@ -57,7 +57,12 @@ public:
         btn_PAUSED_exit,
 
         win_CHARACTER = 2000,
-        btn_CHARACTER_inventory,
+            rbtn_CHARACTER_tabs_1a,
+                rbtn_CHARACTER_inventory,
+                rbtn_CHARACTER_crafting,
+            rbtn_CHARACTER_tabs_1b,
+
+            ttp_CHARACTER_tabs_desc,
     };
 
     enum GUIs {

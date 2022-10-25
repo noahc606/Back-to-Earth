@@ -15,7 +15,6 @@ public:
     /**/
     void draw();
     void tick();
-    void updateScreenPos();
     void onWindowUpdate(bool preventInvalidTPos);
     /**/
     bool isSelected();
@@ -41,7 +40,13 @@ protected:
 
     Text btnText;
     std::string btnString;
-    bool textbox = false;
+    int buttonType = BUTTON;
+
+    enum ButtonTypes {
+        BUTTON,
+        TEXTBOX,
+        RADIO,
+    };
 
 private:
 };

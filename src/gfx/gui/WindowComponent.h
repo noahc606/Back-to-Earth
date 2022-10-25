@@ -20,7 +20,7 @@ public:
     /**/
     void setTX(int tx); void setTY(int ty);                 //Set tX or tY
     void setTPos(int tx, int ty);                           //Set both tX and Ty
-    virtual void updateProperties(bool preventInvalidTPos); //Update properties of this window component
+    virtual void translateSPos();
 
 protected:
     Window* parentWindow = nullptr;

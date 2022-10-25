@@ -28,10 +28,15 @@ void Tooltip::destroy()
 
 void Tooltip::draw()
 {
-    Text::draw(sdlHandler, text, tX, tY, 2);
+    Text::draw(sdlHandler, text, sX, sY, 2);
 }
 
 void Tooltip::tick()
 {
 
+}
+
+void Tooltip::onWindowUpdate(bool preventInvalidTPos)
+{
+    translateSPos();
 }

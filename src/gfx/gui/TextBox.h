@@ -14,7 +14,6 @@ public:
     /**/
     void draw();
     void tick();
-    void updateScreenPos();
     void onWindowUpdate(bool preventInvalidTPos);
     void passKeyboardInput(std::string s, bool specialInput);
     /**/
