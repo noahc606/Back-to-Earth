@@ -38,6 +38,20 @@ void BTEObject::setType(int p_type)
         Log::warn(__PRETTY_FUNCTION__, "Tried to set the type of an object more than once");
     }
 }
+void BTEObject::setSubType(int p_subtype)
+{
+    if( type==Type::GUI_button ) {
+        switch( p_subtype ) {
+            case Type::GUI_radiobutton:
+            case Type::GUI_textbox: {
+                type = p_subtype;
+                return;
+            } break;
+        }
+    }
+
+    Log::warn(__PRETTY_FUNCTION__, "Tried to set the type of an object to an invalid subtype");
+}
 
 void BTEObject::setID(int p_id)
 {

@@ -12,6 +12,8 @@ Button::Button(Window* p_parentWindow, int p_x, int p_y, int p_width, std::strin
     setType(BTEObject::Type::GUI_button);
     setID(p_id);
 
+    buttonType = BUTTON;
+
     //Take in p_s
     btnString = p_s;
 }

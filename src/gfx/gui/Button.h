@@ -40,9 +40,10 @@ protected:
 
     Text btnText;
     std::string btnString;
-    int buttonType = BUTTON;
+    int buttonType = NONE;
 
     enum ButtonTypes {
+        NONE,
         BUTTON,
         TEXTBOX,
         RADIO,

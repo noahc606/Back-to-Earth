@@ -4,20 +4,9 @@
 #include "Log.h"
 
 TextBox::TextBox(int p_x, int p_y, int p_width, int p_id)
+: Button::Button(nullptr, p_x, p_y, p_width, "", p_id )
 {
-    setType(BTEObject::Type::GUI_textbox);
-
-    //Take in p_x, p_w
-    sX = p_x/2*2;
-    sY = p_y/2*2;
-    //Take in p_w
-    width = (p_width/64*64);
-    if(p_width<8) width = 8;
-    //Take in p_btnID
-    setID(p_id);
-
-    height = 16;
-
+    setSubType(BTEObject::Type::GUI_textbox);
     buttonType = TEXTBOX;
 }
 void TextBox::init(SDLHandler* sh, Controls* ctrls)

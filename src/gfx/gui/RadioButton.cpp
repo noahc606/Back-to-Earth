@@ -1,23 +1,14 @@
 #include "RadioButton.h"
 
-RadioButton::RadioButton(int p_x, int p_y, int p_width, int p_id, int p_minGMID, int p_maxGMID)
+RadioButton::RadioButton(Window* p_parentWindow, int p_x, int p_y, std::string p_s, int p_id, int p_minGMID, int p_maxGMID)
+: Button::Button(p_parentWindow, p_x, p_y, 8, p_s, p_id )
 {
-    setType(BTEObject::Type::GUI_radiobutton);
-
-    //Take in p_x, p_w
-    sX = p_x/2*2;
-    sY = p_y/2*2;
-    //Take in p_w
-    width = (p_width/64*64);
-    if(p_width<8) width = 8;
-    //Take in p_btnID
-    setID(p_id);
-    minGroupMemberID = p_minGMID;
-    maxGroupMemberID = p_maxGMID;
-
-    height = 16;
+    setSubType(BTEObject::Type::GUI_radiobutton);
 
     buttonType = RADIO;
+
+    minGroupMemberID = p_minGMID;
+    maxGroupMemberID = p_maxGMID;
 }
 
 RadioButton::~RadioButton()
@@ -27,3 +18,5 @@ RadioButton::~RadioButton()
 
 int RadioButton::getMinGroupMemberID() { return minGroupMemberID; }
 int RadioButton::getMaxGroupMemberID() { return maxGroupMemberID; }
+
+void RadioButton::deselect() { selected = false; }

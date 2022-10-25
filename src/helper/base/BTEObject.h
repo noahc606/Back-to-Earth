@@ -39,6 +39,7 @@ protected:
     /**/
     /**/
     void setType(int type);
+    void setSubType(int subtype);
     void setID(int id);
     void setTypeAndID(int p_type, int p_id);
     /**/

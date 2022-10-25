@@ -3,6 +3,7 @@
 #include "Color.h"
 #include "Log.h"
 #include "MainLoop.h"
+#include "RadioButton.h"
 #include "TextBox.h"
 #include "Tooltip.h"
 #include "WindowData.h"
@@ -135,7 +136,7 @@ void GUIHandler::tick()
                         int thisID = potentialGroupMember->getID();
 
                         if( thisID>=idMin && thisID<=idMax ){
-                            rbtn->
+                            rbtn->deselect();
                         }
 
                     }
@@ -372,7 +373,7 @@ void GUIHandler::setGUIs(int guis)
 
                 addGUI(new Window( GUIAlignable::CENTER_H, GUIAlignable::CENTER_V, wd, win_CHARACTER ));
                 addGUI(new Tooltip( getWindow(win_CHARACTER), 30, 30, "Character Tabs", ttp_CHARACTER_tabs_desc ) );
-                addGUI(new RadioButton( getWindow(win_CHARACTER), 30, 60, "Inventory", rbtn_CHARACTER_inventory ) );
+                addGUI(new RadioButton( getWindow(win_CHARACTER), 30, 60, "Inventory", rbtn_CHARACTER_inventory, rbtn_CHARACTER_tabs_1a, rbtn_CHARACTER_tabs_1b ) );
             } else {
                 removeGUI(win_CHARACTER);
             }
@@ -514,13 +515,48 @@ void GUIHandler::alignWindowComponents(int align)
     switch(align) {
         /** Left alignment */
         case GUIAlignable::L: {
-            for( GUI* gui : guis ) {
-                if (gui->getType()==BTEObject::GUI_button ||
-                    gui->getType()==BTEObject::GUI_textbox ||
-                    gui->getType()==BTEObject::GUI_tooltip )
-                {
-                    Button* btn = (Button*)gui;
-                    btn->setTPos( 12, btn->getTY() );
+            for( GUI* win : windows ) {
+
+                for(int thisCoord : compCoords) {
+                    int spacing = 48;
+                    int tacw = -16;         //Total aligned components' widths
+                    int tach = -spacing;    //Total aligned components' heights
+                    int tac = 0;            //Total number of aligned components
+
+                    /* Find 'tac' */
+                    for( GUI* gui : guis ) {
+                        if( gui->isWindowComponent() ) {
+                            WindowComponent* wc = (WindowComponent*)gui;
+                            Window* pWin = wc->getParentWindow();
+                            if( pWin!=nullptr && pWin->getType()==BTEObject::GUI_window ) {
+                                if( align==GUIAlignable::L && wc->getHorAlignment()==GUIAlignable::L ) { }
+                                tac++;
+                            }
+                        }
+                    }
+
+                    /* Update each window's coordinate value so that all are displayed next to each other and centered in the window. */
+                    if(tac==0) break;
+
+                    int cxp = ( -tacw )/2;  //xPos to set the current component in the loop to.
+
+                    for( GUI* gui : guis ) {
+                        if (gui->isWindowComponent()) {
+                            WindowComponent* wc = (WindowComponent*)gui;
+                            Window* pWin = wc->getParentWindow();
+                            if( pWin!=nullptr && pWin->getType()==BTEObject::GUI_window ) {
+
+                                if( align==GUIAlignable::L && wc->getHorAlignment()==GUIAlignable::L ) {
+                                    if( pWin==win && wc->getTY()==thisCoord ) {
+                                        //wc->setTPos( cxp-6, wc->getTY() );
+                                        //wc->onWindowUpdate(true);
+                                        cxp += (wc->getWidth()+32 );
+                                    }
+                                }
+                            }
+                        }
+                    }
+
                 }
             }
         } break;
