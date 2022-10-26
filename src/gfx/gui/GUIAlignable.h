@@ -9,7 +9,7 @@ public:
     virtual ~GUIAlignable();
     /**/
     virtual void translateSPos();
-    virtual void onWindowUpdate(bool preventInvalidTPos);
+    virtual void onWindowUpdate();
     /**/
     int getHorAlignment();
     int getVerAlignment();

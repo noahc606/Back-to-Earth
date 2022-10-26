@@ -13,7 +13,7 @@ GUIAlignable::~GUIAlignable()
 /**/
 
 void GUIAlignable::translateSPos() {}
-void GUIAlignable::onWindowUpdate(bool preventInvalidTPos) {}
+void GUIAlignable::onWindowUpdate() {}
 
 /**/
 
