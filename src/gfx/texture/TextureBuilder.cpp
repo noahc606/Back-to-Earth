@@ -117,6 +117,21 @@ void TextureBuilder::buildWindow(Texture& tex, WindowData* winData, int texW, in
     tex.setColorMod(255, 255, 255);
 }
 
+void TextureBuilder::buildRadioButton(Texture& tex, const Color& c, int srcX, int srcY)
+{
+    tex.init(sdlHandler);
+    tex.setTexDimensions(10, 10);
+    tex.setDrawScale(2);
+    tex.setColorMod(c);
+    tex.lock();
+    tex.blit(TextureLoader::GUI_button, srcX, srcY);
+}
+
+void TextureBuilder::buildRadioButton(Texture& tex, int srcX, int srcY)
+{
+    buildRadioButton(tex, Color(), srcX, srcY);
+}
+
 void TextureBuilder::tile(Texture& tex)
 {
     //Build "default" tile.
