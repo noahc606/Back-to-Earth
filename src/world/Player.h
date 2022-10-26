@@ -28,6 +28,7 @@ public:
     std::tuple<double, double, double> getVelComponents();
     double getVel();
     Camera* getCamera();
+    bool isCharMenuOpen();
     /**/
     void setPos(double, double, double);
 
@@ -76,6 +77,7 @@ private:
 
     bool godMode = true;
     bool ghost = true;
+    bool charMenuOpen = false;
 
     Camera camera;
 

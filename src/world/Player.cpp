@@ -226,7 +226,12 @@ void Player::tick()
     }
     //Open inventory
     if( controls->isPressed("PLAYER_INVENTORY") ) {
-        action = Action::INVENTORY;
+        if(charMenuOpen) {
+            charMenuOpen = false;
+        } else {
+            charMenuOpen = true;
+        }
+
         controls->stopPress("PLAYER_INVENTORY", __PRETTY_FUNCTION__);
     }
 
@@ -257,6 +262,7 @@ std::tuple<double, double, double> Player::getPos() { return std::make_tuple(x, 
 std::tuple<double, double, double> Player::getVelComponents() { return std::make_tuple(vx, vy, vz); }
 double Player::getVel() { return sqrt( vx*vx + vy*vy + vz*vz ); }
 Camera* Player::getCamera() { return &camera; }
+bool Player::isCharMenuOpen() { return charMenuOpen; }
 
 void Player::setPos(double x, double y, double z)
 {

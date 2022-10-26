@@ -159,33 +159,39 @@ void World::playerInteractions(GUIHandler& guiHandler)
         int pz = floor(pzd);
     */
 
-    switch( player.getAction() )
-    {
-        case Player::Action::GM_Destroy_Tile: {
-            TileType tt;
-            tt.init();
-            tt.setVisionBlocking(false);
-            tileMap.setTile(mouseXLL, mouseYLL, player.getCamera()->getLayer(), tt);
-            tileMap.addTileUpdates(mouseXLL, mouseYLL, player.getCamera()->getLayer());
-        }; break;
-        case Player::Action::GM_Place_Tile: {
-            TileType tt;
+    if( playerCharMenuOpen!=player.isCharMenuOpen() ) {
+        playerCharMenuOpen = player.isCharMenuOpen();
 
-            tt.init();
-            tt.setRGB(20, 255, 255);
-            tt.setSolid(true);
-            tt.setTextureXY(0, 2);
-            tt.setVisionBlocking(true);
+        if( playerCharMenuOpen ) {
+            guiHandler.setGUIs(GUIHandler::GUIs::WORLD_characterMenu_open);
+        } else {
+            guiHandler.setGUIs(GUIHandler::GUIs::WORLD_characterMenu_close);
+        }
 
-            tileMap.setTile(mouseXLL, mouseYLL, player.getCamera()->getLayer(), tt);
-            tileMap.addTileUpdates(mouseXLL, mouseYLL, player.getCamera()->getLayer());
-        }; break;
+    }
 
-        case Player::Action::INVENTORY: {
-            guiHandler.setGUIs(GUIHandler::GUIs::WORLD_character);
-        } break;
+    if( !playerCharMenuOpen ) {
+        switch( player.getAction() )
+        {
+            case Player::Action::GM_Destroy_Tile: {
+                TileType tt;
+                tt.init();
+                tt.setVisionBlocking(false);
+                tileMap.setTile(mouseXLL, mouseYLL, player.getCamera()->getLayer(), tt);
+                tileMap.addTileUpdates(mouseXLL, mouseYLL, player.getCamera()->getLayer());
+            }; break;
+            case Player::Action::GM_Place_Tile: {
+                TileType tt;
 
+                tt.init();
+                tt.setRGB(20, 255, 255);
+                tt.setSolid(true);
+                tt.setTextureXY(0, 2);
+                tt.setVisionBlocking(true);
 
-
+                tileMap.setTile(mouseXLL, mouseYLL, player.getCamera()->getLayer(), tt);
+                tileMap.addTileUpdates(mouseXLL, mouseYLL, player.getCamera()->getLayer());
+            }; break;
+        }
     }
 }

@@ -28,7 +28,7 @@ private:
     int counter = 0;
 
     double prevZoom = -1;
-    Player player;
+    Player player; bool playerCharMenuOpen = false;
     double mouseX = 0; double mouseY = 0;
     t_ll mouseXLL = 0; t_ll mouseYLL = 0; t_ll mouseZLL = 0;
 
