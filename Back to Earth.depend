@@ -4608,7 +4608,7 @@
 	"TileMap.h"
 	"TileMapScreen.h"
 
-1666751505 c:\users\noahc\desktop\git\back-to-earth\src\world\player.h
+1666753454 c:\users\noahc\desktop\git\back-to-earth\src\world\player.h
 	<tuple>
 	"BTEObject.h"
 	"Canvas.h"
@@ -6021,4 +6021,35 @@
 
 1666747059 c:\users\noahc\desktop\git\back-to-earth\src\gfx\gui\obj\tooltip.h
 	"WindowComponent.h"
+
+1666749149 source:c:\users\noahc\desktop\git\back-to-earth\src\gfx\gui\obj\button.cpp
+	"Button.h"
+	"GUIHandler.h"
+	"TextureBuilder.h"
+
+1666752867 source:c:\users\noahc\desktop\git\back-to-earth\src\gfx\gui\obj\checkbox.cpp
+	"CheckBox.h"
+
+1666752888 c:\users\noahc\desktop\git\back-to-earth\src\gfx\gui\obj\checkbox.h
+	"Button.h"
+
+1666752818 source:c:\users\noahc\desktop\git\back-to-earth\src\gfx\gui\obj\icon.cpp
+	"Icon.h"
+
+1666752845 c:\users\noahc\desktop\git\back-to-earth\src\gfx\gui\obj\icon.h
+	"WindowComponent.h"
+
+1666751351 source:c:\users\noahc\desktop\git\back-to-earth\src\gfx\gui\obj\radiobutton.cpp
+	"RadioButton.h"
+	"TextureLoader.h"
+	"TextureBuilder.h"
+
+1666746807 source:c:\users\noahc\desktop\git\back-to-earth\src\gfx\gui\obj\textbox.cpp
+	"TextBox.h"
+	<sstream>
+	"Text.h"
+	"Log.h"
+
+1666747067 source:c:\users\noahc\desktop\git\back-to-earth\src\gfx\gui\obj\tooltip.cpp
+	"Tooltip.h"
 
