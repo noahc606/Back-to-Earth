@@ -59,7 +59,7 @@ public:
         win_CHARACTER = 2000,
             rbtn_CHARACTER_tabs_1a,
                 rbtn_CHARACTER_inventory,
-                rbtn_CHARACTER_crafting,
+                rbtn_CHARACTER_engineering,
             rbtn_CHARACTER_tabs_1b,
 
             ttp_CHARACTER_tabs_desc,
@@ -72,7 +72,8 @@ public:
 
         PAUSE, UNPAUSE,
         WORLD,
-            WORLD_character,
+            WORLD_characterMenu_open,
+            WORLD_characterMenu_close,
     };
 
 protected:

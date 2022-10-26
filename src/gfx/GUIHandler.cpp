@@ -126,23 +126,20 @@ void GUIHandler::tick()
             //cast gui to radiobutton
             RadioButton* rbtn = ((RadioButton*)gui);
             //If radiobutton clicked
-            if( rbtn->isSelected() ) {
+            if( rbtn->justClicked() && rbtn->isSelected() ) {
+                rbtn->unclick();
                 int idMin = rbtn->getMinGroupMemberID();
                 int idMax = rbtn->getMaxGroupMemberID();
 
                 for( GUI* potentialRBtn : guis ) {
                     if( potentialRBtn->getType()==BTEObject::GUI_radiobutton ) {
+                        int thisID = potentialRBtn->getID();
 
-                        RadioButton* potentialGroupMember = (RadioButton*)potentialRBtn;
-                        int thisID = potentialGroupMember->getID();
-
-                        if( thisID>=idMin && thisID<=idMax ){
-                            rbtn->deselect();
+                        if( thisID>=idMin && thisID<=idMax && thisID!=rbtn->getID() ) {
+                            ((RadioButton*)potentialRBtn)->deselect();
                         }
-
                     }
                 }
-
             }
         }
 
@@ -169,10 +166,7 @@ void GUIHandler::onWindowUpdate()
     /** Prepare all guis that need to be aligned */
     //Set horizontal GUIs' TX to 0, vertical GUIs' TY to 0.
     for( GUI* gui : guis ) {
-        if (gui->getType()==BTEObject::GUI_button ||
-            gui->getType()==BTEObject::GUI_textbox ||
-            gui->getType()==BTEObject::GUI_tooltip
-            ) {
+        if (gui->isWindowComponent()) {
             WindowComponent* wc = (WindowComponent*)gui;
             if( wc->getAlignment(0)==WindowComponent::CENTER_H ) {
                 wc->setTX(0);
@@ -186,24 +180,15 @@ void GUIHandler::onWindowUpdate()
     /** Align GUIs */
     //Align windows
     GUIAligner::alignWindows(sdlHandler, guis);
-    //Align window components (buttons, textboxes, etc)
-    //Make sure to center GUIs vertically in the screen THEN horizontally.
+
+    //Align window components (buttons, textboxes, etc). Make sure to center GUIs vertically in the screen THEN horizontally.
     GUIAligner::alignWindowComponents(guis, GUIAlignable::CENTER_V);
     GUIAligner::alignWindowComponents(guis, GUIAlignable::CENTER_H);
 
     //Update all non-window guis
     for( GUI* gui : guis ) {
-        if( gui->getType()==BTEObject::Type::GUI_button ) {
-            Button* btn = ((Button*)gui);
-            btn->onWindowUpdate(true);
-        } else
-        if( gui->getType()==BTEObject::Type::GUI_textbox ) {
-            TextBox* txtb = ((TextBox*)gui);
-            txtb->onWindowUpdate(true);
-        } else
-        if( gui->getType()==BTEObject::Type::GUI_tooltip ) {
-            Tooltip* ttp = ((Tooltip*)gui);
-            ttp->onWindowUpdate(true);
+        if( gui->isWindowComponent() ) {
+            ((WindowComponent*)gui)->onWindowUpdate();
         }
     }
 }
@@ -335,8 +320,7 @@ void GUIHandler::setGUIs(int guis)
             removeAllUserGUIs();
         } break;
 
-        case WORLD_character: {
-
+        case WORLD_characterMenu_open: {
             if( getGUI(BTEObject::GUI_window, ID::win_CHARACTER)==nullptr ) {
 
                 int w = 18;
@@ -374,11 +358,12 @@ void GUIHandler::setGUIs(int guis)
 
                 addGUI(new Window( GUIAlignable::CENTER_H, GUIAlignable::CENTER_V, wd, win_CHARACTER ));
                 addGUI(new Tooltip( getWindow(win_CHARACTER), 30, 30, "Character Tabs", ttp_CHARACTER_tabs_desc ) );
-                addGUI(new RadioButton( getWindow(win_CHARACTER), 30, 60, "Inventory", rbtn_CHARACTER_inventory, rbtn_CHARACTER_tabs_1a, rbtn_CHARACTER_tabs_1b ) );
-            } else {
-                removeGUI(win_CHARACTER);
+                addGUI(new RadioButton( getWindow(win_CHARACTER), 30, 60, "Inventory", true, rbtn_CHARACTER_inventory, rbtn_CHARACTER_tabs_1a, rbtn_CHARACTER_tabs_1b ) );
+                addGUI(new RadioButton( getWindow(win_CHARACTER), 30, 100, "Engineering", rbtn_CHARACTER_engineering, rbtn_CHARACTER_tabs_1a, rbtn_CHARACTER_tabs_1b ) );
             }
-
+        } break;
+        case WORLD_characterMenu_close: {
+            removeGUI(win_CHARACTER);
         } break;
 
 
