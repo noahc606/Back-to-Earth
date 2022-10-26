@@ -76,6 +76,7 @@ public:
     };
 
 protected:
+    std::vector<GUI*> guis;
 
 private:
     //Controls::KeyboardInput kbInput;
@@ -86,14 +87,10 @@ private:
     std::string lastKBInput = "";
     bool lastKBInputSpecial = false;
 
-    std::vector<GUI*> guis;
-
     int guiActionID = -1;
 
     /**/
     /**/
     void removeAllGUIs();
     void removeGUIByIndex(int index);
-    void alignWindows();
-    void alignWindowComponents(int alignment);
 };

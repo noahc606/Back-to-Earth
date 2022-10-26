@@ -83,10 +83,14 @@ void Button::draw()
 
     //If button is selected, draw selection texture
     if(selected) {
-        if( buttonType==TEXTBOX ) {
-            btnTex2.draw();
-        } else {
-            btnTex3.draw();
+
+        switch( buttonType ) {
+            case TEXTBOX: {
+                btnTex2.draw();
+            } break;
+            default: {
+                btnTex3.draw();
+            } break;
         }
     }
 

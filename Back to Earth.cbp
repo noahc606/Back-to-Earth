@@ -17,6 +17,8 @@
 				<Compiler>
 					<Add option="-g" />
 					<Add directory="src/gfx/gui" />
+					<Add directory="src/gfx" />
+					<Add directory="src/gfx/" />
 				</Compiler>
 				<Linker>
 					<Add option="-lmingw32 -lSDL2main -lSDL2" />
@@ -43,6 +45,8 @@
 				<Compiler>
 					<Add option="-O2" />
 					<Add directory="src/gfx/gui" />
+					<Add directory="src/gfx" />
+					<Add directory="src/gfx/" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -107,6 +111,8 @@
 		</Linker>
 		<Unit filename="src/gfx/Camera.cpp" />
 		<Unit filename="src/gfx/Camera.h" />
+		<Unit filename="src/gfx/GUIAligner.cpp" />
+		<Unit filename="src/gfx/GUIAligner.h" />
 		<Unit filename="src/gfx/GUIHandler.cpp" />
 		<Unit filename="src/gfx/GUIHandler.h" />
 		<Unit filename="src/gfx/Text.cpp" />
@@ -213,9 +219,6 @@
 		<Unit filename="src/world/tile/TileType.h" />
 		<Extensions>
 			<lib_finder disable_auto="1" />
-			<code_completion />
-			<envvars />
-			<debugger />
 		</Extensions>
 	</Project>
 </CodeBlocks_project_file>
