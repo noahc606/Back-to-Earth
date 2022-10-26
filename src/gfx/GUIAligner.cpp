@@ -168,14 +168,14 @@ void GUIAligner::alignWindowComponents(std::vector<GUI*>& guis, int align)
                                 if( align==GUIAlignable::CENTER_H && wc->getHorAlignment()==GUIAlignable::CENTER_H ) {
                                     if( pWin==win && wc->getTY()==thisCoord ) {
                                         wc->setTPos( cxp-6, wc->getTY() );
-                                        wc->onWindowUpdate(true);
+                                        wc->onWindowUpdate();
                                         cxp += (wc->getWidth()+32 );
                                     }
                                 }
                                 if( align==GUIAlignable::CENTER_V && wc->getVerAlignment()==GUIAlignable::CENTER_V ) {
                                     if( pWin==win && wc->getTX()==thisCoord ) {
                                         wc->setTPos( wc->getTX(), cyp-6 );
-                                        wc->onWindowUpdate(true);
+                                        wc->onWindowUpdate();
                                         cyp += (wc->getHeight()+spacing );
                                     }
                                 }
