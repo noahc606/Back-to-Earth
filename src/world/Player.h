@@ -36,8 +36,6 @@ public:
         NONE,
         GM_Place_Tile,
         GM_Destroy_Tile,
-
-        INVENTORY,
     };
 
     enum Components {
