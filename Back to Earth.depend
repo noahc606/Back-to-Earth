@@ -4426,12 +4426,12 @@
 1666737654 c:\users\noahc\desktop\git\back-to-earth\src\main\main.h
 	<string>
 
-1666738122 source:c:\users\noahc\desktop\git\back-to-earth\src\gfx\gui\button.cpp
+1666749149 source:c:\users\noahc\desktop\git\back-to-earth\src\gfx\gui\button.cpp
 	"Button.h"
 	"GUIHandler.h"
 	"TextureBuilder.h"
 
-1666737654 c:\users\noahc\desktop\git\back-to-earth\src\gfx\gui\button.h
+1666746781 c:\users\noahc\desktop\git\back-to-earth\src\gfx\gui\button.h
 	"Text.h"
 	"Texture.h"
 	"WindowComponent.h"
@@ -4453,7 +4453,7 @@
 	"GUIAlignable.h"
 	"Window.h"
 
-1666737654 c:\users\noahc\desktop\git\back-to-earth\src\gfx\gui\guialignable.h
+1666746928 c:\users\noahc\desktop\git\back-to-earth\src\gfx\gui\guialignable.h
 	"GUI.h"
 
 1666737654 c:\users\noahc\desktop\git\back-to-earth\src\gfx\gui\gui.h
@@ -4471,13 +4471,13 @@
 	"Color.h"
 	"Texture.h"
 
-1666741433 c:\users\noahc\desktop\git\back-to-earth\src\gfx\guihandler.h
+1666751790 c:\users\noahc\desktop\git\back-to-earth\src\gfx\guihandler.h
 	<vector>
 	"BTEObject.h"
 	"GUI.h"
 	"Window.h"
 
-1666737654 c:\users\noahc\desktop\git\back-to-earth\src\gfx\texture\texturebuilder.h
+1666751262 c:\users\noahc\desktop\git\back-to-earth\src\gfx\texture\texturebuilder.h
 	"SDLHandler.h"
 	"Texture.h"
 	"WindowData.h"
@@ -4486,16 +4486,16 @@
 	"GUI.h"
 	"GUIHandler.h"
 
-1666737654 source:c:\users\noahc\desktop\git\back-to-earth\src\gfx\gui\guialignable.cpp
+1666746929 source:c:\users\noahc\desktop\git\back-to-earth\src\gfx\gui\guialignable.cpp
 	"GUIAlignable.h"
 
-1666737654 source:c:\users\noahc\desktop\git\back-to-earth\src\gfx\gui\textbox.cpp
+1666746807 source:c:\users\noahc\desktop\git\back-to-earth\src\gfx\gui\textbox.cpp
 	"TextBox.h"
 	<sstream>
 	"Text.h"
 	"Log.h"
 
-1666737654 c:\users\noahc\desktop\git\back-to-earth\src\gfx\gui\textbox.h
+1666746801 c:\users\noahc\desktop\git\back-to-earth\src\gfx\gui\textbox.h
 	<string>
 	"GUIHandler.h"
 	"Texture.h"
@@ -4505,13 +4505,13 @@
 	<iostream>
 	<sstream>
 
-1666737654 source:c:\users\noahc\desktop\git\back-to-earth\src\gfx\gui\tooltip.cpp
+1666747067 source:c:\users\noahc\desktop\git\back-to-earth\src\gfx\gui\tooltip.cpp
 	"Tooltip.h"
 
-1666737654 c:\users\noahc\desktop\git\back-to-earth\src\gfx\gui\tooltip.h
+1666747059 c:\users\noahc\desktop\git\back-to-earth\src\gfx\gui\tooltip.h
 	"WindowComponent.h"
 
-1666737654 source:c:\users\noahc\desktop\git\back-to-earth\src\gfx\gui\window.cpp
+1666751297 source:c:\users\noahc\desktop\git\back-to-earth\src\gfx\gui\window.cpp
 	"Window.h"
 	"TextureBuilder.h"
 	"Log.h"
@@ -4524,7 +4524,7 @@
 	"WindowPanelData.h"
 	<sstream>
 
-1666741894 source:c:\users\noahc\desktop\git\back-to-earth\src\gfx\guihandler.cpp
+1666751837 source:c:\users\noahc\desktop\git\back-to-earth\src\gfx\guihandler.cpp
 	"GUIHandler.h"
 	<set>
 	"Color.h"
@@ -4599,7 +4599,7 @@
 1666737654 c:\users\noahc\desktop\git\back-to-earth\src\world\tile\tiletype.h
 	<tuple>
 
-1666737654 c:\users\noahc\desktop\git\back-to-earth\src\world\world.h
+1666751568 c:\users\noahc\desktop\git\back-to-earth\src\world\world.h
 	"BTEObject.h"
 	"Canvas.h"
 	"GUIHandler.h"
@@ -4608,7 +4608,7 @@
 	"TileMap.h"
 	"TileMapScreen.h"
 
-1666737654 c:\users\noahc\desktop\git\back-to-earth\src\world\player.h
+1666751505 c:\users\noahc\desktop\git\back-to-earth\src\world\player.h
 	<tuple>
 	"BTEObject.h"
 	"Canvas.h"
@@ -4709,7 +4709,7 @@
 	<sstream>
 	"Log.h"
 
-1666737654 source:c:\users\noahc\desktop\git\back-to-earth\src\gfx\texture\texturebuilder.cpp
+1666751273 source:c:\users\noahc\desktop\git\back-to-earth\src\gfx\texture\texturebuilder.cpp
 	"TextureBuilder.h"
 	"TextureLoader.h"
 
@@ -4890,7 +4890,7 @@
 	"Point3D.h"
 	"Defs.h"
 
-1666737654 source:c:\users\noahc\desktop\git\back-to-earth\src\world\player.cpp
+1666751516 source:c:\users\noahc\desktop\git\back-to-earth\src\world\player.cpp
 	"Player.h"
 	<cmath>
 	<math.h>
@@ -4960,7 +4960,7 @@
 	<sstream>
 	"DebugScreen.h"
 
-1666737654 source:c:\users\noahc\desktop\git\back-to-earth\src\world\world.cpp
+1666751964 source:c:\users\noahc\desktop\git\back-to-earth\src\world\world.cpp
 	"World.h"
 	<math.h>
 	"TextureBuilder.h"
@@ -5968,19 +5968,57 @@
 1666644756 c:\users\noahc\desktop\git\back to earth\back-to-earth\src\gfx\gui\radiobutton.h
 	"Button.h"
 
-1666737654 source:c:\users\noahc\desktop\git\back-to-earth\src\gfx\gui\radiobutton.cpp
+1666751351 source:c:\users\noahc\desktop\git\back-to-earth\src\gfx\gui\radiobutton.cpp
 	"RadioButton.h"
+	"TextureLoader.h"
+	"TextureBuilder.h"
 
-1666737654 c:\users\noahc\desktop\git\back-to-earth\src\gfx\gui\radiobutton.h
+1666750924 c:\users\noahc\desktop\git\back-to-earth\src\gfx\gui\radiobutton.h
 	"Button.h"
+	"Texture.h"
 
 1666742522 c:\users\noahc\desktop\git\back-to-earth\src\gfx\guialigner.h
 	"GUIHandler.h"
 
-1666741935 source:c:\users\noahc\desktop\git\back-to-earth\src\gfx\guialigner.cpp
+1666746936 source:c:\users\noahc\desktop\git\back-to-earth\src\gfx\guialigner.cpp
 	"GUIAligner.h"
 	<set>
 	"GUI.h"
 	"WindowComponent.h"
 	"SDLHandler.h"
+
+1666752818 source:c:\users\noahc\desktop\git\back-to-earth\src\gfx\gui\icon.cpp
+	"Icon.h"
+
+1666752845 c:\users\noahc\desktop\git\back-to-earth\src\gfx\gui\icon.h
+	"WindowComponent.h"
+
+1666737654 c:\users\noahc\desktop\git\back-to-earth\src\gfx\gui\obj\window.h
+	"GUIAlignable.h"
+	"Text.h"
+	"Texture.h"
+	"WindowData.h"
+
+1666751297 source:c:\users\noahc\desktop\git\back-to-earth\src\gfx\gui\obj\window.cpp
+	"Window.h"
+	"TextureBuilder.h"
+	"Log.h"
+
+1666750924 c:\users\noahc\desktop\git\back-to-earth\src\gfx\gui\obj\radiobutton.h
+	"Button.h"
+	"Texture.h"
+
+1666746781 c:\users\noahc\desktop\git\back-to-earth\src\gfx\gui\obj\button.h
+	"Text.h"
+	"Texture.h"
+	"WindowComponent.h"
+
+1666746801 c:\users\noahc\desktop\git\back-to-earth\src\gfx\gui\obj\textbox.h
+	<string>
+	"GUIHandler.h"
+	"Texture.h"
+	"Button.h"
+
+1666747059 c:\users\noahc\desktop\git\back-to-earth\src\gfx\gui\obj\tooltip.h
+	"WindowComponent.h"
 

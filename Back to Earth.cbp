@@ -16,9 +16,6 @@
 				<Option projectLibDirsRelation="0" />
 				<Compiler>
 					<Add option="-g" />
-					<Add directory="src/gfx/gui" />
-					<Add directory="src/gfx" />
-					<Add directory="src/gfx/" />
 				</Compiler>
 				<Linker>
 					<Add option="-lmingw32 -lSDL2main -lSDL2" />
@@ -44,9 +41,6 @@
 				<Option projectLibDirsRelation="0" />
 				<Compiler>
 					<Add option="-O2" />
-					<Add directory="src/gfx/gui" />
-					<Add directory="src/gfx" />
-					<Add directory="src/gfx/" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -76,6 +70,7 @@
 			<Add directory="src" />
 			<Add directory="src/gfx" />
 			<Add directory="src/gfx/gui" />
+			<Add directory="src/gfx/gui/obj" />
 			<Add directory="src/gfx/texture" />
 			<Add directory="src/helper" />
 			<Add directory="src/helper/base" />
@@ -117,24 +112,28 @@
 		<Unit filename="src/gfx/GUIHandler.h" />
 		<Unit filename="src/gfx/Text.cpp" />
 		<Unit filename="src/gfx/Text.h" />
-		<Unit filename="src/gfx/gui/Button.cpp" />
-		<Unit filename="src/gfx/gui/Button.h" />
 		<Unit filename="src/gfx/gui/GUI.cpp" />
 		<Unit filename="src/gfx/gui/GUI.h" />
 		<Unit filename="src/gfx/gui/GUIAlignable.cpp" />
 		<Unit filename="src/gfx/gui/GUIAlignable.h" />
-		<Unit filename="src/gfx/gui/RadioButton.cpp" />
-		<Unit filename="src/gfx/gui/RadioButton.h" />
-		<Unit filename="src/gfx/gui/TextBox.cpp" />
-		<Unit filename="src/gfx/gui/TextBox.h" />
-		<Unit filename="src/gfx/gui/Tooltip.cpp" />
-		<Unit filename="src/gfx/gui/Tooltip.h" />
-		<Unit filename="src/gfx/gui/Window.cpp" />
-		<Unit filename="src/gfx/gui/Window.h" />
 		<Unit filename="src/gfx/gui/WindowComponent.cpp" />
 		<Unit filename="src/gfx/gui/WindowComponent.h" />
 		<Unit filename="src/gfx/gui/WindowData.cpp" />
 		<Unit filename="src/gfx/gui/WindowData.h" />
+		<Unit filename="src/gfx/gui/obj/Button.cpp" />
+		<Unit filename="src/gfx/gui/obj/Button.h" />
+		<Unit filename="src/gfx/gui/obj/CheckBox.cpp" />
+		<Unit filename="src/gfx/gui/obj/CheckBox.h" />
+		<Unit filename="src/gfx/gui/obj/Icon.cpp" />
+		<Unit filename="src/gfx/gui/obj/Icon.h" />
+		<Unit filename="src/gfx/gui/obj/RadioButton.cpp" />
+		<Unit filename="src/gfx/gui/obj/RadioButton.h" />
+		<Unit filename="src/gfx/gui/obj/TextBox.cpp" />
+		<Unit filename="src/gfx/gui/obj/TextBox.h" />
+		<Unit filename="src/gfx/gui/obj/Tooltip.cpp" />
+		<Unit filename="src/gfx/gui/obj/Tooltip.h" />
+		<Unit filename="src/gfx/gui/obj/Window.cpp" />
+		<Unit filename="src/gfx/gui/obj/Window.h" />
 		<Unit filename="src/gfx/texture/Canvas.cpp" />
 		<Unit filename="src/gfx/texture/Canvas.h" />
 		<Unit filename="src/gfx/texture/Color.cpp" />
