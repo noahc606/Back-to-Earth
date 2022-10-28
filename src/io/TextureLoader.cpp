@@ -141,6 +141,7 @@ SDL_Surface* TextureLoader::loadSurface(std::string path)
     std::string filename = path;
 	//Load image at specified path
 	path = resourcePath + "resources\\textures\\" + path;
+
 	SDL_Surface* img = IMG_Load(path.c_str());
 	SDL_Surface* surf = SDL_ConvertSurface(img, pixelFormat, 0);
     SDL_FreeSurface(img);

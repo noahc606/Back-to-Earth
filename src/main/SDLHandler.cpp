@@ -17,6 +17,16 @@ void SDLHandler::init()
     textureLoader.init(windowRenderer, windowPixelFormat, resourcePath);
     audioLoader.init(resourcePath);
     SDL_SetWindowIcon(window, textureLoader.getSurface(TextureLoader::icon));
+
+
+
+    /*
+    std::stringstream ss;
+    ss << SDL_GetCurrentVideoDriver() << "\n";
+    ss << SDL_GetNumVideoDrivers() << "\n";
+    ss << SDL_GetVideoDriver(0) << ", " << SDL_GetVideoDriver(1) << "\n";
+    std::cout << ss.str() << "\n";
+    */
 }
 SDLHandler::~SDLHandler()
 {

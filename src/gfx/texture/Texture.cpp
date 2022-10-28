@@ -316,9 +316,6 @@ void Texture::setColorMod(uint8_t r, uint8_t g, uint8_t b, uint8_t a) { setColor
 
 void Texture::setBlendMode(SDL_BlendMode bm) { blendMode = bm; }
 
-/**
-    Warning: Texture must have storeSurfaceCopy==true in order to preserve pixel data when resizing (use init(true) to do this).
-*/
 void Texture::setTexDimensions(int w, int h, bool scale)
 {
     texW = w;

@@ -6,7 +6,16 @@
 */
 
 #include "Noise.h"
+#include <cstdint>
 #include <math.h>
+
+Noise::Noise(int64_t p_seed)
+{
+
+}
+
+Noise::Noise(std::string p_seed):
+Noise( stringSeedToI64Seed(p_seed) ){}
 
 Noise::Noise(){}
 Noise::~Noise(){}
@@ -15,6 +24,19 @@ inline int32_t Noise::fastfloor(float fp) {
     int32_t i = static_cast<int32_t>(fp);
     return (fp < i) ? (i - 1) : (i);
 }
+
+int64_t Noise::stringSeedToI64Seed(std::string s)
+{
+    int64_t val = INT64_MIN;
+    int strIndex = 0;
+    for( char c : s ) {
+        val += c*pow(2, strIndex);
+        strIndex++;
+    }
+
+    return val;
+}
+
 
 float Noise::interpolate(float a0, float a1, float w) {
 
@@ -169,8 +191,6 @@ void Noise::populateRegion(TileRegion& tr, int rX, int rY, int rZ)
                     }
                 }
             }
-
-
         }
     }
 }
