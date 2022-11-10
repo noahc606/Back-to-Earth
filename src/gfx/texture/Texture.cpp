@@ -43,6 +43,21 @@ void Texture::destroy()
 
 bool Texture::isInitialized() { return initialized; }
 SDL_Texture* Texture::getSDLTexture() { return tex; }
+SDL_Surface* Texture::createSurfaceFromTexture()
+{
+    //Save render target
+    SDL_Texture* target = SDL_GetRenderTarget(renderer);
+    //Change render target to this tex
+    SDL_SetRenderTarget(renderer, tex);
+    //Create a new surface
+    SDL_Surface* surface = SDL_CreateRGBSurface(0, texW, texH, 32, 0, 0, 0, 0);
+    //Copy render target's pixels to surface's pixels
+    SDL_RenderReadPixels(renderer, NULL, surface->format->format, surface->pixels, surface->pitch);
+    //Set back render target
+    SDL_SetRenderTarget(renderer, target);
+    //Return surface
+    return surface;
+}
 
 int Texture::getTexWidth() { return texW; }
 int Texture::getTexHeight() { return texH; }
@@ -286,6 +301,11 @@ void Texture::pixel(int x, int y, uint8_t r, uint8_t g, uint8_t b)
 {
     pixel(x, y, r, g, b, 255);
 }
+void Texture::pixel(int x, int y, uint32_t rgba)
+{
+    Color color(rgba);
+    pixel(x, y, color.r, color.g, color.b, color.a);
+}
 
 void Texture::clear()
 {
@@ -366,6 +386,20 @@ void Texture::draw()
 void Texture::draw(SDL_Rect* src, SDL_Rect* dst)
 {
     SDL_RenderCopy( renderer, tex, src, dst );
+}
+
+void Texture::savePNG(FileHandler* fh, std::string path)
+{
+    //Create surface from texture
+    SDL_Surface* surf = createSurfaceFromTexture();
+
+    //Save surface
+    std::stringstream ss;
+    ss << fh->getResourcePath() << path;
+    IMG_SavePNG( surf, ss.str().c_str() );
+
+    //Free surface
+    SDL_FreeSurface(surf);
 }
 
 void Texture::initTex(bool scale)

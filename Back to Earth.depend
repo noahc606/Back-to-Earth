@@ -3998,33 +3998,33 @@
 	"Log.h"
 	"MainLoop.h"
 
-1666737654 source:c:\users\noahc\desktop\git\back-to-earth\src\gfx\camera.cpp
+1668098086 source:c:\users\noahc\desktop\git\back-to-earth\src\gfx\camera.cpp
 	"Camera.h"
 	<math.h>
 
-1666737654 c:\users\noahc\desktop\git\back-to-earth\src\gfx\camera.h
+1668098086 c:\users\noahc\desktop\git\back-to-earth\src\gfx\camera.h
 	"BTEObject.h"
 
-1666737654 c:\users\noahc\desktop\git\back-to-earth\src\helper\base\bteobject.h
+1668098572 c:\users\noahc\desktop\git\back-to-earth\src\helper\base\bteobject.h
 	"Commands.h"
 	"Controls.h"
 	"FileHandler.h"
 	"SDLHandler.h"
 	"Settings.h"
 
-1666737654 c:\users\noahc\desktop\git\back-to-earth\src\io\debug\commands.h
+1668098086 c:\users\noahc\desktop\git\back-to-earth\src\io\debug\commands.h
 	<map>
 	<string>
 	<vector>
 
-1666737654 c:\users\noahc\desktop\git\back-to-earth\src\io\controls.h
+1668098086 c:\users\noahc\desktop\git\back-to-earth\src\io\controls.h
 	<memory>
 	<SDL.h>
 	<vector>
 	"ControlBinding.h"
 	"Settings.h"
 
-1666737654 c:\users\noahc\desktop\git\back-to-earth\lib\sdl2-2.0.10-i686-w64-mingw32\include\sdl2\sdl.h
+1668098086 c:\users\noahc\desktop\git\back-to-earth\lib\sdl2-2.0.10-i686-w64-mingw32\include\sdl2\sdl.h
 	"SDL_main.h"
 	"SDL_stdinc.h"
 	"SDL_assert.h"
@@ -4057,12 +4057,12 @@
 	"begin_code.h"
 	"close_code.h"
 
-1666737654 c:\users\noahc\desktop\git\back-to-earth\lib\sdl2-2.0.10-i686-w64-mingw32\include\sdl2\sdl_main.h
+1668098086 c:\users\noahc\desktop\git\back-to-earth\lib\sdl2-2.0.10-i686-w64-mingw32\include\sdl2\sdl_main.h
 	"SDL_stdinc.h"
 	"begin_code.h"
 	"close_code.h"
 
-1666737654 c:\users\noahc\desktop\git\back-to-earth\lib\sdl2-2.0.10-i686-w64-mingw32\include\sdl2\sdl_stdinc.h
+1668098086 c:\users\noahc\desktop\git\back-to-earth\lib\sdl2-2.0.10-i686-w64-mingw32\include\sdl2\sdl_stdinc.h
 	"SDL_config.h"
 	<sys/types.h>
 	<stdio.h>
@@ -4091,27 +4091,27 @@
 	"begin_code.h"
 	"close_code.h"
 
-1666737654 c:\users\noahc\desktop\git\back-to-earth\lib\sdl2-2.0.10-i686-w64-mingw32\include\sdl2\sdl_config.h
+1668098086 c:\users\noahc\desktop\git\back-to-earth\lib\sdl2-2.0.10-i686-w64-mingw32\include\sdl2\sdl_config.h
 	"SDL_platform.h"
 
-1666737654 c:\users\noahc\desktop\git\back-to-earth\lib\sdl2-2.0.10-i686-w64-mingw32\include\sdl2\sdl_platform.h
+1668098086 c:\users\noahc\desktop\git\back-to-earth\lib\sdl2-2.0.10-i686-w64-mingw32\include\sdl2\sdl_platform.h
 	"AvailabilityMacros.h"
 	"TargetConditionals.h"
 	<winapifamily.h>
 	"begin_code.h"
 	"close_code.h"
 
-1666737654 c:\users\noahc\desktop\git\back-to-earth\lib\sdl2-2.0.10-i686-w64-mingw32\include\sdl2\begin_code.h
+1668098086 c:\users\noahc\desktop\git\back-to-earth\lib\sdl2-2.0.10-i686-w64-mingw32\include\sdl2\begin_code.h
 
-1666737654 c:\users\noahc\desktop\git\back-to-earth\lib\sdl2-2.0.10-i686-w64-mingw32\include\sdl2\close_code.h
+1668098086 c:\users\noahc\desktop\git\back-to-earth\lib\sdl2-2.0.10-i686-w64-mingw32\include\sdl2\close_code.h
 
-1666737654 c:\users\noahc\desktop\git\back-to-earth\lib\sdl2-2.0.10-i686-w64-mingw32\include\sdl2\sdl_assert.h
+1668098086 c:\users\noahc\desktop\git\back-to-earth\lib\sdl2-2.0.10-i686-w64-mingw32\include\sdl2\sdl_assert.h
 	"SDL_config.h"
 	"begin_code.h"
 	<signal.h>
 	"close_code.h"
 
-1666737654 c:\users\noahc\desktop\git\back-to-earth\lib\sdl2-2.0.10-i686-w64-mingw32\include\sdl2\sdl_atomic.h
+1668098086 c:\users\noahc\desktop\git\back-to-earth\lib\sdl2-2.0.10-i686-w64-mingw32\include\sdl2\sdl_atomic.h
 	"SDL_stdinc.h"
 	"SDL_platform.h"
 	"begin_code.h"
@@ -4119,7 +4119,7 @@
 	<mbarrier.h>
 	"close_code.h"
 
-1666737654 c:\users\noahc\desktop\git\back-to-earth\lib\sdl2-2.0.10-i686-w64-mingw32\include\sdl2\sdl_audio.h
+1668098086 c:\users\noahc\desktop\git\back-to-earth\lib\sdl2-2.0.10-i686-w64-mingw32\include\sdl2\sdl_audio.h
 	"SDL_stdinc.h"
 	"SDL_error.h"
 	"SDL_endian.h"
@@ -4129,24 +4129,24 @@
 	"begin_code.h"
 	"close_code.h"
 
-1666737654 c:\users\noahc\desktop\git\back-to-earth\lib\sdl2-2.0.10-i686-w64-mingw32\include\sdl2\sdl_error.h
+1668098086 c:\users\noahc\desktop\git\back-to-earth\lib\sdl2-2.0.10-i686-w64-mingw32\include\sdl2\sdl_error.h
 	"SDL_stdinc.h"
 	"begin_code.h"
 	"close_code.h"
 
-1666737654 c:\users\noahc\desktop\git\back-to-earth\lib\sdl2-2.0.10-i686-w64-mingw32\include\sdl2\sdl_endian.h
+1668098086 c:\users\noahc\desktop\git\back-to-earth\lib\sdl2-2.0.10-i686-w64-mingw32\include\sdl2\sdl_endian.h
 	"SDL_stdinc.h"
 	<endian.h>
 	"begin_code.h"
 	"close_code.h"
 
-1666737654 c:\users\noahc\desktop\git\back-to-earth\lib\sdl2-2.0.10-i686-w64-mingw32\include\sdl2\sdl_mutex.h
+1668098086 c:\users\noahc\desktop\git\back-to-earth\lib\sdl2-2.0.10-i686-w64-mingw32\include\sdl2\sdl_mutex.h
 	"SDL_stdinc.h"
 	"SDL_error.h"
 	"begin_code.h"
 	"close_code.h"
 
-1666737654 c:\users\noahc\desktop\git\back-to-earth\lib\sdl2-2.0.10-i686-w64-mingw32\include\sdl2\sdl_thread.h
+1668098086 c:\users\noahc\desktop\git\back-to-earth\lib\sdl2-2.0.10-i686-w64-mingw32\include\sdl2\sdl_thread.h
 	"SDL_stdinc.h"
 	"SDL_error.h"
 	"SDL_atomic.h"
@@ -4157,18 +4157,18 @@
 	<stdlib.h>
 	"close_code.h"
 
-1666737654 c:\users\noahc\desktop\git\back-to-earth\lib\sdl2-2.0.10-i686-w64-mingw32\include\sdl2\sdl_rwops.h
+1668098086 c:\users\noahc\desktop\git\back-to-earth\lib\sdl2-2.0.10-i686-w64-mingw32\include\sdl2\sdl_rwops.h
 	"SDL_stdinc.h"
 	"SDL_error.h"
 	"begin_code.h"
 	"close_code.h"
 
-1666737654 c:\users\noahc\desktop\git\back-to-earth\lib\sdl2-2.0.10-i686-w64-mingw32\include\sdl2\sdl_clipboard.h
+1668098086 c:\users\noahc\desktop\git\back-to-earth\lib\sdl2-2.0.10-i686-w64-mingw32\include\sdl2\sdl_clipboard.h
 	"SDL_stdinc.h"
 	"begin_code.h"
 	"close_code.h"
 
-1666737654 c:\users\noahc\desktop\git\back-to-earth\lib\sdl2-2.0.10-i686-w64-mingw32\include\sdl2\sdl_cpuinfo.h
+1668098086 c:\users\noahc\desktop\git\back-to-earth\lib\sdl2-2.0.10-i686-w64-mingw32\include\sdl2\sdl_cpuinfo.h
 	"SDL_stdinc.h"
 	<intrin.h>
 	<intrin.h>
@@ -4187,7 +4187,7 @@
 	"begin_code.h"
 	"close_code.h"
 
-1666737654 c:\users\noahc\desktop\git\back-to-earth\lib\sdl2-2.0.10-i686-w64-mingw32\include\sdl2\sdl_events.h
+1668098086 c:\users\noahc\desktop\git\back-to-earth\lib\sdl2-2.0.10-i686-w64-mingw32\include\sdl2\sdl_events.h
 	"SDL_stdinc.h"
 	"SDL_error.h"
 	"SDL_video.h"
@@ -4201,7 +4201,7 @@
 	"begin_code.h"
 	"close_code.h"
 
-1666737654 c:\users\noahc\desktop\git\back-to-earth\lib\sdl2-2.0.10-i686-w64-mingw32\include\sdl2\sdl_video.h
+1668098086 c:\users\noahc\desktop\git\back-to-earth\lib\sdl2-2.0.10-i686-w64-mingw32\include\sdl2\sdl_video.h
 	"SDL_stdinc.h"
 	"SDL_pixels.h"
 	"SDL_rect.h"
@@ -4209,13 +4209,13 @@
 	"begin_code.h"
 	"close_code.h"
 
-1666737654 c:\users\noahc\desktop\git\back-to-earth\lib\sdl2-2.0.10-i686-w64-mingw32\include\sdl2\sdl_pixels.h
+1668098086 c:\users\noahc\desktop\git\back-to-earth\lib\sdl2-2.0.10-i686-w64-mingw32\include\sdl2\sdl_pixels.h
 	"SDL_stdinc.h"
 	"SDL_endian.h"
 	"begin_code.h"
 	"close_code.h"
 
-1666737654 c:\users\noahc\desktop\git\back-to-earth\lib\sdl2-2.0.10-i686-w64-mingw32\include\sdl2\sdl_rect.h
+1668098086 c:\users\noahc\desktop\git\back-to-earth\lib\sdl2-2.0.10-i686-w64-mingw32\include\sdl2\sdl_rect.h
 	"SDL_stdinc.h"
 	"SDL_error.h"
 	"SDL_pixels.h"
@@ -4223,7 +4223,7 @@
 	"begin_code.h"
 	"close_code.h"
 
-1666737654 c:\users\noahc\desktop\git\back-to-earth\lib\sdl2-2.0.10-i686-w64-mingw32\include\sdl2\sdl_surface.h
+1668098086 c:\users\noahc\desktop\git\back-to-earth\lib\sdl2-2.0.10-i686-w64-mingw32\include\sdl2\sdl_surface.h
 	"SDL_stdinc.h"
 	"SDL_pixels.h"
 	"SDL_rect.h"
@@ -4232,11 +4232,11 @@
 	"begin_code.h"
 	"close_code.h"
 
-1666737654 c:\users\noahc\desktop\git\back-to-earth\lib\sdl2-2.0.10-i686-w64-mingw32\include\sdl2\sdl_blendmode.h
+1668098086 c:\users\noahc\desktop\git\back-to-earth\lib\sdl2-2.0.10-i686-w64-mingw32\include\sdl2\sdl_blendmode.h
 	"begin_code.h"
 	"close_code.h"
 
-1666737654 c:\users\noahc\desktop\git\back-to-earth\lib\sdl2-2.0.10-i686-w64-mingw32\include\sdl2\sdl_keyboard.h
+1668098086 c:\users\noahc\desktop\git\back-to-earth\lib\sdl2-2.0.10-i686-w64-mingw32\include\sdl2\sdl_keyboard.h
 	"SDL_stdinc.h"
 	"SDL_error.h"
 	"SDL_keycode.h"
@@ -4244,27 +4244,27 @@
 	"begin_code.h"
 	"close_code.h"
 
-1666737654 c:\users\noahc\desktop\git\back-to-earth\lib\sdl2-2.0.10-i686-w64-mingw32\include\sdl2\sdl_keycode.h
+1668098086 c:\users\noahc\desktop\git\back-to-earth\lib\sdl2-2.0.10-i686-w64-mingw32\include\sdl2\sdl_keycode.h
 	"SDL_stdinc.h"
 	"SDL_scancode.h"
 
-1666737654 c:\users\noahc\desktop\git\back-to-earth\lib\sdl2-2.0.10-i686-w64-mingw32\include\sdl2\sdl_scancode.h
+1668098086 c:\users\noahc\desktop\git\back-to-earth\lib\sdl2-2.0.10-i686-w64-mingw32\include\sdl2\sdl_scancode.h
 	"SDL_stdinc.h"
 
-1666737654 c:\users\noahc\desktop\git\back-to-earth\lib\sdl2-2.0.10-i686-w64-mingw32\include\sdl2\sdl_mouse.h
+1668098086 c:\users\noahc\desktop\git\back-to-earth\lib\sdl2-2.0.10-i686-w64-mingw32\include\sdl2\sdl_mouse.h
 	"SDL_stdinc.h"
 	"SDL_error.h"
 	"SDL_video.h"
 	"begin_code.h"
 	"close_code.h"
 
-1666737654 c:\users\noahc\desktop\git\back-to-earth\lib\sdl2-2.0.10-i686-w64-mingw32\include\sdl2\sdl_joystick.h
+1668098086 c:\users\noahc\desktop\git\back-to-earth\lib\sdl2-2.0.10-i686-w64-mingw32\include\sdl2\sdl_joystick.h
 	"SDL_stdinc.h"
 	"SDL_error.h"
 	"begin_code.h"
 	"close_code.h"
 
-1666737654 c:\users\noahc\desktop\git\back-to-earth\lib\sdl2-2.0.10-i686-w64-mingw32\include\sdl2\sdl_gamecontroller.h
+1668098086 c:\users\noahc\desktop\git\back-to-earth\lib\sdl2-2.0.10-i686-w64-mingw32\include\sdl2\sdl_gamecontroller.h
 	"SDL_stdinc.h"
 	"SDL_error.h"
 	"SDL_rwops.h"
@@ -4272,11 +4272,11 @@
 	"begin_code.h"
 	"close_code.h"
 
-1666737654 c:\users\noahc\desktop\git\back-to-earth\lib\sdl2-2.0.10-i686-w64-mingw32\include\sdl2\sdl_quit.h
+1668098086 c:\users\noahc\desktop\git\back-to-earth\lib\sdl2-2.0.10-i686-w64-mingw32\include\sdl2\sdl_quit.h
 	"SDL_stdinc.h"
 	"SDL_error.h"
 
-1666737654 c:\users\noahc\desktop\git\back-to-earth\lib\sdl2-2.0.10-i686-w64-mingw32\include\sdl2\sdl_gesture.h
+1668098086 c:\users\noahc\desktop\git\back-to-earth\lib\sdl2-2.0.10-i686-w64-mingw32\include\sdl2\sdl_gesture.h
 	"SDL_stdinc.h"
 	"SDL_error.h"
 	"SDL_video.h"
@@ -4284,66 +4284,66 @@
 	"begin_code.h"
 	"close_code.h"
 
-1666737654 c:\users\noahc\desktop\git\back-to-earth\lib\sdl2-2.0.10-i686-w64-mingw32\include\sdl2\sdl_touch.h
+1668098086 c:\users\noahc\desktop\git\back-to-earth\lib\sdl2-2.0.10-i686-w64-mingw32\include\sdl2\sdl_touch.h
 	"SDL_stdinc.h"
 	"SDL_error.h"
 	"SDL_video.h"
 	"begin_code.h"
 	"close_code.h"
 
-1666737654 c:\users\noahc\desktop\git\back-to-earth\lib\sdl2-2.0.10-i686-w64-mingw32\include\sdl2\sdl_filesystem.h
+1668098086 c:\users\noahc\desktop\git\back-to-earth\lib\sdl2-2.0.10-i686-w64-mingw32\include\sdl2\sdl_filesystem.h
 	"SDL_stdinc.h"
 	"begin_code.h"
 	"close_code.h"
 
-1666737654 c:\users\noahc\desktop\git\back-to-earth\lib\sdl2-2.0.10-i686-w64-mingw32\include\sdl2\sdl_haptic.h
+1668098086 c:\users\noahc\desktop\git\back-to-earth\lib\sdl2-2.0.10-i686-w64-mingw32\include\sdl2\sdl_haptic.h
 	"SDL_stdinc.h"
 	"SDL_error.h"
 	"SDL_joystick.h"
 	"begin_code.h"
 	"close_code.h"
 
-1666737654 c:\users\noahc\desktop\git\back-to-earth\lib\sdl2-2.0.10-i686-w64-mingw32\include\sdl2\sdl_hints.h
+1668098086 c:\users\noahc\desktop\git\back-to-earth\lib\sdl2-2.0.10-i686-w64-mingw32\include\sdl2\sdl_hints.h
 	"SDL_stdinc.h"
 	"begin_code.h"
 	"close_code.h"
 
-1666737654 c:\users\noahc\desktop\git\back-to-earth\lib\sdl2-2.0.10-i686-w64-mingw32\include\sdl2\sdl_loadso.h
+1668098086 c:\users\noahc\desktop\git\back-to-earth\lib\sdl2-2.0.10-i686-w64-mingw32\include\sdl2\sdl_loadso.h
 	"SDL_stdinc.h"
 	"SDL_error.h"
 	"begin_code.h"
 	"close_code.h"
 
-1666737654 c:\users\noahc\desktop\git\back-to-earth\lib\sdl2-2.0.10-i686-w64-mingw32\include\sdl2\sdl_log.h
+1668098086 c:\users\noahc\desktop\git\back-to-earth\lib\sdl2-2.0.10-i686-w64-mingw32\include\sdl2\sdl_log.h
 	"SDL_stdinc.h"
 	"begin_code.h"
 	"close_code.h"
 
-1666737654 c:\users\noahc\desktop\git\back-to-earth\lib\sdl2-2.0.10-i686-w64-mingw32\include\sdl2\sdl_messagebox.h
+1668098086 c:\users\noahc\desktop\git\back-to-earth\lib\sdl2-2.0.10-i686-w64-mingw32\include\sdl2\sdl_messagebox.h
 	"SDL_stdinc.h"
 	"SDL_video.h"
 	"begin_code.h"
 	"close_code.h"
 
-1666737654 c:\users\noahc\desktop\git\back-to-earth\lib\sdl2-2.0.10-i686-w64-mingw32\include\sdl2\sdl_power.h
+1668098086 c:\users\noahc\desktop\git\back-to-earth\lib\sdl2-2.0.10-i686-w64-mingw32\include\sdl2\sdl_power.h
 	"SDL_stdinc.h"
 	"begin_code.h"
 	"close_code.h"
 
-1666737654 c:\users\noahc\desktop\git\back-to-earth\lib\sdl2-2.0.10-i686-w64-mingw32\include\sdl2\sdl_render.h
+1668098086 c:\users\noahc\desktop\git\back-to-earth\lib\sdl2-2.0.10-i686-w64-mingw32\include\sdl2\sdl_render.h
 	"SDL_stdinc.h"
 	"SDL_rect.h"
 	"SDL_video.h"
 	"begin_code.h"
 	"close_code.h"
 
-1666737654 c:\users\noahc\desktop\git\back-to-earth\lib\sdl2-2.0.10-i686-w64-mingw32\include\sdl2\sdl_sensor.h
+1668098086 c:\users\noahc\desktop\git\back-to-earth\lib\sdl2-2.0.10-i686-w64-mingw32\include\sdl2\sdl_sensor.h
 	"SDL_stdinc.h"
 	"SDL_error.h"
 	"begin_code.h"
 	"close_code.h"
 
-1666737654 c:\users\noahc\desktop\git\back-to-earth\lib\sdl2-2.0.10-i686-w64-mingw32\include\sdl2\sdl_shape.h
+1668098086 c:\users\noahc\desktop\git\back-to-earth\lib\sdl2-2.0.10-i686-w64-mingw32\include\sdl2\sdl_shape.h
 	"SDL_stdinc.h"
 	"SDL_pixels.h"
 	"SDL_rect.h"
@@ -4352,7 +4352,7 @@
 	"begin_code.h"
 	"close_code.h"
 
-1666737654 c:\users\noahc\desktop\git\back-to-earth\lib\sdl2-2.0.10-i686-w64-mingw32\include\sdl2\sdl_system.h
+1668098086 c:\users\noahc\desktop\git\back-to-earth\lib\sdl2-2.0.10-i686-w64-mingw32\include\sdl2\sdl_system.h
 	"SDL_stdinc.h"
 	"SDL_keyboard.h"
 	"SDL_render.h"
@@ -4360,35 +4360,35 @@
 	"begin_code.h"
 	"close_code.h"
 
-1666737654 c:\users\noahc\desktop\git\back-to-earth\lib\sdl2-2.0.10-i686-w64-mingw32\include\sdl2\sdl_timer.h
+1668098086 c:\users\noahc\desktop\git\back-to-earth\lib\sdl2-2.0.10-i686-w64-mingw32\include\sdl2\sdl_timer.h
 	"SDL_stdinc.h"
 	"SDL_error.h"
 	"begin_code.h"
 	"close_code.h"
 
-1666737654 c:\users\noahc\desktop\git\back-to-earth\lib\sdl2-2.0.10-i686-w64-mingw32\include\sdl2\sdl_version.h
+1668098086 c:\users\noahc\desktop\git\back-to-earth\lib\sdl2-2.0.10-i686-w64-mingw32\include\sdl2\sdl_version.h
 	"SDL_stdinc.h"
 	"begin_code.h"
 	"close_code.h"
 
-1666737654 c:\users\noahc\desktop\git\back-to-earth\src\io\controlbinding.h
+1668098086 c:\users\noahc\desktop\git\back-to-earth\src\io\controlbinding.h
 	<SDL.h>
 	<string>
 
-1666737654 c:\users\noahc\desktop\git\back-to-earth\src\io\settings.h
+1668098086 c:\users\noahc\desktop\git\back-to-earth\src\io\settings.h
 	<map>
 	<mem.h>
 	<string>
 	<vector>
 
-1666737654 c:\users\noahc\desktop\git\back-to-earth\src\io\filehandler.h
+1668098755 c:\users\noahc\desktop\git\back-to-earth\src\io\filehandler.h
 	<fstream>
 	<SDL.h>
 	<string>
 	<vector>
 	"Settings.h"
 
-1666737654 c:\users\noahc\desktop\git\back-to-earth\src\main\sdlhandler.h
+1668098086 c:\users\noahc\desktop\git\back-to-earth\src\main\sdlhandler.h
 	<SDL.h>
 	<string>
 	"AudioLoader.h"
@@ -4396,12 +4396,12 @@
 	"Settings.h"
 	"TextureLoader.h"
 
-1666737654 c:\users\noahc\desktop\git\back-to-earth\src\io\audioloader.h
+1668098086 c:\users\noahc\desktop\git\back-to-earth\src\io\audioloader.h
 	<SDL_mixer.h>
 	<string>
 	<vector>
 
-1666737654 c:\users\noahc\desktop\git\back-to-earth\lib\sdl2_mixer-2.0.4-i686-w64-mingw32\include\sdl2\sdl_mixer.h
+1668098086 c:\users\noahc\desktop\git\back-to-earth\lib\sdl2_mixer-2.0.4-i686-w64-mingw32\include\sdl2\sdl_mixer.h
 	"SDL_stdinc.h"
 	"SDL_rwops.h"
 	"SDL_audio.h"
@@ -4410,10 +4410,10 @@
 	"begin_code.h"
 	"close_code.h"
 
-1666737654 c:\users\noahc\desktop\git\back-to-earth\src\gfx\texture\color.h
+1668098086 c:\users\noahc\desktop\git\back-to-earth\src\gfx\texture\color.h
 	<cstdint>
 
-1666737654 c:\users\noahc\desktop\git\back-to-earth\src\io\textureloader.h
+1668098086 c:\users\noahc\desktop\git\back-to-earth\src\io\textureloader.h
 	<iostream>
 	<memory>
 	<SDL.h>
@@ -4421,13 +4421,13 @@
 	<vector>
 	"Main.h"
 
-1666737654 c:\users\noahc\desktop\git\back-to-earth\lib\sdl2_image-2.0.5-i686-w64-mingw32\include\sdl2\sdl_image.h
+1668098086 c:\users\noahc\desktop\git\back-to-earth\lib\sdl2_image-2.0.5-i686-w64-mingw32\include\sdl2\sdl_image.h
 	"SDL.h"
 	"SDL_version.h"
 	"begin_code.h"
 	"close_code.h"
 
-1666737654 c:\users\noahc\desktop\git\back-to-earth\src\main\main.h
+1668098086 c:\users\noahc\desktop\git\back-to-earth\src\main\main.h
 	<string>
 
 1666749149 source:c:\users\noahc\desktop\git\back-to-earth\src\gfx\gui\button.cpp
@@ -4440,27 +4440,28 @@
 	"Texture.h"
 	"WindowComponent.h"
 
-1666737654 c:\users\noahc\desktop\git\back-to-earth\src\gfx\text.h
+1668098086 c:\users\noahc\desktop\git\back-to-earth\src\gfx\text.h
 	<string>
 	"Color.h"
 	"SDLHandler.h"
 	"Texture.h"
 	"TextureLoader.h"
 
-1666737654 c:\users\noahc\desktop\git\back-to-earth\src\gfx\texture\texture.h
+1668098624 c:\users\noahc\desktop\git\back-to-earth\src\gfx\texture\texture.h
 	<cstdint>
 	<SDL.h>
 	"Color.h"
+	"FileHandler.h"
 	"SDLHandler.h"
 
-1666737654 c:\users\noahc\desktop\git\back-to-earth\src\gfx\gui\windowcomponent.h
+1668098086 c:\users\noahc\desktop\git\back-to-earth\src\gfx\gui\windowcomponent.h
 	"GUIAlignable.h"
 	"Window.h"
 
-1666746928 c:\users\noahc\desktop\git\back-to-earth\src\gfx\gui\guialignable.h
+1668098086 c:\users\noahc\desktop\git\back-to-earth\src\gfx\gui\guialignable.h
 	"GUI.h"
 
-1666737654 c:\users\noahc\desktop\git\back-to-earth\src\gfx\gui\gui.h
+1668098086 c:\users\noahc\desktop\git\back-to-earth\src\gfx\gui\gui.h
 	"BTEObject.h"
 
 1666737654 c:\users\noahc\desktop\git\back-to-earth\src\gfx\gui\window.h
@@ -4475,22 +4476,22 @@
 	"Color.h"
 	"Texture.h"
 
-1666751790 c:\users\noahc\desktop\git\back-to-earth\src\gfx\guihandler.h
+1668098086 c:\users\noahc\desktop\git\back-to-earth\src\gfx\guihandler.h
 	<vector>
 	"BTEObject.h"
 	"GUI.h"
 	"Window.h"
 
-1666751262 c:\users\noahc\desktop\git\back-to-earth\src\gfx\texture\texturebuilder.h
+1668098086 c:\users\noahc\desktop\git\back-to-earth\src\gfx\texture\texturebuilder.h
 	"SDLHandler.h"
 	"Texture.h"
 	"WindowData.h"
 
-1666737654 source:c:\users\noahc\desktop\git\back-to-earth\src\gfx\gui\gui.cpp
+1668098086 source:c:\users\noahc\desktop\git\back-to-earth\src\gfx\gui\gui.cpp
 	"GUI.h"
 	"GUIHandler.h"
 
-1666746929 source:c:\users\noahc\desktop\git\back-to-earth\src\gfx\gui\guialignable.cpp
+1668098086 source:c:\users\noahc\desktop\git\back-to-earth\src\gfx\gui\guialignable.cpp
 	"GUIAlignable.h"
 
 1666746807 source:c:\users\noahc\desktop\git\back-to-earth\src\gfx\gui\textbox.cpp
@@ -4505,7 +4506,7 @@
 	"Texture.h"
 	"Button.h"
 
-1666737654 c:\users\noahc\desktop\git\back-to-earth\src\io\debug\log.h
+1668098086 c:\users\noahc\desktop\git\back-to-earth\src\io\debug\log.h
 	<iostream>
 	<sstream>
 
@@ -4520,7 +4521,7 @@
 	"TextureBuilder.h"
 	"Log.h"
 
-1666737654 source:c:\users\noahc\desktop\git\back-to-earth\src\gfx\gui\windowcomponent.cpp
+1668098086 source:c:\users\noahc\desktop\git\back-to-earth\src\gfx\gui\windowcomponent.cpp
 	"WindowComponent.h"
 	"Log.h"
 
@@ -4528,7 +4529,7 @@
 	"WindowPanelData.h"
 	<sstream>
 
-1666751837 source:c:\users\noahc\desktop\git\back-to-earth\src\gfx\guihandler.cpp
+1668098086 source:c:\users\noahc\desktop\git\back-to-earth\src\gfx\guihandler.cpp
 	"GUIHandler.h"
 	<set>
 	"Color.h"
@@ -4540,14 +4541,14 @@
 	"Tooltip.h"
 	"WindowData.h"
 
-1666737654 c:\users\noahc\desktop\git\back-to-earth\src\main\mainloop.h
+1668098086 c:\users\noahc\desktop\git\back-to-earth\src\main\mainloop.h
 	<memory>
 	"BTE.h"
 	"Controls.h"
 	"FileHandler.h"
 	"SDLHandler.h"
 
-1666737654 c:\users\noahc\desktop\git\back-to-earth\src\main\bte.h
+1668098086 c:\users\noahc\desktop\git\back-to-earth\src\main\bte.h
 	<string>
 	"Controls.h"
 	"DebugScreen.h"
@@ -4558,19 +4559,19 @@
 	"Tests.h"
 	"World.h"
 
-1666737654 c:\users\noahc\desktop\git\back-to-earth\src\io\debug\debugscreen.h
+1668098086 c:\users\noahc\desktop\git\back-to-earth\src\io\debug\debugscreen.h
 	"Controls.h"
 	"GUIHandler.h"
 	"SDLHandler.h"
 
-1666737654 c:\users\noahc\desktop\git\back-to-earth\src\main\tests.h
+1668098086 c:\users\noahc\desktop\git\back-to-earth\src\main\tests.h
 	<vector>
 	"SpriteSheet.h"
 	"Texture.h"
 	"BTEObject.h"
 	"DebugObject.h"
 
-1666737654 c:\users\noahc\desktop\git\back-to-earth\src\gfx\texture\spritesheet.h
+1668098086 c:\users\noahc\desktop\git\back-to-earth\src\gfx\texture\spritesheet.h
 	<string>
 	<vector>
 	"BTEObject.h"
@@ -4578,13 +4579,13 @@
 	"Color.h"
 	"Texture.h"
 
-1666737654 c:\users\noahc\desktop\git\back-to-earth\src\gfx\texture\canvas.h
+1668098682 c:\users\noahc\desktop\git\back-to-earth\src\gfx\texture\canvas.h
 	<map>
 	"Camera.h"
 	"Texture.h"
 	"BTEObject.h"
 
-1666737654 c:\users\noahc\desktop\git\back-to-earth\src\helper\base\debugobject.h
+1668098086 c:\users\noahc\desktop\git\back-to-earth\src\helper\base\debugobject.h
 	<sstream>
 	"DebugScreen.h"
 
@@ -4594,16 +4595,16 @@
 	"Texture.h"
 	"TileRegion.h"
 
-1666737654 c:\users\noahc\desktop\git\back-to-earth\src\world\tile\tileregion.h
+1668098237 c:\users\noahc\desktop\git\back-to-earth\src\world\tile\tileregion.h
 	<vector>
 	<string>
 	"Camera.h"
 	"TileType.h"
 
-1666737654 c:\users\noahc\desktop\git\back-to-earth\src\world\tile\tiletype.h
+1668098086 c:\users\noahc\desktop\git\back-to-earth\src\world\tile\tiletype.h
 	<tuple>
 
-1666751568 c:\users\noahc\desktop\git\back-to-earth\src\world\world.h
+1668098368 c:\users\noahc\desktop\git\back-to-earth\src\world\world.h
 	"BTEObject.h"
 	"Canvas.h"
 	"GUIHandler.h"
@@ -4612,7 +4613,7 @@
 	"TileMap.h"
 	"TileMapScreen.h"
 
-1666753454 c:\users\noahc\desktop\git\back-to-earth\src\world\player.h
+1668098402 c:\users\noahc\desktop\git\back-to-earth\src\world\player.h
 	<tuple>
 	"BTEObject.h"
 	"Canvas.h"
@@ -4622,38 +4623,40 @@
 	"SpriteSheet.h"
 	"Texture.h"
 
-1666737654 c:\users\noahc\desktop\git\back-to-earth\src\world\phys\collidingvolume.h
+1668098086 c:\users\noahc\desktop\git\back-to-earth\src\world\phys\collidingvolume.h
 	<vector>
 	"Box3D.h"
 	"Defs.h"
 
-1666737654 c:\users\noahc\desktop\git\back-to-earth\src\world\phys\box3d.h
+1668098086 c:\users\noahc\desktop\git\back-to-earth\src\world\phys\box3d.h
 	"Real.h"
 	"Point3D.h"
 
-1666737654 c:\users\noahc\desktop\git\back-to-earth\src\helper\type\real.h
+1668098086 c:\users\noahc\desktop\git\back-to-earth\src\helper\type\real.h
 	<string>
 
-1666737654 c:\users\noahc\desktop\git\back-to-earth\src\world\phys\point3d.h
+1668098086 c:\users\noahc\desktop\git\back-to-earth\src\world\phys\point3d.h
 	"Real.h"
 
-1666737654 c:\users\noahc\desktop\git\back-to-earth\src\helper\type\defs.h
+1668098086 c:\users\noahc\desktop\git\back-to-earth\src\helper\type\defs.h
 
-1666737654 c:\users\noahc\desktop\git\back-to-earth\src\gfx\texture\colorpalette.h
+1668098086 c:\users\noahc\desktop\git\back-to-earth\src\gfx\texture\colorpalette.h
 	<map>
 	"Color.h"
 
-1666737654 c:\users\noahc\desktop\git\back-to-earth\src\world\tile\tilemap.h
+1668098331 c:\users\noahc\desktop\git\back-to-earth\src\world\tile\tilemap.h
 	<map>
 	<set>
 	<string>
 	<tuple>
 	"Box3D.h"
+	"BTEObject.h"
+	"FileHandler.h"
 	"Player.h"
 	"Texture.h"
 	"TileRegion.h"
 
-1666737654 c:\users\noahc\desktop\git\back-to-earth\src\world\tile\tilemapscreen.h
+1668098289 c:\users\noahc\desktop\git\back-to-earth\src\world\tile\tilemapscreen.h
 	<map>
 	<memory>
 	<set>
@@ -4666,7 +4669,7 @@
 	"TileRegion.h"
 	"TileType.h"
 
-1666737654 c:\users\noahc\desktop\git\back-to-earth\src\world\tile\tileiterator.h
+1668098086 c:\users\noahc\desktop\git\back-to-earth\src\world\tile\tileiterator.h
 	<map>
 	<tuple>
 	<vector>
@@ -4675,53 +4678,53 @@
 	"TileRegion.h"
 	"TileType.h"
 
-1666737654 source:c:\users\noahc\desktop\git\back-to-earth\src\gfx\text.cpp
+1668098086 source:c:\users\noahc\desktop\git\back-to-earth\src\gfx\text.cpp
 	"Text.h"
 	<sstream>
 	"Log.h"
 
-1666737654 source:c:\users\noahc\desktop\git\back-to-earth\src\gfx\texture\canvas.cpp
+1668098687 source:c:\users\noahc\desktop\git\back-to-earth\src\gfx\texture\canvas.cpp
 	"Canvas.h"
 	<math.h>
 	"Log.h"
 	"MainLoop.h"
 	"TileMap.h"
 
-1666737654 source:c:\users\noahc\desktop\git\back-to-earth\src\gfx\texture\color.cpp
+1668098086 source:c:\users\noahc\desktop\git\back-to-earth\src\gfx\texture\color.cpp
 	"Color.h"
 
-1666737654 source:c:\users\noahc\desktop\git\back-to-earth\src\gfx\texture\colorpalette.cpp
+1668098086 source:c:\users\noahc\desktop\git\back-to-earth\src\gfx\texture\colorpalette.cpp
 	"ColorPalette.h"
 
-1666737654 source:c:\users\noahc\desktop\git\back-to-earth\src\gfx\texture\spritesheet.cpp
+1668098086 source:c:\users\noahc\desktop\git\back-to-earth\src\gfx\texture\spritesheet.cpp
 	"SpriteSheet.h"
 	<iostream>
 	<sstream>
 
-1666737654 source:c:\users\noahc\desktop\git\back-to-earth\src\gfx\texture\spritesheetbuilder.cpp
+1668098666 source:c:\users\noahc\desktop\git\back-to-earth\src\gfx\texture\spritesheetbuilder.cpp
 	"SpriteSheetBuilder.h"
 	"Player.h"
 
-1666737654 c:\users\noahc\desktop\git\back-to-earth\src\gfx\texture\spritesheetbuilder.h
+1668098086 c:\users\noahc\desktop\git\back-to-earth\src\gfx\texture\spritesheetbuilder.h
 	"ColorPalette.h"
 	"SDLHandler.h"
 	"SpriteSheet.h"
 
-1666737654 source:c:\users\noahc\desktop\git\back-to-earth\src\gfx\texture\texture.cpp
+1668098638 source:c:\users\noahc\desktop\git\back-to-earth\src\gfx\texture\texture.cpp
 	"Texture.h"
 	<iostream>
 	<sstream>
 	"Log.h"
 
-1666751273 source:c:\users\noahc\desktop\git\back-to-earth\src\gfx\texture\texturebuilder.cpp
+1668098086 source:c:\users\noahc\desktop\git\back-to-earth\src\gfx\texture\texturebuilder.cpp
 	"TextureBuilder.h"
 	"TextureLoader.h"
 
-1666737654 source:c:\users\noahc\desktop\git\back-to-earth\src\helper\base\bteobject.cpp
+1668098527 source:c:\users\noahc\desktop\git\back-to-earth\src\helper\base\bteobject.cpp
 	"BTEObject.h"
 	"Log.h"
 
-1666737654 source:c:\users\noahc\desktop\git\back-to-earth\src\helper\base\debugobject.cpp
+1668098086 source:c:\users\noahc\desktop\git\back-to-earth\src\helper\base\debugobject.cpp
 	"DebugObject.h"
 
 1665429206 source:c:\users\noahc\desktop\git\back-to-earth\src\helper\maphelper.cpp
@@ -4729,40 +4732,40 @@
 
 1665429206 c:\users\noahc\desktop\git\back-to-earth\src\helper\maphelper.h
 
-1666737654 source:c:\users\noahc\desktop\git\back-to-earth\src\helper\math\vec2d.cpp
+1668098086 source:c:\users\noahc\desktop\git\back-to-earth\src\helper\math\vec2d.cpp
 	"Vec2D.h"
 
-1666737654 c:\users\noahc\desktop\git\back-to-earth\src\helper\math\vec2d.h
+1668098086 c:\users\noahc\desktop\git\back-to-earth\src\helper\math\vec2d.h
 
-1666737654 source:c:\users\noahc\desktop\git\back-to-earth\src\helper\type\defs.cpp
+1668098086 source:c:\users\noahc\desktop\git\back-to-earth\src\helper\type\defs.cpp
 	"Defs.h"
 
-1666737654 source:c:\users\noahc\desktop\git\back-to-earth\src\helper\type\real.cpp
+1668098086 source:c:\users\noahc\desktop\git\back-to-earth\src\helper\type\real.cpp
 	"Real.h"
 	<cmath>
 	<math.h>
 	<iostream>
 	<sstream>
 
-1666737654 source:c:\users\noahc\desktop\git\back-to-earth\src\io\audioloader.cpp
+1668098086 source:c:\users\noahc\desktop\git\back-to-earth\src\io\audioloader.cpp
 	"AudioLoader.h"
 	<sstream>
 	"Log.h"
 	"SDLHandler.h"
 
-1666737654 source:c:\users\noahc\desktop\git\back-to-earth\src\io\buttonaction.cpp
+1668098086 source:c:\users\noahc\desktop\git\back-to-earth\src\io\buttonaction.cpp
 	"ButtonAction.h"
 	"MainLoop.h"
 
-1666737654 c:\users\noahc\desktop\git\back-to-earth\src\io\buttonaction.h
+1668098086 c:\users\noahc\desktop\git\back-to-earth\src\io\buttonaction.h
 	"GUIHandler.h"
 	"SDLHandler.h"
 	"World.h"
 
-1666737654 source:c:\users\noahc\desktop\git\back-to-earth\src\io\controlbinding.cpp
+1668098086 source:c:\users\noahc\desktop\git\back-to-earth\src\io\controlbinding.cpp
 	"ControlBinding.h"
 
-1666737654 source:c:\users\noahc\desktop\git\back-to-earth\src\io\controls.cpp
+1668098086 source:c:\users\noahc\desktop\git\back-to-earth\src\io\controls.cpp
 	"Controls.h"
 	<iostream>
 	<sstream>
@@ -4772,33 +4775,33 @@
 	"Main.h"
 	"MainLoop.h"
 
-1666737654 source:c:\users\noahc\desktop\git\back-to-earth\src\io\debug\commands.cpp
+1668098086 source:c:\users\noahc\desktop\git\back-to-earth\src\io\debug\commands.cpp
 	"Commands.h"
 	<vector>
 	"Log.h"
 
-1666737654 source:c:\users\noahc\desktop\git\back-to-earth\src\io\debug\debugscreen.cpp
+1668098086 source:c:\users\noahc\desktop\git\back-to-earth\src\io\debug\debugscreen.cpp
 	"DebugScreen.h"
 	<sstream>
 	"MainLoop.h"
 	"Text.h"
 	"TextBox.h"
 
-1666737654 source:c:\users\noahc\desktop\git\back-to-earth\src\io\debug\log.cpp
+1668098086 source:c:\users\noahc\desktop\git\back-to-earth\src\io\debug\log.cpp
 	"Log.h"
 	<SDL.h>
 	"Main.h"
 
-1666737654 source:c:\users\noahc\desktop\git\back-to-earth\src\io\debug\timer.cpp
+1668098086 source:c:\users\noahc\desktop\git\back-to-earth\src\io\debug\timer.cpp
 	"Timer.h"
 	<SDL.h>
 	<sstream>
 	"Log.h"
 
-1666737654 c:\users\noahc\desktop\git\back-to-earth\src\io\debug\timer.h
+1668098086 c:\users\noahc\desktop\git\back-to-earth\src\io\debug\timer.h
 	<string>
 
-1666737654 source:c:\users\noahc\desktop\git\back-to-earth\src\io\filehandler.cpp
+1668098806 source:c:\users\noahc\desktop\git\back-to-earth\src\io\filehandler.cpp
 	"FileHandler.h"
 	<dirent.h>
 	<io.h>
@@ -4811,7 +4814,7 @@
 	"MainLoop.h"
 	"Timer.h"
 
-1666737654 source:c:\users\noahc\desktop\git\back-to-earth\src\io\settings.cpp
+1668098086 source:c:\users\noahc\desktop\git\back-to-earth\src\io\settings.cpp
 	"Settings.h"
 	<fstream>
 	<iostream>
@@ -4820,7 +4823,7 @@
 	"Main.h"
 	"MainLoop.h"
 
-1666737654 source:c:\users\noahc\desktop\git\back-to-earth\src\io\textureloader.cpp
+1668098086 source:c:\users\noahc\desktop\git\back-to-earth\src\io\textureloader.cpp
 	"TextureLoader.h"
 	<iostream>
 	<sstream>
@@ -4829,7 +4832,7 @@
 	"SDLHandler.h"
 	"Timer.h"
 
-1666737654 source:c:\users\noahc\desktop\git\back-to-earth\src\main\bte.cpp
+1668098442 source:c:\users\noahc\desktop\git\back-to-earth\src\main\bte.cpp
 	"BTE.h"
 	<sstream>
 	"ButtonAction.h"
@@ -4839,12 +4842,12 @@
 	"Text.h"
 	"TextBox.h"
 
-1666737654 source:c:\users\noahc\desktop\git\back-to-earth\src\main\main.cpp
+1668098086 source:c:\users\noahc\desktop\git\back-to-earth\src\main\main.cpp
 	"Main.h"
 	<SDL.h>
 	"MainLoop.h"
 
-1666737654 source:c:\users\noahc\desktop\git\back-to-earth\src\main\mainloop.cpp
+1668098086 source:c:\users\noahc\desktop\git\back-to-earth\src\main\mainloop.cpp
 	"MainLoop.h"
 	<ctime>
 	<iostream>
@@ -4853,26 +4856,28 @@
 	"Main.h"
 	"Timer.h"
 
-1666737654 source:c:\users\noahc\desktop\git\back-to-earth\src\main\sdlhandler.cpp
+1668098427 source:c:\users\noahc\desktop\git\back-to-earth\src\main\sdlhandler.cpp
 	"SDLHandler.h"
 	<SDL_image.h>
 	<SDL_mixer.h>
 	"Log.h"
 	"Main.h"
 
-1666737654 source:c:\users\noahc\desktop\git\back-to-earth\src\main\tests.cpp
+1668098086 source:c:\users\noahc\desktop\git\back-to-earth\src\main\tests.cpp
 	"Tests.h"
 	"Color.h"
 	"Text.h"
+	"Timer.h"
 	"Window.h"
 	"Real.h"
 	"Noise.h"
 
-1666737654 source:c:\users\noahc\desktop\git\back-to-earth\src\world\gen\noise.cpp
+1668098086 source:c:\users\noahc\desktop\git\back-to-earth\src\world\gen\noise.cpp
 	"Noise.h"
+	<cstdint>
 	<math.h>
 
-1666737654 c:\users\noahc\desktop\git\back-to-earth\src\world\gen\noise.h
+1668098086 c:\users\noahc\desktop\git\back-to-earth\src\world\gen\noise.h
 	"TileRegion.h"
 
 1665429206 source:c:\users\noahc\desktop\git\back-to-earth\src\world\gen\noiseold.cpp
@@ -4882,19 +4887,19 @@
 	"TileMap.h"
 	"Timer.h"
 
-1666737654 source:c:\users\noahc\desktop\git\back-to-earth\src\world\phys\box3d.cpp
+1668098086 source:c:\users\noahc\desktop\git\back-to-earth\src\world\phys\box3d.cpp
 	"Box3D.h"
 
-1666737654 source:c:\users\noahc\desktop\git\back-to-earth\src\world\phys\collidingvolume.cpp
+1668098086 source:c:\users\noahc\desktop\git\back-to-earth\src\world\phys\collidingvolume.cpp
 	"CollidingVolume.h"
 	<math.h>
 	"TileIterator.h"
 
-1666737654 source:c:\users\noahc\desktop\git\back-to-earth\src\world\phys\point3d.cpp
+1668098086 source:c:\users\noahc\desktop\git\back-to-earth\src\world\phys\point3d.cpp
 	"Point3D.h"
 	"Defs.h"
 
-1666751516 source:c:\users\noahc\desktop\git\back-to-earth\src\world\player.cpp
+1668098382 source:c:\users\noahc\desktop\git\back-to-earth\src\world\player.cpp
 	"Player.h"
 	<cmath>
 	<math.h>
@@ -4905,18 +4910,18 @@
 	"TextureLoader.h"
 	"TileMap.h"
 
-1666737654 source:c:\users\noahc\desktop\git\back-to-earth\src\world\tile\regtexbuilder.cpp
+1668098086 source:c:\users\noahc\desktop\git\back-to-earth\src\world\tile\regtexbuilder.cpp
 	"RegTexBuilder.h"
 	"DebugScreen.h"
 	<math.h>
 
-1666737654 c:\users\noahc\desktop\git\back-to-earth\src\world\tile\regtexbuilder.h
+1668098086 c:\users\noahc\desktop\git\back-to-earth\src\world\tile\regtexbuilder.h
 	<sstream>
 	"Color.h"
 	"Texture.h"
 	"TileIterator.h"
 
-1666737654 source:c:\users\noahc\desktop\git\back-to-earth\src\world\tile\tileiterator.cpp
+1668098086 source:c:\users\noahc\desktop\git\back-to-earth\src\world\tile\tileiterator.cpp
 	"TileIterator.h"
 	<iostream>
 	<sstream>
@@ -4924,7 +4929,7 @@
 	<SDL.h>
 	"Log.h"
 
-1666737654 source:c:\users\noahc\desktop\git\back-to-earth\src\world\tile\tilemap.cpp
+1668098319 source:c:\users\noahc\desktop\git\back-to-earth\src\world\tile\tilemap.cpp
 	"TileMap.h"
 	<math.h>
 	<sstream>
@@ -4934,7 +4939,7 @@
 	"TileIterator.h"
 	"TileType.h"
 
-1666737654 source:c:\users\noahc\desktop\git\back-to-earth\src\world\tile\tilemapscreen.cpp
+1668098271 source:c:\users\noahc\desktop\git\back-to-earth\src\world\tile\tilemapscreen.cpp
 	"TileMapScreen.h"
 	<iomanip>
 	<iostream>
@@ -4949,7 +4954,7 @@
 	"TileIterator.h"
 	"Timer.h"
 
-1666737654 source:c:\users\noahc\desktop\git\back-to-earth\src\world\tile\tileregion.cpp
+1668098215 source:c:\users\noahc\desktop\git\back-to-earth\src\world\tile\tileregion.cpp
 	"TileRegion.h"
 	<iostream>
 	<math.h>
@@ -4958,13 +4963,14 @@
 	"DebugScreen.h"
 	"Log.h"
 	"TileMap.h"
+	"Timer.h"
 
-1666737654 source:c:\users\noahc\desktop\git\back-to-earth\src\world\tile\tiletype.cpp
+1668098086 source:c:\users\noahc\desktop\git\back-to-earth\src\world\tile\tiletype.cpp
 	"TileType.h"
 	<sstream>
 	"DebugScreen.h"
 
-1666751964 source:c:\users\noahc\desktop\git\back-to-earth\src\world\world.cpp
+1668098351 source:c:\users\noahc\desktop\git\back-to-earth\src\world\world.cpp
 	"World.h"
 	<math.h>
 	"TextureBuilder.h"
@@ -4972,11 +4978,11 @@
 	"MainLoop.h"
 	"Timer.h"
 
-1666737654 source:c:\users\noahc\desktop\git\back-to-earth\src\helper\namebuilder.cpp
+1668098086 source:c:\users\noahc\desktop\git\back-to-earth\src\helper\namebuilder.cpp
 	"NameBuilder.h"
 	<stdlib.h>
 
-1666737654 c:\users\noahc\desktop\git\back-to-earth\src\helper\namebuilder.h
+1668098086 c:\users\noahc\desktop\git\back-to-earth\src\helper\namebuilder.h
 	<string>
 	<vector>
 
@@ -5946,11 +5952,11 @@
 	"MainLoop.h"
 	"Timer.h"
 
-1666737654 source:c:\users\noahc\desktop\git\back-to-earth\src\gfx\gui\windowdata.cpp
+1668098086 source:c:\users\noahc\desktop\git\back-to-earth\src\gfx\gui\windowdata.cpp
 	"WindowData.h"
 	<sstream>
 
-1666737654 c:\users\noahc\desktop\git\back-to-earth\src\gfx\gui\windowdata.h
+1668098086 c:\users\noahc\desktop\git\back-to-earth\src\gfx\gui\windowdata.h
 	<map>
 	<string>
 	"Color.h"
@@ -5981,10 +5987,10 @@
 	"Button.h"
 	"Texture.h"
 
-1666742522 c:\users\noahc\desktop\git\back-to-earth\src\gfx\guialigner.h
+1668098086 c:\users\noahc\desktop\git\back-to-earth\src\gfx\guialigner.h
 	"GUIHandler.h"
 
-1666746936 source:c:\users\noahc\desktop\git\back-to-earth\src\gfx\guialigner.cpp
+1668098086 source:c:\users\noahc\desktop\git\back-to-earth\src\gfx\guialigner.cpp
 	"GUIAligner.h"
 	<set>
 	"GUI.h"
@@ -5997,64 +6003,64 @@
 1666752845 c:\users\noahc\desktop\git\back-to-earth\src\gfx\gui\icon.h
 	"WindowComponent.h"
 
-1666737654 c:\users\noahc\desktop\git\back-to-earth\src\gfx\gui\obj\window.h
+1668098086 c:\users\noahc\desktop\git\back-to-earth\src\gfx\gui\obj\window.h
 	"GUIAlignable.h"
 	"Text.h"
 	"Texture.h"
 	"WindowData.h"
 
-1666751297 source:c:\users\noahc\desktop\git\back-to-earth\src\gfx\gui\obj\window.cpp
+1668098086 source:c:\users\noahc\desktop\git\back-to-earth\src\gfx\gui\obj\window.cpp
 	"Window.h"
 	"TextureBuilder.h"
 	"Log.h"
 
-1666750924 c:\users\noahc\desktop\git\back-to-earth\src\gfx\gui\obj\radiobutton.h
+1668098086 c:\users\noahc\desktop\git\back-to-earth\src\gfx\gui\obj\radiobutton.h
 	"Button.h"
 	"Texture.h"
 
-1666746781 c:\users\noahc\desktop\git\back-to-earth\src\gfx\gui\obj\button.h
+1668098086 c:\users\noahc\desktop\git\back-to-earth\src\gfx\gui\obj\button.h
 	"Text.h"
 	"Texture.h"
 	"WindowComponent.h"
 
-1666746801 c:\users\noahc\desktop\git\back-to-earth\src\gfx\gui\obj\textbox.h
+1668098086 c:\users\noahc\desktop\git\back-to-earth\src\gfx\gui\obj\textbox.h
 	<string>
 	"GUIHandler.h"
 	"Texture.h"
 	"Button.h"
 
-1666747059 c:\users\noahc\desktop\git\back-to-earth\src\gfx\gui\obj\tooltip.h
+1668098086 c:\users\noahc\desktop\git\back-to-earth\src\gfx\gui\obj\tooltip.h
 	"WindowComponent.h"
 
-1666749149 source:c:\users\noahc\desktop\git\back-to-earth\src\gfx\gui\obj\button.cpp
+1668098086 source:c:\users\noahc\desktop\git\back-to-earth\src\gfx\gui\obj\button.cpp
 	"Button.h"
 	"GUIHandler.h"
 	"TextureBuilder.h"
 
-1666752867 source:c:\users\noahc\desktop\git\back-to-earth\src\gfx\gui\obj\checkbox.cpp
+1668098086 source:c:\users\noahc\desktop\git\back-to-earth\src\gfx\gui\obj\checkbox.cpp
 	"CheckBox.h"
 
-1666752888 c:\users\noahc\desktop\git\back-to-earth\src\gfx\gui\obj\checkbox.h
+1668098086 c:\users\noahc\desktop\git\back-to-earth\src\gfx\gui\obj\checkbox.h
 	"Button.h"
 
-1666752818 source:c:\users\noahc\desktop\git\back-to-earth\src\gfx\gui\obj\icon.cpp
+1668098086 source:c:\users\noahc\desktop\git\back-to-earth\src\gfx\gui\obj\icon.cpp
 	"Icon.h"
 
-1666752845 c:\users\noahc\desktop\git\back-to-earth\src\gfx\gui\obj\icon.h
+1668098086 c:\users\noahc\desktop\git\back-to-earth\src\gfx\gui\obj\icon.h
 	"WindowComponent.h"
 
-1666751351 source:c:\users\noahc\desktop\git\back-to-earth\src\gfx\gui\obj\radiobutton.cpp
+1668098086 source:c:\users\noahc\desktop\git\back-to-earth\src\gfx\gui\obj\radiobutton.cpp
 	"RadioButton.h"
 	"TextureLoader.h"
 	"TextureBuilder.h"
 
-1666746807 source:c:\users\noahc\desktop\git\back-to-earth\src\gfx\gui\obj\textbox.cpp
+1668098086 source:c:\users\noahc\desktop\git\back-to-earth\src\gfx\gui\obj\textbox.cpp
 	"TextBox.h"
 	<sstream>
 	"Text.h"
 	"Log.h"
 
-1666747067 source:c:\users\noahc\desktop\git\back-to-earth\src\gfx\gui\obj\tooltip.cpp
+1668098086 source:c:\users\noahc\desktop\git\back-to-earth\src\gfx\gui\obj\tooltip.cpp
 	"Tooltip.h"
 
 1666737654 source:c:\users\noahc\desktop\back-to-earth\src\gfx\camera.cpp

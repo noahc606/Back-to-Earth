@@ -15,7 +15,7 @@ class TileMapScreen : public BTEObject
 {
 public:
     /**/
-    void init( SDLHandler* sh, Controls* ctrls, TileMap* t_tm, Player* p_pl );
+    void init( SDLHandler* sh, FileHandler* fh, Controls* ctrls, TileMap* t_tm, Player* p_pl );
     virtual ~TileMapScreen();
     void destroy();
 
@@ -35,8 +35,9 @@ public:
 private:
     Camera* cam = nullptr;                              //Area of the world shown on screen. Also tracks size of each tile (zoom factor).
     TileMap* tileMap = nullptr;
-    int screenTX = 0; int screenTY = 0;                 //Translate everything on screen horizontally/vertically based on screen size
-    int screenWidth = 1; int screenHeight = 1;
+    int screenWT = 1; int screenHT = 1;
+    int screenWR = 1; int screenHR = 1;
+    int screenRWR = 1; int screenRHR = 1;
 
     int camRX = 0; int camRY = 0; int camRZ = 0;        //Coordinates of region which the center of the screen occupies. e.g. As player moves regionSize tiles to the right, cameraRX increases by 1.
     int camL = 0;
@@ -63,6 +64,8 @@ private:
     double regLoadTime = 0.0;
     double regLoadTimeLatest = 0.0;
     double regLoadTimeAvg = 0.0;
+
+    void setScreenInfo();
 
     void mapUpdates();
     void updateEntireScreen();

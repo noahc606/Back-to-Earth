@@ -266,6 +266,7 @@ void FileHandler::reload()
 }
 
 Settings* FileHandler::getSettings() { return &settings; }
+std::string FileHandler::getResourcePath() { return resourcePath; }
 
 /**
     Set an output filestream to a specified path.

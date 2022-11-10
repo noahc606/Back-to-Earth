@@ -11,6 +11,7 @@ void BTEObject::init(SDLHandler* sh, FileHandler* fh, Controls* ctrls)
 
     existing = true;
 }
+void BTEObject::init(SDLHandler* sh, FileHandler* fh) { BTEObject::init(sh, fh, nullptr); }
 void BTEObject::init(SDLHandler* sh, Controls* ctrls) { BTEObject::init(sh, nullptr, ctrls); }
 void BTEObject::init(SDLHandler* sh) { BTEObject::init( sh, nullptr, nullptr ); }
 void BTEObject::init(Controls* ctrls) { BTEObject::init( nullptr, nullptr, ctrls ); }

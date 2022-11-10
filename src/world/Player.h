@@ -81,6 +81,7 @@ private:
 
     int action = NONE;
 
+    double runSpeed = 10;
     double age = 0;                                 //Age in ticks (60ticks = 1 second)
     double x  = 0; double y  = 0; double z  = 0;    //Position in world (meters)
     double vx = 0; double vy = 0; double vz = 0;    //Velocity in world (meters per tick)

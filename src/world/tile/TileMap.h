@@ -4,11 +4,13 @@
 #include <string>
 #include <tuple>
 #include "Box3D.h"
+#include "BTEObject.h"
+#include "FileHandler.h"
 #include "Player.h"
 #include "Texture.h"
 #include "TileRegion.h"
 
-class TileMap
+class TileMap : public BTEObject
 {
 public:
     /**/
@@ -22,7 +24,6 @@ public:
     typedef std::map<t_v3d, TileRegion>     t_regionMap;
     typedef std::map<t_v3d, t_updates>      t_updatesMap;
     /**/
-    void init();
     void destroy();
     /**/
     void info(std::stringstream& ss, int& tabs, t_ll mouseX, t_ll mouseY, t_ll selZ);
@@ -48,6 +49,7 @@ public:
     int setTile(t_ll x, t_ll y, t_ll z, TileType tt);
     //Load regions
     int loadRegion(long rX, long rY, long rZ);
+    int saveRegion(FileHandler* fileHandler, long rX, long rY, long rZ);
     //Add/Remove updates
     int addTileUpdate(t_ll x, t_ll y, t_ll layer);
     int addTileUpdates(t_ll x, t_ll y, t_ll layer);
@@ -58,7 +60,6 @@ public:
 protected:
 
 private:
-
     //Maps
     t_regionMap regionMap;
     t_updatesMap updatesMap;

@@ -36,12 +36,15 @@ public:
 
     void compress();
     void queueUnload();
-    void save( bool compress );
+    void save( SDLHandler* sh, FileHandler* fh, bool compress );
 
     enum RegTexState {
         NONE = 0,
-        SHOULD_UPDATE = 101,
-        UPDATED = 102
+        UNGENERATED=100,
+        GENERATING=101,
+        FINISHED_GENERATING=102,
+        SHOULD_UPDATE = 103,
+        UPDATED = 104,
     };
 
 protected:
@@ -50,5 +53,5 @@ private:
     std::vector<TileType> palette;
     uint16_t tiles[32][32][32];
 
-    int regTexState = 0;
+    int regTexState = UNGENERATED;
 };

@@ -5,10 +5,10 @@
 #include "MainLoop.h"
 #include "Timer.h"
 
-void World::init(SDLHandler* sh, Controls* ctrls)
+void World::init(SDLHandler* sh, FileHandler* fh, Controls* ctrls)
 {
     if( exists() ) return;
-    BTEObject::init(sh, nullptr, ctrls);
+    BTEObject::init(sh, fh, ctrls);
 
     Commands::cKV("x1", -16);
     Commands::cKV("y1", -16);
@@ -16,12 +16,13 @@ void World::init(SDLHandler* sh, Controls* ctrls)
     //Init player, tileMap, tileMapScreen.
     player.init(sh, ctrls);
     player.setPos(0, 0, -32);
-    tileMap.init();
-    tileMapScreen.init(sdlHandler, controls, &tileMap, &player);
+    tileMap.init(sdlHandler, fileHandler);
+    tileMapScreen.init(sdlHandler, fileHandler, controls, &tileMap, &player);
 
     //Init csTileMap
     csTileMap.init(sdlHandler, controls, player.getCamera());
-    csTileMap.setUsingDynamicLOD(true);
+    csTileMap.setTexUsingDynamicLOD(true);
+    csTileMap.setTexAllocCount(100);
 
     //Init csInteractions
     csInteractions.init(sdlHandler, controls, player.getCamera());

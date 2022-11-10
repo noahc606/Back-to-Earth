@@ -29,6 +29,7 @@ public:
     void reload();
 
     Settings* getSettings();
+    std::string getResourcePath();
 
 private:
     /* Set output file stream and input file stream */

@@ -10,12 +10,12 @@
 /**/
 
 BTE::BTE(){}
-void BTE::init(SDLHandler* p_sdlHandler, FileHandler* p_fileHandler, Controls* p_controls)
+void BTE::init(SDLHandler* p_sh, FileHandler* p_fh, Controls* p_ctrls)
 {
     //MainLoop
-    sdlHandler = p_sdlHandler;
-    fileHandler = p_fileHandler;
-    controls = p_controls;
+    sdlHandler = p_sh;
+    fileHandler = p_fh;
+    controls = p_ctrls;
     settings = fileHandler->getSettings();
 
     //GUIHandler
@@ -281,7 +281,7 @@ void BTE::load(World*& w)
 {
     unload(w);
     w = new World();
-    (w)->init(sdlHandler, controls);
+    (w)->init(sdlHandler, fileHandler, controls);
 }
 
 void BTE::unload(Tests*& t)

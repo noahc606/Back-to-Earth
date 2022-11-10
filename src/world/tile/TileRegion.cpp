@@ -6,6 +6,7 @@
 #include "DebugScreen.h"
 #include "Log.h"
 #include "TileMap.h"
+#include "Timer.h"
 
 /**
 (X+, Y+, Z+) = (East, South, Up)
@@ -28,7 +29,7 @@ TileRegion::TileRegion()
     }
 }
 
-TileRegion::~TileRegion() {}
+TileRegion::~TileRegion(){}
 
 void TileRegion::info(std::stringstream& ss, int& tabs, int subX, int subY, int subZ)
 {
@@ -165,14 +166,44 @@ void TileRegion::compress()
     Saves this region to disk.
 
     Automatically called whenever:
-        -This region needs to be unloaded (compress==true)
-        -This region is auto-saved (compress==false)
+        -This region needs to be unloaded (compress==true). More expensive option
+        -This region is auto-saved (compress==false). Less expensive option
 */
-void TileRegion::save(bool p_compress)
+void TileRegion::save(SDLHandler* sh, FileHandler* fh, bool p_compress)
 {
+    std::stringstream ss;
+
+    Timer t0;
+
     if( p_compress ) {
+        Timer t1;
         compress();
+        ss << "Compression time: " << t1.getElapsedTimeMS() << ", ";
     }
 
-    //Implement saving
+    //Texture tex; tex.init(sh);
+    //tex.setTexDimensions(32, 32);
+
+    //Region breakdown:
+    //32x32 image (x,y coords in image correspond to x,y coords in region). Thus each pixel represents a 32high column of tiles.
+    //RGBA = 32 bits.
+    //
+
+    for( int x = 0; x<32; x++ ) {
+        for( int y = 0; y<32; y++ ) {
+            for( int z = 0; z<32; z++ ) {
+                //tex.pixel( x, y, tiles[x][y][z] );
+            }
+        }
+    }
+
+    ss << "Texture building time: " << t0.getElapsedTimeMS() << ", ";
+
+    {
+        Timer t1;
+        //tex.savePNG(fh, "0.png");
+        ss << "Texture saving time: " << t1.getElapsedTimeMS() << "\n";
+    }
+
+    Log::log(ss.str());
 }

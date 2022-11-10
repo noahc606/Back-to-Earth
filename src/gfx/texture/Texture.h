@@ -2,21 +2,21 @@
 #include <cstdint>
 #include <SDL.h>
 #include "Color.h"
+#include "FileHandler.h"
 #include "SDLHandler.h"
 
 class Texture
 {
 public:
+    /**/
     Texture();
     virtual ~Texture();
-
     void init(SDLHandler* sdlHandler);
     void destroy();
-
-    void test();
-
+    /**/
     bool isInitialized();
     SDL_Texture* getSDLTexture();
+    SDL_Surface* createSurfaceFromTexture();
 
     int getTexWidth();
     int getTexHeight();
@@ -50,6 +50,7 @@ public:
     void pixel(int x, int y, uint8_t r, uint8_t g, uint8_t b, uint8_t a, SDL_BlendMode bm);
     void pixel(int x, int y, uint8_t r, uint8_t g, uint8_t b, uint8_t a);
     void pixel(int x, int y, uint8_t r, uint8_t g, uint8_t b);
+    void pixel(int x, int y, uint32_t rgba);
     void clear();
 
     void setColorMod();
@@ -79,6 +80,7 @@ public:
     //Texture rendering
     void draw();
     void draw(SDL_Rect* src, SDL_Rect* dst);
+    void savePNG(FileHandler* fh, std::string path);
 
 
     enum Flip {

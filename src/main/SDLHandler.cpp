@@ -207,7 +207,7 @@ void SDLHandler::createWindowAndRenderer()
 
     //Allocate pixel format to be used by most textures
     SDL_FreeFormat(windowPixelFormat);
-    windowPixelFormat = SDL_AllocFormat(SDL_PIXELFORMAT_RGBA32);
+    windowPixelFormat = SDL_AllocFormat(SDL_PIXELFORMAT_RGBA8888);
     //If pixel format failed to be allocated, the program should stop
     if( windowPixelFormat==NULL ) {
         //Print error, stop program.

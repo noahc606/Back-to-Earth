@@ -21,6 +21,7 @@ public:
 
     void realloc(long x, long y, int maxRegions);
     void realloc(long x, long y);
+    void reallocSingle(long x, long y);
     /**/
     //Get a texture from the map given the location of a 1024x1024 region.
     Texture* getTex(long rX, long rY);
@@ -33,8 +34,8 @@ public:
     t_ll getSubPos(t_ll c);
     void getRXYZ(t_ll& x, t_ll& y, t_ll& z);
     t_ll getRXYZ(t_ll c);
-    /**/
 
+    /**/
 
     //Canvas texture details
     void resetTexes();
@@ -51,11 +52,10 @@ public:
     //Optimization options
     void setMaximumFPS(int fps);
     void setCroppingRendering(bool cr);
-    void setUsingDynamicLOD(bool dLod);
-
-    /**/
-
-    /**/
+    void setTexUsingDynamicLOD(bool dLod);
+    void setTexAllocRadiusX(int arx);
+    void setTexAllocRadiusY(int ary);
+    void setTexAllocCount(int ac);
 
 protected:
 
@@ -80,10 +80,13 @@ private:
 
     //Map of texes
     t_texMap texes;
-    int defaultTexSize = 1024;
-    int currentTexSize = 1024;
+    int defaultTexSize = 1024; int currentTexSize = 1024;
     float texLOD = 1.0;
-    bool dynamicLOD = false;
+    bool texUsingDynamicLOD = false;
+    int texAllocRadiusX = 3;
+    int texAllocRadiusY = 3;
+    int texAllocCount = 3;
+
 
     //Camera object
     Camera* camera; double zoom = 0;

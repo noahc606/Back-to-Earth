@@ -7,12 +7,6 @@
 #include "TileIterator.h"
 #include "TileType.h"
 
-
-void TileMap::init()
-{
-
-}
-
 void TileMap::destroy()
 {
     Log::trbshoot(__PRETTY_FUNCTION__, "Deleting TileMap.");
@@ -171,8 +165,25 @@ int TileMap::loadRegion(long rX, long rY, long rZ)
     if( itr==regionMap.end() ) {
         Noise noise;
         TileRegion tr;
+        tr.setRegTexState(tr.GENERATING);
         noise.populateRegion(tr, rX, rY, rZ);
+        tr.setRegTexState(tr.FINISHED_GENERATING);
         regionMap.insert( std::make_pair(std::make_tuple(rX, rY, rZ), tr) );
+        return 0;
+    }
+    return -1;
+}
+
+int TileMap::saveRegion(FileHandler* fileHandler, long rX, long rY, long rZ)
+{
+    t_regionMap::iterator itr = regionMap.find( std::make_tuple(rX, rY, rZ) );
+    if( itr!=regionMap.end() ) {
+        TileRegion tr = itr->second;
+
+        if( rX==0 && rY==0 && rZ==0 ) {
+            Log::log("Saving region(0, 0, 0).");
+            tr.save(sdlHandler, fileHandler, false);
+        }
         return 0;
     }
     return -1;

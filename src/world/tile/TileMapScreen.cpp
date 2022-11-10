@@ -12,9 +12,9 @@
 #include "TileIterator.h"
 #include "Timer.h"
 
-void TileMapScreen::init( SDLHandler* sh, Controls* ctrls, TileMap* p_tm, Player* p_pl )
+void TileMapScreen::init( SDLHandler* sh, FileHandler* fh, Controls* ctrls, TileMap* p_tm, Player* p_pl )
 {
-    BTEObject::init(sh, ctrls);
+    BTEObject::init(sh, fh, ctrls);
 
     tileMap = p_tm;
 
@@ -35,10 +35,7 @@ void TileMapScreen::tick()
     Timer localTimer;
 
     //Calculate screen width and screen height (in tiles)
-    screenWidth = sdlHandler->getWidth()/tileScale;
-    if( screenWidth==0 ) screenWidth = 1;
-    screenHeight = sdlHandler->getHeight()/tileScale;
-    if( screenHeight==0 ) screenHeight = 1;
+    setScreenInfo();
 
     if( cam==nullptr || tileMap==nullptr || tileMap->getRegionMap()==nullptr )
         return;
@@ -76,8 +73,8 @@ void TileMapScreen::tick()
     }
 
     //Translations depending on window width/height. Ensures that current camera's location is at the center of the window.
-    screenTX = sdlHandler->getWidth()/2;
-    screenTY = sdlHandler->getHeight()/2;
+    //screenTX = sdlHandler->getWidth()/2;
+    //screenTY = sdlHandler->getHeight()/2;
 
     tickTime = localTimer.getElapsedTimeMS();
 }
@@ -88,6 +85,9 @@ void TileMapScreen::draw(Canvas* csTileMap)
     Timer localTimer;
 
     if( csTileMap==nullptr ) return;
+
+    csTileMap->setTexAllocRadiusX(screenRWR+1);
+    csTileMap->setTexAllocRadiusY(screenRHR+1);
 
     //Perform 'rtUpdates' number of regTexUpdates and do performance gauging
     rtUpdatesTime = 0.0;
@@ -164,8 +164,8 @@ void TileMapScreen::info(std::stringstream& ss, int& tabs, TileMap::t_ll mouseX,
     DebugScreen::newGroup(ss, tabs, "Camera");
         //Zoom, scale
         DebugScreen::indentLine(ss, tabs);
-        ss << "Screen(width, height)=(" << screenWidth << ", " << screenHeight << "); ";
-        ss << "Screen(scrRW, scrRH)=(" << screenTX/tileScale/regionSize << ", " << screenTY/tileScale/regionSize << "); ";
+        ss << "Screen(w, h)=(" << screenWT << ", " << screenHT << "); ";
+        ss << "Screen(wR, hR)=(" << screenWR << ", " << screenHR << "); ";
         DebugScreen::newLine(ss);
         DebugScreen::indentLine(ss, tabs);
         ss << "Zoom=" << mapZoom << "; ";
@@ -237,20 +237,31 @@ std::tuple<TileMap::t_ll, TileMap::t_ll, TileType> TileMapScreen::topTrackedTile
     return std::make_tuple( height, -height, topTileFromCam );
 }
 
+void TileMapScreen::setScreenInfo()
+{
+    screenWT = sdlHandler->getWidth()/tileScale;
+    if( screenWT==0 ) screenWT = 1;
+    screenWR = screenWT/regionSize+1;
+    screenRWR = screenWR/2+1;
+
+    screenHT = sdlHandler->getHeight()/tileScale;
+    if( screenHT==0 ) screenHT = 1;
+    screenHR = screenHT/regionSize+1;
+    screenRHR = screenHR/2+1;
+}
+
 void TileMapScreen::mapUpdates()
 {
     if( cam==nullptr || tileMap==nullptr || tileMap->getRegionMap()==nullptr ) return;
 
-    int maxRegionInserts = 2;
+    int maxRegionInserts = 3;
     int numRegionInserts = 0;
 
     /** Region loading */
     //Load Regions, RegTexes, nearby in a ring
-    int radius = 6;
-    int verticalRadius = 2;
+    int radius = 7;
+    int verticalRadius = 4;
 
-    int scrRW = screenTX/tileScale/regionSize+2;
-    int scrRH = screenTY/tileScale/regionSize+2;
     for( int ring = 0; ring<=radius; ring++ ) {
         for( int deltaRX = -ring; deltaRX<=ring; deltaRX++ ) {
             //Set deltaRY
@@ -264,8 +275,8 @@ void TileMapScreen::mapUpdates()
 
                     //Check if this region at (rX, rY) is onscreen (vertical coordinate doesn't matter)
                     bool onscreen = false;
-                    if( rX>=camRX-scrRW && rX<=camRX+scrRW ) {
-                        if( rY>=camRY-scrRH && rY<=camRY+scrRH ) {
+                    if( rX>=camRX-screenRWR && rX<=camRX+screenRWR ) {
+                        if( rY>=camRY-screenRHR && rY<=camRY+screenRHR ) {
                             onscreen = true;
                         }
                     }
@@ -273,17 +284,10 @@ void TileMapScreen::mapUpdates()
                     //Load region if numRegionInserts<maxRegionInserts
                     if( numRegionInserts<maxRegionInserts ) {
                         //If region has not been loaded yet, load the region.
-
                         Timer rlt;
                         bool loadedReg = false;
                         if( tileMap->loadRegion(rX, rY, rZ)==0 ) {
                             loadedReg = true;
-                            //If the region is onscreen and !=nullptr, mark it for a regTexUpdate (RTU).
-                            TileRegion* tr = tileMap->getRegByRXYZ(rX, rY, rZ);
-                            if(tr!=nullptr ) {
-                                tr->setRegTexState(tr->RegTexState::SHOULD_UPDATE);
-                            }
-                            //Increment numRegionInserts
                             ++numRegionInserts;
                         }
                         if( loadedReg ) {
@@ -298,7 +302,7 @@ void TileMapScreen::mapUpdates()
                         //The region tex needs an update if the region is marked for an RTU.
                         TileRegion* tr = tileMap->getRegByRXYZ(rX, rY, rZ);
                         if( tr!=nullptr ) {
-                            if( tr->getRegTexState()==tr->RegTexState::NONE ) {
+                            if( tr->getRegTexState()==tr->RegTexState::FINISHED_GENERATING ) {
                                 tr->setRegTexState(tr->RegTexState::SHOULD_UPDATE);
                             }
                         }
@@ -343,8 +347,8 @@ void TileMapScreen::mapUpdates()
         //... we need to check if it does need to be reset.
         if( tr->getRegTexState()!=TileRegion::RegTexState::NONE ) {
             //If a region is far offscreen or not on the same rZ as the camera
-            if( rX<camRX-scrRW || rX>camRX+scrRW ||
-                rY<camRY-scrRH || rY>camRY+scrRH ||
+            if( rX<camRX-screenRWR || rX>camRX+screenRWR ||
+                rY<camRY-screenRHR || rY>camRY+screenRHR ||
                 rZ!=camRZ
             ) {
                 //Reset region state and stop all region updates
@@ -371,6 +375,7 @@ void TileMapScreen::mapUpdates()
             rZ<camRZ-verticalRadius || rZ>camRZ+verticalRadius
         ) {
             //Unload region
+            tileMap->saveRegion(fileHandler, rX, rY, rZ);
             itrRM = tileMap->getRegionMap()->erase(itrRM);
         } else {
             itrRM++;
@@ -405,14 +410,23 @@ void TileMapScreen::idleRegTexUpdates(int updates)
 {
     if(tileMap==nullptr) return;
 
-    TileMap::t_ll scrRW = screenTX/tileScale;   //Distance from left side of screen to center of screen.
-    TileMap::t_ll scrRH = screenTY/tileScale;   //Distance from upper side of screen to center of screen.
-    TileMap::t_ll scrCX = cam->getX();          //X pos of camera
-    TileMap::t_ll scrCY = cam->getY();          //Y pos of camera
+    TileMap::t_ll scrRW2T = screenWT/4; if( scrRW2T==0 ) scrRW2T = 1;
+    TileMap::t_ll scrRH2T = screenWT/4; if( scrRH2T==0 ) scrRH2T = 1;
+    TileMap::t_ll scrRW4T = screenWT/8;
+    TileMap::t_ll scrRH4T = screenHT/8;
+    TileMap::t_ll scrCX = floor( cam->getX()/4 )*4;
+    TileMap::t_ll scrCY = floor( cam->getY()/4 )*4;
 
-    for( int i = 0; i<updates; i++ ) {
-        tileMap->addTileUpdate( scrCX-scrRW+rand()%screenWidth, scrCY-scrRH+rand()%screenHeight, cam->getLayer() );
-        //tileMap->addTileUpdate( scrCX-scrRW+rand()%screenWidth, scrCY-scrRH+rand()%screenHeight, cam->getLayer() );
+    for( int i = 0; i<updates/16+1; i++ ) {
+
+        TileMap::t_ll updatesX = scrCX-4*scrRW4T+4*(rand())%(4*scrRW2T);
+        TileMap::t_ll updatesY = scrCY-4*scrRH4T+4*(rand())%(4*scrRH2T);
+
+        for(TileMap::t_ll sx = 0; sx<4; sx++) {
+            for(TileMap::t_ll sy = 0; sy<4; sy++) {
+                tileMap->addTileUpdate( updatesX+sx, updatesY+sy, cam->getLayer() );
+            }
+        }
     }
 }
 
@@ -429,11 +443,9 @@ void TileMapScreen::regTexUpdates(Canvas* csTileMap, int maxUpdates)
     int z = cam->getLayer();
     int sz = TileMap::getRegSubPos(z);
 
-    int radius = 6;
+    int radius = 4;
     //We want to load region texes in a rectangular ring pattern.
     //This rectangular area of regions should barely cover the entire screen (visible area based on camera zoom, x, y, and z).
-    int scrRW = screenTX/tileScale/regionSize+3;
-    int scrRH = screenTY/tileScale/regionSize+3;
     //Iterate through regions
     for( int ring = 0; ring<=radius; ring++ ) {
         for( int deltaRX = -ring; deltaRX<=ring; deltaRX++ ) {
@@ -445,7 +457,7 @@ void TileMapScreen::regTexUpdates(Canvas* csTileMap, int maxUpdates)
             //Get rY: Iterate from camRY-ring to camRY+ring based on deltaRY
             for( int rY = camRY-ring; rY<=camRY+ring; rY += deltaRY ) {
                 //If (rX, rY) is onscreen
-                if( rX>camRX-scrRW && rX<camRX+scrRW && rY>camRY-scrRH && rY<camRY+scrRH ) {
+                if( rX>=camRX-screenRWR && rX<=camRX+screenRWR && rY>=camRY-screenRHR && rY<=camRY+screenRHR ) {
                     /** Get 'rtu' (region texture updates vector) located at this region */
                     TileMap::t_updates* rtu = tileMap->getRTUsByRXYz(rX, rY, z);
                     //If 'rtu' is null or rtu->size()==0

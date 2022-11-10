@@ -37,7 +37,7 @@ void Canvas::tick()
         zoom = camera->getZoom();
 
         //If dynamic Level of Detailing is on
-        if( dynamicLOD ) {
+        if( texUsingDynamicLOD ) {
             //Update texLOD
             texLOD = camera->getZoom();
             if( texLOD>1.0 ) texLOD = 1.0;
@@ -70,7 +70,7 @@ void Canvas::tick()
         //  cf1 = correctionFactor1. Always == a tiny more than 1.0.
         double cf1 = 0.0;
 
-        if(dynamicLOD) {
+        if(texUsingDynamicLOD) {
             cf1 = (zoom*((double)currentTexSize))/(zoom*((double)currentTexSize)-1);
         } else {
             cf1 = (zoom*((double)currentTexSize))/(zoom*((double)currentTexSize)-1);
@@ -78,7 +78,7 @@ void Canvas::tick()
         //cf1 = (zoom*((double)currentTexSize))/(zoom*((double)currentTexSize)-1)*1.4; //for fun
         //cf1 = 1.0;
 
-        if(dynamicLOD) {
+        if(texUsingDynamicLOD) {
             double cf2 = currentTexSize/(double)(32*(int)(32*zoom));
             if(cf2<=1.0) cf2 = 1.0;
 
@@ -153,7 +153,10 @@ void Canvas::setCroppingRendering(bool cr) { croppingRendering = cr; }
     Dynamic LOD is when the lod changes itself depending on
     the camera's zoom.
 */
-void Canvas::setUsingDynamicLOD(bool dLod) { dynamicLOD = dLod; }
+void Canvas::setTexUsingDynamicLOD(bool dLod) { texUsingDynamicLOD = dLod; }
+void Canvas::setTexAllocRadiusX(int arx) { texAllocRadiusX = arx; }
+void Canvas::setTexAllocRadiusY(int ary) { texAllocRadiusY = ary; }
+void Canvas::setTexAllocCount(int ac) { texAllocCount = ac; }
 
 void Canvas::info(std::stringstream& ss, int& tabs)
 {
@@ -349,11 +352,6 @@ void Canvas::realloc(long rX, long rY, int maxRegions)
     //Num of regions to be loaded in per function call that must be less than maxRegions.
     int numRegions = 0;
 
-    //Square radius (ex: radius of 1 = a 3x3 square.)
-    long radius = 3;
-
-    //
-
     //Step 1: Unload texes that are far away (not contained within the square)
     t_texMap::iterator itrTM = texes.begin();
     while( itrTM!=texes.end() ) {
@@ -361,8 +359,8 @@ void Canvas::realloc(long rX, long rY, int maxRegions)
         int riY = std::get<1>(itrTM->first);
 
         //Unload texes with extreme X or Y coords.
-        if( riX<rX-radius || riX>rX+radius ||
-            riY<rY-radius || riY>rY+radius
+        if( riX<rX-texAllocRadiusX || riX>rX+texAllocRadiusY ||
+            riY<rY-texAllocRadiusX || riY>rY+texAllocRadiusY
            ) {
             itrTM->second->destroy();
             delete itrTM->second;
@@ -373,18 +371,16 @@ void Canvas::realloc(long rX, long rY, int maxRegions)
     }
 
     //Step 2: Try to load in texes contained within the square.
-    for( long ix = rX-radius; ix<=rX+radius; ix++ ) {
-        for( long iy = rY-radius; iy<=rY+radius; iy++ ) {
+    for( long ix = rX-texAllocRadiusX; ix<=rX+texAllocRadiusX; ix++ ) {
+        for( long iy = rY-texAllocRadiusY; iy<=rY+texAllocRadiusY; iy++ ) {
             if( numRegions<maxRegions ) {
                 if( loadTex(ix, iy)==0 ) numRegions++;
             }
         }
     }
-
-
 }
-
-void Canvas::realloc(long rX, long rY) { realloc(rX, rY, 1); }
+void Canvas::realloc(long rX, long rY) { realloc(rX, rY, texAllocCount);}
+void Canvas::reallocSingle(long rX, long rY) { realloc(rX, rY, 1); }
 
 bool Canvas::shouldRendRect(t_ll dx, t_ll dy, t_ll dw, t_ll dh)
 {

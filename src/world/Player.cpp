@@ -204,7 +204,7 @@ void Player::tick()
         if( controls->isHeld("PLAYER_CROUCH") ) speed = 0.005;
         if( godMode ) {
             if( controls->isHeld("PLAYER_SPRINT") ) {
-                speed = 3;
+                speed = runSpeed;
                 if ( controls->isHeld("PLAYER_CROUCH") ) {
                     speed = 1000000;
                 }

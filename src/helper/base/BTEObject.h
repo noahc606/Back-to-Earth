@@ -11,6 +11,7 @@ public:
     /**/
     BTEObject();
     virtual void init(SDLHandler* sh, FileHandler* fh, Controls* ctrls);
+    virtual void init(SDLHandler* sh, FileHandler* fh);
     virtual void init(SDLHandler* sh, Controls* ctrls);
     virtual void init(SDLHandler* sh);
     virtual void init(Controls* ctrls);
@@ -31,8 +32,10 @@ public:
 
         BTE_GUIHandler = 100,
             GUI_window,
-            GUI_button, GUI_radiobutton, GUI_textbox,
+            GUI_button, GUI_radiobutton, GUI_textbox, GUI_checkbox, GUI_icon,
             GUI_tooltip,
+
+        BTE_TileMap = 200,
     };
 
 protected:
