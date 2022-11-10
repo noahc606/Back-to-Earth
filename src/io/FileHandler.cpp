@@ -43,15 +43,14 @@ void FileHandler::init( std::string rp )
     returns 1 if file found
 
 */
-int FileHandler::editFile(std::string path)
+int FileHandler::editFile(std::string path, std::string fileFormat)
 {
-    //Close ifstream and ofstream in case they were already opened
-    ifs.close();
-    ofs.close();
+    //If there is another file being edited, save and close it.
+    saveAndCloseFile();
 
     //Set ifstream and ofstream.
-    setIFS( path );
-    setOFS( path );
+    setIFS( path, fileFormat );
+    setOFS( path, fileFormat );
 
     //Try to create new file if file is not found.
     if( !ifs ) {
@@ -69,8 +68,16 @@ int FileHandler::editFile(std::string path)
     //If file was found, return 1.
     return 1;
 }
+int FileHandler::editFile(std::string path) { return editFile(path, "txt"); }
 void FileHandler::write(std::string text) { ofs << text; }
 void FileHandler::writeln(std::string text) { write(text+"\n"); }
+int FileHandler::saveAndCloseFile()
+{
+    //Close ifstream and ofstream.
+    ifs.close();
+    ofs.close();
+}
+
 
 /**
     t_kvSet: A vector of key-value pairs (both elements of the pair are strings)
@@ -78,8 +85,7 @@ void FileHandler::writeln(std::string text) { write(text+"\n"); }
 */
 Settings::t_kvMap FileHandler::readFile(std::string path)
 {
-    ifs.close();
-    ofs.close();
+    saveAndCloseFile();
 
     Settings::t_kvMap contents;
 
@@ -261,22 +267,37 @@ void FileHandler::reload()
 
 Settings* FileHandler::getSettings() { return &settings; }
 
-void FileHandler::setOFS( std::string path )
+/**
+    Set an output filestream to a specified path.
+    Essentially writes data to a file in the filesystem.
+    Will create a new file if one is not already available.
+*/
+void FileHandler::setOFS( std::string path, std::string fileFormat )
 {
     //Modify path
     path = resourcePath+path;
-    path = path+".txt";
+    path = path+"."+fileFormat; //fileFormat: can be "txt", "png" or really anything
 
-    ofs.open( path, std::ios::out );
+    //Open the output filestream
+    ofs.open(path, std::ios::out);
 }
-void FileHandler::setIFS( std::string path )
+void FileHandler::setOFS( std::string path ) { setOFS(path, "txt"); }
+
+/**
+    Opens an input filestream at a specified path.
+    Essentially takes in data from the filesystem.
+    Will not create a new file if one is not already available.
+*/
+void FileHandler::setIFS( std::string path, std::string fileFormat )
 {
     //Modify path
     path = resourcePath+path;
-    path = path+".txt";
+    path = path+"."+fileFormat;
 
+    //Open the input filestream.
     ifs.open( path, std::ios::in );
 }
+void FileHandler::setIFS( std::string path ) { setIFS(path, "txt"); }
 
 void FileHandler::unloadSettings()
 {
@@ -290,8 +311,6 @@ void FileHandler::loadSettings()
     for(int i = 0; i<Settings::LAST_INDEX; i++) {
         Settings::t_kvMap kvm = readFile( files[i] );
         settings.load( i, kvm );
-
-
     }
 }
 
@@ -302,6 +321,5 @@ void FileHandler::saveSettings()
         settings.save( &ofs, i );
     }
 
-    ifs.close();
-    ofs.close();
+    saveAndCloseFile();
 }

@@ -13,9 +13,11 @@ public:
     void init(std::string p_resourcePath);
 
     /* File editing */
+    int editFile(std::string path, std::string fileFormat);
     int editFile(std::string path);
     void write(std::string text);
     void writeln(std::string text);
+    int saveAndCloseFile();
 
     Settings::t_kvMap readFile(std::string path);
 
@@ -30,7 +32,9 @@ public:
 
 private:
     /* Set output file stream and input file stream */
+    void setOFS( std::string path, std::string fileFormat );
     void setOFS( std::string path );
+    void setIFS( std::string path, std::string fileFormat );
     void setIFS( std::string path );
 
     /* Create a new file/folder in disk */

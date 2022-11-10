@@ -12,6 +12,7 @@ public:
     /**/
     double getElapsedTimeMS();
     /**/
+    void debugElapsedTimeMS();
 protected:
 
 private:

@@ -23,8 +23,7 @@ Timer::~Timer()
 
     //Log timer message
     if( logging ) {
-        std::stringstream ss; ss << dT;
-        Log::log("Finished "+desc+" in "+ss.str()+"ms.");
+        debugElapsedTimeMS();
     }
 }
 /**/
@@ -37,6 +36,13 @@ double Timer::getElapsedTimeMS()
     }
 
     return dT;
+}
+
+void Timer::debugElapsedTimeMS()
+{
+    std::stringstream ss;
+    ss << getElapsedTimeMS();
+    Log::log("Finished "+desc+" in "+ss.str()+"ms.");
 }
 
 void Timer::updateElapsedTime()
