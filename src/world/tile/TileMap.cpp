@@ -212,17 +212,26 @@ int TileMap::addTileUpdate(t_ll x, t_ll y, t_ll z)
     }
 }
 
-int TileMap::addTileUpdates(t_ll x, t_ll y, t_ll z)
+int TileMap::addTileUpdates(t_ll x0, t_ll y0, t_ll z0, t_ll x1, t_ll y1, t_ll z1)
 {
     int result = 0;
-    for( int ix = x-1; ix<=x+1; ix++ ) {
-        for( int iy = y-1; iy<=y+1; iy++ ) {
-            result += addTileUpdate(ix, iy, z);
+    for( int ix = x0; ix<=x1; ix++ ) {
+        for( int iy = y0; iy<=y1; iy++ ) {
+            for( int iz = z0; iz<=z1; iz++ ) {
+                result += addTileUpdate(ix, iy, iz);
+            }
         }
     }
 
     return result;
 }
+
+int TileMap::addTileUpdates(t_ll x, t_ll y, t_ll z)
+{
+    return addTileUpdates(x-1, y-1, z, x+1, y+1, z);
+}
+
+
 
 int TileMap::addRegionUpdate(long rX, long rY, t_ll layer)
 {

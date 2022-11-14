@@ -30,26 +30,24 @@ public:
 
     long getItrIndex();
     long getItrLength();
-    long getItrSub(int c);
-    long getItrPos(int c);
-    long getItrReg(int c);
 
-    long getBegSub(int c);
-    long getEndSub(int c);
-    long getBegPos(int c);
-    long getEndPos(int c);
-    long getBegReg(int c);
-    long getEndReg(int c);
+    long getItrSub(int c); long gis(int c);
+    long getItrPos(int c); long gip(int c);
+    long getItrReg(int c); long gir(int c);
+    long getBegSub(int c); long gbs(int c);
+    long getBegPos(int c); long gbp(int c);
+    long getBegReg(int c); long gbr(int c);
+    long getEndSub(int c); long ges(int c);
+    long getEndPos(int c); long gep(int c);
+    long getEndReg(int c); long ger(int c);
+    long getTrackerSub(int c); long gts(int c);
+    long getTrackerPos(int c); long gtp(int c);
+    long getTrackerReg(int c); long gtr(int c);
 
-    long getTrackerSub(int c);
-    long getTrackerPos(int c);
-    long getTrackerReg(int c);
-
-    bool reachedEnd();
-    bool reachedBegin();
+    bool atEnd();
+    bool atBeginning();
     bool invalidIndex();
     bool invalidBounds();
-
 
     int setBounds(long x1, long y1, long z1, long x2, long y2, long z2);
     int setBoundsByRXYZ(long rX1, long rY1, long rZ1, long rX2, long rY2, long rZ2);

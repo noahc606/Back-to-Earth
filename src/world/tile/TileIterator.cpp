@@ -156,7 +156,7 @@ TileType TileIterator::firstTile()
 {
     //Set itrReg to begReg, set itrSubPos to begPos, and truncate itrSubPos
     memcpy( itrReg, begReg, sizeof itrReg );
-    memcpy( itrSub, begPos, sizeof itrSub );
+    itrSub[0] = begPos[0]; itrSub[1] = begPos[1]; itrSub[2] = begPos[2];
     TileMap::getRegSubPos( itrSub[0], itrSub[1], itrSub[2] );
 
     //updateSubInfo and region pointers
@@ -175,7 +175,7 @@ TileType TileIterator::lastTile()
 {
     //Set itrReg to endReg, set itrSubPos to endPos, and truncate itrSubPos
     memcpy( itrReg, endReg, sizeof itrReg );
-    memcpy( itrSub, endPos, sizeof itrSub );
+    itrSub[0] = endPos[0]; itrSub[1] = endPos[1]; itrSub[2] = endPos[2];
     TileMap::getRegSubPos( itrSub[0], itrSub[1], itrSub[2] );
 
     //updateSubInfo and region pointers
@@ -260,23 +260,41 @@ TileRegion* TileIterator::peekRegion() { return nearbyTileRegions[1][1][1]; }
 
 long TileIterator::getItrIndex() { return itrIndex; }
 long TileIterator::getItrLength() { return itrLength; }
+
+//Get interator (Pos)ition, (Sub)position, or (Reg)ion coordinate.
 long TileIterator::getItrPos(int c) { return itrReg[c]*32+itrSub[c]; }
+long TileIterator::gip(int c) { return getItrPos(c); }
 long TileIterator::getItrSub(int c) { return itrSub[c]; }
+long TileIterator::gis(int c) { return getItrSub(c); }
 long TileIterator::getItrReg(int c) { return itrReg[c]; }
+long TileIterator::gir(int c) { return getItrReg(c); }
 
+//Get beginning (Pos)ition, (Sub)position, or (Reg)ion coordinate.
 long TileIterator::getBegSub(int c) { return begSub[c]; }
-long TileIterator::getEndSub(int c) { return endSub[c]; }
+long TileIterator::gbs(int c) { return getBegSub(c); }
 long TileIterator::getBegPos(int c) { return begPos[c]; }
-long TileIterator::getEndPos(int c) { return endPos[c]; }
+long TileIterator::gbp(int c) { return getBegPos(c); }
 long TileIterator::getBegReg(int c) { return begReg[c]; }
+long TileIterator::gbr(int c) { return getBegReg(c); }
+
+//Get ending (Pos)ition, (Sub)position, or (Reg)ion coordinate.
+long TileIterator::getEndSub(int c) { return endSub[c]; }
+long TileIterator::ges(int c) { return getEndSub(c); }
+long TileIterator::getEndPos(int c) { return endPos[c]; }
+long TileIterator::gep(int c) { return getEndPos(c); }
 long TileIterator::getEndReg(int c) { return endReg[c]; }
+long TileIterator::ger(int c) { return getEndReg(c); }
 
+//Get tracker (Pos)ition, (Sub)position, or (Reg)ion coordinate.
 long TileIterator::getTrackerSub(int c) { return trackerSub[c]; }
+long TileIterator::gts(int c) { return getTrackerSub(c); }
 long TileIterator::getTrackerPos(int c) { return itrReg[c]*32+trackerSub[c]; }
+long TileIterator::gtp(int c) { return getTrackerPos(c); }
 long TileIterator::getTrackerReg(int c) { return itrReg[c]; }
+long TileIterator::gtr(int c) { return getTrackerReg(c); }
 
-bool TileIterator::reachedEnd() { return itrIndex>=itrLength-1; }
-bool TileIterator::reachedBegin() { return itrIndex<=0; }
+bool TileIterator::atEnd() { return itrIndex>=itrLength-1; }
+bool TileIterator::atBeginning() { return itrIndex<=0; }
 bool TileIterator::invalidIndex() { return itrIndex>=itrLength || itrIndex<=-1; }
 bool TileIterator::invalidBounds() { return boundsInvalid; }
 
@@ -295,9 +313,10 @@ int TileIterator::setBounds( long x1, long y1, long z1, long x2, long y2, long z
     if( endPos[2]<begPos[2] ) { begPos[2] = z2; endPos[2] = z1; }
 
     //get begReg and endReg
-    memcpy( begReg, begPos, sizeof begReg );
+    begReg[0] = begPos[0]; begReg[1] = begPos[1]; begReg[2] = begPos[2];
     TileMap::getRegRXYZ(begReg[0], begReg[1], begReg[2]);
-    memcpy( endReg, endPos, sizeof endReg );
+
+    endReg[0] = endPos[0]; endReg[1] = endPos[1]; endReg[2] = endPos[2];
     TileMap::getRegRXYZ(endReg[0], endReg[1], endReg[2]);
 
     //Update itrLength
@@ -383,7 +402,7 @@ void TileIterator::scanBounds()
 
     for(int i = 0; i<numScans; i++) {
 
-        while( !reachedEnd() ) {
+        while( !invalidIndex() ) {
             TileType tt = peekTile();
             if( tt.getTextureXY()==textureXY ) num++;
             if(tt.isNull()) numNull++;
@@ -391,8 +410,6 @@ void TileIterator::scanBounds()
             total++;
             nextTile();
         }
-
-        //std::cout << "(" << ti.getItrIndex() << ", " << ti.getItrLength() << ")\n";
     }
     end = SDL_GetTicks();
     std::cout << "#: " << num << " out of " << total << ". Found " << numNull << " null tiles.\n";

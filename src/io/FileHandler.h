@@ -8,6 +8,8 @@
 class FileHandler
 {
 public:
+
+
     FileHandler();
     virtual ~FileHandler();
     void init(std::string p_resourcePath);
@@ -15,11 +17,14 @@ public:
     /* File editing */
     int editFile(std::string path, std::string fileFormat);
     int editFile(std::string path);
-    void write(std::string text);
+
+    template<typename T> void write(T t){ofs<<t;};
+    void writeChar(char c);
     void writeln(std::string text);
+    void writeln();
     int saveAndCloseFile();
 
-    Settings::t_kvMap readFile(std::string path);
+    Settings::t_kvMap readFileKVs(std::string path);
 
     //Create new folder
     void createBteDir(std::string path);

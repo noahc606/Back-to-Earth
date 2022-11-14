@@ -16,6 +16,7 @@
 				<Option projectLibDirsRelation="0" />
 				<Compiler>
 					<Add option="-g" />
+					<Add directory="src/gfx/texture/access" />
 				</Compiler>
 				<Linker>
 					<Add option="-lmingw32 -lSDL2main -lSDL2" />
@@ -41,6 +42,7 @@
 				<Option projectLibDirsRelation="0" />
 				<Compiler>
 					<Add option="-O2" />
+					<Add directory="src/gfx/texture/access" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -72,6 +74,7 @@
 			<Add directory="src/gfx/gui" />
 			<Add directory="src/gfx/gui/obj" />
 			<Add directory="src/gfx/texture" />
+			<Add directory="src/gfx/texture/access" />
 			<Add directory="src/helper" />
 			<Add directory="src/helper/base" />
 			<Add directory="src/helper/type" />
@@ -148,6 +151,8 @@
 		<Unit filename="src/gfx/texture/Texture.h" />
 		<Unit filename="src/gfx/texture/TextureBuilder.cpp" />
 		<Unit filename="src/gfx/texture/TextureBuilder.h" />
+		<Unit filename="src/gfx/texture/access/STexture.cpp" />
+		<Unit filename="src/gfx/texture/access/STexture.h" />
 		<Unit filename="src/helper/NameBuilder.cpp" />
 		<Unit filename="src/helper/NameBuilder.h" />
 		<Unit filename="src/helper/base/BTEObject.cpp" />

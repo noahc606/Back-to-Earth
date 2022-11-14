@@ -1,9 +1,11 @@
 #pragma once
 #include <vector>
-#include "SpriteSheet.h"
-#include "Texture.h"
 #include "BTEObject.h"
 #include "DebugObject.h"
+#include "SpriteSheet.h"
+#include "STexture.h"
+#include "Texture.h"
+#include "TileRegion.h"
 
 class Tests : public BTEObject, public DebugObject
 {
@@ -27,6 +29,7 @@ private:
     /* Testing */
 
     Texture tex;
+    STexture stex;
     SpriteSheet spsh;
 
     Window* win;

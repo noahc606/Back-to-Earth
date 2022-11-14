@@ -182,16 +182,46 @@ void World::playerInteractions(GUIHandler& guiHandler)
                 tileMap.addTileUpdates(mouseXLL, mouseYLL, player.getCamera()->getLayer());
             }; break;
             case Player::Action::GM_Place_Tile: {
-                TileType tt;
 
-                tt.init();
-                tt.setRGB(20, 255, 255);
-                tt.setSolid(true);
-                tt.setTextureXY(0, 2);
-                tt.setVisionBlocking(true);
+                TileIterator ti(&tileMap);
+                int squareSize = 1;
+                ti.setBounds(mouseXLL-squareSize, mouseYLL-squareSize, player.getCamera()->getLayer(), mouseXLL+squareSize, mouseYLL+squareSize, player.getCamera()->getLayer());
 
-                tileMap.setTile(mouseXLL, mouseYLL, player.getCamera()->getLayer(), tt);
-                tileMap.addTileUpdates(mouseXLL, mouseYLL, player.getCamera()->getLayer());
+                while( !ti.invalidIndex() ) {
+                    TileRegion* tr = ti.peekRegion();
+                    if( tr!=nullptr ) {
+                        for( int sx = ti.gbs(0); sx<=ti.ges(0); sx++ ) {
+                            for( int sy = ti.gbs(1); sy<=ti.ges(1); sy++ ) {
+                                for( int sz = ti.gbs(2); sz<=ti.ges(2); sz++ ) {
+
+                                    t_ll tileX = ti.getItrReg(0)+sx;
+                                    t_ll tileY = ti.getItrReg(1)+sy;
+                                    t_ll tileZ = ti.getItrReg(2)+sz;
+
+                                    TileType tt;
+                                    tt.init();
+                                    if( std::abs(tileX+tileY)%3==0 ) {
+                                        tt.setRGB(200, 100, 100);
+                                    } else
+                                    if ( std::abs(tileX+tileY)%3==1 ) {
+                                        tt.setRGB(20, 255, 255);
+                                    } else {
+                                        tt.setRGB( std::abs(tileX)%64*4, std::abs(tileY)%64*4, std::abs(tileZ)%64*4 );
+                                    }
+                                    tt.setSolid(true);
+                                    tt.setTextureXY(0, 2);
+                                    tt.setVisionBlocking(true);
+
+                                    tr->setTile( sx, sy, sz, tt );
+                                }
+                            }
+                        }
+                    }
+
+                    ti.nextRegion();
+                }
+
+                tileMap.addTileUpdates(mouseXLL-squareSize, mouseYLL-squareSize, player.getCamera()->getLayer(), mouseXLL+squareSize, mouseYLL+squareSize, player.getCamera()->getLayer() );
             }; break;
         }
     }

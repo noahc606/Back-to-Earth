@@ -24,16 +24,19 @@ Settings::Settings()
     addTo(s, "PLAYER_MOVE_SOUTH", SDLK_s);
     addTo(s, "PLAYER_MOVE_WEST", SDLK_a);
     addTo(s, "PLAYER_MOVE_EAST", SDLK_d);
-    addTo(s, "PLAYER_MOVE_UP", SDLK_SPACE);
-    addTo(s, "PLAYER_MOVE_DOWN", SDLK_v);
+    addTo(s, "PLAYER_MOVE_UP", SDLK_UP);
+    addTo(s, "PLAYER_MOVE_DOWN", SDLK_DOWN);
+    addTo(s, "PLAYER_MOVE_VERTICAL", SDLK_SPACE);
 
     //Advanced Movement
+    addTo(s, "PLAYER_JUMP", SDLK_SPACE);
     addTo(s, "PLAYER_SPRINT", SDLK_x);
     addTo(s, "PLAYER_CROUCH", SDLK_c);
 
     //Player Interactions
     addTo(s, "PLAYER_INVENTORY", SDLK_LSHIFT);
     addTo(s, "PLAYER_SELECT", "MOUSE_LEFT");
+    addTo(s, "PLAYER_VIEW", SDLK_v);
 
 
     addTo(s, "HARDCODE_LEFT_CLICK", "MOUSE_LEFT");

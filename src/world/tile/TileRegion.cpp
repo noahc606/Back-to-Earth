@@ -81,7 +81,7 @@ void TileRegion::setTile( int x, int y, int z, TileType tile )
     A faster setTile function that copies a tile from the palette directly and places it somewhere.
     Cannot be used to generate a new tile (again, only tiles from the palette can be used).
 */
-void TileRegion::setTile( int x, int y, int z, uint16_t paletteIndex )
+void TileRegion::setTile( int x, int y, int z, int16_t paletteIndex )
 {
     tiles[x][y][z] = paletteIndex;
 }
@@ -91,7 +91,7 @@ void TileRegion::setTiles( int x1, int y1, int z1, int x2, int y2, int z2, TileT
     setTiles( addToPalette(tile), x1, y1, z1, x2, y2, z2 );
 }
 
-void TileRegion::setTiles( int x1, int y1, int z1, int x2, int y2, int z2, uint16_t paletteIndex )
+void TileRegion::setTiles( int x1, int y1, int z1, int x2, int y2, int z2, int16_t paletteIndex )
 {
     for( int x = x1; x<x2; x++ ) {
         for( int y = y1; y<y2; y++ ) {
@@ -113,24 +113,28 @@ void TileRegion::resetRegTexState()
 }
 
 
-int TileRegion::addToPalette( TileType tile )
+int TileRegion::addToPalette( TileType tile, t_palette& pal)
 {
-    //Try to find the tile in the vector using the == operator (custom definition in Tile.h)
+    //Try to find the tile in the palette using the == operator (custom definition in Tile.h)
     int i;
-    for( i = 0; i<(int)palette.size(); i++ ) {
-        if( tile==palette[i] ) {
+    for( i = 0; i<(int)pal.size(); i++ ) {
+        if( tile==pal[i] ) {
             break;
         }
     }
 
-    //If tile is not found in the vector, add the tile to the vector.
-    if( i==(int)palette.size() ) {
-        palette.push_back( tile );
+    //If tile is not found in the palette, add the tile to the palette.
+    if( i==(int)pal.size() ) {
+        pal.push_back( tile );
     }
 
-    //Return the index of the tile found. If tile wasn't found, this will be palette.size()
+    //Return the index of the tile found. If tile wasn't found, this will be pal.size()
     return i;
 }
+
+int TileRegion::addToPalette( TileType tile ) { return addToPalette(tile, palette); }
+
+
 /**
     Ignores checking the entire palette for copies of a tiletype.
 */
@@ -151,15 +155,18 @@ int TileRegion::addToPaletteFast( TileType tile )
 */
 void TileRegion::compress()
 {
-    palette.clear();
-
+    //Build new tile palette.
+    t_palette paletteNew;
     for( int x = 0; x<32; x++ ) {
         for( int y = 0; y<32; y++ ) {
             for( int z = 0; z<32; z++ ) {
-                addToPalette( getTile(x, y, z) );
+                addToPalette( getTile(x, y, z), paletteNew );
             }
         }
     }
+
+    //Replace old palette with new palette
+    palette = paletteNew;
 }
 
 /**
@@ -181,28 +188,37 @@ void TileRegion::save(SDLHandler* sh, FileHandler* fh, bool p_compress)
         ss << "Compression time: " << t1.getElapsedTimeMS() << ", ";
     }
 
-    //Texture tex; tex.init(sh);
-    //tex.setTexDimensions(32, 32);
+    fh->editFile("level0", "bte_tr");
 
-    //Region breakdown:
-    //32x32 image (x,y coords in image correspond to x,y coords in region). Thus each pixel represents a 32high column of tiles.
-    //RGBA = 32 bits.
-    //
+    //All tiles that were generated upon worldgen have a negative value. Every modified tile after that has a positive value.
+    //Palette indices are all positive and can go from 0 to 32767. 'tiles' array values can be negative or positive.
+    bool cachingWorldgen = true;
+    //Depending on the size of the palette, a different number of bits will be needed to represent the tiles.
+    //Ex:   Completely empty region = 1 tile type = 1 bit. 32768 tiles = 4.096KB
+    //Ex:   Max tile palette size = 32768 tile types = 16 bits. 32768 tiles = 65.536KB
+    int bitsPerTile = 16;
+    for( int i = 0; i<palette.size(); i++ ) {
 
+    }
+
+    char c;
     for( int x = 0; x<32; x++ ) {
         for( int y = 0; y<32; y++ ) {
             for( int z = 0; z<32; z++ ) {
-                //tex.pixel( x, y, tiles[x][y][z] );
+
+                uint16_t data = tiles[x][y][z];
+
+                fh->writeChar(12);
             }
         }
     }
 
-    ss << "Texture building time: " << t0.getElapsedTimeMS() << ", ";
+    ss << "Data writing time: " << t0.getElapsedTimeMS() << ", ";
 
     {
         Timer t1;
-        //tex.savePNG(fh, "0.png");
-        ss << "Texture saving time: " << t1.getElapsedTimeMS() << "\n";
+        fh->saveAndCloseFile();
+        ss << "Data saving time: " << t1.getElapsedTimeMS() << "\n";
     }
 
     Log::log(ss.str());

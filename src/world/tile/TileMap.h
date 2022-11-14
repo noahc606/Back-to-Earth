@@ -53,6 +53,7 @@ public:
     //Add/Remove updates
     int addTileUpdate(t_ll x, t_ll y, t_ll layer);
     int addTileUpdates(t_ll x, t_ll y, t_ll layer);
+    int addTileUpdates(t_ll x0, t_ll y0, t_ll layer0, t_ll x1, t_ll y1, t_ll layer1);
     int addRegionUpdate(long rX, long rY, t_ll layer);
     int stopRegionUpdate(long rX, long rY, t_ll layer);
     int stopAllUpdates();

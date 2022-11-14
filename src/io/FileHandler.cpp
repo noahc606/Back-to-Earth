@@ -1,7 +1,10 @@
 #include "FileHandler.h"
+#include <codecvt>
 #include <dirent.h>
+#include <fstream>
 #include <io.h>
 #include <iostream>
+#include <locale>
 #include <SDL_image.h>
 #include <sstream>
 #include <string.h>
@@ -36,13 +39,6 @@ void FileHandler::init( std::string rp )
     saveSettings();
 }
 
-/**
-    Opens file to write to (all contents are deleted!)
-    returns -1 if file not found and could not be created
-    returns 0 if file not found and new file is created
-    returns 1 if file found
-
-*/
 int FileHandler::editFile(std::string path, std::string fileFormat)
 {
     //If there is another file being edited, save and close it.
@@ -68,14 +64,26 @@ int FileHandler::editFile(std::string path, std::string fileFormat)
     //If file was found, return 1.
     return 1;
 }
+
+/**
+    Opens file to write to (all contents are deleted!)
+    returns -1 if file not found and could not be created
+    returns 0 if file not found and new file is created
+    returns 1 if file found
+
+*/
 int FileHandler::editFile(std::string path) { return editFile(path, "txt"); }
-void FileHandler::write(std::string text) { ofs << text; }
+
+void FileHandler::writeChar(char c) { write(c); }
 void FileHandler::writeln(std::string text) { write(text+"\n"); }
+void FileHandler::writeln() { writeln(""); }
 int FileHandler::saveAndCloseFile()
 {
     //Close ifstream and ofstream.
     ifs.close();
     ofs.close();
+
+    return 0;
 }
 
 
@@ -83,7 +91,7 @@ int FileHandler::saveAndCloseFile()
     t_kvSet: A vector of key-value pairs (both elements of the pair are strings)
     Get contents of a .txt file line by line. Returns empty vector if file loading failed.
 */
-Settings::t_kvMap FileHandler::readFile(std::string path)
+Settings::t_kvMap FileHandler::readFileKVs(std::string path)
 {
     saveAndCloseFile();
 
@@ -273,14 +281,14 @@ std::string FileHandler::getResourcePath() { return resourcePath; }
     Essentially writes data to a file in the filesystem.
     Will create a new file if one is not already available.
 */
-void FileHandler::setOFS( std::string path, std::string fileFormat )
+void FileHandler::setOFS( std::string path, std::string fileFormat)
 {
     //Modify path
     path = resourcePath+path;
     path = path+"."+fileFormat; //fileFormat: can be "txt", "png" or really anything
 
     //Open the output filestream
-    ofs.open(path, std::ios::out);
+    ofs.open(path, std::fstream::out);
 }
 void FileHandler::setOFS( std::string path ) { setOFS(path, "txt"); }
 
@@ -296,7 +304,7 @@ void FileHandler::setIFS( std::string path, std::string fileFormat )
     path = path+"."+fileFormat;
 
     //Open the input filestream.
-    ifs.open( path, std::ios::in );
+    ifs.open( path, std::fstream::in );
 }
 void FileHandler::setIFS( std::string path ) { setIFS(path, "txt"); }
 
@@ -310,7 +318,7 @@ void FileHandler::unloadSettings()
 void FileHandler::loadSettings()
 {
     for(int i = 0; i<Settings::LAST_INDEX; i++) {
-        Settings::t_kvMap kvm = readFile( files[i] );
+        Settings::t_kvMap kvm = readFileKVs( files[i] );
         settings.load( i, kvm );
     }
 }

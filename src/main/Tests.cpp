@@ -1,4 +1,5 @@
 #include "Tests.h"
+#include <map>
 #include "Color.h"
 #include "Text.h"
 #include "Timer.h"
@@ -19,37 +20,27 @@ void Tests::init(SDLHandler* sh, FileHandler* fh, Controls* ctrls)
 
     //ssb.buildSpriteSheet(ssb.DEFAULT_PLAYER, spsh, playerPal);
 
-    tex.init(sdlHandler);
-    tex.setTexDimensions(514, 514);
-
-    Noise noise;
-    tex.rect(0, 0, 514, 514, 255, 0, 0);
-
-    float zoom = 256.0;
-    float tx = 0.0;
-    float ty = 0.0;
-
-    for( int x = 0; x<512; x++ ) {
-        for( int y = 0; y<512; y++ ) {
-            //float n = noise.noise2D((float)x/zoom+tx, (float)y/zoom+ty);
-            //int c = (n*0.5d+0.5d)*256.0;
-            //tex.pixel(x+1, y+1, c, c, c );
-        }
-    }
-
+    stex.init(sdlHandler);
+    stex.setTexDimensions(64, 64);
+    stex.lock(32, 32, 32, 32);
+    stex.setColorMod(200, 100, 100);
+    stex.blit(TextureLoader::WORLD_TILE_type_a, 64, 64);
 
     std::string trPath = "saved\\games\\tutorial\\tr";
 
     Timer fw("file writing");
 
-    fileHandler->createBteDir(trPath);
-    fileHandler->editFile(trPath+"\\r.0.0.0", "bte_tr");
-    fileHandler->writeln("12345678");
-    fileHandler->saveAndCloseFile();
+    TileRegion treg;
+    for( int x = 0; x<32; x++ ) {
+        for( int y = 0; y<32; y++ ) {
+            for( int z = 0; z<32; z++ ) {
+                treg.setTile(x, y, z, x*1024+y*32+z);
+            }
+        }
+    }
 
-    fw.debugElapsedTimeMS();
+    treg.save(sdlHandler, fileHandler, false);
 
-    //fileHandler->saveFile(trPath+"\\r.0.0.0", "bte_tr");
 
 
 }
@@ -59,7 +50,7 @@ Tests::~Tests(){}
 
 void Tests::draw()
 {
-    tex.draw();
+    stex.draw();
 }
 
 void Tests::tick()
