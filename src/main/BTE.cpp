@@ -178,6 +178,10 @@ std::string BTE::getInfo()
     //SDLHandler
     DebugScreen::newGroup(ss, tabs, "SDLHandler");
         DebugScreen::indentLine(ss, tabs);
+        ss << sdlHandler->getVideoDriversDesc();
+        DebugScreen::newLine(ss);
+
+        DebugScreen::indentLine(ss, tabs);
         ss << "Window(w, h)=(" << sdlHandler->getWidth() << ", " << sdlHandler->getHeight() << "); ";
         DebugScreen::newLine(ss);
     DebugScreen::endGroup(tabs);

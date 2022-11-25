@@ -21,10 +21,25 @@ void Tests::init(SDLHandler* sh, FileHandler* fh, Controls* ctrls)
     //ssb.buildSpriteSheet(ssb.DEFAULT_PLAYER, spsh, playerPal);
 
     stex.init(sdlHandler);
-    stex.setTexDimensions(64, 64);
-    stex.lock(32, 32, 32, 32);
-    stex.setColorMod(200, 100, 100);
-    stex.blit(TextureLoader::WORLD_TILE_type_a, 64, 64);
+    stex.setTexDimensions(512, 512);
+
+
+    Timer tim1("streaming texture manipulation");
+    stex.lock(0, 0, 600, 600);
+    stex.blit();
+    stex.unlock();
+    stex.update();
+
+    stex.lock(40, 40, 300, 300);
+    stex.update();
+
+    tim1.debugElapsedTimeMS();
+
+    //stex.lock(10, 10, 32, 32);
+    //stex.unlock();
+    //stex.update();
+    //stex.blit(TextureLoader::WORLD_TILE_type_a, 64, 64);
+    //stex.unlock();
 
     std::string trPath = "saved\\games\\tutorial\\tr";
 
@@ -62,7 +77,5 @@ void Tests::tick()
 
 void Tests::info(std::stringstream& ss, int& tabs)
 {
-    //DebugScreen::newGroup(ss, tabs, "Noise");
-    //noise.info(ss, tabs);
-    //DebugScreen::endGroup(tabs);
+
 }

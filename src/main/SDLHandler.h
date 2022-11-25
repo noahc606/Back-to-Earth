@@ -26,6 +26,7 @@ public:
     int getWidth();
     int getHeight();
     //Get Resources
+    std::string getVideoDriversDesc();
     std::string getResourcePath();
     TextureLoader* getTextureLoader();
     AudioLoader* getAudioLoader();
@@ -44,9 +45,12 @@ private:
     /**/
     void createSubsystems();
     void createWindowAndRenderer();
+    void setVideoDriversDesc();
 
     /**/
     /* Resources */
+    //Video drivers description
+    std::string videoDriversDesc;
     //Resource Path
     std::string resourcePath = "";
     //Texture Loader

@@ -13,6 +13,9 @@ void SDLHandler::init()
     //Create window and renderer
     createWindowAndRenderer();
 
+    //Store information about video drivers
+    setVideoDriversDesc();
+
     /* Create resource loaders and set window icon */
     textureLoader.init(windowRenderer, windowPixelFormat, resourcePath);
     audioLoader.init(resourcePath);
@@ -47,6 +50,7 @@ SDL_PixelFormat* SDLHandler::getPixelFormat() { return windowPixelFormat; }
 SDL_Renderer* SDLHandler::getRenderer() { return windowRenderer; }
 int SDLHandler::getWidth() { return width; }
 int SDLHandler::getHeight() { return height; }
+std::string SDLHandler::getVideoDriversDesc() { return videoDriversDesc; }
 std::string SDLHandler::getResourcePath() { return resourcePath; }
 TextureLoader* SDLHandler::getTextureLoader() { return &textureLoader; }
 AudioLoader* SDLHandler::getAudioLoader() { return &audioLoader; }
@@ -214,4 +218,28 @@ void SDLHandler::createWindowAndRenderer()
         Log::error(__PRETTY_FUNCTION__, "Pixel format is null");
         Log::throwException();
     }
+}
+
+void SDLHandler::setVideoDriversDesc()
+{
+    int nvd = SDL_GetNumVideoDrivers();
+    const char* cvd = SDL_GetCurrentVideoDriver();
+
+    std::stringstream ss;
+    ss << nvd << " video drivers found: { ";
+    for( int i = 0; i<nvd; i++ ) {
+        const char* vd = SDL_GetVideoDriver(i);
+        ss << vd;
+
+        if( cvd==vd ) {
+            ss << " [in use]";
+        }
+
+        if(i<nvd-1) {
+            ss << ", ";
+        }
+    }
+    ss << " }";
+
+    videoDriversDesc = ss.str();
 }

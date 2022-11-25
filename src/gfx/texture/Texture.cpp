@@ -14,9 +14,6 @@ void Texture::init(SDLHandler* p_sdlHandler)
     renderer = sdlHandler->getRenderer();
     textureLoader = sdlHandler->getTextureLoader();
 
-    //Texture access
-    access = SDL_TEXTUREACCESS_TARGET;
-
     //Initialization
     initialized = true;
     initTex(false);
@@ -37,6 +34,9 @@ void Texture::destroy()
         //Destroy texture, set to nullptr.
         SDL_DestroyTexture(tex);
         tex = nullptr;
+        //Destroy pixels
+        free(lockedPixels);
+        lockedPixels = nullptr;
     }
 }
 
@@ -76,14 +76,14 @@ void Texture::queryDrawInfo(int &x, int &y, double &scale)
     scale = drawScale;
 }
 
-void Texture::lock()
+void Texture::setLock(int lx, int ly, int lw, int lh)
 {
-    lock(0, 0, texW, texH);
+    lockArea.x = lx;
+    lockArea.y = ly;
+    lockArea.w = lw;
+    lockArea.h = lh;
 }
-void Texture::lock(SDL_Rect* rect)
-{
-    lock(rect->x, rect->y, rect->w, rect->h);
-}
+
 void Texture::lock(int x, int y, int w, int h)
 {
     //Get the points of two opposite corners of the rectangle defined by the method.
@@ -114,35 +114,40 @@ void Texture::lock(int x, int y, int w, int h)
         y2 = texH;
     }
 
-    //Set lockedWidth, lockedHeight, lockedXPos, and lockedYPos
-    lockedWidth = abs(x1-x2);
-    lockedHeight = abs(y1-y2);
+    //Set lock width, lock height, lock x, and lock y
+    lockArea.w = abs(x1-x2);
+    lockArea.h = abs(y1-y2);
 
     if(x1<x2) {
-        lockedXPos = x1;
+        lockArea.x = x1;
     } else {
-        lockedXPos = x2;
+        lockArea.x = x2;
     }
 
     if(y1<y2) {
-        lockedYPos = y1;
+        lockArea.y = y1;
     } else {
-        lockedYPos = y2;
+        lockArea.y = y2;
     }
 
-    if( lockedXPos>=texW||lockedYPos>=texH ) {
-        lockedXPos = 0;
-        lockedYPos = 0;
-        lockedWidth = 0;
-        lockedHeight = 0;
+    if( lockArea.x>=texW||lockArea.y>=texH ) {
+        setLock(0, 0, 0, 0);
     }
+}
+void Texture::lock(SDL_Rect* rect)
+{
+    lock(rect->x, rect->y, rect->w, rect->h);
+}
+void Texture::lock()
+{
+    lock(0, 0, texW, texH);
 }
 void Texture::unlock() { lock(0, 0, 0, 0); }
 
 void Texture::blitEx(SDL_Texture* src, int srcX, int srcY, int srcW, int srcH, int mod)
 {
     /** Don't allow invalid blitting areas */
-    if( lockedWidth<=0 || lockedHeight<=0 )
+    if( lockArea.w<=0 || lockArea.h<=0 )
         return;
 
     /** Set render target to texture */
@@ -151,9 +156,9 @@ void Texture::blitEx(SDL_Texture* src, int srcX, int srcY, int srcW, int srcH, i
     /** Set source and dst */
     //Source and destination rectangles for blit
     SDL_Rect sr; sr.x = srcX; sr.y = srcY; sr.w = srcW; sr.h = srcH;
-    SDL_Rect dr; dr.x = lockedXPos; dr.y = lockedYPos; dr.w = lockedWidth; dr.h = lockedHeight;
+    SDL_Rect dr; dr.x = lockArea.x; dr.y = lockArea.y; dr.w = lockArea.w; dr.h = lockArea.h;
     //Center of rotation should be center of blitting area
-    SDL_Point cor; cor.x = lockedWidth/2; cor.y = lockedHeight/2;
+    SDL_Point cor; cor.x = lockArea.w/2; cor.y = lockArea.h/2;
 
     /** Set color, alpha, blending */
     SDL_SetTextureColorMod(src, colorMod.r, colorMod.g, colorMod.b);
@@ -198,7 +203,7 @@ void Texture::blitEx(Texture* src, int srcX, int srcY, int srcW, int srcH, int m
 }
 void Texture::blitEx(SDL_Texture* src, int srcX, int srcY, int mod)
 {
-    blitEx(src, srcX, srcY, lockedWidth, lockedHeight, mod);
+    blitEx(src, srcX, srcY, lockArea.w, lockArea.h, mod);
 }
 void Texture::blitEx(Texture* src, int srcX, int srcY, int mod)
 {
@@ -225,12 +230,12 @@ void Texture::blit(int id, int srcX, int srcY, int srcW, int srcH)
 }
 void Texture::blit(SDL_Texture* src, int srcX, int srcY)
 {
-    blit(src, srcX, srcY, lockedWidth, lockedHeight);
+    blit(src, srcX, srcY, lockArea.w, lockArea.h);
 }
 void Texture::blit(Texture* src, int srcX, int srcY)
 {
     SDL_Texture* stex = src->getSDLTexture();
-    blit(stex, srcX, srcY, lockedWidth, lockedHeight);
+    blit(stex, srcX, srcY, lockArea.w, lockArea.h);
 }
 void Texture::blit(int id, int srcX, int srcY)
 {
@@ -268,7 +273,7 @@ void Texture::fill()
 void Texture::rect(int x, int y, int w, int h, uint8_t r, uint8_t g, uint8_t b, uint8_t a, SDL_BlendMode bm)
 {
     //Store lock and color settings
-    int lx = lockedXPos; int ly = lockedYPos; int lw = lockedWidth; int lh = lockedHeight;
+    int lx = lockArea.x; int ly = lockArea.y; int lw = lockArea.w; int lh = lockArea.h;
     uint8_t lr = colorMod.r; uint8_t lg = colorMod.g; uint8_t lb = colorMod.b; uint8_t la = colorMod.a;
 
     //Set lock and color settings + blit rectangle
@@ -277,7 +282,7 @@ void Texture::rect(int x, int y, int w, int h, uint8_t r, uint8_t g, uint8_t b, 
     fill(bm);
 
     //Reset lock, color, and blend settings
-    lockedXPos = lx; lockedYPos = ly; lockedWidth = lw; lockedHeight = lh;
+    lockArea.x = lx; lockArea.y = ly; lockArea.w = lw; lockArea.h = lh;
     colorMod.r = lr; colorMod.g = lg; colorMod.b = lb;  colorMod.a = la;
 }
 void Texture::rect(int x, int y, int w, int h, uint8_t r, uint8_t g, uint8_t b, uint8_t a)
@@ -404,17 +409,13 @@ void Texture::savePNG(FileHandler* fh, std::string path)
 
 void Texture::initTex(bool scale)
 {
-    //Limit texture size
-    if( limitTexSize ) {
-        if( texW>texSizeLimit ) texW = texSizeLimit;
-        if( texH>texSizeLimit ) texH = texSizeLimit;
-    }
+    validateTexSize();
 
     /* Recreate 'tex' with new dimensions. */
     //If texW and texH are both positive
     if( texW>0 && texH>0 ) {
         //Create a 'texCopy' which has the exact same pixel data within a new size.
-        SDL_Texture* texCopy = SDL_CreateTexture(renderer, pixelFormat, SDL_TEXTUREACCESS_TARGET, texW, texH);
+        SDL_Texture* texCopy = SDL_CreateTexture(renderer, pixelFormat, access, texW, texH);
 
         //Set render target to 'texCopy'
         SDL_SetRenderTarget(renderer, texCopy);
@@ -438,7 +439,7 @@ void Texture::initTex(bool scale)
             //Destroy 'tex'
             SDL_DestroyTexture(tex);
             //Create 'tex' with new width and height
-            tex = SDL_CreateTexture(renderer, pixelFormat, SDL_TEXTUREACCESS_TARGET, texW, texH );
+            tex = SDL_CreateTexture(renderer, pixelFormat, access, texW, texH );
 
             /* Check for errrors */
             //If 'tex' is NULL
@@ -477,11 +478,25 @@ void Texture::initTex(bool scale)
     //Set render target back to NULL (main window)
     SDL_SetRenderTarget(renderer, NULL);
 
-    //Modify the lock dimensions to fit the new texture, in case of shrinking one of the texture's dimensions.
-    validateLock();
+    //Set lock settings to default
+    if( access==SDL_TEXTUREACCESS_TARGET ) {
+        validateLock();
+    } else
+    if( access==SDL_TEXTUREACCESS_STREAMING ) {
+
+    }
 }
 
 void Texture::validateLock()
 {
-    lock(lockedXPos, lockedYPos, lockedWidth, lockedHeight);
+    //Modify the lock dimensions to fit the new texture, in case of shrinking one of the texture's dimensions.
+    lock(lockArea.x, lockArea.y, lockArea.w, lockArea.h);
+}
+void Texture::validateTexSize()
+{
+    //Limit texture size
+    if( limitTexSize ) {
+        if( texW>texSizeLimit ) texW = texSizeLimit;
+        if( texH>texSizeLimit ) texH = texSizeLimit;
+    }
 }

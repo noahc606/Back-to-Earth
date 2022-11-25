@@ -17,6 +17,7 @@ public:
     /* Get a SDL_Surface or SDL_Texture from the lists, and their properties */
     SDL_Surface* getSurface(int index);
     SDL_Texture* getTexture(int index);
+
     int getWidth(int index);
     int getHeight(int index);
     /**/
