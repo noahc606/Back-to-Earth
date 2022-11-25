@@ -13,6 +13,7 @@ public:
     virtual ~SpriteSheet();
 
     void init(SDLHandler* sh);
+    void destroy();
 
     std::string getInfo();
     Texture* getTexture();
@@ -27,6 +28,7 @@ public:
     void addSpritesToRow(int imgID, int num, int srcY, int spriteY);
 
     void drawSheet();
+    void updateSheetPixels();
 
     SDL_Rect src;
     SDL_Rect dst;
@@ -41,6 +43,5 @@ private:
     std::vector<int> spritesThisRow;
 
     Texture sheet;
-
-
+    uint32_t* sheetPixels = nullptr;
 };

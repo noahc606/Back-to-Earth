@@ -17,6 +17,11 @@ void SpriteSheet::init(SDLHandler* sh)
     setSpriteDimensions(32, 32);
 }
 
+void SpriteSheet::destroy()
+{
+    free(sheetPixels);
+}
+
 std::string SpriteSheet::getInfo()
 {
     std::stringstream ss;
@@ -82,9 +87,6 @@ void SpriteSheet::addSprite(int imgID, int srcX, int srcY, int srcW, int srcH, i
     sheet.setColorMod(spriteColor);
     sheet.lock( spriteX*spriteWidth, spriteY*spriteHeight, spriteWidth, spriteHeight );
     sheet.blit( imgID, srcX, srcY, srcW, srcH );
-    //std::cout << "blit src: (" << srcX << ", " << srcY << ", " << srcW << ", " << srcH << ")\n";
-    //std::cout << "blit dst: (" << spriteX*spriteWidth << ", " << spriteY*spriteHeight << ", " << spriteWidth << ", " << spriteHeight << ")\n";
-
 }
 
 void SpriteSheet::addSprite(int imgID, int srcX, int srcY, int spriteX, int spriteY)
@@ -118,4 +120,26 @@ void SpriteSheet::addSpritesToRow(int imgID, int num, int srcY, int spriteY)
 void SpriteSheet::drawSheet()
 {
     sheet.draw();
+}
+
+/**
+    Get ALL of the pixels in the 'sheet' Texture and store them in the raw pointer 'sheetPixels'
+*/
+void SpriteSheet::updateSheetPixels()
+{
+    //Get SDLHandler's SDL_Renderer* object
+    SDL_Renderer* r = sdlHandler->getRenderer();
+
+    //Free whatever exists in sheetPixels
+    free(sheetPixels);
+
+    //Store the current render target
+    SDL_Texture* rtOld = SDL_GetRenderTarget( r );
+
+    //Set render target to the Texture 'sheet' and read the pixels of 'sheet'.
+    SDL_SetRenderTarget( r, sheet.getSDLTexture() );
+    SDL_RenderReadPixels( r, NULL, sdlHandler->getPixelFormat()->format, (void*)sheetPixels, 4*sheet.getTexWidth() );
+
+    //Set render target back to what it originally was
+    SDL_SetRenderTarget( r, rtOld );
 }
