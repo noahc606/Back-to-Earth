@@ -19,6 +19,12 @@ void Texture::init(SDLHandler* p_sdlHandler)
     initTex(false);
 }
 
+void Texture::init(SDLHandler* p_sdlHandler, int p_texWidth, int p_texHeight)
+{
+    init(p_sdlHandler);
+    setTexDimensions(p_texWidth, p_texHeight);
+}
+
 void Texture::destroy()
 {
     //Certain variables set back to their default values
@@ -35,8 +41,8 @@ void Texture::destroy()
         SDL_DestroyTexture(tex);
         tex = nullptr;
         //Destroy pixels
-        free(lockedPixels);
-        lockedPixels = nullptr;
+        free(dstPixels);
+        dstPixels = nullptr;
     }
 }
 
@@ -46,7 +52,7 @@ SDL_Texture* Texture::getSDLTexture() { return tex; }
 SDL_Surface* Texture::createSurfaceFromTexture()
 {
     //Save render target
-    SDL_Texture* target = SDL_GetRenderTarget(renderer);
+    SDL_Texture* rtOld = SDL_GetRenderTarget(renderer);
     //Change render target to this tex
     SDL_SetRenderTarget(renderer, tex);
     //Create a new surface
@@ -54,7 +60,7 @@ SDL_Surface* Texture::createSurfaceFromTexture()
     //Copy render target's pixels to surface's pixels
     SDL_RenderReadPixels(renderer, NULL, surface->format->format, surface->pixels, surface->pitch);
     //Set back render target
-    SDL_SetRenderTarget(renderer, target);
+    SDL_SetRenderTarget(renderer, rtOld);
     //Return surface
     return surface;
 }
@@ -242,9 +248,14 @@ void Texture::blit(int id, int srcX, int srcY)
     blit((textureLoader->getTexture(id)), srcX, srcY);
 }
 
+void Texture::blit(SDL_Texture* src)
+{
+    blit(src, 0, 0);
+}
+
 void Texture::blit(int id)
 {
-    blit(id, 0, 0);
+    blit(textureLoader->getTexture(id));
 }
 
 /**

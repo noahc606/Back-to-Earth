@@ -21,18 +21,22 @@ void Tests::init(SDLHandler* sh, FileHandler* fh, Controls* ctrls)
     //ssb.buildSpriteSheet(ssb.DEFAULT_PLAYER, spsh, playerPal);
 
     stex.init(sdlHandler);
-    stex.setTexDimensions(512, 512);
+    stex.setTexDimensions(1024, 1024);
 
+    SpriteSheet ss;
+    ss.init(sdlHandler, TextureLoader::WORLD_TILE_type_a);
 
-    Timer tim1("streaming texture manipulation");
-    stex.lock(0, 0, 600, 600);
-    stex.blit();
-    stex.unlock();
+    stex.lock(0, 0, 512, 512);
+    stex.fill(127, 127, 255);
     stex.update();
 
-    stex.lock(40, 40, 300, 300);
-    stex.update();
-
+    Timer tim1("test1", false);
+    for( int i = 0; i<1; i++ ) {
+        stex.setColorMod(200, 0, 0);
+        stex.lock(128, 128, 256, 256);
+        stex.blit(&ss, 0, 0);
+        stex.update();
+    }
     tim1.debugElapsedTimeMS();
 
     //stex.lock(10, 10, 32, 32);
@@ -66,6 +70,17 @@ Tests::~Tests(){}
 void Tests::draw()
 {
     stex.draw();
+
+    /*
+    Texture test123;
+    test123.init(sdlHandler, 512, 512);
+    test123.setDrawScale(3);
+    test123.lock();
+    test123.blit(TextureLoader::WORLD_TILE_type_a);
+    test123.lock(200, 200, 40, 200);
+    test123.blit(TextureLoader::GUI_FONT_robot, 0, 0);
+    test123.draw();*/
+
 }
 
 void Tests::tick()

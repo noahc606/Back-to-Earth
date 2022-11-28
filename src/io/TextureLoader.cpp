@@ -103,9 +103,7 @@ void TextureLoader::load()
         addSurface("world\\tile\\overlay\\wall");
 
         //Create textures from all surfaces
-        for(int i = 0; i<(int)surfaces.size(); i++) {
-            textures.push_back(SDL_CreateTextureFromSurface(renderer, surfaces[i]));
-        }
+        addTextures();
     //If resources have already been loaded
     } else {
         Log::warn(__PRETTY_FUNCTION__, "Resources have already been loaded");
@@ -113,6 +111,29 @@ void TextureLoader::load()
 
     //Set resourcesLoaded flag
     resourcesLoaded = true;
+}
+
+void TextureLoader::addTextures()
+{
+    for(int i = 0; i<(int)surfaces.size(); i++) {
+        //Create 'surf' = to this loop iteration's surface
+        SDL_Surface* surf = surfaces[i];
+        //Create 'staticTex'
+        SDL_Texture* staticTex = SDL_CreateTextureFromSurface(renderer, surf);
+        //Create 'targetTex'
+        SDL_Texture* targetTex = SDL_CreateTexture(renderer, surf->format->format, SDL_TEXTUREACCESS_TARGET, surf->w, surf->h);
+        SDL_SetTextureBlendMode(targetTex, SDL_BLENDMODE_BLEND);
+
+        //Copy 'staticTex' to 'targetTex'
+        SDL_Texture* oldTarget = SDL_GetRenderTarget(renderer);
+        SDL_SetRenderTarget(renderer, targetTex);
+        SDL_RenderCopy(renderer, staticTex, NULL, NULL);
+        SDL_SetRenderTarget(renderer, oldTarget);
+
+        //Discard 'staticTex' and add 'targetTex'
+        SDL_DestroyTexture(staticTex);
+        textures.push_back(targetTex);
+    }
 }
 
 void TextureLoader::unload()

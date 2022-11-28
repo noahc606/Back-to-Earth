@@ -12,11 +12,16 @@ public:
     SpriteSheet();
     virtual ~SpriteSheet();
 
+    void init(SDLHandler* sh, SDL_Texture* sdlTex, int spriteWidth, int spriteHeight);
+    void init(SDLHandler* sh, int texID, int spriteWidth, int spriteHeight);
+    void init(SDLHandler* sh, SDL_Texture* sdlTex);
+    void init(SDLHandler* sh, int texID);
     void init(SDLHandler* sh);
     void destroy();
 
     std::string getInfo();
-    Texture* getTexture();
+    Texture* getSheetTexture();
+    uint32_t** getSheetPixels();
 
     void setSpriteDimensions(int w, int h);
     void setSpriteColor(const Color& c);
@@ -28,6 +33,10 @@ public:
     void addSpritesToRow(int imgID, int num, int srcY, int spriteY);
 
     void drawSheet();
+
+    void loadTextureAsSpriteSheet(SDL_Texture* sdlTex, int spriteWidth, int spriteHeight);
+    void loadTextureAsSpriteSheet(SDL_Texture* sdlTex);
+
     void updateSheetPixels();
 
     SDL_Rect src;
@@ -36,11 +45,15 @@ public:
 protected:
 
 private:
+    void restrictingSpriteSize(bool rss);
+
     int spriteWidth = 0; int spriteHeight = 0;
     Color spriteColor;
 
     int sheetWidth = 0; int sheetHeight = 0;
     std::vector<int> spritesThisRow;
+
+    bool restrictSpriteSize = true;
 
     Texture sheet;
     uint32_t* sheetPixels = nullptr;

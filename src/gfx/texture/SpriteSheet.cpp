@@ -1,20 +1,65 @@
 #include "SpriteSheet.h"
 #include <iostream>
 #include <sstream>
+#include "Log.h"
 
 SpriteSheet::SpriteSheet(){}
 SpriteSheet::~SpriteSheet(){}
 
-void SpriteSheet::init(SDLHandler* sh)
+void SpriteSheet::init(SDLHandler* sh, SDL_Texture* sdlTex, int spriteWidth, int spriteHeight)
 {
+    //Init 'sdlHandler' and Texture 'sheet'
     BTEObject::init(sh, nullptr, nullptr);
     sheet.init(sdlHandler);
     sheet.setDrawScale(2);
 
+    //Reset src and dst rectangles to (0, 0, 0, 0)
     src.x = 0; src.y = 0; src.w = 0; src.h = 0;
     dst.x = 0; dst.y = 0; dst.w = 0; dst.h = 0;
 
-    setSpriteDimensions(32, 32);
+    //If sdlTex is nullptr just set sprite dims to 32x32
+    if( sdlTex==nullptr ) {
+        sheetWidth = 0;
+        sheetHeight = 0;
+        setSpriteDimensions(32, 32);
+    //If sdlTex isn't nullptr
+    } else {
+        //Query tex info
+        int texAccess = 0;
+        SDL_QueryTexture(sdlTex, NULL, &texAccess, &sheetWidth, &sheetHeight);
+
+        //Check texture access
+        if( texAccess==SDL_TEXTUREACCESS_TARGET || texAccess==SDL_TEXTUREACCESS_STATIC ) {
+            loadTextureAsSpriteSheet(sdlTex);
+            updateSheetPixels();
+        //If texAccess is something else...
+        } else {
+            Log::error(__PRETTY_FUNCTION__, "Cannot init SpriteSheet textures with texture access other than SDL_TEXTUREACCESS_TARGET");
+            Log::throwException();
+        }
+    }
+}
+
+void SpriteSheet::init(SDLHandler* sh, int texID, int spriteWidth, int spriteHeight)
+{
+    BTEObject::init(sh, nullptr, nullptr);
+    init(sh, sh->getTextureLoader()->getTexture(texID), spriteWidth, spriteHeight);
+}
+
+void SpriteSheet::init(SDLHandler* sh, SDL_Texture* sdlTex)
+{
+    init(sh, sdlTex, 32, 32);
+}
+
+void SpriteSheet::init(SDLHandler* sh, int texID)
+{
+    BTEObject::init(sh, nullptr, nullptr);
+    init(sh, sh->getTextureLoader()->getTexture(texID), 32, 32);
+}
+
+void SpriteSheet::init(SDLHandler* sh)
+{
+    init(sh, nullptr);
 }
 
 void SpriteSheet::destroy()
@@ -41,7 +86,9 @@ std::string SpriteSheet::getInfo()
     return ss.str();
 }
 
-Texture* SpriteSheet::getTexture() { return &sheet; }
+Texture* SpriteSheet::getSheetTexture() { return &sheet; }
+
+uint32_t** SpriteSheet::getSheetPixels() { return &sheetPixels; }
 
 void SpriteSheet::setSpriteDimensions(int w, int h)
 {
@@ -123,7 +170,8 @@ void SpriteSheet::drawSheet()
 }
 
 /**
-    Get ALL of the pixels in the 'sheet' Texture and store them in the raw pointer 'sheetPixels'
+    Get all of the pixels in 'sheet' and store them in the raw pointer 'sheetPixels'.
+    Recommended to call this function once at the end of building a spritesheet.
 */
 void SpriteSheet::updateSheetPixels()
 {
@@ -138,8 +186,42 @@ void SpriteSheet::updateSheetPixels()
 
     //Set render target to the Texture 'sheet' and read the pixels of 'sheet'.
     SDL_SetRenderTarget( r, sheet.getSDLTexture() );
-    SDL_RenderReadPixels( r, NULL, sdlHandler->getPixelFormat()->format, (void*)sheetPixels, 4*sheet.getTexWidth() );
+    SDL_Rect rect; rect.x = 0; rect.y = 0; rect.w = sheet.getTexWidth(); rect.h = sheet.getTexHeight();
+
+    sheetPixels = (uint32_t*)malloc(rect.w*rect.h*sizeof(*sheetPixels));
+    SDL_RenderReadPixels( r, &rect, sdlHandler->getPixelFormat()->format, sheetPixels, 4*rect.w );
 
     //Set render target back to what it originally was
     SDL_SetRenderTarget( r, rtOld );
+}
+
+void SpriteSheet::loadTextureAsSpriteSheet(SDL_Texture* sdlTex, int spriteWidth, int spriteHeight)
+{
+    //If sheet dimensions incompatible with sprite dimensions
+    if( sheetWidth%spriteWidth!=0 || sheetHeight%spriteHeight!=0 ) {
+        std::stringstream ss;
+        ss << "SpriteSheet dimensions (" << sheetWidth << ", " << sheetHeight << ") ";
+        ss << "must be divisible by the dimensions of a single sprite (" << spriteWidth << ", " << spriteHeight << ")";
+        Log::warn(__PRETTY_FUNCTION__, ss.str(), "setting restrictSpriteSize to false");
+        restrictingSpriteSize(false);
+    }
+
+    //Destroy old sheet texture
+    sheet.destroy();
+
+    //Build new sheet texture
+    sheet.init(sdlHandler);
+    sheet.setTexDimensions(sheetWidth, sheetHeight);
+    sheet.lock();
+    sheet.blit(sdlTex);
+}
+
+void SpriteSheet::loadTextureAsSpriteSheet(SDL_Texture* sdlTex)
+{
+    loadTextureAsSpriteSheet(sdlTex, 32, 32);
+}
+
+void SpriteSheet::restrictingSpriteSize(bool rss)
+{
+    restrictSpriteSize = rss;
 }

@@ -17,6 +17,7 @@ public:
     Texture();
     virtual ~Texture();
     void init(SDLHandler* sdlHandler);
+    void init(SDLHandler* sdlHandler, int texWidth, int texHeight);
     void destroy();
     /**/
     bool isInitialized();
@@ -56,18 +57,19 @@ public:
             Blit a rectangular area of the source image onto the locked area (destination) specified by lock().
                 TARGET and STREAMING textures effectively have the same behavior.
     */
-    virtual void blitEx(SDL_Texture* src, int srcX, int srcY, int srcW, int srcH, int mod);
-    virtual void blitEx(Texture* src, int srcX, int srcY, int srcW, int srcH, int mod);
-    virtual void blitEx(SDL_Texture* src, int srcX, int srcY, int mod);
-    virtual void blitEx(Texture* src, int srcX, int srcY, int mod);
-    virtual void blitEx(int id, int srcX, int srcY, int mod);
-    virtual void blit(SDL_Texture* src, int srcX, int srcY, int srcW, int srcH);
-    virtual void blit(Texture* src, int srcX, int srcY, int srcW, int srcH);
-    virtual void blit(int id, int srcX, int srcY, int srcW, int srcH);
-    virtual void blit(SDL_Texture* src, int srcX, int srcY);
-    virtual void blit(Texture* src, int srcX, int srcY);
-    virtual void blit(int id, int srcX, int srcY);
-    virtual void blit(int id);
+    void blitEx(SDL_Texture* src, int srcX, int srcY, int srcW, int srcH, int mod);
+    void blitEx(Texture* src, int srcX, int srcY, int srcW, int srcH, int mod);
+    void blitEx(SDL_Texture* src, int srcX, int srcY, int mod);
+    void blitEx(Texture* src, int srcX, int srcY, int mod);
+    void blitEx(int id, int srcX, int srcY, int mod);
+    void blit(SDL_Texture* src, int srcX, int srcY, int srcW, int srcH);
+    void blit(Texture* src, int srcX, int srcY, int srcW, int srcH);
+    void blit(int id, int srcX, int srcY, int srcW, int srcH);
+    void blit(SDL_Texture* src, int srcX, int srcY);
+    void blit(Texture* src, int srcX, int srcY);
+    void blit(int id, int srcX, int srcY);
+    void blit(SDL_Texture* src);
+    void blit(int id);
     /*
         Simple blit functions:
         fill():
@@ -167,8 +169,8 @@ protected:
     SDL_Rect lockArea;
     /**
     These three are used for STREAMING textures*/
-    uint32_t* lockedPixels = nullptr;
-    int lockedPitch;
+    uint32_t* dstPixels = nullptr;
+    int dstPitch;
     bool keepingLastData = true;                //Keep last pixel data of locked area: If you're filling an entire rectangle with pixels, obviously this can be set to false.
 
     //Texture width and height

@@ -54,6 +54,7 @@ protected:
 
 private:
     /**/
+    void addTextures();
     SDL_Surface* loadSurface(std::string path);
     SDL_Surface* addSurface(std::string path);
 

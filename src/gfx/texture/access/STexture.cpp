@@ -16,8 +16,8 @@ void STexture::lock(SDL_Rect lr)
     //Perform lock and validate it
     Texture::lock(lr.x, lr.y, lr.w, lr.h);
 
-    free(lockedPixels);
-    if( SDL_LockTexture(tex, &lockArea, (void**)&lockedPixels, &lockedPitch)<0 ) {
+    free(dstPixels);
+    if( SDL_LockTexture(tex, &lockArea, (void**)&dstPixels, &dstPitch)<0 ) {
         Log::error(__PRETTY_FUNCTION__, "Texture locking failed", SDL_GetError());
         Log::throwException();
     }
@@ -88,22 +88,108 @@ void STexture::lock(int lx, int ly, int lw, int lh)
 
     lock(lr);
 }
-void STexture::lock()
-{
-
-}
+void STexture::lock() { lock(0, 0, texW, texH); }
 
 void STexture::unlock()
 {
     SDL_UnlockTexture(tex);
 }
 
-void STexture::blit()
+/**
+    Scaled blit.
+
+    If srcW==lockArea.w and srcH==lockArea.h:
+        This is slower than scaleless blitting to achieve the same result, but you should be fine in most cases.
+*/
+void STexture::blit(SpriteSheet* src, int srcX, int srcY, int srcW, int srcH)
+{
+    uint32_t* srcPixels = *src->getSheetPixels();
+    int spshW = src->getSheetTexture()->getTexWidth();
+
+    float scW = (float)srcW/(float)lockArea.w;
+    float scH = (float)srcH/(float)lockArea.h;
+
+    //Create pixels to update the texture with
+    dstPixels = (uint32_t*)malloc(lockArea.w*lockArea.h*sizeof(*dstPixels));
+
+    switch( blendMode ) {
+        case SDL_BLENDMODE_NONE: {
+            for( int py = 0; py<lockArea.h; py++ ) {
+                uint32_t* dstRow = dstPixels+(py*lockArea.w);
+                uint32_t* srcRow = srcPixels+(int)((srcY+py)*scW)*spshW;
+                for ( int px = 0; px<lockArea.w; px++ ) {
+                    dstRow[px] = srcRow[ (int)((srcX+px)*scH) ];
+                }
+            }
+        } break;
+        case SDL_BLENDMODE_BLEND: {
+
+        }
+        default: {
+
+        } break;
+    }
+}
+
+/**
+    Fast blit - no scaling math, no error checking.
+    Can crash program (invalid array access) if srcX+lockArea.w>srcW || srcY+lockArea.y>srcH.
+*/
+void STexture::fblit(SpriteSheet* src, int srcX, int srcY)
+{
+    uint32_t* srcPixels = *src->getSheetPixels();
+    int spshW = src->getSheetTexture()->getTexWidth();
+
+    //Create pixels to update the texture with
+    dstPixels = (uint32_t*)malloc(lockArea.w*lockArea.h*sizeof(*dstPixels));
+
+    for( int py = 0; py<lockArea.h; py++ ) {
+        uint32_t* dstRow = dstPixels+(py*lockArea.w);
+        uint32_t* srcRow = srcPixels+((srcY+py)*spshW);
+        for ( int px = 0; px<lockArea.w; px++ ) {
+            Color srcColor( srcRow[srcX+px] );
+            srcColor.mod(colorMod);
+            dstRow[px] = srcColor.getRGBA();
+        }
+    }
+}
+
+/**
+    General purpose no scaling blit - has error checking.
+    Cannot crash program and only a tiny bit slower than fblit.
+*/
+void STexture::blit(SpriteSheet* src, int srcX, int srcY)
+{
+    int spshW = src->getSheetTexture()->getTexWidth();
+    int spshH = src->getSheetTexture()->getTexHeight();
+
+    if( srcX+lockArea.w>spshW || srcY+lockArea.y>spshH ) {
+
+        uint32_t* srcPixels = *src->getSheetPixels();
+
+        //Create pixels to update the texture with
+        dstPixels = (uint32_t*)malloc(lockArea.w*lockArea.h*sizeof(*dstPixels));
+
+        for( int py = 0; py<lockArea.h&&srcY+py<spshH; py++ ) {
+            uint32_t* dstRow = dstPixels+(py*lockArea.w);
+            uint32_t* srcRow = srcPixels+((int)(srcY+py)*spshW);
+            for ( int px = 0; px<lockArea.w && srcX+px<spshW; px++ ) {
+                dstRow[px] = srcRow[ (int)(srcX+px) ];
+            }
+        }
+    } else {
+        fblit(src, srcX, srcY);
+    }
+}
+
+void STexture::blit(SpriteSheet* src) { blit(src, 0, 0); }
+
+void STexture::blitRedAndBlue()
 {
     //Create pixels to update the texture with
-    lockedPixels = (uint32_t*)malloc(lockArea.w*lockArea.h*sizeof(*lockedPixels));
+    dstPixels = (uint32_t*)malloc(lockArea.w*lockArea.h*sizeof(*dstPixels));
     for( int py = 0; py<lockArea.h; py++ ) {
-        uint32_t* row = lockedPixels+py*lockArea.w;
+        uint32_t* row = dstPixels+py*lockArea.w;
         for ( int px = 0; px<lockArea.w; px++ ) {
             if( py%2==0 ) {
                 row[px] = 0x0000FFFF;
@@ -114,9 +200,33 @@ void STexture::blit()
     }
 }
 
+
+
+void STexture::fill(uint32_t rgba)
+{
+    //Create pixels to update the texture with
+    dstPixels = (uint32_t*)malloc(lockArea.w*lockArea.h*sizeof(*dstPixels));
+    for( int py = 0; py<lockArea.h; py++ ) {
+        uint32_t* row = dstPixels+py*lockArea.w;
+        for ( int px = 0; px<lockArea.w; px++ ) {
+            row[px] = rgba;
+        }
+    }
+}
+
+void STexture::fill(uint8_t r, uint8_t g, uint8_t b, uint8_t a)
+{
+    fill( Color::getRGBA(r, g, b, a) );
+}
+
+void STexture::fill(uint8_t r, uint8_t g, uint8_t b)
+{
+    fill( Color::getRGBA(r, g, b) );
+}
+
 void STexture::update(SDL_Rect ur)
 {
-    SDL_UpdateTexture(tex, &ur, lockedPixels, lockArea.w*sizeof(*lockedPixels));
+    SDL_UpdateTexture(tex, &ur, dstPixels, lockArea.w*sizeof(*dstPixels));
 }
 void STexture::update()
 {

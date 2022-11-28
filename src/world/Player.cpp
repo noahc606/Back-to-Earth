@@ -45,7 +45,7 @@ void Player::draw(Canvas* csEntities)
 
     /** Rebuild player texture */
     playerTex.clear();
-    Texture* sst = spsh.getTexture();
+    Texture* sst = spsh.getSheetTexture();
 
     //Render spritesheet on screen if it should be shown (debug feature)
     int* show_ss = Commands::getInt("player.show_ss");
