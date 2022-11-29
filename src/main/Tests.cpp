@@ -26,18 +26,33 @@ void Tests::init(SDLHandler* sh, FileHandler* fh, Controls* ctrls)
     SpriteSheet ss;
     ss.init(sdlHandler, TextureLoader::WORLD_TILE_type_a);
 
+    /*
     stex.lock(0, 0, 512, 512);
     stex.fill(127, 127, 255);
     stex.update();
-
     Timer tim1("test1", false);
     for( int i = 0; i<1; i++ ) {
-        stex.setColorMod(200, 0, 0);
-        stex.lock(128, 128, 256, 256);
-        stex.blit(&ss, 0, 0);
+        stex.setColorMod(255, 0, 0);
+        stex.setBlendMode(SDL_BLENDMODE_MOD);
+        stex.lock(128, 128, 128, 128);
+        stex.blit(&ss);
         stex.update();
     }
     tim1.debugElapsedTimeMS();
+    */
+
+    ttex.init(sdlHandler, 1024, 1024);
+    ttex.lock(0, 0, 512, 512);
+    ttex.setColorMod(127, 127, 255);
+    ttex.fill();
+    Timer tim2("test2", false);
+    for( int i = 0; i<1; i++ ) {
+        ttex.setColorMod(255, 0, 0);
+        ttex.setBlendMode(SDL_BLENDMODE_MOD);
+        ttex.lock(128, 128, 128, 128);
+        ttex.blit(TextureLoader::WORLD_TILE_type_a, 0, 0);
+    }
+    tim2.debugElapsedTimeMS();
 
     //stex.lock(10, 10, 32, 32);
     //stex.unlock();
@@ -69,14 +84,19 @@ Tests::~Tests(){}
 
 void Tests::draw()
 {
-    stex.draw();
-
-    /*
     Texture test123;
     test123.init(sdlHandler, 512, 512);
     test123.setDrawScale(3);
     test123.lock();
-    test123.blit(TextureLoader::WORLD_TILE_type_a);
+    test123.setColorMod(200, 0, 0);
+    test123.fill();
+
+    //test123.draw();
+    //stex.draw();
+    ttex.draw();
+
+    /*
+
     test123.lock(200, 200, 40, 200);
     test123.blit(TextureLoader::GUI_FONT_robot, 0, 0);
     test123.draw();*/

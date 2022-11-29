@@ -4420,7 +4420,7 @@
 	"begin_code.h"
 	"close_code.h"
 
-1669589665 c:\users\noahc\desktop\git\back-to-earth\src\gfx\texture\color.h
+1669749527 c:\users\noahc\desktop\git\back-to-earth\src\gfx\texture\color.h
 	<cstdint>
 	<SDL.h>
 
@@ -4458,7 +4458,7 @@
 	"Texture.h"
 	"TextureLoader.h"
 
-1669500918 c:\users\noahc\desktop\git\back-to-earth\src\gfx\texture\texture.h
+1669752618 c:\users\noahc\desktop\git\back-to-earth\src\gfx\texture\texture.h
 	<cstdint>
 	<SDL.h>
 	"Color.h"
@@ -4575,12 +4575,13 @@
 	"GUIHandler.h"
 	"SDLHandler.h"
 
-1669410447 c:\users\noahc\desktop\git\back-to-earth\src\main\tests.h
+1669753184 c:\users\noahc\desktop\git\back-to-earth\src\main\tests.h
 	<vector>
 	"BTEObject.h"
 	"DebugObject.h"
 	"SpriteSheet.h"
 	"STexture.h"
+	"TTexture.h"
 	"Texture.h"
 	"TileRegion.h"
 
@@ -4703,7 +4704,7 @@
 	"MainLoop.h"
 	"TileMap.h"
 
-1669589697 source:c:\users\noahc\desktop\git\back-to-earth\src\gfx\texture\color.cpp
+1669749823 source:c:\users\noahc\desktop\git\back-to-earth\src\gfx\texture\color.cpp
 	"Color.h"
 
 1669410447 source:c:\users\noahc\desktop\git\back-to-earth\src\gfx\texture\colorpalette.cpp
@@ -4724,7 +4725,7 @@
 	"SDLHandler.h"
 	"SpriteSheet.h"
 
-1669500900 source:c:\users\noahc\desktop\git\back-to-earth\src\gfx\texture\texture.cpp
+1669752630 source:c:\users\noahc\desktop\git\back-to-earth\src\gfx\texture\texture.cpp
 	"Texture.h"
 	<iostream>
 	<sstream>
@@ -4849,7 +4850,7 @@
 	"SDLHandler.h"
 	"Timer.h"
 
-1669440352 source:c:\users\noahc\desktop\git\back-to-earth\src\main\bte.cpp
+1669753582 source:c:\users\noahc\desktop\git\back-to-earth\src\main\bte.cpp
 	"BTE.h"
 	<sstream>
 	"ButtonAction.h"
@@ -4880,7 +4881,7 @@
 	"Log.h"
 	"Main.h"
 
-1669589850 source:c:\users\noahc\desktop\git\back-to-earth\src\main\tests.cpp
+1669753539 source:c:\users\noahc\desktop\git\back-to-earth\src\main\tests.cpp
 	"Tests.h"
 	<map>
 	"Color.h"
@@ -4972,7 +4973,7 @@
 	"TileIterator.h"
 	"Timer.h"
 
-1669410447 source:c:\users\noahc\desktop\git\back-to-earth\src\world\tile\tileregion.cpp
+1669748682 source:c:\users\noahc\desktop\git\back-to-earth\src\world\tile\tileregion.cpp
 	"TileRegion.h"
 	<iostream>
 	<math.h>
@@ -6008,7 +6009,7 @@
 1669410447 c:\users\noahc\desktop\git\back-to-earth\src\gfx\guialigner.h
 	"GUIHandler.h"
 
-1669410447 source:c:\users\noahc\desktop\git\back-to-earth\src\gfx\guialigner.cpp
+1669748668 source:c:\users\noahc\desktop\git\back-to-earth\src\gfx\guialigner.cpp
 	"GUIAligner.h"
 	<set>
 	"GUI.h"
@@ -7169,14 +7170,14 @@
 1668461968 c:\users\noahc\desktop\git\back to earth\back-to-earth\src\gfx\guialigner.h
 	"GUIHandler.h"
 
-1669590022 source:c:\users\noahc\desktop\git\back-to-earth\src\gfx\texture\access\stexture.cpp
+1669752686 source:c:\users\noahc\desktop\git\back-to-earth\src\gfx\texture\access\stexture.cpp
 	"STexture.h"
 	"Log.h"
 	"Timer.h"
 	<SDL2/SDL.h>
 	<sys/time.h>
 
-1669575663 c:\users\noahc\desktop\git\back-to-earth\src\gfx\texture\access\stexture.h
+1669752510 c:\users\noahc\desktop\git\back-to-earth\src\gfx\texture\access\stexture.h
 	"Texture.h"
 	"SpriteSheet.h"
 

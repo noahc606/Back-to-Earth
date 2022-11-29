@@ -26,6 +26,7 @@ public:
     int getTexWidth();
     int getTexHeight();
     double getDrawScale();
+    int getBlendMode();
     void queryTexInfo(int &texW, int &texH);
     void queryDrawInfo(int &drawX, int &drawY, double &drawScale);
 

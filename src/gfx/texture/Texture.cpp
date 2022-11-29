@@ -68,6 +68,7 @@ SDL_Surface* Texture::createSurfaceFromTexture()
 int Texture::getTexWidth() { return texW; }
 int Texture::getTexHeight() { return texH; }
 double Texture::getDrawScale() { return drawScale; }
+int Texture::getBlendMode() { return blendMode; }
 
 
 void Texture::queryTexInfo(int &w, int &h)

@@ -16,10 +16,22 @@ public:
     void lock();
     void unlock();
 
-    void blit(SpriteSheet* src, int srcX, int srcY, int srcW, int srcH);
-    void fblit(SpriteSheet* src, int srcX, int srcY);
+    void sblit(SpriteSheet* src, int srcX, int srcY, int srcW, int srcH);
+    void sblitN(SpriteSheet* src, int srcX, int srcY, int srcW, int srcH);
+
     void blit(SpriteSheet* src, int srcX, int srcY);
+    void blitA(SpriteSheet* src, int srcX, int srcY);
+    void blitB(SpriteSheet* src, int srcX, int srcY);
+    void blitM(SpriteSheet* src, int srcX, int srcY);
+    void blitN(SpriteSheet* src, int srcX, int srcY);
     void blit(SpriteSheet* src);
+
+    void fblit(SpriteSheet* src, int srcX, int srcY);
+    void fblit(SpriteSheet* src);
+    void fblitA(SpriteSheet* src, int srcX, int srcY);
+    void fblitB(SpriteSheet* src, int srcX, int srcY);
+    void fblitM(SpriteSheet* src, int srcX, int srcY);
+    void fblitN(SpriteSheet* src, int srcX, int srcY);
 
     void blitRedAndBlue();
 
@@ -37,4 +49,7 @@ public:
 protected:
 
 private:
+
+
+    //void allocDestinationPixels();
 };

@@ -22,12 +22,16 @@ public:
     static uint32_t getA(uint32_t rgba);
     uint32_t getA();
 
-    static uint32_t getBlendedValue(SDL_BlendMode bm, uint32_t src, uint32_t dst);
-    uint32_t getBlendedValue(SDL_BlendMode bm, uint32_t src);
     /**/
-    void set(uint8_t p_r, uint8_t p_g, uint8_t p_b, uint8_t p_a);
+    //Color setting & combining (formulas found at https://wiki.libsdl.org/SDL2/SDL_BlendMode)
+    void add(uint8_t p_r, uint8_t p_g, uint8_t p_b, uint8_t p_a);
+    void add(Color& c);
+    void blend(uint8_t p_r, uint8_t p_g, uint8_t p_b, uint8_t p_a);
+    void blend(Color& c);
     void mod(uint8_t p_r, uint8_t p_g, uint8_t p_b, uint8_t p_a);
     void mod(Color& c);
+    void set(uint8_t p_r, uint8_t p_g, uint8_t p_b, uint8_t p_a);
+
     /**/
     uint8_t r = 0;
     uint8_t g = 0;

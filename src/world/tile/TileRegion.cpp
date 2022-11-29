@@ -192,21 +192,21 @@ void TileRegion::save(SDLHandler* sh, FileHandler* fh, bool p_compress)
 
     //All tiles that were generated upon worldgen have a negative value. Every modified tile after that has a positive value.
     //Palette indices are all positive and can go from 0 to 32767. 'tiles' array values can be negative or positive.
-    bool cachingWorldgen = true;
+    //bool cachingWorldgen = true;
     //Depending on the size of the palette, a different number of bits will be needed to represent the tiles.
     //Ex:   Completely empty region = 1 tile type = 1 bit. 32768 tiles = 4.096KB
     //Ex:   Max tile palette size = 32768 tile types = 16 bits. 32768 tiles = 65.536KB
-    int bitsPerTile = 16;
-    for( int i = 0; i<palette.size(); i++ ) {
+    //int bitsPerTile = 16;
+    for( unsigned int i = 0; i<palette.size(); i++ ) {
 
     }
 
-    char c;
+    //char c;
     for( int x = 0; x<32; x++ ) {
         for( int y = 0; y<32; y++ ) {
             for( int z = 0; z<32; z++ ) {
 
-                uint16_t data = tiles[x][y][z];
+                //uint16_t data = tiles[x][y][z];
 
                 fh->writeChar(12);
             }

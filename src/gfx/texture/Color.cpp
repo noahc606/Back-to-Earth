@@ -45,44 +45,34 @@ uint32_t Color::getA(uint32_t p_rgba) { return p_rgba&0xFF; }
 uint32_t Color::getA() { return a; }
 
 /**
-    Color blending formulas found at
-        https://wiki.libsdl.org/SDL2/SDL_BlendMode
+    Additive color blending.
+    Destination color (current) is mixed with source color (parameters).
 */
-uint32_t Color::getBlendedValue(SDL_BlendMode bm, uint32_t src, uint32_t dst )
+void Color::add(uint8_t sr, uint8_t sg, uint8_t sb, uint8_t sa)
 {
-    switch(bm) {
-        case SDL_BLENDMODE_NONE: {
-            return src;
-        } break;
-
-        case SDL_BLENDMODE_BLEND: {
-            uint32_t srcA = getA(src);
-            uint32_t dstA = getA(dst);
-
-            uint32_t resRGB = getRGB(src)*srcA/0xFF+getRGB(dst)*(0xFF-srcA)/0xFF;
-            uint32_t resA = srcA+dstA*(0xFF-srcA)/0xFF;
-
-            return 256*resRGB+resA;
-        } break;
-
-        case SDL_BLENDMODE_ADD: {
-            uint32_t resRGB = getRGB(src)*getA(src)/0xFF+getRGB(dst);
-
-            return 256*resRGB+getA(dst);
-        } break;
-
-        case SDL_BLENDMODE_MOD: {
-            uint32_t resRGB = getRGB(src)*getRGB(dst)/0xFF;
-
-            return 256*resRGB+getA(dst);
-        } break;
-
-        default: {
-            return src;
-        }
-    }
+    r = sr*sa+r;
+    g = sg*sa+g;
+    b = sb*sa+b;
 }
-uint32_t Color::getBlendedValue(SDL_BlendMode bm, uint32_t src) { return getBlendedValue(bm, src, getRGBA()); }
+void Color::add(Color& c) { add(c.r, c.g, c.b, c.a); }
+
+void Color::blend(uint8_t sr, uint8_t sg, uint8_t sb, uint8_t sa)
+{
+    r = sr*sa/255+r*(255-a)/255;
+    g = sg*sa/255+g*(255-a)/255;
+    b = sb*sa/255+b*(255-a)/255;
+    a = sa+       a*(255-a)/255;
+}
+void Color::blend(Color& c) { blend(c.r, c.g, c.b, c.a); }
+
+void Color::mod(uint8_t sr, uint8_t sg, uint8_t sb, uint8_t sa)
+{
+    r = sr*r/255;
+    g = sg*g/255;
+    b = sb*b/255;
+    a = sa*a/255;
+}
+void Color::mod(Color& c) { mod(c.r, c.g, c.b, c.a); }
 
 void Color::set(uint8_t p_r, uint8_t p_g, uint8_t p_b, uint8_t p_a)
 {
@@ -91,13 +81,3 @@ void Color::set(uint8_t p_r, uint8_t p_g, uint8_t p_b, uint8_t p_a)
     b = p_b;
     a = p_a;
 }
-
-void Color::mod(uint8_t p_r, uint8_t p_g, uint8_t p_b, uint8_t p_a)
-{
-    r = r*p_r/255;
-    g = g*p_g/255;
-    b = b*p_b/255;
-    a = a*p_a/255;
-}
-
-void Color::mod(Color& c) { mod(c.r, c.g, c.b, c.a); }
