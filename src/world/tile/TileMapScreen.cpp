@@ -69,7 +69,8 @@ void TileMapScreen::tick()
     //Map updates (regionMap, updatesMap)
     std::string* cmd = Commands::getString("stopMapUpdates");
     if( cmd!=nullptr ) {} else {
-        mapUpdates();
+        if( rand()%5==0 )
+            mapUpdates();
     }
 
     //Translations depending on window width/height. Ensures that current camera's location is at the center of the window.
@@ -325,6 +326,7 @@ void TileMapScreen::mapUpdates()
         -they are > 'verticalRadius' regions away from the current camera region vertically
     */
 
+
     TileMap::t_regionMap::iterator itrRM = tileMap->getRegionMap()->begin();
     while( itrRM!=tileMap->getRegionMap()->end() ) {
         /** Check if this tileRegion is not null */
@@ -515,6 +517,15 @@ void TileMapScreen::regTexUpdate(TileIterator& ti, Texture* tex)
     //Get the destination of texture blit on the canvas region
     int dstX = blitScalePx*ti.getTrackerSub(0);  //32*X
     int dstY = blitScalePx*ti.getTrackerSub(1);  //32*Y
+
+    /*
+    tex->lock(dstX, dstY, blitScalePx, blitScalePx);
+    int r = std::get<0>(topTileFromCam.getRGB());
+    int g = std::get<1>(topTileFromCam.getRGB());
+    int b = std::get<2>(topTileFromCam.getRGB());
+    tex->setColorMod(r, g, b);
+    tex->fill();
+    */
 
     RegTexBuilder rtb(tex, ti, dstX, dstY, blitScalePx, topTileFromCam, dZ);
 }

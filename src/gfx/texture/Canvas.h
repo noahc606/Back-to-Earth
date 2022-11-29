@@ -85,11 +85,12 @@ private:
     bool texUsingDynamicLOD = false;
     int texAllocRadiusX = 3;
     int texAllocRadiusY = 3;
-    int texAllocCount = 3;
+    int texAllocCount = 1;
 
 
     //Camera object
     Camera* camera; double zoom = 0;
+    long camRX = 0; long camRY = 0;
 
     //Mouse info
     double mouseX = 0; double mouseY = 0;

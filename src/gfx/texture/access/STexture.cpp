@@ -106,16 +106,69 @@ void STexture::unlock()
 void STexture::sblit(SpriteSheet* src, int srcX, int srcY, int srcW, int srcH)
 {
     switch( blendMode ) {
-
-        case SDL_BLENDMODE_BLEND: {
-
-        }
-        default: {
-
-        } break;
+        case SDL_BLENDMODE_ADD:     { sblitA(src, srcX, srcY, srcW, srcH); } break;
+        case SDL_BLENDMODE_BLEND:   { sblitB(src, srcX, srcY, srcW, srcH); } break;
+        case SDL_BLENDMODE_MOD:     { sblitM(src, srcX, srcY, srcW, srcH); } break;
+        default:                    { sblitN(src, srcX, srcY, srcW, srcH); } break;
     }
 }
+void STexture::sblitA(SpriteSheet* src, int srcX, int srcY, int srcW, int srcH)
+{
+    uint32_t* srcPixels = *src->getSheetPixels();
+    int spshW = src->getSheetTexture()->getTexWidth();
 
+    float scW = (float)srcW/(float)lockArea.w;
+    float scH = (float)srcH/(float)lockArea.h;
+
+    for( int py = 0; py<lockArea.h; py++ ) {
+        uint32_t* dstRow = dstPixels+(py*lockArea.w);
+        uint32_t* srcRow = srcPixels+(int)((srcY+py)*scW)*spshW;
+        for ( int px = 0; px<lockArea.w; px++ ) {
+            //FORMULA: dstPixel = srcPixel%dstPixel
+            Color srcColor( srcRow[ (int)((srcX+px)*scH) ] );
+            srcColor.add(colorMod);
+            dstRow[px] = srcColor.getRGBA();
+        }
+    }
+}
+void STexture::sblitB(SpriteSheet* src, int srcX, int srcY, int srcW, int srcH)
+{
+    uint32_t* srcPixels = *src->getSheetPixels();
+    int spshW = src->getSheetTexture()->getTexWidth();
+
+    float scW = (float)srcW/(float)lockArea.w;
+    float scH = (float)srcH/(float)lockArea.h;
+
+    for( int py = 0; py<lockArea.h; py++ ) {
+        uint32_t* dstRow = dstPixels+(py*lockArea.w);
+        uint32_t* srcRow = srcPixels+(int)((srcY+py)*scW)*spshW;
+        for ( int px = 0; px<lockArea.w; px++ ) {
+            //FORMULA: dstPixel = srcPixel%dstPixel
+            Color srcColor( srcRow[ (int)((srcX+px)*scH) ] );
+            srcColor.blend(colorMod);
+            dstRow[px] = srcColor.getRGBA();
+        }
+    }
+}
+void STexture::sblitM(SpriteSheet* src, int srcX, int srcY, int srcW, int srcH)
+{
+    uint32_t* srcPixels = *src->getSheetPixels();
+    int spshW = src->getSheetTexture()->getTexWidth();
+
+    float scW = (float)srcW/(float)lockArea.w;
+    float scH = (float)srcH/(float)lockArea.h;
+
+    for( int py = 0; py<lockArea.h; py++ ) {
+        uint32_t* dstRow = dstPixels+(py*lockArea.w);
+        uint32_t* srcRow = srcPixels+(int)((srcY+py)*scW)*spshW;
+        for ( int px = 0; px<lockArea.w; px++ ) {
+            //FORMULA: dstPixel = srcPixel%dstPixel
+            Color srcColor( srcRow[ (int)((srcX+px)*scH) ] );
+            srcColor.mod(colorMod);
+            dstRow[px] = srcColor.getRGBA();
+        }
+    }
+}
 void STexture::sblitN(SpriteSheet* src, int srcX, int srcY, int srcW, int srcH)
 {
     uint32_t* srcPixels = *src->getSheetPixels();
@@ -128,6 +181,7 @@ void STexture::sblitN(SpriteSheet* src, int srcX, int srcY, int srcW, int srcH)
         uint32_t* dstRow = dstPixels+(py*lockArea.w);
         uint32_t* srcRow = srcPixels+(int)((srcY+py)*scW)*spshW;
         for ( int px = 0; px<lockArea.w; px++ ) {
+            //FORMULA: dstPixel = srcPixel
             dstRow[px] = srcRow[ (int)((srcX+px)*scH) ];
         }
     }

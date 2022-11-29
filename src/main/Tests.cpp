@@ -26,20 +26,19 @@ void Tests::init(SDLHandler* sh, FileHandler* fh, Controls* ctrls)
     SpriteSheet ss;
     ss.init(sdlHandler, TextureLoader::WORLD_TILE_type_a);
 
-    /*
     stex.lock(0, 0, 512, 512);
     stex.fill(127, 127, 255);
     stex.update();
     Timer tim1("test1", false);
-    for( int i = 0; i<1; i++ ) {
+    {
         stex.setColorMod(255, 0, 0);
         stex.setBlendMode(SDL_BLENDMODE_MOD);
         stex.lock(128, 128, 128, 128);
-        stex.blit(&ss);
+        stex.sblit(&ss, 0, 0, 512, 512);
         stex.update();
     }
     tim1.debugElapsedTimeMS();
-    */
+
 
     ttex.init(sdlHandler, 1024, 1024);
     ttex.lock(0, 0, 512, 512);
@@ -50,7 +49,7 @@ void Tests::init(SDLHandler* sh, FileHandler* fh, Controls* ctrls)
         ttex.setColorMod(255, 0, 0);
         ttex.setBlendMode(SDL_BLENDMODE_MOD);
         ttex.lock(128, 128, 128, 128);
-        ttex.blit(TextureLoader::WORLD_TILE_type_a, 0, 0);
+        ttex.blit(TextureLoader::WORLD_TILE_type_a, 0, 0, 512, 512);
     }
     tim2.debugElapsedTimeMS();
 
@@ -84,16 +83,18 @@ Tests::~Tests(){}
 
 void Tests::draw()
 {
-    Texture test123;
-    test123.init(sdlHandler, 512, 512);
-    test123.setDrawScale(3);
-    test123.lock();
-    test123.setColorMod(200, 0, 0);
-    test123.fill();
+
+    for(int i = 0; i<10; i++) {
+        int rx = rand()%32;
+        int ry = rand()%32;
+
+        stex.lock(rx*32, ry*32, 32, 32);
+        //stex.
+    }
 
     //test123.draw();
-    //stex.draw();
-    ttex.draw();
+    stex.draw();
+    //ttex.draw();
 
     /*
 

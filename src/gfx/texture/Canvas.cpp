@@ -11,6 +11,8 @@ void Canvas::init(SDLHandler* sh, Controls* ctrls, Camera* cam)
 
     setMaximumFPS(200);
     setCroppingRendering(false);
+
+    realloc(0, 0);
 }
 
 void Canvas::destroy()
@@ -26,7 +28,16 @@ void Canvas::tick()
 {
     //Loads textures (which will initially be empty) one at a time per tick.
     //Unloads all textures that are too far away.
-    realloc( TileMap::getRegRXYZ (camera->getX() ), TileMap::getRegRXYZ(camera->getY() ) );
+    long crx = TileMap::getRegRXYZ( camera->getX() );
+    long cry = TileMap::getRegRXYZ( camera->getY() );
+
+    //if( crx!=camRX || cry!=camRY ) {
+        //std::cout << "realloc\n";
+        realloc( TileMap::getRegRXYZ (camera->getX() ), TileMap::getRegRXYZ(camera->getY() ) );
+        camRX = crx;
+        camRY = cry;
+    //}
+
 
     if(camera==nullptr) {
         Log::warn(__PRETTY_FUNCTION__, "Camera is nullptr.");
@@ -52,7 +63,6 @@ void Canvas::tick()
 
                 currentTexSize = ((float)defaultTexSize)*texLOD;
             }
-
         }
     }
 

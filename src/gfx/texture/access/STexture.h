@@ -17,6 +17,9 @@ public:
     void unlock();
 
     void sblit(SpriteSheet* src, int srcX, int srcY, int srcW, int srcH);
+    void sblitA(SpriteSheet* src, int srcX, int srcY, int srcW, int srcH);
+    void sblitB(SpriteSheet* src, int srcX, int srcY, int srcW, int srcH);
+    void sblitM(SpriteSheet* src, int srcX, int srcY, int srcW, int srcH);
     void sblitN(SpriteSheet* src, int srcX, int srcY, int srcW, int srcH);
 
     void blit(SpriteSheet* src, int srcX, int srcY);

@@ -22,14 +22,20 @@ void World::init(SDLHandler* sh, FileHandler* fh, Controls* ctrls)
     //Init csTileMap
     csTileMap.init(sdlHandler, controls, player.getCamera());
     csTileMap.setTexUsingDynamicLOD(true);
-    csTileMap.setTexAllocCount(100);
+    csTileMap.setTexAllocCount(1);
+    csTileMap.setTexAllocRadiusX(1);
+    csTileMap.setTexAllocRadiusY(1);
 
     //Init csInteractions
     csInteractions.init(sdlHandler, controls, player.getCamera());
     csInteractions.setMaximumFPS(20);
+    csInteractions.setTexAllocRadiusX(1);
+    csInteractions.setTexAllocRadiusY(1);
 
     //Init csEntities
     csEntities.init(sdlHandler, controls, player.getCamera());
+    csEntities.setTexAllocRadiusX(1);
+    csEntities.setTexAllocRadiusY(1);
 
     //Build textures
     TextureBuilder tb(sdlHandler);
