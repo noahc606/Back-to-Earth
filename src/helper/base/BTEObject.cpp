@@ -44,7 +44,9 @@ void BTEObject::setSubType(int p_subtype)
     if( type==Type::GUI_button ) {
         switch( p_subtype ) {
             case Type::GUI_radiobutton:
-            case Type::GUI_textbox: {
+            case Type::GUI_textbox:
+            case Type::GUI_checkbox:
+            {
                 type = p_subtype;
                 return;
             } break;

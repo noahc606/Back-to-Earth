@@ -45,11 +45,16 @@ void SDLHandler::trackEvents(SDL_Event e)
     SDL_GetWindowSize(window, &width, &height);
 }
 
+
 SDL_Window* SDLHandler::getWindow() { return window; }
 SDL_PixelFormat* SDLHandler::getPixelFormat() { return windowPixelFormat; }
 SDL_Renderer* SDLHandler::getRenderer() { return windowRenderer; }
+
+bool SDLHandler::isFullScreen() { return fullscreen; }
 int SDLHandler::getWidth() { return width; }
 int SDLHandler::getHeight() { return height; }
+bool SDLHandler::usingBTECursor() { return bteCursor; }
+
 std::string SDLHandler::getVideoDriversDesc() { return videoDriversDesc; }
 std::string SDLHandler::getResourcePath() { return resourcePath; }
 TextureLoader* SDLHandler::getTextureLoader() { return &textureLoader; }
@@ -59,7 +64,7 @@ void SDLHandler::toggleFullScreen()
 {
     Log::trbshoot(__PRETTY_FUNCTION__, "Toggling fullscreen");
 
-    if(fullscreen) {
+    if( fullscreen ) {
         fullscreen = false;
 
         if ( SDL_SetWindowFullscreen(window, SDL_WINDOW_RESIZABLE | SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN)!=0 ) {
@@ -76,6 +81,19 @@ void SDLHandler::toggleFullScreen()
     }
 
     lastDisplayID = SDL_GetWindowDisplayIndex(window);
+}
+
+void SDLHandler::toggleBTECursor()
+{
+    Log::trbshoot(__PRETTY_FUNCTION__, "Toggling BTE cursor");
+
+    if( bteCursor ) {
+        SDL_ShowCursor(SDL_ENABLE);
+        bteCursor = false;
+    } else {
+        SDL_ShowCursor(SDL_DISABLE);
+        bteCursor = true;
+    }
 }
 
 void SDLHandler::renderCopy(int id, SDL_Rect* src, SDL_Rect* dst)

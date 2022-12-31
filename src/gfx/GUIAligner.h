@@ -1,5 +1,6 @@
 #pragma once
 #include "GUIHandler.h"
+#include <set>
 
 class GUIAligner : GUIHandler
 {
@@ -10,4 +11,7 @@ public:
 protected:
 
 private:
+    static void alignWindowComponentsVH(std::vector<GUI*>& guis, int align, std::set<GUI*>& windows, std::set<int>& compCoords);
+    static void alignWindowComponentsLR(std::vector<GUI*>& guis, int align, std::set<GUI*>& windows, std::set<int>& compCoords);
+    static void alignWindowComponentsUD(std::vector<GUI*>& guis, int align, std::set<GUI*>& windows, std::set<int>& compCoords);
 };

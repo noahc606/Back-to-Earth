@@ -37,6 +37,7 @@ void Tests::init(SDLHandler* sh, FileHandler* fh, Controls* ctrls)
         stex.sblit(&ss, 0, 0, 512, 512);
         stex.update();
     }
+
     tim1.debugElapsedTimeMS();
 
 
@@ -85,16 +86,13 @@ void Tests::draw()
 {
 
     for(int i = 0; i<10; i++) {
-        int rx = rand()%32;
-        int ry = rand()%32;
-
-        stex.lock(rx*32, ry*32, 32, 32);
+        //stex.lock(rx*32, ry*32, 32, 32);
         //stex.
     }
 
     //test123.draw();
-    stex.draw();
-    //ttex.draw();
+    //stex.draw();
+    ttex.draw();
 
     /*
 

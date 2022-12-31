@@ -1,6 +1,7 @@
 #include "Player.h"
 #include <cmath>
 #include <math.h>
+#include <iomanip>
 #include <iostream>
 #include "DebugScreen.h"
 #include "Log.h"
@@ -247,13 +248,16 @@ void Player::tick()
 void Player::info(std::stringstream& ss, int& tabs)
 {
     DebugScreen::indentLine(ss, tabs);
-    ss << "Player(x, y, z)=(" << x << ", " << y << ", " << z << "); ";
-    ss << "Player(vx, vy, vz)=(" << vx << ", " << vy << ", " << vz << "); ";
+    ss << "XYZ=(" << x << ", " << y << ", " << z << "); ";
     DebugScreen::newLine(ss);
 
     DebugScreen::indentLine(ss, tabs);
-    ss << "Player(anWalkFrameX, anWalkState)=(" << anWalkFrameX << ", " << anWalkState << "); ";
-    ss << "Player(walkSpeed)=(" << walkSpeed << "); ";
+    ss << "dXYZ=(" << vx << ", " << vy << ", " << vz << "); ";
+    DebugScreen::newLine(ss);
+
+    DebugScreen::indentLine(ss, tabs);
+    ss << "(anWalkFrameX, anWalkState)=(" << anWalkFrameX << ", " << anWalkState << "); ";
+    ss << "(walkSpeed)=(" << walkSpeed << "); ";
     DebugScreen::newLine(ss);
 }
 

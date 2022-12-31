@@ -1,2 +1,3 @@
+bteCursor=true
 fullscreen=false
 maxFPS=none

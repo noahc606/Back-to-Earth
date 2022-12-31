@@ -23,16 +23,20 @@ public:
     SDL_PixelFormat* getPixelFormat();
     SDL_Renderer* getRenderer();
     //Get window properties
+    bool isFullScreen();
     int getWidth();
     int getHeight();
+    bool usingBTECursor();
     //Get Resources
     std::string getVideoDriversDesc();
     std::string getResourcePath();
     TextureLoader* getTextureLoader();
     AudioLoader* getAudioLoader();
 
+
     /**/
     void toggleFullScreen();
+    void toggleBTECursor();
     void renderCopy(int id, SDL_Rect* src, SDL_Rect* dst);
     void renderCopy(int id, SDL_Rect* src, SDL_Rect* dst, double angle, SDL_Point* cor);
     void setColorMod(int id, const Color& c);
@@ -65,7 +69,9 @@ private:
     SDL_Renderer* windowRenderer = nullptr;
     //Window properties
     bool fullscreen = false;
-    int lastDisplayID = 0;
     int width = 0; int maxWidth = 640;
     int height = 0; int maxHeight = 480;
+    bool bteCursor = false;
+    int lastDisplayID = 0;
+
 };

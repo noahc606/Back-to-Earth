@@ -62,6 +62,7 @@ Settings::Settings()
     s = &(defaultSettings[options]);
     addTo(s, "fullscreen", "false");
     addTo(s, "maxFPS", "none");
+    addTo(s, "bteCursor", "true");
 
     s = &(defaultSettings[version]);
     addTo(s, "version", Main::VERSION);

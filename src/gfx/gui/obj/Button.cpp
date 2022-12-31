@@ -1,4 +1,5 @@
 #include "Button.h"
+#include "CheckBox.h"
 #include "GUIHandler.h"
 #include "TextureBuilder.h"
 
@@ -11,8 +12,6 @@ Button::Button(Window* p_parentWindow, int p_x, int p_y, int p_width, std::strin
 {
     setType(BTEObject::Type::GUI_button);
     setID(p_id);
-
-    buttonType = BUTTON;
 
     //Take in p_s
     btnString = p_s;
@@ -30,7 +29,7 @@ void Button::init(SDLHandler* sh, Controls* ctrls)
     //Build button textures
     TextureBuilder tb(sdlHandler);
 
-    if( buttonType==TEXTBOX ) {
+    if( getType()==GUI_textbox ) {
         tb.init(TextureBuilder::BTN_Tex, texBtn, texW, texH,  0,  0);
         tb.init(TextureBuilder::BTN_Tex, texBtnHovering, texW, texH, 41,  0);
         tb.init(TextureBuilder::BTN_Tex, texTbxSelected, texW, texH,  0, 17);
@@ -72,20 +71,20 @@ void Button::draw()
 {
     //If hovering, draw texture 1
     if(hovering) {
-        if( buttonType==BUTTON || buttonType==TEXTBOX ) {
+        if( getType()==GUI_button || getType()==GUI_textbox ) {
             texBtnHovering.draw();
         }
     } else {
     //If not hovering, draw texture 2
-        if( buttonType==BUTTON || buttonType==TEXTBOX ) {
+        if( getType()==GUI_button || getType()==GUI_textbox ) {
             texBtn.draw();
         }
     }
 
     //If button is selected, draw selection texture
     if(selected) {
-        switch( buttonType ) {
-            case TEXTBOX: {
+        switch( getType() ) {
+            case GUI_textbox: {
                 texTbxSelected.draw();
             } break;
             default: {
@@ -135,8 +134,13 @@ void Button::tick()
     if( hovering ) {
         if( controls->isPressed("HARDCODE_LEFT_CLICK") ) {
 
-            if( buttonType==TEXTBOX ) {
+            if( getType()==GUI_textbox ) {
                 btnText.setInsertionPointByPx( mX-sX );
+            }
+
+            if( getType()==GUI_checkbox ) {
+                CheckBox* cbObj = (CheckBox*)this;
+                cbObj->cycleState();
             }
 
             controls->stopPress("HARDCODE_LEFT_CLICK", __PRETTY_FUNCTION__);
@@ -146,7 +150,7 @@ void Button::tick()
         }
     } else {
         if( controls->isPressed("HARDCODE_LEFT_CLICK") ) {
-            if(selected && buttonType!=RADIO ) {
+            if(selected && getType()!=GUI_radiobutton ) {
             controls->stopPress("HARDCODE_LEFT_CLICK", __PRETTY_FUNCTION__);
                 selected = false;
                 btnText.setSelected(false);
@@ -172,7 +176,7 @@ void Button::onWindowUpdate()
 
     //If not textbox, center the text.
     int txtX = 0;
-    if( buttonType==TEXTBOX ) {
+    if( getType()==GUI_textbox ) {
         txtX = sX+4*2;
     } else {
         int txtW = btnText.getWidth()/2;

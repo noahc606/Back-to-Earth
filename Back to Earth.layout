@@ -2,24 +2,29 @@
 <CodeBlocks_layout_file>
 	<FileVersion major="1" minor="0" />
 	<ActiveTarget name="Debug" />
-	<File name="src\gfx\texture\access\STexture.h" open="0" top="0" tabpos="2" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="src\helper\base\BTEObject.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="648" topLine="6" />
+			<Cursor1 position="1240" topLine="23" />
 		</Cursor>
 	</File>
-	<File name="src\gfx\texture\access\TTexture.cpp" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="src\gfx\GUIAligner.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="23" topLine="0" />
+			<Cursor1 position="581" topLine="0" />
 		</Cursor>
 	</File>
-	<File name="src\gfx\texture\access\TTexture.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="src\gfx\gui\obj\CheckBox.h" open="1" top="0" tabpos="6" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="36" topLine="0" />
+			<Cursor1 position="586" topLine="1" />
 		</Cursor>
 	</File>
-	<File name="src\main\BTE.cpp" open="0" top="0" tabpos="2" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="src\helper\base\BTEObject.cpp" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="704" topLine="61" />
+			<Cursor1 position="1388" topLine="33" />
+		</Cursor>
+	</File>
+	<File name="src\io\Settings.cpp" open="0" top="0" tabpos="10" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="4489" topLine="135" />
 		</Cursor>
 	</File>
 	<File name="src\gfx\texture\SpriteSheetBuilder.h" open="0" top="0" tabpos="3" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
@@ -27,9 +32,93 @@
 			<Cursor1 position="0" topLine="0" />
 		</Cursor>
 	</File>
-	<File name="src\io\TextureLoader.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="src\io\TextureLoader.cpp" open="0" top="0" tabpos="1" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="1212" topLine="47" />
+			<Cursor1 position="3513" topLine="108" />
+		</Cursor>
+	</File>
+	<File name="src\gfx\gui\WindowComponent.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="765" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="src\world\tile\TileIterator.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="1306" topLine="27" />
+		</Cursor>
+	</File>
+	<File name="src\io\debug\Log.cpp" open="0" top="0" tabpos="1" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="129" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="src\gfx\gui\WindowComponent.cpp" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="1335" topLine="37" />
+		</Cursor>
+	</File>
+	<File name="src\gfx\texture\SpriteSheet.cpp" open="0" top="0" tabpos="7" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="5929" topLine="107" />
+		</Cursor>
+		<Folding>
+			<Collapse line="70" />
+			<Collapse line="93" />
+			<Collapse line="99" />
+			<Collapse line="104" />
+			<Collapse line="139" />
+			<Collapse line="144" />
+			<Collapse line="152" />
+			<Collapse line="160" />
+			<Collapse line="167" />
+		</Folding>
+	</File>
+	<File name="src\gfx\gui\obj\Button.h" open="1" top="0" tabpos="1" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="1153" topLine="8" />
+		</Cursor>
+	</File>
+	<File name="src\gfx\texture\Color.cpp" open="0" top="0" tabpos="6" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="2132" topLine="11" />
+		</Cursor>
+	</File>
+	<File name="src\io\Controls.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="707" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="src\world\tile\RegTexBuilder.cpp" open="0" top="0" tabpos="4" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="6126" topLine="0" />
+		</Cursor>
+		<Folding>
+			<Collapse line="20" />
+			<Collapse line="41" />
+			<Collapse line="58" />
+			<Collapse line="79" />
+			<Collapse line="92" />
+			<Collapse line="98" />
+			<Collapse line="154" />
+			<Collapse line="220" />
+		</Folding>
+	</File>
+	<File name="src\gfx\GUIAligner.cpp" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="2513" topLine="27" />
+		</Cursor>
+		<Folding>
+			<Collapse line="87" />
+		</Folding>
+	</File>
+	<File name="src\main\SDLHandler.cpp" open="0" top="0" tabpos="3" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="3342" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="src\gfx\gui\GUIAlignable.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="239" topLine="8" />
 		</Cursor>
 	</File>
 	<File name="src\world\tile\TileIterator.cpp" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
@@ -42,49 +131,62 @@
 			<Collapse line="232" />
 		</Folding>
 	</File>
-	<File name="src\gfx\texture\Texture.h" open="0" top="0" tabpos="5" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="src\gfx\GUIHandler.h" open="1" top="0" tabpos="2" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="6869" topLine="83" />
+			<Cursor1 position="1027" topLine="27" />
 		</Cursor>
 	</File>
-	<File name="src\main\SDLHandler.cpp" open="0" top="0" tabpos="3" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="src\gfx\gui\obj\CheckBox.cpp" open="1" top="1" tabpos="4" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="7861" topLine="208" />
+			<Cursor1 position="1283" topLine="20" />
 		</Cursor>
 	</File>
-	<File name="src\gfx\texture\Color.cpp" open="0" top="0" tabpos="6" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="src\world\tile\TileMapScreen.h" open="0" top="0" tabpos="3" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="2132" topLine="11" />
-		</Cursor>
-	</File>
-	<File name="src\io\debug\Timer.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="247" topLine="3" />
-		</Cursor>
-	</File>
-	<File name="src\main\SDLHandler.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="1217" topLine="33" />
-		</Cursor>
-	</File>
-	<File name="src\io\Settings.cpp" open="0" top="0" tabpos="10" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="615" topLine="12" />
+			<Cursor1 position="2325" topLine="40" />
 		</Cursor>
 	</File>
 	<File name="src\gfx\texture\Canvas.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="1939" topLine="59" />
+			<Cursor1 position="1288" topLine="16" />
 		</Cursor>
 	</File>
-	<File name="src\world\Player.cpp" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="src\world\tile\RegTexBuilder.h" open="0" top="0" tabpos="5" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="1040" topLine="45" />
+			<Cursor1 position="103" topLine="0" />
 		</Cursor>
 	</File>
-	<File name="src\world\tile\TileIterator.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="src\main\SDLHandler.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="1306" topLine="27" />
+			<Cursor1 position="1935" topLine="40" />
+		</Cursor>
+	</File>
+	<File name="src\gfx\texture\Canvas.cpp" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="2798" topLine="68" />
+		</Cursor>
+	</File>
+	<File name="src\world\gen\Noise.h" open="0" top="0" tabpos="2" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="187" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="src\main\BTE.cpp" open="0" top="0" tabpos="2" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="7860" topLine="267" />
+		</Cursor>
+	</File>
+	<File name="src\world\tile\TileMapScreen.cpp" open="0" top="0" tabpos="2" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="7038" topLine="192" />
+		</Cursor>
+		<Folding>
+			<Collapse line="231" />
+		</Folding>
+	</File>
+	<File name="src\gfx\texture\TextureBuilder.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="762" topLine="0" />
 		</Cursor>
 	</File>
 	<File name="src\io\debug\Timer.cpp" open="0" top="0" tabpos="3" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
@@ -104,70 +206,13 @@
 			<Collapse line="156" />
 		</Folding>
 	</File>
-	<File name="src\world\Player.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="src\gfx\texture\ColorPalette.cpp" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="2113" topLine="64" />
-		</Cursor>
-	</File>
-	<File name="src\gfx\texture\Color.h" open="0" top="0" tabpos="7" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="441" topLine="8" />
-		</Cursor>
-	</File>
-	<File name="src\world\tile\RegTexBuilder.cpp" open="0" top="0" tabpos="4" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="6511" topLine="191" />
-		</Cursor>
-	</File>
-	<File name="src\main\Tests.cpp" open="0" top="0" tabpos="3" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="2158" topLine="71" />
-		</Cursor>
-	</File>
-	<File name="src\world\World.cpp" open="0" top="0" tabpos="1" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="2275" topLine="56" />
+			<Cursor1 position="115" topLine="0" />
 		</Cursor>
 		<Folding>
-			<Collapse line="63" />
-			<Collapse line="109" />
+			<Collapse line="19" />
 		</Folding>
-	</File>
-	<File name="src\gfx\texture\SpriteSheet.cpp" open="0" top="0" tabpos="7" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="5929" topLine="107" />
-		</Cursor>
-		<Folding>
-			<Collapse line="70" />
-			<Collapse line="93" />
-			<Collapse line="99" />
-			<Collapse line="104" />
-			<Collapse line="139" />
-			<Collapse line="144" />
-			<Collapse line="152" />
-			<Collapse line="160" />
-			<Collapse line="167" />
-		</Folding>
-	</File>
-	<File name="src\main\Tests.h" open="0" top="0" tabpos="6" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="109" topLine="0" />
-		</Cursor>
-	</File>
-	<File name="src\world\gen\Noise.cpp" open="0" top="0" tabpos="1" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="1719" topLine="59" />
-		</Cursor>
-	</File>
-	<File name="src\gfx\texture\SpriteSheetBuilder.cpp" open="0" top="0" tabpos="2" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="448" topLine="0" />
-		</Cursor>
-	</File>
-	<File name="src\world\World.h" open="0" top="0" tabpos="8" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="757" topLine="10" />
-		</Cursor>
 	</File>
 	<File name="src\io\FileHandler.cpp" open="0" top="0" tabpos="9" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
@@ -183,37 +228,44 @@
 			<Collapse line="266" />
 		</Folding>
 	</File>
-	<File name="src\world\gen\Noise.h" open="0" top="0" tabpos="2" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="src\gfx\gui\obj\TextBox.cpp" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="187" topLine="0" />
+			<Cursor1 position="247" topLine="0" />
 		</Cursor>
 	</File>
-	<File name="src\gfx\texture\Texture.cpp" open="0" top="0" tabpos="4" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="src\world\gen\Noise.cpp" open="0" top="0" tabpos="1" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="1048" topLine="16" />
-		</Cursor>
-		<Folding>
-			<Collapse line="22" />
-		</Folding>
-	</File>
-	<File name="src\io\TextureLoader.cpp" open="0" top="0" tabpos="1" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="3513" topLine="108" />
+			<Cursor1 position="1719" topLine="59" />
 		</Cursor>
 	</File>
-	<File name="src\gfx\gui\obj\Button.cpp" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="src\main\Main.cpp" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="2220" topLine="61" />
+			<Cursor1 position="37" topLine="0" />
 		</Cursor>
 	</File>
-	<File name="src\world\tile\TileMap.cpp" open="0" top="0" tabpos="6" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="src\gfx\GUIHandler.cpp" open="1" top="0" tabpos="7" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="7214" topLine="45" />
+			<Cursor1 position="12983" topLine="292" />
 		</Cursor>
 	</File>
-	<File name="src\gfx\gui\obj\Button.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="src\gfx\texture\SpriteSheetBuilder.cpp" open="0" top="0" tabpos="2" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="433" topLine="0" />
+			<Cursor1 position="448" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="src\main\Tests.cpp" open="0" top="0" tabpos="3" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="2046" topLine="70" />
+		</Cursor>
+	</File>
+	<File name="src\world\Player.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="2113" topLine="55" />
+		</Cursor>
+	</File>
+	<File name="src\io\debug\Timer.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="247" topLine="3" />
 		</Cursor>
 	</File>
 	<File name="src\gfx\texture\SpriteSheet.h" open="0" top="0" tabpos="8" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
@@ -221,29 +273,94 @@
 			<Cursor1 position="500" topLine="32" />
 		</Cursor>
 	</File>
-	<File name="src\world\tile\TileMapScreen.cpp" open="0" top="0" tabpos="2" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="src\world\World.cpp" open="0" top="0" tabpos="1" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="19521" topLine="333" />
+			<Cursor1 position="674" topLine="104" />
 		</Cursor>
-		<Folding>
-			<Collapse line="83" />
-			<Collapse line="132" />
-			<Collapse line="220" />
-			<Collapse line="241" />
-		</Folding>
 	</File>
-	<File name="src\gfx\texture\access\STexture.cpp" open="0" top="0" tabpos="1" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="src\main\Tests.h" open="0" top="0" tabpos="6" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="2712" topLine="90" />
+			<Cursor1 position="109" topLine="0" />
 		</Cursor>
-		<Folding>
-			<Collapse line="211" />
-			<Collapse line="228" />
-		</Folding>
 	</File>
-	<File name="src\world\tile\TileRegion.h" open="0" top="0" tabpos="4" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="src\gfx\gui\obj\RadioButton.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="174" topLine="0" />
+			<Cursor1 position="813" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="src\world\World.h" open="0" top="0" tabpos="8" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="757" topLine="10" />
+		</Cursor>
+	</File>
+	<File name="src\gfx\gui\obj\Button.cpp" open="1" top="0" tabpos="5" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="44" topLine="56" />
+		</Cursor>
+	</File>
+	<File name="src\world\Player.cpp" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="454" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="src\gfx\texture\Texture.h" open="0" top="0" tabpos="5" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="6869" topLine="83" />
+		</Cursor>
+	</File>
+	<File name="src\gfx\texture\Texture.cpp" open="0" top="0" tabpos="4" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="1048" topLine="67" />
+		</Cursor>
+	</File>
+	<File name="src\gfx\texture\TextureBuilder.cpp" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="4086" topLine="108" />
+		</Cursor>
+	</File>
+	<File name="src\gfx\texture\access\TTexture.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="36" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="src\gfx\texture\access\STexture.h" open="0" top="0" tabpos="2" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="648" topLine="6" />
+		</Cursor>
+	</File>
+	<File name="src\gfx\texture\Color.h" open="0" top="0" tabpos="7" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="441" topLine="8" />
+		</Cursor>
+	</File>
+	<File name="src\gfx\texture\ColorPalette.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="663" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="src\io\ButtonAction.cpp" open="1" top="0" tabpos="3" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="277" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="src\gfx\gui\obj\RadioButton.cpp" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="1212" topLine="24" />
+		</Cursor>
+	</File>
+	<File name="src\io\TextureLoader.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="1212" topLine="47" />
+		</Cursor>
+	</File>
+	<File name="src\world\tile\TileMap.cpp" open="0" top="0" tabpos="6" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="7214" topLine="45" />
+		</Cursor>
+	</File>
+	<File name="src\gfx\texture\access\TTexture.cpp" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="23" topLine="0" />
 		</Cursor>
 	</File>
 	<File name="src\io\FileHandler.h" open="0" top="0" tabpos="6" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
@@ -256,49 +373,14 @@
 			<Cursor1 position="2101" topLine="40" />
 		</Cursor>
 	</File>
-	<File name="src\world\tile\RegTexBuilder.h" open="0" top="0" tabpos="5" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="src\gfx\texture\access\STexture.cpp" open="0" top="0" tabpos="1" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="103" topLine="0" />
+			<Cursor1 position="2923" topLine="90" />
 		</Cursor>
 	</File>
-	<File name="src\helper\base\BTEObject.cpp" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="src\world\tile\TileRegion.h" open="0" top="0" tabpos="4" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="1844" topLine="42" />
-		</Cursor>
-	</File>
-	<File name="src\io\debug\Log.cpp" open="0" top="0" tabpos="1" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="129" topLine="0" />
-		</Cursor>
-	</File>
-	<File name="src\gfx\gui\WindowComponent.cpp" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="1335" topLine="37" />
-		</Cursor>
-	</File>
-	<File name="src\gfx\gui\WindowComponent.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="765" topLine="0" />
-		</Cursor>
-	</File>
-	<File name="src\gfx\texture\Canvas.cpp" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="2134" topLine="48" />
-		</Cursor>
-	</File>
-	<File name="src\world\tile\TileMapScreen.h" open="0" top="0" tabpos="3" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="299" topLine="39" />
-		</Cursor>
-	</File>
-	<File name="src\main\Main.cpp" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="37" topLine="0" />
-		</Cursor>
-	</File>
-	<File name="src\helper\base\BTEObject.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="1318" topLine="26" />
+			<Cursor1 position="174" topLine="0" />
 		</Cursor>
 	</File>
 </CodeBlocks_layout_file>

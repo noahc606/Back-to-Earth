@@ -17,6 +17,7 @@ public:
     void buildWindow(Texture& tex, WindowData* wd, int width, int height);
     void buildRadioButton(Texture& tex, const Color& c, int srcX, int srcY);
     void buildRadioButton(Texture& tex, int srcX, int srcY);
+    void buildCheckbox(Texture& tex, int srcX, int srcY);
     /**/
     enum TextureTypes
     {

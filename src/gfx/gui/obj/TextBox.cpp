@@ -7,7 +7,6 @@ TextBox::TextBox(int p_x, int p_y, int p_width, int p_id)
 : Button::Button(nullptr, p_x, p_y, p_width, "", p_id )
 {
     setSubType(BTEObject::Type::GUI_textbox);
-    buttonType = TEXTBOX;
 }
 void TextBox::init(SDLHandler* sh, Controls* ctrls)
 {

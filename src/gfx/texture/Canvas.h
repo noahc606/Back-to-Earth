@@ -34,12 +34,13 @@ public:
     t_ll getSubPos(t_ll c);
     void getRXYZ(t_ll& x, t_ll& y, t_ll& z);
     t_ll getRXYZ(t_ll c);
+    static float getTexLODBasedOnZoom(double zoom);
 
     /**/
 
     //Canvas texture details
     void resetTexes();
-    void setTexLOD(float lod);
+    void setTexLODBasedOnZoom(double zoom);
     //Canvas blitting (src)
     void setSourceTex(Texture* src, int srcX, int srcY);
     void setSourceTex(int srcID, int srcX, int srcY);
@@ -56,7 +57,6 @@ public:
     void setTexAllocRadiusX(int arx);
     void setTexAllocRadiusY(int ary);
     void setTexAllocCount(int ac);
-
 protected:
 
 private:
@@ -94,5 +94,4 @@ private:
 
     //Mouse info
     double mouseX = 0; double mouseY = 0;
-
 };

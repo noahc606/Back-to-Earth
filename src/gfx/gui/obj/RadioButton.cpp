@@ -3,17 +3,12 @@
 #include "TextureBuilder.h"
 
 RadioButton::RadioButton(Window* p_parentWindow, int p_x, int p_y, std::string p_s, bool p_selected, int p_id, int p_minGMID, int p_maxGMID)
-: Button::Button(p_parentWindow, p_x, p_y, 8, p_s, p_id )
+: Button::Button(p_parentWindow, p_x, p_y, 0, p_s, p_id )
 {
     setSubType(BTEObject::Type::GUI_radiobutton);
 
-    buttonType = RADIO;
-
     minGroupMemberID = p_minGMID;
     maxGroupMemberID = p_maxGMID;
-
-    width = 10;
-    height = 10;
 
     selected = p_selected;
 }
@@ -28,6 +23,7 @@ void RadioButton::init(SDLHandler* sh, Controls* ctrls)
     //Build Tex
     btnText.init(sdlHandler);
     btnText.setString(btnString);
+    width = btnText.getWidth()/2+30;
 
     TextureBuilder tb(sdlHandler);
     tb.buildRadioButton(texRbtn, 33, 68);

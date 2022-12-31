@@ -33,6 +33,15 @@ public:
     static const int tileSize = 32;                     //Size of a tile in pixels
 
 private:
+    void setScreenInfo();
+
+    void mapUpdates();
+    void updateEntireScreen();
+    void idleRegTexUpdates(int updates);
+    void regTexUpdates(Canvas* csTileMap, int maxUpdates);
+
+    void regTexUpdate(TileIterator& ti, Texture* tex);
+
     Camera* cam = nullptr;                              //Area of the world shown on screen. Also tracks size of each tile (zoom factor).
     TileMap* tileMap = nullptr;
     int screenWT = 1; int screenHT = 1;
@@ -47,6 +56,7 @@ private:
     int tileScale = tileSize*mapZoom;                   //Tile scale
     double regScale = tileSize*regionSize*mapZoom;      //Size of the region in screen pixels based on camera's zoom.
     const int regSize = regionSize*tileSize;            //Size of region in pixels. Doesn't matter what camera zoom is.
+    int blitScalePx = 32;
 
     /* RegTexUpdates + performance gauging */
     int rtUpdatesToDo = 256;
@@ -64,13 +74,4 @@ private:
     double regLoadTime = 0.0;
     double regLoadTimeLatest = 0.0;
     double regLoadTimeAvg = 0.0;
-
-    void setScreenInfo();
-
-    void mapUpdates();
-    void updateEntireScreen();
-    void idleRegTexUpdates(int updates);
-    void regTexUpdates(Canvas* csTileMap, int maxUpdates);
-
-    void regTexUpdate(TileIterator& ti, Texture* tex);
 };

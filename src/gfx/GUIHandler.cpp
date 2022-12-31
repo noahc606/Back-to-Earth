@@ -1,5 +1,6 @@
 #include "GUIHandler.h"
 #include <set>
+#include "CheckBox.h"
 #include "Color.h"
 #include "GUIAligner.h"
 #include "Log.h"
@@ -14,7 +15,7 @@ void GUIHandler::init(SDLHandler* sh, FileHandler* fh, Controls* ctrls)
 {
     BTEObject::init(sh, fh, ctrls);
 
-    setGUIs(MAIN_MENU);
+    setGUIs(MAIN);
 }
 GUIHandler::~GUIHandler()
 {
@@ -259,7 +260,7 @@ void GUIHandler::addGUI(GUI* gui)
 void GUIHandler::setGUIs(int guis)
 {
     switch(guis) {
-        case MAIN_MENU: {
+        case MAIN: {
             AudioLoader* al = sdlHandler->getAudioLoader();
             al->play(AudioLoader::TITLE_impact);
 
@@ -286,8 +287,8 @@ void GUIHandler::setGUIs(int guis)
             int width = 300;
             addGUI(new Window( GUIAlignable::CENTER_H, GUIAlignable::CENTER_V, 800, 800, "Options", "", win_OPTIONS ));
             addGUI(new Button( getWindow(win_OPTIONS), GUIAlignable::CENTER_H, GUIAlignable::CENTER_V, width, "Controls", btn_OPTIONS_controls ));
-            addGUI(new Button( getWindow(win_OPTIONS), GUIAlignable::CENTER_H, GUIAlignable::CENTER_V, width, "Graphics Settings", btn_OPTIONS_gs ));
-            addGUI(new Button( getWindow(win_OPTIONS), GUIAlignable::CENTER_H, GUIAlignable::CENTER_V, width, "Back", btn_OPTIONS_back ));
+            addGUI(new Button( getWindow(win_OPTIONS), GUIAlignable::CENTER_H, GUIAlignable::CENTER_V, width, "Graphics Settings", btn_OPTIONS_graphics_settings ));
+            addGUI(new Button( getWindow(win_OPTIONS), GUIAlignable::CENTER_H, 730, width, "Back", btn_OPTIONS_back ));
 
         } break;
         case CONTROLS: {
@@ -299,8 +300,15 @@ void GUIHandler::setGUIs(int guis)
             addGUI(new Button( getWindow(win_CONTROLS), GUIAlignable::CENTER_H, 80, width, "Move East: [d]", btn_CONTROLS_keybind ));
             addGUI(new Button( getWindow(win_CONTROLS), GUIAlignable::CENTER_H, 120, width, "Move South: [s]", btn_CONTROLS_keybind ));
             addGUI(new Button( getWindow(win_CONTROLS), GUIAlignable::CENTER_H, 120, width, "Move West: [a]", btn_CONTROLS_keybind ));
-            addGUI(new Button( getWindow(win_CONTROLS), GUIAlignable::CENTER_H, 160, width, "Back", btn_CONTROLS_back ));
+            addGUI(new Button( getWindow(win_CONTROLS), GUIAlignable::CENTER_H, 730, width, "Back", btn_back_to_OPTIONS ));
+        } break;
+        case GRAPHICS_SETTINGS: {
+            removeGUI(win_OPTIONS);
 
+            int width = 300;
+            addGUI(new Window( GUIAlignable::CENTER_H, GUIAlignable::CENTER_V, 800, 800, "Graphics Settings", "", win_GRAPHICS_SETTINGS ));
+            addGUI(new CheckBox( getWindow(win_CONTROLS), 200, 80, 1, cbx_GRAPHICS_SETTINGS_fullscreen ));
+            addGUI(new Button( getWindow(win_CONTROLS), GUIAlignable::CENTER_H, 730, width, "Back", btn_back_to_OPTIONS ));
         } break;
 
 
@@ -331,7 +339,7 @@ void GUIHandler::setGUIs(int guis)
                     'd': Brief Character description. Can be clicked on to view even more info
                     'c': Character menu which is dynamic
                     'x': Character graphic. Translucent background
-                    'e': Essential info. 3 graphics which represent Health, oxygen, and nutrition + buttons
+                    'e': Essential info. 3 graphics which represent Health, nutrition, oxygen + buttons
                          to view specifics of these 3 graphics. More on the right half.
                     'b': Bottom tab for extra pages (next/prev)
 

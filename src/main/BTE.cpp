@@ -29,6 +29,11 @@ void BTE::init(SDLHandler* p_sh, FileHandler* p_fh, Controls* p_ctrls)
         sdlHandler->toggleFullScreen();
     }
 
+    if( settings->get(Settings::options, "bteCursor")=="true" ) {
+        sdlHandler->toggleBTECursor();
+    }
+
+
     if(true) {
         setGameState(GameState::MAIN_MENU);
     } else {
@@ -64,6 +69,24 @@ void BTE::draw()
     //GUI handler and debug screen exists for all gamestates
     guiHandler.draw();
     debugScreen.draw();
+
+    if( sdlHandler->usingBTECursor() ) {
+
+        SDL_Rect dst;
+        dst.x = controls->getMouseX()/2*2; dst.y = controls->getMouseY()/2*2; dst.w = 24; dst.h = 24;
+        SDL_Rect src;
+        src.x = 0; src.y = 0; src.w = 12; src.h = 12;
+
+        if( controls->isPressed("HARDCODE_LEFT_CLICK") ) {
+            src.y = 36;
+        }
+
+        if( controls->isHeld("HARDCODE_LEFT_CLICK") ) {
+            src.y = 24;
+        }
+
+        sdlHandler->renderCopy( TextureLoader::GUI_cursor, &src, &dst );
+    }
 }
 
 void BTE::tick()
@@ -121,7 +144,7 @@ void BTE::tick()
                 /** Options menu buttons */
                 case GUIHandler::btn_OPTIONS_back:
                     if( gamestate==GameState::MAIN_MENU ) {
-                        guiHandler.setGUIs(GUIHandler::GUIs::MAIN_MENU);
+                        guiHandler.setGUIs(GUIHandler::GUIs::MAIN);
                     } else
                     if( gamestate==GameState::WORLD ) {
                         guiHandler.setGUIs(GUIHandler::GUIs::PAUSE);
@@ -190,7 +213,6 @@ std::string BTE::getInfo()
     DebugScreen::newGroup(ss, tabs, "Controls");
         DebugScreen::indentLine(ss, tabs);
         ss << "Mouse(x, y)=(" << controls->getMouseX() << ", " << controls->getMouseY() << "); ";
-        ss << "Last Mouse Action(press, release)=" << "(" << "null" << ", " << "null" << "); ";
         ss << "Mouse Wheel(y)=" << controls->getMouseWheel() << "; ";
         DebugScreen::newLine(ss);
     DebugScreen::endGroup(tabs);
@@ -261,7 +283,7 @@ void BTE::setGameState(int p_gamestate)
             load(tests);
         } break;
         case MAIN_MENU: {
-            guiHandler.setGUIs(GUIHandler::GUIs::MAIN_MENU);
+            guiHandler.setGUIs(GUIHandler::GUIs::MAIN);
         } break;
         case WORLD: {
             guiHandler.setGUIs(GUIHandler::GUIs::WORLD);

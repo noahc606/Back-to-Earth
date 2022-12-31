@@ -50,8 +50,7 @@ void Canvas::tick()
         //If dynamic Level of Detailing is on
         if( texUsingDynamicLOD ) {
             //Update texLOD
-            texLOD = camera->getZoom();
-            if( texLOD>1.0 ) texLOD = 1.0;
+            setTexLODBasedOnZoom(zoom);
 
             //Resize all texes
             for( t_texMap::iterator itrTM = texes.begin(); itrTM!=texes.end(); itrTM++ ) {
@@ -61,7 +60,7 @@ void Canvas::tick()
                     tex->setTexDimensions( defaultTexSize*texLOD, defaultTexSize*texLOD, true );
                 }
 
-                currentTexSize = ((float)defaultTexSize)*texLOD;
+                currentTexSize = defaultTexSize*texLOD;
             }
         }
     }
@@ -77,29 +76,15 @@ void Canvas::tick()
         double tileScale = zoom*32.0;
         //Set draw scale of tex to be 1 pixel larger than it "should" be:
         //  otherwise there might be tiny visible lines in between regions, breaking continuity.
-        //  cf1 = correctionFactor1. Always == a tiny more than 1.0.
-        double cf1 = 0.0;
+        //  cf = correctionFactor. Always == a tiny more than 1.0.
+        double cf = (zoom*((double)currentTexSize))/(zoom*((double)currentTexSize)-1);
+        /* For fun: cf = (zoom*((double)currentTexSize))/(zoom*((double)currentTexSize)-1)*1.4; */
 
-        if(texUsingDynamicLOD) {
-            cf1 = (zoom*((double)currentTexSize))/(zoom*((double)currentTexSize)-1);
-        } else {
-            cf1 = (zoom*((double)currentTexSize))/(zoom*((double)currentTexSize)-1);
+        tex->setDrawScale( zoom );
+        tex->dilate(cf);
+        if( texUsingDynamicLOD ) {
+            tex->dilate( 1.0/texLOD );
         }
-        //cf1 = (zoom*((double)currentTexSize))/(zoom*((double)currentTexSize)-1)*1.4; //for fun
-        //cf1 = 1.0;
-
-        if(texUsingDynamicLOD) {
-            double cf2 = currentTexSize/(double)(32*(int)(32*zoom));
-            if(cf2<=1.0) cf2 = 1.0;
-
-            tex->setDrawScale( zoom/texLOD );
-            tex->dilate(cf1);
-            tex->dilate(cf2);
-        } else {
-            tex->setDrawScale( zoom );
-            tex->dilate(cf1);
-        }
-
 
         /** Texture translations */
         //Reset location of tex
@@ -117,8 +102,8 @@ void Canvas::tick()
         double ts = 32*mapZoom;
 
         //Find where the mouse is pointing to in the world
-        mouseX = ( (controls->getMouseX()-sdlHandler->getWidth()/2 )/(double)ts )/cf1 +camera->getX();
-        mouseY = ( (controls->getMouseY()-sdlHandler->getHeight()/2 )/(double)ts )/cf1 +camera->getY();
+        mouseX = ( (controls->getMouseX()-sdlHandler->getWidth()/2 )/(double)ts )/cf +camera->getX();
+        mouseY = ( (controls->getMouseY()-sdlHandler->getHeight()/2 )/(double)ts )/cf +camera->getY();
     }
 
 }
@@ -196,6 +181,26 @@ void Canvas::getSubPos(t_ll& x, t_ll& y, t_ll& z) { x = getSubPos(x); y = getSub
 Canvas::t_ll Canvas::getSubPos(t_ll c) { c %= defaultTexSize; if( c<0 ) c+=defaultTexSize; return c; }
 void Canvas::getRXYZ(t_ll& x, t_ll& y, t_ll& z) { x = getRXYZ(x); y = getRXYZ(y); z = getRXYZ(z); }
 Canvas::t_ll Canvas::getRXYZ(t_ll c) { c = floor(c/((double)defaultTexSize)); return c; }
+float Canvas::getTexLODBasedOnZoom(double p_zoom)
+{
+    if( p_zoom<0.03125 ) {
+        return 0.03125;
+    } else
+    if( p_zoom<0.0625 ) {
+        return 0.0625;
+    } else
+    if( p_zoom<0.125 ) {
+        return 0.125;
+    } else
+    if( p_zoom<0.25 ) {
+        return 0.25;
+    } else
+    if( p_zoom<0.5 ) {
+        return 0.5;
+    } else {
+        return 1.0;
+    }
+}
 
 Texture* Canvas::getTex(long rX, long rY)
 {
@@ -246,16 +251,18 @@ void Canvas::resetTexes()
 }
 
 /**
-    Set the textures' LOD (Level of Detail).
-    Default is 1.0.
+    Set the textures' LOD (Level of Detail). Default is 1.0.
+    WARNING:
+        For a texture (especially a texture full of tile images), lod should be = 1/(2^n) (1, 0.5, 0.25, 0.125, etc) for it to look good from far away.
+        Thus you should always use this method to set texLOD instead of setting texLOD directly.
 
     Blitting becomes easier for example when map is zoomed
     out so far that a 32x32 tile becomes smaller than 32x32
     onscreen.
 */
-void Canvas::setTexLOD(float lod)
+void Canvas::setTexLODBasedOnZoom(double p_zoom)
 {
-    texLOD = lod;
+    texLOD = getTexLODBasedOnZoom(p_zoom);
 }
 
 /**

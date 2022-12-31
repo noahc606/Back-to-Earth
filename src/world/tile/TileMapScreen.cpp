@@ -62,8 +62,12 @@ void TileMapScreen::tick()
         //Find tile scale
         mapZoom = cam->getZoom();
         tileScale = tileSize*mapZoom;
-
         updateEntireScreen();
+    }
+
+    int bsp = 32.0*Canvas::getTexLODBasedOnZoom(mapZoom);
+    if( bsp!=blitScalePx ) {
+        blitScalePx = bsp;
     }
 
     //Map updates (regionMap, updatesMap)
@@ -169,16 +173,23 @@ void TileMapScreen::info(std::stringstream& ss, int& tabs, TileMap::t_ll mouseX,
         ss << "Screen(wR, hR)=(" << screenWR << ", " << screenHR << "); ";
         DebugScreen::newLine(ss);
         DebugScreen::indentLine(ss, tabs);
-        ss << "Zoom=" << mapZoom << "; ";
-        ss << "Tile Scale(px)=" << tileScale << "; ";
+        ss << "mapZoom=" << mapZoom << "; ";
+        ss << "tileScale=" << tileScale << "px; ";
+        ss << "blitScale=" << blitScalePx << "px; ";
         DebugScreen::newLine(ss);
 
         //Location in world
         DebugScreen::indentLine(ss, tabs);
-        ss << "Camera(rX, rY, rZ)=(" << camRX << ", " << camRY << ", " << camRZ << "); ";
-        ss << "Camera(x, y, z)=(" << cam->getX() << std::setprecision(5) << ", " << cam->getY() << ", " << cam->getZ() << "); ";
-        ss << "Camera Layer=" << cam->getLayer() << "; ";
+        ss << "XYZ=(" << cam->getX() << std::setprecision(5) << ", " << cam->getY() << ", " << cam->getZ() << "); ";
         DebugScreen::newLine(ss);
+        DebugScreen::indentLine(ss, tabs);
+        ss << "RXYZ=(" << camRX << ", " << camRY << ", " << camRZ << "); ";
+        DebugScreen::newLine(ss);
+        DebugScreen::indentLine(ss, tabs);
+        ss << "Layer=" << cam->getLayer() << "; ";
+        DebugScreen::newLine(ss);
+
+
     DebugScreen::endGroup(tabs);
 
     //Mouse
@@ -188,31 +199,31 @@ void TileMapScreen::info(std::stringstream& ss, int& tabs, TileMap::t_ll mouseX,
         int msy = TileMap::getRegSubPos(mouseY);
         int msz = TileMap::getRegSubPos(mouseZ);
 
-        //Top tile info
+        //Location in world
         DebugScreen::indentLine(ss, tabs);
-        TileIterator ti(tileMap);
-        ti.setBoundsByRXYZ( TileMap::getRegRXYZ(mouseX), TileMap::getRegRXYZ(mouseY), TileMap::getRegRXYZ(cam->getLayer()) );
-
-        ti.setTrackerSub( msx, msy, TileMap::getRegSubPos(cam->getLayer()) );
-        auto tttData = topTrackedTile(ti);
-        TileMap::t_ll dZ = std::get<0>(tttData);
-
-        ss << "Top tile(dZ)=" << dZ << ";";
+        ss << "XYZ=(" << mouseX << ", " << mouseY << ", " << mouseZ << "); ";
+        DebugScreen::newLine(ss);
+        DebugScreen::indentLine(ss, tabs);
+        ss << "subXYZ=(" << msx << ", " << msy << ", " << msz << ") in (" << TileMap::getRegRXYZ(mouseX) << ", " << TileMap::getRegRXYZ(mouseY) << ", " << TileMap::getRegRXYZ(mouseZ) << "); ";
         DebugScreen::newLine(ss);
 
         DebugScreen::newGroup(ss, tabs, "RegTexBuilder");
+            //Top tile info
+            DebugScreen::indentLine(ss, tabs);
+            TileIterator ti(tileMap);
+            ti.setBoundsByRXYZ( TileMap::getRegRXYZ(mouseX), TileMap::getRegRXYZ(mouseY), TileMap::getRegRXYZ(cam->getLayer()) );
+            ti.setTrackerSub( msx, msy, TileMap::getRegSubPos(cam->getLayer()) );
+            auto tttData = topTrackedTile(ti);
+            TileMap::t_ll dZ = std::get<0>(tttData);
+            ss << "Top tile(dZ)=" << dZ << ";";
+            DebugScreen::newLine(ss);
+            //Top tile(x, y, z) info
             DebugScreen::indentLine(ss, tabs);
             ss << "Tile (x, y, z)=(" << ti.getTrackerSub(0) << ", " << ti.getTrackerSub(1) << ", " << ti.getTrackerSub(2)+dZ << ");";
             DebugScreen::newLine(ss);
+            //RTB info
             RegTexBuilder::info(ss, tabs, ti, dZ);
         DebugScreen::endGroup(tabs);
-
-        //Location in world
-        DebugScreen::indentLine(ss, tabs);
-        ss << "RegTex(rX, rY, rZ)=(" << TileMap::getRegRXYZ(mouseX) << ", " << TileMap::getRegRXYZ(mouseY) << ", " << TileMap::getRegRXYZ(mouseZ) << "); ";
-        ss << "RegTex(x, y, z)=(" << mouseX << ", " << mouseY << ", " << mouseZ << "); ";
-        ss << "RegTex(sx, sy, sz)=(" << msx << ", " << msy << ", " << msz << "); ";
-        DebugScreen::newLine(ss);
 
     DebugScreen::endGroup(tabs);
 }
@@ -510,13 +521,10 @@ void TileMapScreen::regTexUpdate(TileIterator& ti, Texture* tex)
     TileMap::t_ll dZ = std::get<0>(tttData);        //Relative height of top tile ( topmost==0, one below==-1, etc. )
     TileType topTileFromCam = std::get<2>(tttData); //TileType of top tile from camera
 
-    int blitScalePx = tileSize*mapZoom;
-    if( blitScalePx>tileSize )
-        blitScalePx = tileSize;
-
     //Get the destination of texture blit on the canvas region
-    int dstX = blitScalePx*ti.getTrackerSub(0);  //32*X
-    int dstY = blitScalePx*ti.getTrackerSub(1);  //32*Y
+    int dstX = blitScalePx*ti.getTrackerSub(0);  //blit scale*X
+    int dstY = blitScalePx*ti.getTrackerSub(1);  //blit scale*Y
+
 
     /*
     tex->lock(dstX, dstY, blitScalePx, blitScalePx);

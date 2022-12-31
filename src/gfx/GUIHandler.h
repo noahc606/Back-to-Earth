@@ -39,17 +39,20 @@ public:
         btn_MAIN_play,
         btn_MAIN_options,
         btn_MAIN_exit,
+        btn_back_to_MAIN,
 
         win_OPTIONS = 200,
         btn_OPTIONS_controls,
-        btn_OPTIONS_gs,
+        btn_OPTIONS_graphics_settings,
         btn_OPTIONS_back,
+        btn_back_to_OPTIONS,
 
             win_CONTROLS = 300,
             btn_CONTROLS_keybind,
-            btn_CONTROLS_back,
 
             win_GRAPHICS_SETTINGS = 300,
+            ttp_GRAPHICS_SETTINGS_fullscreen,
+            cbx_GRAPHICS_SETTINGS_fullscreen,
 
         win_PAUSED = 1000,
         btn_PAUSED_back,
@@ -66,9 +69,10 @@ public:
     };
 
     enum GUIs {
-        MAIN_MENU,
+        MAIN,
         OPTIONS,
             CONTROLS,
+            GRAPHICS_SETTINGS,
 
         PAUSE, UNPAUSE,
         WORLD,

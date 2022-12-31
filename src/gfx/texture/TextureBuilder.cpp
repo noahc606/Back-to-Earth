@@ -132,6 +132,11 @@ void TextureBuilder::buildRadioButton(Texture& tex, int srcX, int srcY)
     buildRadioButton(tex, Color(), srcX, srcY);
 }
 
+void TextureBuilder::buildCheckbox(Texture& tex, int srcX, int srcY)
+{
+    buildRadioButton(tex, Color(), srcX, srcY);
+}
+
 void TextureBuilder::tile(Texture& tex)
 {
     //Build "default" tile.
