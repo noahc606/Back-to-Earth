@@ -55,7 +55,7 @@ void AudioLoader::init(int p_frequency, uint16_t p_format, int p_channels)
 
 void AudioLoader::play(int index)
 {
-    play(index, -1, 0, -1);
+    //play(index, -1, 0, -1);
 }
 
 void AudioLoader::play(int index, int channel, int loops, int ticks)

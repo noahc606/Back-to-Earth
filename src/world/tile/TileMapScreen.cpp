@@ -73,13 +73,10 @@ void TileMapScreen::tick()
     //Map updates (regionMap, updatesMap)
     std::string* cmd = Commands::getString("stopMapUpdates");
     if( cmd!=nullptr ) {} else {
-        if( rand()%5==0 )
+        if( rand()%5==0 ) {
             mapUpdates();
+        }
     }
-
-    //Translations depending on window width/height. Ensures that current camera's location is at the center of the window.
-    //screenTX = sdlHandler->getWidth()/2;
-    //screenTY = sdlHandler->getHeight()/2;
 
     tickTime = localTimer.getElapsedTimeMS();
 }

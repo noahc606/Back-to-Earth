@@ -18,6 +18,7 @@ public:
     virtual ~Texture();
     void init(SDLHandler* sdlHandler);
     void init(SDLHandler* sdlHandler, int texWidth, int texHeight);
+    void init(SDLHandler* sdlHandler, int texWidth, int texHeight, int texScale);
     void destroy();
     /**/
     bool isInitialized();

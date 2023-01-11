@@ -51,7 +51,7 @@ public:
             btn_CONTROLS_keybind,
 
             win_GRAPHICS_SETTINGS = 300,
-            ttp_GRAPHICS_SETTINGS_fullscreen,
+            cbx_GRAPHICS_SETTINGS_bteCursor,
             cbx_GRAPHICS_SETTINGS_fullscreen,
 
         win_PAUSED = 1000,

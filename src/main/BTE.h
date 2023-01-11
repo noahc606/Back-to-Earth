@@ -60,6 +60,7 @@ private:
     bool paused = false;
 
     /* Debugging, testing */
+    const bool testing = true;
     DebugScreen debugScreen;
     Tests* tests = nullptr;
 };

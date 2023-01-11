@@ -90,6 +90,7 @@ int FileHandler::saveAndCloseFile()
 /**
     t_kvSet: A vector of key-value pairs (both elements of the pair are strings)
     Get contents of a .txt file line by line. Returns empty vector if file loading failed.
+    Escape sequences before a newline char or an equals sign char causes those characters to be read in normally.
 */
 Settings::t_kvMap FileHandler::readFileKVs(std::string path)
 {
@@ -108,6 +109,7 @@ Settings::t_kvMap FileHandler::readFileKVs(std::string path)
 
     std::string currentKey = "";
     std::string currentValue = "";
+    bool foundEscape = false;
     bool foundEqualSign = false;
     bool foundNewLine = false;
     for( char c = ifs.get(); ifs.good(); c = ifs.get() ) {
@@ -115,7 +117,15 @@ Settings::t_kvMap FileHandler::readFileKVs(std::string path)
         //Reset foundNewLine
         foundNewLine = false;
 
+        //If we find an escape character, just add the character normally
+        if( c==27 ) {
+            if( foundEqualSign ) {
+                currentValue += c;
+            } else {
+                currentKey += c;
+            }
         //If we find an equals character
+        } else
         if( c=='=' )
         {
             //Edge case: multiple = signs after one another

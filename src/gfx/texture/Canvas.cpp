@@ -26,13 +26,15 @@ void Canvas::destroy()
 
 void Canvas::tick()
 {
-    //Loads textures (which will initially be empty) one at a time per tick.
-    //Unloads all textures that are too far away.
     long crx = TileMap::getRegRXYZ( camera->getX() );
     long cry = TileMap::getRegRXYZ( camera->getY() );
 
     //if( crx!=camRX || cry!=camRY ) {
         //std::cout << "realloc\n";
+
+    //Loads textures (which will initially be empty) one at a time per tick.
+    //Unloads all textures that are too far away.
+
         realloc( TileMap::getRegRXYZ (camera->getX() ), TileMap::getRegRXYZ(camera->getY() ) );
         camRX = crx;
         camRY = cry;
@@ -105,7 +107,6 @@ void Canvas::tick()
         mouseX = ( (controls->getMouseX()-sdlHandler->getWidth()/2 )/(double)ts )/cf +camera->getX();
         mouseY = ( (controls->getMouseY()-sdlHandler->getHeight()/2 )/(double)ts )/cf +camera->getY();
     }
-
 }
 
 void Canvas::draw()

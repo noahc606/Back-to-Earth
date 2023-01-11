@@ -24,9 +24,12 @@ private:
     int minGroupMemberID = -10000;
     int maxGroupMemberID = -10000;
 
-    Texture texRbtn;
-    Texture texRbtnHovering;
-    Texture texRbtnSelected;
-    Texture texRbtnSelectedH;
-    Texture texRbtnClickOverlay;
+    Texture texRB;      //Radio button not hovering
+    Texture texRBH;     //Radio button hovering
+    Texture texRBS;     //Radio button selected overlay
+    Texture texRBSH;    //Radio button selected + hovering overlay
+
+
+    Texture texRBHRect; //Radio button hovering overlay (rectangle)
+    Texture texRBCO;    //Radio button click overlay
 };

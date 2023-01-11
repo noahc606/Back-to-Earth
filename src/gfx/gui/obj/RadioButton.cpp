@@ -23,35 +23,55 @@ void RadioButton::init(SDLHandler* sh, Controls* ctrls)
     //Build Tex
     btnText.init(sdlHandler);
     btnText.setString(btnString);
-    width = btnText.getWidth()/2+30;
+    width = btnText.getWidth()/2+2*24;
+    if(width<2*32) width = 2*32;
 
-    TextureBuilder tb(sdlHandler);
-    tb.buildRadioButton(texRbtn, 33, 68);
-    tb.buildRadioButton(texRbtnHovering, 44, 68);
-    tb.buildRadioButton(texRbtnSelected, 33, 79);
-    tb.buildRadioButton(texRbtnSelectedH, 44, 79);
+    texRB.init(sdlHandler, 10, 10, 2);
+    texRB.lock(); texRB.blit(TextureLoader::GUI_button, 33, 68);
 
-    tb.buildRadioButton(texRbtnClickOverlay, Color(100, 50, 100), 55, 68);
+    texRBH.init(sdlHandler, 10, 10, 2);
+    texRBH.lock(); texRBH.blit(TextureLoader::GUI_button, 44, 68);
+
+    texRBS.init(sdlHandler, 10, 10, 2);
+    texRBS.lock(); texRBS.blit(TextureLoader::GUI_button, 33, 79);
+
+    texRBSH.init(sdlHandler, 10, 10, 2);
+    texRBSH.lock(); texRBSH.blit(TextureLoader::GUI_button, 44, 79);
+
+
+    texRBHRect.init(sdlHandler, width/2, 16, 2);
+    texRBHRect.setColorMod(100, 95, 51);
+    texRBHRect.lock(0, 0, 3, 16); texRBHRect.blit(TextureLoader::GUI_button, 41, 34);
+    texRBHRect.lock(3, 0, width/2-6, 16); texRBHRect.blit(TextureLoader::GUI_button, 45, 34, 32, 16);
+    texRBHRect.lock(width/2-3, 0, 3, 16); texRBHRect.blit(TextureLoader::GUI_button, 78, 34);
+
+
+    texRBCO.init(sdlHandler, 10, 10, 2);
+    texRBCO.setColorMod(100, 50, 100);
+    texRBCO.lock(); texRBCO.blit(TextureLoader::GUI_button, 55, 68);
 }
 
 void RadioButton::draw()
 {
     if(hovering) {
-        texRbtnHovering.draw();
-    } else {
-        texRbtn.draw();
+        texRBHRect.draw();
     }
 
     if( selected ) {
         if(hovering) {
-            texRbtnSelectedH.draw();
+            texRBSH.draw();
         } else {
-            texRbtnSelected.draw();
+            texRBS.draw();
+        }
+    } else {
+        texRB.draw();
+        if(hovering) {
+            texRBH.draw();
         }
     }
 
     if(clicked) {
-        texRbtnClickOverlay.draw();
+        texRBCO.draw();
     }
 
     btnText.draw();
@@ -67,11 +87,12 @@ void RadioButton::deselect() { selected = false; }
 void RadioButton::onWindowUpdate()
 {
     translateSPos();
-    texRbtn.setDrawPos(sX, sY);
-    texRbtnHovering.setDrawPos(sX, sY);
-    texRbtnSelected.setDrawPos(sX, sY);
-    texRbtnSelectedH.setDrawPos(sX, sY);
-    texRbtnClickOverlay.setDrawPos(sX, sY);
+    texRB.setDrawPos(sX+4, sY+6);
+    texRBH.setDrawPos(sX+4, sY+6);
+    texRBHRect.setDrawPos(sX, sY);
+    texRBS.setDrawPos(sX+4, sY+6);
+    texRBSH.setDrawPos(sX+4, sY+6);
+    texRBCO.setDrawPos(sX+4, sY+6);
 
-    btnText.setPos(sX+28, sY+4);
+    btnText.setPos(sX+36, sY+10);
 }

@@ -307,7 +307,8 @@ void GUIHandler::setGUIs(int guis)
 
             int width = 300;
             addGUI(new Window( GUIAlignable::CENTER_H, GUIAlignable::CENTER_V, 800, 800, "Graphics Settings", "", win_GRAPHICS_SETTINGS ));
-            addGUI(new CheckBox( getWindow(win_CONTROLS), 200, 80, 1, cbx_GRAPHICS_SETTINGS_fullscreen ));
+            //addGUI(new CheckBox( getWindow(win_CONTROLS), 40, 80, "Use Custom Cursor", CheckBox::FALSE, cbx_GRAPHICS_SETTINGS_bteCursor ));
+            addGUI(new CheckBox( getWindow(win_CONTROLS), 40, 120, "Force Fullscreen on Startup", CheckBox::FALSE, cbx_GRAPHICS_SETTINGS_fullscreen ));
             addGUI(new Button( getWindow(win_CONTROLS), GUIAlignable::CENTER_H, 730, width, "Back", btn_back_to_OPTIONS ));
         } break;
 

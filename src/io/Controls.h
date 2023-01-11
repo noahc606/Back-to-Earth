@@ -56,8 +56,8 @@ private:
     KeyboardInput kbInfo;
 
     /* Mouse information */
-    int mouseX;
-    int mouseY;
+    int mouseX = -1000;
+    int mouseY = -1000;
     int wheel;
     uint64_t lastWheelEvent;
     /* Store which controls are pressed, held, or released, the last time they happened, and the keys/buttons/etc they correspond to (bindngs) */

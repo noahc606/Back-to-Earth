@@ -25,6 +25,12 @@ void Texture::init(SDLHandler* p_sdlHandler, int p_texWidth, int p_texHeight)
     setTexDimensions(p_texWidth, p_texHeight);
 }
 
+void Texture::init(SDLHandler* p_sdlHandler, int p_texWidth, int p_texHeight, int p_texScale)
+{
+    init(p_sdlHandler, p_texWidth, p_texHeight);
+    setDrawScale(p_texScale);
+}
+
 void Texture::destroy()
 {
     //Certain variables set back to their default values

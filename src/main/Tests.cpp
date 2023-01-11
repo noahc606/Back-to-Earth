@@ -13,6 +13,52 @@ void Tests::init(SDLHandler* sh, FileHandler* fh, Controls* ctrls)
 {
     BTEObject::init(sh, fh, ctrls);
 
+    fh->editFile("level123", "bte_tr");
+    for(int i = 0; i<100; i++) {
+        fh->write((char)i);
+        fh->writeln();
+    }
+    fh->saveAndCloseFile();
+}
+Tests::~Tests(){}
+
+/**/
+
+void Tests::draw()
+{
+
+    for(int i = 0; i<10; i++) {
+        //stex.lock(rx*32, ry*32, 32, 32);
+        //stex.
+    }
+
+    //test123.draw();
+    //stex.draw();
+    //ttex.draw();
+
+    /*
+
+    test123.lock(200, 200, 40, 200);
+    test123.blit(TextureLoader::GUI_FONT_robot, 0, 0);
+    test123.draw();*/
+
+}
+
+void Tests::tick()
+{
+
+}
+
+/**/
+
+void Tests::info(std::stringstream& ss, int& tabs)
+{
+
+}
+
+/*
+void test1()
+{
     //SpriteSheet ss;
     //ColorPalette cpal; cpal.init(cpal.DEFAULT_PLAYER);
 
@@ -74,42 +120,5 @@ void Tests::init(SDLHandler* sh, FileHandler* fh, Controls* ctrls)
     }
 
     treg.save(sdlHandler, fileHandler, false);
-
-
-
 }
-Tests::~Tests(){}
-
-/**/
-
-void Tests::draw()
-{
-
-    for(int i = 0; i<10; i++) {
-        //stex.lock(rx*32, ry*32, 32, 32);
-        //stex.
-    }
-
-    //test123.draw();
-    //stex.draw();
-    ttex.draw();
-
-    /*
-
-    test123.lock(200, 200, 40, 200);
-    test123.blit(TextureLoader::GUI_FONT_robot, 0, 0);
-    test123.draw();*/
-
-}
-
-void Tests::tick()
-{
-
-}
-
-/**/
-
-void Tests::info(std::stringstream& ss, int& tabs)
-{
-
-}
+*/
