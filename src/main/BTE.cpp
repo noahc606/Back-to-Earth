@@ -31,10 +31,11 @@ void BTE::init(SDLHandler* p_sh, FileHandler* p_fh, Controls* p_ctrls)
 
     if( settings->get(Settings::options, "bteCursor")=="true" ) {
         sdlHandler->toggleBTECursor();
+        lastBTECursorState = "true";
     }
 
 
-    if(!testing) {
+    if(testing) {
         setGameState(GameState::MAIN_MENU);
     } else {
         setGameState(GameState::TESTING);
@@ -91,6 +92,12 @@ void BTE::draw()
 
 void BTE::tick()
 {
+    std::string bteCursorState = fileHandler->getSettings()->get(Settings::TextFiles::options, "bteCursor");
+    if( lastBTECursorState!=bteCursorState ) {
+        lastBTECursorState = bteCursorState;
+        sdlHandler->toggleBTECursor();
+    }
+
     /** Gamestate specific objects */
     switch(gamestate) {
 
@@ -129,7 +136,7 @@ void BTE::tick()
 
         //GUI Button Action
         if( guiHandler.getGUIActionID()>-1 ) {
-            ButtonAction ba(sdlHandler, &guiHandler);
+            ButtonAction ba(sdlHandler, fileHandler, &guiHandler);
             //Game state switching through buttons
 
             switch( guiHandler.getGUIActionID() ) {

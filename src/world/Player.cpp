@@ -108,7 +108,6 @@ void Player::draw(Canvas* csEntities)
         playerTex.blitEx(sst, 0, (MIDDLE_BODY)*32, 32, 32, flip);
     }
 
-
     /** Extra */
     //Shoes
     playerTex.lock(1, 48, 32, 32);

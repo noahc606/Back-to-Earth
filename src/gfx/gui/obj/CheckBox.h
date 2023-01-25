@@ -5,6 +5,7 @@ class CheckBox : public Button
 {
 public:
     CheckBox(Window* parentWindow, int x, int y, std::string text, int checkBoxState, int id);
+    CheckBox(Window* parentWindow, int x, int y, std::string text, std::string checkBoxState, int id);
     CheckBox(Window* parentWindow, int x, int y, std::string text, int id);
     CheckBox(Window* parentWindow, int x, int y, int checkBoxState, int id);
     CheckBox(Window* parentWindow, int x, int y, int id);
@@ -14,6 +15,9 @@ public:
     void draw();
     void onWindowUpdate();
     void tick();
+
+    static int getStateFromString(std::string s);
+    int getState();
 
     void cycleState();
     void setCanLeaveBlank(bool clb);
@@ -35,7 +39,7 @@ private:
     int blitBG = 0; //Background
     int blitCO = 0; //Click Overlay
 
-    int checkBoxState = 0;         //0 = blank, 1=false, 2=true, 3=shuffle, anything else=unknown
+    int state = 0;         //0 = blank, 1=false, 2=true, 3=shuffle, anything else=unknown
     bool canLeaveBlank = false;
     bool canShuffle = false;
 };

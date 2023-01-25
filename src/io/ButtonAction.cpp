@@ -1,13 +1,45 @@
 #include "ButtonAction.h"
+#include "CheckBox.h"
+#include "FileHandler.h"
 #include "Log.h"
 #include "MainLoop.h"
 
-ButtonAction::ButtonAction(SDLHandler* sh, GUIHandler* gh)
+ButtonAction::ButtonAction(SDLHandler* sh, FileHandler* fh, GUIHandler* gh)
 {
+    Settings* stgs = fh->getSettings();
+
     switch( gh->getGUIActionID() )
     {
         /** Back-to buttons */
-        case GUIHandler::btn_back_to_OPTIONS:{ gh->setGUIs(GUIHandler::GUIs::OPTIONS); }break;
+        case GUIHandler::btn_back_to_OPTIONS:{
+
+            int objIDs[] = {
+                GUIHandler::ID::cbx_GRAPHICS_SETTINGS_bteCursor,
+                GUIHandler::ID::cbx_GRAPHICS_SETTINGS_fullscreen,
+            };
+            std::string objKeys[] = {
+                "bteCursor",
+                "fullscreen",
+            };
+
+            for(int i = 0; i<2; i++) {
+
+                GUI* possibleCBX = gh->getGUI(BTEObject::GUI_checkbox, objIDs[i]);
+                if( possibleCBX!=nullptr && possibleCBX->getType()==BTEObject::Type::GUI_checkbox ) {
+                    int cbxState = ((CheckBox*)possibleCBX)->getState();
+                    std::string value = "null";
+                    switch( cbxState ) {
+                        case CheckBox::States::FALSE:{ value = "false"; }break;
+                        case CheckBox::States::TRUE:{ value = "true"; }break;
+                    }
+                    stgs->kv(Settings::TextFiles::options, objKeys[i], value);
+                }
+            }
+
+            fh->saveSettings(Settings::TextFiles::options);
+
+            gh->setGUIs(GUIHandler::GUIs::OPTIONS);
+        }break;
         case GUIHandler::btn_back_to_MAIN:{ gh->setGUIs(GUIHandler::GUIs::MAIN); }break;
 
 

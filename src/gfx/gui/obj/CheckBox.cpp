@@ -5,7 +5,7 @@ CheckBox::CheckBox(Window* p_parentWindow, int p_x, int p_y, std::string p_text,
 : Button::Button(p_parentWindow, p_x, p_y, 0, p_text, p_id)
 {
     setSubType(BTEObject::Type::GUI_checkbox);
-    checkBoxState = p_cbs;
+    state = p_cbs;
 
     btnString = p_text;
 
@@ -16,6 +16,9 @@ CheckBox::CheckBox(Window* p_parentWindow, int p_x, int p_y, std::string p_text,
         height = 16;
     }
 }
+
+CheckBox::CheckBox(Window* p_parentWindow, int p_x, int p_y, std::string p_text, std::string p_cbs, int p_id)
+: CheckBox::CheckBox(p_parentWindow, p_x, p_y, p_text, getStateFromString(p_cbs), p_id){}
 
 CheckBox::CheckBox(Window* p_parentWindow, int p_x, int p_y, std::string p_text, int p_id)
 : CheckBox::CheckBox(p_parentWindow, p_x, p_y, p_text, FALSE, p_id){};
@@ -30,7 +33,6 @@ CheckBox::~CheckBox(){}
 
 void CheckBox::init(SDLHandler* sh, Controls* ctrls)
 {
-    std::cout << "initted" << "\n";
     GUI::init(sh, ctrls);
 
     btnText.init(sh);
@@ -61,7 +63,7 @@ void CheckBox::draw()
         texBtn.blit(TextureLoader::GUI_button, 0, 68);
     }
 
-    switch( checkBoxState ) {
+    switch( state ) {
         case 0: {
 
         } break;
@@ -106,19 +108,30 @@ void CheckBox::tick()
     }
 }
 
+int CheckBox::getStateFromString(std::string s)
+{
+    if( s=="true" ) {
+        return TRUE;
+    } else
+    if( s=="false" ) {
+        return FALSE;
+    }
+}
+int CheckBox::getState() { return state; }
+
 void CheckBox::cycleState()
 {
-    checkBoxState++;
-    if( checkBoxState>=UNKNOWN ) {
-        checkBoxState = 0;
+    state++;
+    if( state>=UNKNOWN ) {
+        state = 0;
     }
 
-    if( !canShuffle && checkBoxState==SHUFFLE ) {
-        checkBoxState = BLANK;
+    if( !canShuffle && state==SHUFFLE ) {
+        state = BLANK;
     }
 
-    if( !canLeaveBlank && checkBoxState==BLANK ) {
-        checkBoxState = FALSE;
+    if( !canLeaveBlank && state==BLANK ) {
+        state = FALSE;
     }
 }
 

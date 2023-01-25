@@ -10,65 +10,65 @@ Settings::Settings()
 {
     t_kvMap* s = &(defaultSettings[controls]);
 
-    addTo(s, "FUNC_8", SDLK_F8);
-    addTo(s, "FUNC_9", SDLK_F9);
-    addTo(s, "FUNC_SCREENSHOT", SDLK_F10);
-    addTo(s, "FUNC_FULLSCREEN", SDLK_F11);
-    addTo(s, "FUNC_DEBUG", SDLK_F12);
-    addTo(s, "INGAME_PAUSE", SDLK_ESCAPE);
-    addTo(s, "MAP_USE_ZOOM", SDLK_LCTRL);
+    kv(s, "FUNC_8", SDLK_F8);
+    kv(s, "FUNC_9", SDLK_F9);
+    kv(s, "FUNC_SCREENSHOT", SDLK_F10);
+    kv(s, "FUNC_FULLSCREEN", SDLK_F11);
+    kv(s, "FUNC_DEBUG", SDLK_F12);
+    kv(s, "INGAME_PAUSE", SDLK_ESCAPE);
+    kv(s, "MAP_USE_ZOOM", SDLK_LCTRL);
 
     /** Player */
     //Movement
-    addTo(s, "PLAYER_MOVE_NORTH", SDLK_w);
-    addTo(s, "PLAYER_MOVE_SOUTH", SDLK_s);
-    addTo(s, "PLAYER_MOVE_WEST", SDLK_a);
-    addTo(s, "PLAYER_MOVE_EAST", SDLK_d);
-    addTo(s, "PLAYER_MOVE_UP", SDLK_UP);
-    addTo(s, "PLAYER_MOVE_DOWN", SDLK_DOWN);
-    addTo(s, "PLAYER_MOVE_VERTICAL", SDLK_SPACE);
+    kv(s, "PLAYER_MOVE_NORTH", SDLK_w);
+    kv(s, "PLAYER_MOVE_SOUTH", SDLK_s);
+    kv(s, "PLAYER_MOVE_WEST", SDLK_a);
+    kv(s, "PLAYER_MOVE_EAST", SDLK_d);
+    kv(s, "PLAYER_MOVE_UP", SDLK_UP);
+    kv(s, "PLAYER_MOVE_DOWN", SDLK_DOWN);
+    kv(s, "PLAYER_MOVE_VERTICAL", SDLK_SPACE);
 
     //Advanced Movement
-    addTo(s, "PLAYER_JUMP", SDLK_SPACE);
-    addTo(s, "PLAYER_SPRINT", SDLK_x);
-    addTo(s, "PLAYER_CROUCH", SDLK_c);
+    kv(s, "PLAYER_JUMP", SDLK_SPACE);
+    kv(s, "PLAYER_SPRINT", SDLK_x);
+    kv(s, "PLAYER_CROUCH", SDLK_c);
 
     //Player Interactions
-    addTo(s, "PLAYER_INVENTORY", SDLK_LSHIFT);
-    addTo(s, "PLAYER_SELECT", "MOUSE_LEFT");
-    addTo(s, "PLAYER_VIEW", SDLK_v);
+    kv(s, "PLAYER_INVENTORY", SDLK_LSHIFT);
+    kv(s, "PLAYER_SELECT", "MOUSE_LEFT");
+    kv(s, "PLAYER_VIEW", SDLK_v);
 
 
-    addTo(s, "HARDCODE_LEFT_CLICK", "MOUSE_LEFT");
-    addTo(s, "HARDCODE_MIDDLE_CLICK", "MOUSE_MIDDLE");
-    addTo(s, "HARDCODE_RIGHT_CLICK", "MOUSE_RIGHT");
+    kv(s, "HARDCODE_LEFT_CLICK", "MOUSE_LEFT");
+    kv(s, "HARDCODE_MIDDLE_CLICK", "MOUSE_MIDDLE");
+    kv(s, "HARDCODE_RIGHT_CLICK", "MOUSE_RIGHT");
 
     /** Number keys */
-    addTo(s, "DEBUG_1", SDLK_1);
-    addTo(s, "DEBUG_2", SDLK_2);
-    addTo(s, "DEBUG_3", SDLK_3);
-    addTo(s, "DEBUG_4", SDLK_4);
-    addTo(s, "DEBUG_5", SDLK_5);
-    addTo(s, "DEBUG_6", SDLK_6);
-    addTo(s, "DEBUG_7", SDLK_7);
-    addTo(s, "DEBUG_8", SDLK_8);
-    addTo(s, "DEBUG_9", SDLK_9);
-    addTo(s, "DEBUG_0", SDLK_0);
-    addTo(s, "TEST1234", SDLK_BACKSPACE);
+    kv(s, "DEBUG_1", SDLK_1);
+    kv(s, "DEBUG_2", SDLK_2);
+    kv(s, "DEBUG_3", SDLK_3);
+    kv(s, "DEBUG_4", SDLK_4);
+    kv(s, "DEBUG_5", SDLK_5);
+    kv(s, "DEBUG_6", SDLK_6);
+    kv(s, "DEBUG_7", SDLK_7);
+    kv(s, "DEBUG_8", SDLK_8);
+    kv(s, "DEBUG_9", SDLK_9);
+    kv(s, "DEBUG_0", SDLK_0);
+    kv(s, "TEST1234", SDLK_BACKSPACE);
 
     s = &(defaultSettings[games]);
-    addTo(s, "needTutorial", "true");
+    kv(s, "needTutorial", "true");
 
     s = &(defaultSettings[options]);
-    addTo(s, "fullscreen", "false");
-    addTo(s, "maxFPS", "none");
-    addTo(s, "bteCursor", "true");
+    kv(s, "fullscreen", "false");
+    kv(s, "maxFPS", "none");
+    kv(s, "bteCursor", "true");
 
     s = &(defaultSettings[version]);
-    addTo(s, "version", Main::VERSION);
+    kv(s, "version", Main::VERSION);
 
     s = &(defaultSettings[session]);
-    addTo(s, "date", MainLoop::getSystemTime() );
+    kv(s, "date", MainLoop::getSystemTime() );
 }
 
 bool Settings::unload(int index)
@@ -131,22 +131,6 @@ bool Settings::load(int index, t_kvMap kvMap)
     return true;
 }
 
-bool Settings::save( std::ofstream* ofs, int index)
-{
-    bool success = false;
-    t_settingsMap::iterator itr = settingsMap.find(index);
-    if( itr!=settingsMap.end() ) {
-        t_kvMap kvMap = itr->second;
-        for( t_kvPair kvp : kvMap) {
-            (*ofs) << kvp.first << "=" << kvp.second << "\n";
-        }
-        success = true;
-    }
-
-    ofs->close();
-    return success;
-}
-
 std::string Settings::get(int index, std::string key)
 {
     t_settingsMap::iterator itr = settingsMap.find(index);
@@ -170,38 +154,6 @@ Settings::t_kvMap Settings::getKvMap(int index)
     return contents;
 }
 
-void Settings::loadMap(int index, t_kvMap kvMap)
-{
-    //Find or create a new settingSet (t_kvMap) within 'settingsMap'.
-
-    //If the index within 'settingsMap' exists, 'settingSet' will be a pointer to 'settingsMap'->second.
-    //If the index doesn't exist, 'settingSet' will remain == nullptr.
-    t_settingsMap::iterator smItr = settingsMap.find(index);
-    if( smItr!=settingsMap.end() ) {
-        //Assign settingSet to an existing settingSet
-        t_kvMap* settingSet = &smItr->second;
-
-        //Add all elements of 'kvMap' into the 'settingSet'
-        t_kvMap::iterator kvmItr = kvMap.begin();
-        while( kvmItr!=kvMap.end() ) {
-            addTo( settingSet, kvmItr->first, kvmItr->second );
-            kvmItr++;
-        }
-    } else {
-        //Create a new settingSet
-        t_kvMap settingSet;
-
-        //Add all elements of 'kvMap' into the 'settingSet'
-        t_kvMap::iterator kvmItr = kvMap.begin();
-        while( kvmItr!=kvMap.end() ) {
-            addTo( &settingSet, kvmItr->first, kvmItr->second );
-            kvmItr++;
-        }
-
-        //Insert the 'settingSet'
-        settingsMap.insert( std::make_pair(index, settingSet) );
-    }
-}
 
 /**
     Gets a value from a 'key' located in 'kvMap'.
@@ -223,7 +175,7 @@ std::string Settings::get(t_kvMap kvMap, std::string key)
     Adds a key-value pair ('key', 'val') to the provided 'kvMap'.
     If a key is added which already exists, the old value of the key is overwritten with the new value.
 */
-void Settings::addTo(t_kvMap* kvMap, std::string key, std::string val)
+void Settings::kv(t_kvMap* kvMap, std::string key, std::string val)
 {
     t_kvMap::iterator kvmItr = kvMap->find(key);
     if( kvmItr!=kvMap->end() ) {
@@ -234,10 +186,69 @@ void Settings::addTo(t_kvMap* kvMap, std::string key, std::string val)
 }
 
 /**
-    Converts 'val' to an std::string and then calls addTo(t_kvMap*, std::string, std::string).
+    Converts 'val' to an std::string and then calls kv(t_kvMap*, std::string, std::string).
 */
-void Settings::addTo(t_kvMap* kvMap, std::string key, int val)
+void Settings::kv(t_kvMap* kvMap, std::string key, int val)
 {
     std::stringstream ss; ss << val;
-    addTo(kvMap, key, ss.str());
+    kv(kvMap, key, ss.str());
+}
+
+void Settings::kv(int index, std::string key, std::string val)
+{
+    auto itrSM = settingsMap.find(index);
+    if( itrSM!=settingsMap.end() ) {
+        Settings::t_kvMap* kvMap;
+        kvMap = &(itrSM->second);
+
+        auto itrKVM = kvMap->find(key);
+        if( itrKVM!=kvMap->end() ) {
+            itrKVM->second = val;
+        } else {
+            kvMap->insert( std::make_pair(key, val) );
+        }
+    } else {
+        std::stringstream ss;
+        ss << "Settings map with index '" << index << "' doesn't exist";
+        Log::error(__PRETTY_FUNCTION__, ss.str(), "doing nothing");
+    }
+}
+void Settings::kv(int index, std::string key, int val)
+{
+    std::stringstream ss; ss << val;
+    kv(index, key, ss.str());
+}
+
+
+void Settings::loadMap(int index, t_kvMap kvMap)
+{
+    //Find or create a new settingSet (t_kvMap) within 'settingsMap'.
+
+    //If the index within 'settingsMap' exists, 'settingSet' will be a pointer to 'settingsMap'->second.
+    //If the index doesn't exist, 'settingSet' will remain == nullptr.
+    t_settingsMap::iterator smItr = settingsMap.find(index);
+    if( smItr!=settingsMap.end() ) {
+        //Assign settingSet to an existing settingSet
+        t_kvMap* settingSet = &smItr->second;
+
+        //Add all elements of 'kvMap' into the 'settingSet'
+        t_kvMap::iterator kvmItr = kvMap.begin();
+        while( kvmItr!=kvMap.end() ) {
+            kv( settingSet, kvmItr->first, kvmItr->second );
+            kvmItr++;
+        }
+    } else {
+        //Create a new settingSet
+        t_kvMap settingSet;
+
+        //Add all elements of 'kvMap' into the 'settingSet'
+        t_kvMap::iterator kvmItr = kvMap.begin();
+        while( kvmItr!=kvMap.end() ) {
+            kv( &settingSet, kvmItr->first, kvmItr->second );
+            kvmItr++;
+        }
+
+        //Insert the 'settingSet'
+        settingsMap.insert( std::make_pair(index, settingSet) );
+    }
 }

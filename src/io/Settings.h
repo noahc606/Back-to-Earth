@@ -15,11 +15,15 @@ public:
 
     bool unload(int index);
     bool load(int index, t_kvMap kvMap);
-    bool save( std::ofstream* ofs, int index );
 
-    void setSettings(std::string file, t_kvMap kvMap);
     std::string get(int index, std::string key);
     t_kvMap getKvMap(int index);
+
+    static std::string get(t_kvMap kvMap, std::string key);
+    static void kv(t_kvMap* kvMap, std::string key, std::string val);
+    static void kv(t_kvMap* kvMap, std::string key, int val);
+    void kv(int index, std::string key, std::string val);
+    void kv(int index, std::string key, int val);
 
     enum TextFiles
     {
@@ -35,10 +39,6 @@ public:
 
 private:
     void loadMap(int index, t_kvMap kvMap);
-    void loadDefault(int index);
-    std::string get(t_kvMap kvMap, std::string key);
-    void addTo(t_kvMap* kvMap, std::string key, std::string val);
-    void addTo(t_kvMap* kvMap, std::string key, int val);
 
     bool logging = false;
     t_settingsMap settingsMap;

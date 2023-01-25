@@ -18,12 +18,15 @@ public:
     int editFile(std::string path, std::string fileFormat);
     int editFile(std::string path);
 
-    template<typename T> void write(T t){ofs<<t;};
+    template<typename T> void write(T t){ ofs<<t; };
     void writeChar(char c);
     void writeln(std::string text);
     void writeln();
     int saveAndCloseFile();
+    int saveSettings(int index);
+    int saveSettings();
 
+    Settings::t_kvMap readFileKVs(std::string path, std::string fileFormat);
     Settings::t_kvMap readFileKVs(std::string path);
 
     //Create new folder
@@ -50,7 +53,6 @@ private:
     /* Load and save settings */
     void unloadSettings();
     void loadSettings();
-    void saveSettings();
 
     /* Resource path */
     std::string resourcePath;

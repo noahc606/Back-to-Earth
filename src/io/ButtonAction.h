@@ -6,7 +6,7 @@
 class ButtonAction
 {
 public:
-    ButtonAction(SDLHandler* sh, GUIHandler* gh);
+    ButtonAction(SDLHandler* sh, FileHandler* fh, GUIHandler* gh);
     virtual ~ButtonAction();
 
 protected:

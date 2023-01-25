@@ -86,20 +86,78 @@ int FileHandler::saveAndCloseFile()
     return 0;
 }
 
+int FileHandler::saveSettings(int index)
+{
+    int success = -1;
+
+    if( index>=0 && index<Settings::LAST_INDEX ) {
+        editFile( files[index] );
+
+        auto kvMap = settings.getKvMap(index);
+        if( kvMap.size()!=0 ) {
+            for(auto kvp : kvMap) {
+                write(kvp.first);
+                write("=");
+                write(kvp.second);
+                write("\n");
+            }
+            success = 1;
+        }
+
+        saveAndCloseFile();
+    } else {
+        success = -1000;
+    }
+
+    if( success==1 ) {
+        std::stringstream ss;
+        ss << "Successfully saved file with index '" << index << "'.";
+        Log::trbshoot(__PRETTY_FUNCTION__, ss.str());
+    } else
+    if( success==-1000 ) {
+        std::stringstream ss;
+        ss << "Index '" << index << "' doesn't exist.";
+        Log::error(__PRETTY_FUNCTION__, ss.str());
+    } else {
+        std::stringstream ss;
+        ss << "Failed to save file with index '" << index << "': kvMap.size()=0.";
+        Log::debug(ss.str());
+    }
+    return success;
+}
+
+int FileHandler::saveSettings()
+{
+    int fails = 0;
+    for(int i = 0; i<Settings::LAST_INDEX; i++) {
+        if( saveSettings(i)!=1 ) {
+            fails++;
+        }
+    }
+
+    if( fails==0 )
+        return 1;
+
+    std::stringstream ss;
+    ss << "Failed to save " << fails << " files, something is terribly wrong";
+    Log::error(__PRETTY_FUNCTION__, ss.str());
+
+    return -fails;
+}
 
 /**
     t_kvSet: A vector of key-value pairs (both elements of the pair are strings)
     Get contents of a .txt file line by line. Returns empty vector if file loading failed.
     Escape sequences before a newline char or an equals sign char causes those characters to be read in normally.
 */
-Settings::t_kvMap FileHandler::readFileKVs(std::string path)
+Settings::t_kvMap FileHandler::readFileKVs(std::string path, std::string fileFormat)
 {
     saveAndCloseFile();
 
     Settings::t_kvMap contents;
 
     //Set ifstream (will not create file if nonexistent).
-    setIFS( path );
+    setIFS( path, fileFormat );
 
     //return empty kvSet if file not found.
     if( !ifs ) {
@@ -109,7 +167,7 @@ Settings::t_kvMap FileHandler::readFileKVs(std::string path)
 
     std::string currentKey = "";
     std::string currentValue = "";
-    bool foundEscape = false;
+    bool doEscape = false;
     bool foundEqualSign = false;
     bool foundNewLine = false;
     for( char c = ifs.get(); ifs.good(); c = ifs.get() ) {
@@ -117,16 +175,13 @@ Settings::t_kvMap FileHandler::readFileKVs(std::string path)
         //Reset foundNewLine
         foundNewLine = false;
 
-        //If we find an escape character, just add the character normally
-        if( c==27 ) {
-            if( foundEqualSign ) {
-                currentValue += c;
-            } else {
-                currentKey += c;
-            }
-        //If we find an equals character
+        //If we find an escape character, go to the next character and add it normally
+        if( c==27 && !doEscape ) {
+            doEscape = true;
+            continue;
+        //If we find an equals character that isn't escaped
         } else
-        if( c=='=' )
+        if( c=='=' && !doEscape )
         {
             //Edge case: multiple = signs after one another
             if( foundEqualSign ) {
@@ -134,9 +189,9 @@ Settings::t_kvMap FileHandler::readFileKVs(std::string path)
             }
             //foundEqualsSign set to true
             foundEqualSign = true;
-        //If we find a newline character
+        //If we find a newline character that isn't escaped
         } else
-        if( c=='\n' ) {
+        if( c=='\n' && !doEscape ) {
             //update foundNewLine and foundEqualSign.
             foundNewLine = true;
             foundEqualSign = false;
@@ -156,6 +211,9 @@ Settings::t_kvMap FileHandler::readFileKVs(std::string path)
                 currentKey += c;
             }
         }
+
+        //Reset doEscape
+        doEscape = false;
     }
 
     //Push back currentKey and currentValue if newline not found
@@ -165,6 +223,8 @@ Settings::t_kvMap FileHandler::readFileKVs(std::string path)
 
     return contents;
 }
+
+Settings::t_kvMap FileHandler::readFileKVs(std::string path) { return readFileKVs(path, "txt"); }
 
 /**
     Create a directory inside of the main resource path (backtoearth folder)
@@ -298,7 +358,7 @@ void FileHandler::setOFS( std::string path, std::string fileFormat)
     path = path+"."+fileFormat; //fileFormat: can be "txt", "png" or really anything
 
     //Open the output filestream
-    ofs.open(path, std::fstream::out);
+    ofs.open(path, std::ios::out);
 }
 void FileHandler::setOFS( std::string path ) { setOFS(path, "txt"); }
 
@@ -314,7 +374,7 @@ void FileHandler::setIFS( std::string path, std::string fileFormat )
     path = path+"."+fileFormat;
 
     //Open the input filestream.
-    ifs.open( path, std::fstream::in );
+    ifs.open(path, std::ios::in);
 }
 void FileHandler::setIFS( std::string path ) { setIFS(path, "txt"); }
 
@@ -331,14 +391,4 @@ void FileHandler::loadSettings()
         Settings::t_kvMap kvm = readFileKVs( files[i] );
         settings.load( i, kvm );
     }
-}
-
-void FileHandler::saveSettings()
-{
-    for(int i = 0; i<Settings::LAST_INDEX; i++) {
-        editFile( files[i] );
-        settings.save( &ofs, i );
-    }
-
-    saveAndCloseFile();
 }

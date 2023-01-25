@@ -50,6 +50,7 @@ public:
     //Load regions
     int loadRegion(long rX, long rY, long rZ);
     int saveRegion(FileHandler* fileHandler, long rX, long rY, long rZ);
+    int unloadRegion(FileHandler* fileHandler, long rX, long rY, long rZ);
     //Add/Remove updates
     int addTileUpdate(t_ll x, t_ll y, t_ll layer);
     int addTileUpdates(t_ll x, t_ll y, t_ll layer);

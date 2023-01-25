@@ -21,7 +21,7 @@ uint64_t MainLoop::nextSecond = 0;
 
 MainLoop::MainLoop()
 {
-    setMaxFPS(120);
+    setMaxFPS(maxFPS);
 
     //Create Back to Earth subsystems
     Log::trbshoot(__PRETTY_FUNCTION__, "Creating BTE subsystems");
@@ -184,12 +184,12 @@ void MainLoop::tick()
         controls.stopPress("FUNC_9", __PRETTY_FUNCTION__);
     }
 
-    if( controls.isPressed("FUNC_SCREENSHOT")) {
+    if( controls.isPressed("FUNC_SCREENSHOT") ) {
         fileHandler.createPNGScreenshot(sdlHandler.getWindow(), sdlHandler.getRenderer(), sdlHandler.getPixelFormat()) ;
         controls.stopPress("FUNC_SCREENSHOT", __PRETTY_FUNCTION__);
     }
 
-    if(controls.isPressed("FUNC_FULLSCREEN")) {
+    if( controls.isPressed("FUNC_FULLSCREEN") ) {
         sdlHandler.toggleFullScreen();
         controls.stopPress("FUNC_FULLSCREEN", __PRETTY_FUNCTION__);
     }

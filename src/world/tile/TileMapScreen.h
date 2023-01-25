@@ -27,15 +27,17 @@ public:
     void info(std::stringstream& ss, int& tabs, TileMap::t_ll mouseX, TileMap::t_ll mouseY, TileMap::t_ll mouseZ);
     std::tuple<TileMap::t_ll, TileMap::t_ll, TileType> topTrackedTile(TileIterator& ti);
 
-
     /* Variables */
     static const int regionSize = 32;                   //Size of region in tiles
     static const int tileSize = 32;                     //Size of a tile in pixels
+    static const int regSize = regionSize*tileSize;     //Size of region in pixels. Doesn't matter what camera zoom is.
 
 private:
     void setScreenInfo();
-
-    void mapUpdates();
+    void updateMapTicked();
+    void updateMapMoved();
+    void updateMapIdle();
+    void updateMapIdleOld();
     void updateEntireScreen();
     void idleRegTexUpdates(int updates);
     void regTexUpdates(Canvas* csTileMap, int maxUpdates);
@@ -55,8 +57,14 @@ private:
                                                         //e.g. mapZoom of 2 = each tile will be 64x64pixels on the screen.
     int tileScale = tileSize*mapZoom;                   //Tile scale
     double regScale = tileSize*regionSize*mapZoom;      //Size of the region in screen pixels based on camera's zoom.
-    const int regSize = regionSize*tileSize;            //Size of region in pixels. Doesn't matter what camera zoom is.
     int blitScalePx = 32;
+
+    /* Map update distance + counts */
+    int umiTicks = 0;
+    int umiTicksMax = 300;
+    int loadCountMax = 1;
+    int loadRadiusH = 1;
+    int loadRadiusV = 1;
 
     /* RegTexUpdates + performance gauging */
     int rtUpdatesToDo = 256;
@@ -66,12 +74,12 @@ private:
     uint64_t nextSecond = 0;
     int drawsThisSecond = 0;
 
-    double tickTime = 0.0;
-    double drawTime = 0.0;
+    double infoTickTime = 0.0;
+    double infoDrawTime = 0.0;
 
-    int regLoadDivisor = 20;
-    int regLoadCount = 0;
-    double regLoadTime = 0.0;
-    double regLoadTimeLatest = 0.0;
-    double regLoadTimeAvg = 0.0;
+    int infoRegLoadDivisor = 20;
+    int infoRegLoadCount = 0;
+    double infoRegLoadTime = 0.0;
+    double infoRegLoadTimeLatest = 0.0;
+    double infoRegLoadTimeAvg = 0.0;
 };

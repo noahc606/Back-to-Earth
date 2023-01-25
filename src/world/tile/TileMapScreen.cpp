@@ -31,59 +31,54 @@ TileMapScreen::~TileMapScreen() { destroy(); }
 
 void TileMapScreen::tick()
 {
-    tickTime = 0.0;
+    infoTickTime = 0.0;
     Timer localTimer;
 
     //Calculate screen width and screen height (in tiles)
     setScreenInfo();
 
-    if( cam==nullptr || tileMap==nullptr || tileMap->getRegionMap()==nullptr )
-        return;
-
-    //Get current cam region
-    int cRX = floor( cam->getX()/regionSize );
-    int cRY = floor( cam->getY()/regionSize );
-    int cRZ = floor( ((double)cam->getZ())/regionSize );
-    int cL = cam->getLayer();
-
-    //If current cam region is different than the last, update camRX, camRY and camRZ.
-    if( cRX!=camRX || cRY!=camRY || cRZ!=camRZ ) {
-        camRX = cRX;
-        camRY = cRY;
-        camRZ = cRZ;
-    }
-
-    if( cL!=camL ) {
-        camL = cL;
-        updateEntireScreen();
-    }
-
-    if( mapZoom!=cam->getZoom() ) {
-        //Find tile scale
-        mapZoom = cam->getZoom();
-        tileScale = tileSize*mapZoom;
-        updateEntireScreen();
-    }
-
-    int bsp = 32.0*Canvas::getTexLODBasedOnZoom(mapZoom);
-    if( bsp!=blitScalePx ) {
-        blitScalePx = bsp;
-    }
-
-    //Map updates (regionMap, updatesMap)
-    std::string* cmd = Commands::getString("stopMapUpdates");
-    if( cmd!=nullptr ) {} else {
-        if( rand()%5==0 ) {
-            mapUpdates();
+    if( cam!=nullptr && tileMap!=nullptr && tileMap->getRegionMap()!=nullptr ) {
+        updateMapTicked();
+        //If current cam region is different than the last, update camRX, camRY and camRZ.
+        int cRX = floor( cam->getX()/regionSize );
+        int cRY = floor( cam->getY()/regionSize );
+        int cRZ = floor( ((double)cam->getZ())/regionSize );
+        if( cRX!=camRX || cRY!=camRY || cRZ!=camRZ ) {
+            //Update camRXYZ
+            camRX = cRX; camRY = cRY; camRZ = cRZ;
+            updateMapMoved();
+        }
+        //If current cam layer is different than the last, update camL and update the entire screen.
+        int cL = cam->getLayer();
+        if( cL!=camL ) {
+            camL = cL;
+            updateMapMoved();
+            updateEntireScreen();
+        }
+        //If changing zoom, update mapZoom, tileScale, the entire screen, and blitScalePx.
+        if( mapZoom!=cam->getZoom() ) {
+            //Find tile scale
+            mapZoom = cam->getZoom();
+            tileScale = tileSize*mapZoom;
+            updateEntireScreen();
+            blitScalePx = 32.0*Canvas::getTexLODBasedOnZoom(mapZoom);
+        }
+        //Random idle map updates (regionMap, updatesMap)
+        umiTicks++;
+        if( umiTicks>=umiTicksMax ) {
+            umiTicks = 0;
+            std::string* cmd = Commands::getString("stopIdleMapUpdates");
+            if( cmd==nullptr ) {
+                updateMapIdle();
+            }
         }
     }
-
-    tickTime = localTimer.getElapsedTimeMS();
+    infoTickTime = localTimer.getElapsedTimeMS();
 }
 
 void TileMapScreen::draw(Canvas* csTileMap)
 {
-    drawTime = 0.0;
+    infoDrawTime = 0.0;
     Timer localTimer;
 
     if( csTileMap==nullptr ) return;
@@ -127,7 +122,7 @@ void TileMapScreen::draw(Canvas* csTileMap)
 
     csTileMap->draw();
 
-    drawTime = localTimer.getElapsedTimeMS();
+    infoDrawTime = localTimer.getElapsedTimeMS();
 }
 
 void TileMapScreen::info(std::stringstream& ss, int& tabs, TileMap::t_ll mouseX, TileMap::t_ll mouseY, TileMap::t_ll mouseZ)
@@ -137,10 +132,10 @@ void TileMapScreen::info(std::stringstream& ss, int& tabs, TileMap::t_ll mouseX,
     //Performance profiling
     DebugScreen::newGroup(ss, tabs, "Performance");
         DebugScreen::indentLine(ss, tabs);
-        ss << "Tick time=" << tickTime << "ms; ";
+        ss << "Tick time=" << infoTickTime << "ms; ";
         DebugScreen::newLine(ss);
         DebugScreen::indentLine(ss, tabs);
-        ss << "Draw time=" << drawTime << "ms; ";
+        ss << "Draw time=" << infoDrawTime << "ms; ";
         DebugScreen::newLine(ss);
 
         DebugScreen::indentLine(ss, tabs);
@@ -151,13 +146,13 @@ void TileMapScreen::info(std::stringstream& ss, int& tabs, TileMap::t_ll mouseX,
         DebugScreen::newLine(ss);
 
         DebugScreen::indentLine(ss, tabs);
-        ss << "regLoadCount=" << regLoadCount << "; ";
+        ss << "infoRegLoadCount=" << infoRegLoadCount << "; ";
         DebugScreen::newLine(ss);
         DebugScreen::indentLine(ss, tabs);
-        ss << "regLoadTime (latest)=" << regLoadTimeLatest << "ms; ";
+        ss << "infoRegLoadTime (latest)=" << infoRegLoadTimeLatest << "ms; ";
         DebugScreen::newLine(ss);
         DebugScreen::indentLine(ss, tabs);
-        ss << "regLoadTime (avg out of last " << regLoadDivisor << ")=" << regLoadTimeAvg << "ms; ";
+        ss << "infoRegLoadTime (avg out of last " << infoRegLoadDivisor << ")=" << infoRegLoadTimeAvg << "ms; ";
         DebugScreen::newLine(ss);
 
     DebugScreen::endGroup(tabs);
@@ -259,28 +254,22 @@ void TileMapScreen::setScreenInfo()
     screenRHR = screenHR/2+1;
 }
 
-void TileMapScreen::mapUpdates()
+void TileMapScreen::updateMapTicked()
 {
-    if( cam==nullptr || tileMap==nullptr || tileMap->getRegionMap()==nullptr ) return;
+    int loadCount = 0;
 
-    int maxRegionInserts = 3;
-    int numRegionInserts = 0;
-
-    /** Region loading */
-    //Load Regions, RegTexes, nearby in a ring
-    int radius = 7;
-    int verticalRadius = 4;
-
-    for( int ring = 0; ring<=radius; ring++ ) {
-        for( int deltaRX = -ring; deltaRX<=ring; deltaRX++ ) {
-            //Set deltaRY
-            int deltaRY = ring*2;
-            if( abs(deltaRX)==ring ) { deltaRY = 1; }
+    for( int outline = 0; outline<=loadRadiusH; outline++ ) {
+        //Iterate dRX (delta RX) from -outline to +outline
+        for( int dRX = -outline; dRX<=outline; dRX++ ) {
+            //Set dRY (delta RY)
+            int dRY = outline*2;
+            if( abs(dRX)==outline ) { dRY = 1; }
             //Get rX
-            int rX = camRX+deltaRX;
-            //Get rY: Iterate from camRY-ring to camRY+ring based on deltaRY
-            for( int rY = camRY-ring; rY<=camRY+ring; rY += deltaRY ) {
-                for(int rZ = camRZ-verticalRadius; rZ<=camRZ+verticalRadius; rZ++) {
+            int rX = camRX+dRX;
+            //Get rY: Iterate from camRY-outline to camRY+outline based on dRY
+            for( int rY = camRY-outline; rY<=camRY+outline; rY += dRY ) {
+
+                for(int rZ = camRZ-loadRadiusV; rZ<=camRZ+loadRadiusV; rZ++) {
 
                     //Check if this region at (rX, rY) is onscreen (vertical coordinate doesn't matter)
                     bool onscreen = false;
@@ -290,19 +279,16 @@ void TileMapScreen::mapUpdates()
                         }
                     }
 
-                    //Load region if numRegionInserts<maxRegionInserts
-                    if( numRegionInserts<maxRegionInserts ) {
+                    //Load region if loadCount<loadCountMax
+                    if( loadCount<loadCountMax ) {
                         //If region has not been loaded yet, load the region.
                         Timer rlt;
-                        bool loadedReg = false;
                         if( tileMap->loadRegion(rX, rY, rZ)==0 ) {
-                            loadedReg = true;
-                            ++numRegionInserts;
-                        }
-                        if( loadedReg ) {
-                            regLoadTimeLatest = rlt.getElapsedTimeMS();
-                            regLoadCount++;
-                            regLoadTime += regLoadTimeLatest;
+                            loadCount++;
+
+                            infoRegLoadTimeLatest = rlt.getElapsedTimeMS();
+                            infoRegLoadCount++;
+                            infoRegLoadTime += infoRegLoadTimeLatest;
                         }
                     }
 
@@ -326,14 +312,49 @@ void TileMapScreen::mapUpdates()
         }
     }
 
-    /** Region unloading */
+    /** Performance gauging */
+    if(infoRegLoadCount>infoRegLoadDivisor) {
+        //Calculate avg reg load time
+        infoRegLoadTimeAvg = infoRegLoadTime/(double)infoRegLoadCount;
+        //Reset regionsLoaded count and regionLoadTime
+        infoRegLoadCount = 0;
+        infoRegLoadTime = 0.0;
+    }
+}
+
+void TileMapScreen::updateMapMoved()
+{
+    /** Region unloading (nearby region immediately out of range) */
+    int outlineH = loadRadiusH+1;
+    int outlineV = loadRadiusV+1;
+
+    for( int dRX = -outlineH; dRX<=outlineH; dRX++) {
+        for( int dRY = -outlineH; dRY<=outlineH; dRY++) {
+            //Set dRZ (delta RZ)
+            int dRZ = outlineV*2;
+            if( abs(dRX)==outlineH || abs(dRY)==outlineH ) { dRZ = 1; }
+            //Get rX and rY
+            int rX = camRX+dRX;
+            int rY = camRY+dRY;
+
+            for(int rZ = camRZ-outlineV; rZ<=camRZ+outlineV; rZ += dRZ) {
+                tileMap->unloadRegion(fileHandler, rX, rY, rZ);
+            }
+        }
+    }
+}
+
+void TileMapScreen::updateMapIdle()
+{
+    return;
+
+    /** Region unloading (all regions) */
     /*
         Region unloading:
         TileRegions will be deleted from the map if:
         -they are > 'radius' regions away from the current camera region horizontally
         -they are > 'verticalRadius' regions away from the current camera region vertically
     */
-
 
     TileMap::t_regionMap::iterator itrRM = tileMap->getRegionMap()->begin();
     while( itrRM!=tileMap->getRegionMap()->end() ) {
@@ -379,10 +400,10 @@ void TileMapScreen::mapUpdates()
         }
 
         /** Manage regionMap */
-        //If a region is outside of a rectangular prism of regions defined by (rX, rY, and rZ) and radius + verticalRadius
-        if( rX<camRX-radius || rX>camRX+radius ||
-            rY<camRY-radius || rY>camRY+radius ||
-            rZ<camRZ-verticalRadius || rZ>camRZ+verticalRadius
+        //If a region is outside of a rectangular prism of regions defined by (rX, rY, and rZ) and loadRadiusH + loadRadiusV
+        if( rX<camRX-loadRadiusH || rX>camRX+loadRadiusH ||
+            rY<camRY-loadRadiusH || rY>camRY+loadRadiusH ||
+            rZ<camRZ-loadRadiusV || rZ>camRZ+loadRadiusV
         ) {
             //Unload region
             tileMap->saveRegion(fileHandler, rX, rY, rZ);
@@ -391,17 +412,77 @@ void TileMapScreen::mapUpdates()
             itrRM++;
         }
     }
-
-    /** Performance gauging */
-    if(regLoadCount>regLoadDivisor) {
-        //Calculate avg reg load time
-        regLoadTimeAvg = regLoadTime/(double)regLoadCount;
-        //Reset regionsLoaded count and regionLoadTime
-        regLoadCount = 0;
-        regLoadTime = 0.0;
-    }
-
 }
+
+void TileMapScreen::updateMapIdleOld()
+{
+    /*
+    int maxRegionInserts = 3;
+    int numRegionInserts = 0;
+
+    // Region loading
+    //Load Regions, RegTexes, nearby in a ring
+    int radius = 7;
+    int verticalRadius = 4;
+
+    for( int ring = 0; ring<=radius; ring++ ) {
+        for( int deltaRX = -ring; deltaRX<=ring; deltaRX++ ) {
+            //Set deltaRY
+            int deltaRY = ring*2;
+            if( abs(deltaRX)==ring ) { deltaRY = 1; }
+            //Get rX
+            int rX = camRX+deltaRX;
+            //Get rY: Iterate from camRY-ring to camRY+ring based on deltaRY
+            for( int rY = camRY-ring; rY<=camRY+ring; rY += deltaRY ) {
+                for(int rZ = camRZ-verticalRadius; rZ<=camRZ+verticalRadius; rZ++) {
+
+                    //Check if this region at (rX, rY) is onscreen (vertical coordinate doesn't matter)
+                    bool onscreen = false;
+                    if( rX>=camRX-screenRWR && rX<=camRX+screenRWR ) {
+                        if( rY>=camRY-screenRHR && rY<=camRY+screenRHR ) {
+                            onscreen = true;
+                        }
+                    }
+
+                    //Load region if numRegionInserts<maxRegionInserts
+                    if( numRegionInserts<maxRegionInserts ) {
+                        //If region has not been loaded yet, load the region.
+                        Timer rlt;
+                        bool loadedReg = false;
+                        if( tileMap->loadRegion(rX, rY, rZ)==0 ) {
+                            loadedReg = true;
+                            ++numRegionInserts;
+                        }
+                        if( loadedReg ) {
+                            infoRegLoadTimeLatest = rlt.getElapsedTimeMS();
+                            infoRegLoadCount++;
+                            infoRegLoadTime += infoRegLoadTimeLatest;
+                        }
+                    }
+
+                    //Check if this region is on screen and its Z coordinate (height in world) == the camera's Z region coordinate.
+                    if( onscreen && rZ==camRZ ) {
+                        //The region tex needs an update if the region is marked for an RTU.
+                        TileRegion* tr = tileMap->getRegByRXYZ(rX, rY, rZ);
+                        if( tr!=nullptr ) {
+                            if( tr->getRegTexState()==tr->RegTexState::FINISHED_GENERATING ) {
+                                tr->setRegTexState(tr->RegTexState::SHOULD_UPDATE);
+                            }
+                        }
+
+                        if( tr->getRegTexState()==tr->RegTexState::SHOULD_UPDATE ) {
+                            tileMap->addRegionUpdate(rX, rY, cam->getLayer());
+                            tr->setRegTexState(tr->RegTexState::UPDATED);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    */
+}
+
+
 
 void TileMapScreen::updateEntireScreen()
 {

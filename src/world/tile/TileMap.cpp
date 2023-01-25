@@ -189,6 +189,17 @@ int TileMap::saveRegion(FileHandler* fileHandler, long rX, long rY, long rZ)
     return -1;
 }
 
+int TileMap::unloadRegion(FileHandler* fileHandler, long rX, long rY, long rZ)
+{
+    t_regionMap::iterator itr = regionMap.find( std::make_tuple(rX, rY, rZ) );
+    if( itr!=regionMap.end() ) {
+        //saveRegion(fileHandler, rX, rY, rZ);
+        regionMap.erase(itr);
+        return 0;
+    }
+    return -1;
+}
+
 int TileMap::addTileUpdate(t_ll x, t_ll y, t_ll z)
 {
     int rX = getRegRXYZ(x);

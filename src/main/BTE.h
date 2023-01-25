@@ -58,9 +58,10 @@ private:
 
     World* world = nullptr;
     bool paused = false;
+    std::string lastBTECursorState = "false";
 
     /* Debugging, testing */
-    const bool testing = true;
+    const bool testing = 1;
     DebugScreen debugScreen;
     Tests* tests = nullptr;
 };
