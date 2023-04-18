@@ -8,6 +8,26 @@
 #include "TileMap.h"
 #include "Timer.h"
 
+const uint16_t TileRegion::ampSBits[] = {
+        0b1000000000000000,
+        0b0100000000000000,
+        0b0010000000000000,
+        0b0001000000000000,
+        0b0000100000000000,
+        0b0000010000000000,
+        0b0000001000000000,
+        0b0000000100000000,
+        0b0000000010000000,
+        0b0000000001000000,
+        0b0000000000100000,
+        0b0000000000010000,
+        0b0000000000001000,
+        0b0000000000000100,
+        0b0000000000000010,
+        0b0000000000000001 };
+
+const uint8_t TileRegion::pows2[] = { 32, 16, 8, 4, 2, 1 };
+
 /**
 (X+, Y+, Z+) = (East, South, Up)
 */
@@ -176,50 +196,89 @@ void TileRegion::compress()
         -This region needs to be unloaded (compress==true). More expensive option
         -This region is auto-saved (compress==false). Less expensive option
 */
-void TileRegion::save(SDLHandler* sh, FileHandler* fh, bool p_compress)
+void TileRegion::save(SDLHandler* sh, FileHandler* fh, std::string path, long rX, long rY, long rZ, bool p_compress)
 {
-    std::stringstream ss;
-
-    Timer t0;
+    std::stringstream filename;
+    filename << "saved\\games\\" << path << "\\" << rX << "," << rY << "," << rZ;
+    fh->cEditFile( FilePath(filename.str(), "bte_tr") );
 
     if( p_compress ) {
         Timer t1;
         compress();
-        ss << "Compression time: " << t1.getElapsedTimeMS() << ", ";
     }
 
-    fh->editFile("level0", "bte_tr");
+    std::string line1;
+    const std::string::size_type new_capacity{ 100000u };
+    line1.reserve( new_capacity );
 
-    //All tiles that were generated upon worldgen have a negative value. Every modified tile after that has a positive value.
-    //Palette indices are all positive and can go from 0 to 32767. 'tiles' array values can be negative or positive.
-    //bool cachingWorldgen = true;
-    //Depending on the size of the palette, a different number of bits will be needed to represent the tiles.
-    //Ex:   Completely empty region = 1 tile type = 1 bit. 32768 tiles = 4.096KB
-    //Ex:   Max tile palette size = 32768 tile types = 16 bits. 32768 tiles = 65.536KB
-    //int bitsPerTile = 16;
-    for( unsigned int i = 0; i<palette.size(); i++ ) {
-
+    line1 += "Region("; line1 += std::to_string(rX); line1 += ","; line1 += std::to_string(rY); line1 += ","; line1 += std::to_string(rZ); line1 += ").palette={";
+    for(unsigned int i = 0; i<palette.size()-1; i++) {
+        TileType tt = palette[i];
+        line1 += tt.toString();
+        line1 += ",";
     }
+    line1 += palette[palette.size()-1].toString();
+    line1 += "}, ";
 
-    //char c;
-    for( int x = 0; x<32; x++ ) {
-        for( int y = 0; y<32; y++ ) {
-            for( int z = 0; z<32; z++ ) {
+    //8 characters = 3 tiles
+    //1 tile = 16 bits, each character = 6bits
+    int x = 0;
+    int y = 0;
+    int z = 0;
+    uint8_t counter = 0;
+    uint8_t bits = 0;
+    char base64Char = 64;
 
-                //uint16_t data = tiles[x][y][z];
+    line1 += "Region("; line1 += rX; line1 += ","; line1 += rY; line1 += ","; line1 += rZ; line1+= ").data={";
 
-                fh->writeChar(12);
+    while(true) {
+        if( (tiles[x][y][z]&ampSBits[bits])>0 ) {
+            base64Char += pows2[counter];
+        }
+
+        counter++;
+        if(counter==6) {
+            line1 += base64Char;
+            base64Char = 64;
+            counter = 0;
+        }
+
+        bits++;
+        if(bits==16) {
+            bits = 0;
+            x++;
+            if(x>31) {
+                x = 0;
+                y++;
+                if( y>31 ) {
+                    line1 += base64Char;
+                    base64Char = 64;
+                    counter = 0;
+                    y = 0;
+                    z++;
+                    if( z>31 ) {
+                        z = 0; break;
+                    } else {
+                        line1 += ";";
+                    }
+                }
             }
         }
     }
+    line1 += "}\n";
 
-    ss << "Data writing time: " << t0.getElapsedTimeMS() << ", ";
+    int strSize = 100000;//line1.length();
 
-    {
-        Timer t1;
-        fh->saveAndCloseFile();
-        ss << "Data saving time: " << t1.getElapsedTimeMS() << "\n";
+    std::stringstream prefix;
+    std::stringstream numSS; numSS << strSize; std::string num = numSS.str();
+    //num must be less than 1000000!
+    if(strSize>999999) num = "ERROR!";
+    while( num.length()<6 ) {
+        num = "0"+num;
     }
+    prefix << "[" << num << "]! "; //Length of prefix will always be 10 (4 characters + 6 numerical chracters)
 
-    Log::log(ss.str());
+    fh->write(prefix.str());
+    fh->write(line1);
+    fh->saveAndCloseFile();
 }

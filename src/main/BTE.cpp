@@ -35,7 +35,7 @@ void BTE::init(SDLHandler* p_sh, FileHandler* p_fh, Controls* p_ctrls)
     }
 
 
-    if(testing) {
+    if(!testing) {
         setGameState(GameState::MAIN_MENU);
     } else {
         setGameState(GameState::TESTING);

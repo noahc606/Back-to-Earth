@@ -65,6 +65,7 @@ private:
     int loadCountMax = 1;
     int loadRadiusH = 1;
     int loadRadiusV = 1;
+    std::string currentDimPath = "default";
 
     /* RegTexUpdates + performance gauging */
     int rtUpdatesToDo = 256;

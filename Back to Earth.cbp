@@ -12,12 +12,11 @@
 				<Option type="1" />
 				<Option compiler="gcc" />
 				<Option projectCompilerOptionsRelation="0" />
+				<Option projectLinkerOptionsRelation="0" />
 				<Option projectIncludeDirsRelation="0" />
 				<Option projectLibDirsRelation="0" />
 				<Compiler>
 					<Add option="-g" />
-					<Add directory="src/gfx/texture/access" />
-					<Add directory="src/gfx/gui/texture/access" />
 				</Compiler>
 				<Linker>
 					<Add option="-lmingw32 -lSDL2main -lSDL2" />
@@ -39,12 +38,11 @@
 				<Option type="1" />
 				<Option compiler="gcc" />
 				<Option projectCompilerOptionsRelation="0" />
+				<Option projectLinkerOptionsRelation="0" />
 				<Option projectIncludeDirsRelation="0" />
 				<Option projectLibDirsRelation="0" />
 				<Compiler>
 					<Add option="-O2" />
-					<Add directory="src/gfx/texture/access" />
-					<Add directory="src/gfx/gui/texture/access" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -179,6 +177,8 @@
 		<Unit filename="src/io/Controls.h" />
 		<Unit filename="src/io/FileHandler.cpp" />
 		<Unit filename="src/io/FileHandler.h" />
+		<Unit filename="src/io/FilePath.cpp" />
+		<Unit filename="src/io/FilePath.h" />
 		<Unit filename="src/io/Settings.cpp" />
 		<Unit filename="src/io/Settings.h" />
 		<Unit filename="src/io/TextureLoader.cpp" />

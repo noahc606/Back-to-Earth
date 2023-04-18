@@ -7,8 +7,9 @@
 class Settings
 {
 public:
-    typedef std::pair< std::string, std::string > t_kvPair;
-    typedef std::map< std::string, std::string > t_kvMap;
+    typedef std::vector<std::string> t_kvStrings;
+    typedef std::pair<std::string, std::string> t_kvPair;
+    typedef std::map<std::string, std::string> t_kvMap;
     typedef std::map<int, t_kvMap> t_settingsMap;
 
     Settings();

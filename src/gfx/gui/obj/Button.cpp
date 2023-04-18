@@ -7,8 +7,8 @@
 
 Button::Button(){}
 
-Button::Button(Window* p_parentWindow, int p_x, int p_y, int p_width, std::string p_s, int p_id)
-: WindowComponent::WindowComponent(p_parentWindow, p_x, p_y, p_width)
+Button::Button(Window* p_parentWindow, int p_x, int p_y, int p_width, std::string p_s, int p_id):
+WindowComponent::WindowComponent(p_parentWindow, p_x, p_y, p_width)
 {
     setType(BTEObject::Type::GUI_button);
     setID(p_id);

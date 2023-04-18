@@ -1,4 +1,5 @@
 #include "FileHandler.h"
+#include <bits/stdc++.h>
 #include <codecvt>
 #include <dirent.h>
 #include <fstream>
@@ -39,18 +40,90 @@ void FileHandler::init( std::string rp )
     saveSettings();
 }
 
-int FileHandler::editFile(std::string path, std::string fileFormat)
+/**
+    Create a directory inside of the main resource path (backtoearth folder)
+        - Also tries to create parent directories.
+*/
+int FileHandler::createBteDir(std::string path)
+{
+    path = resourcePath+path;
+
+    int x;
+    do {
+        x = createDir(path);
+    } while(x==0);
+
+    return 1;
+}
+
+int FileHandler::createPNGScreenshot(SDL_Window* w, SDL_Renderer* r, SDL_PixelFormat* pf)
+{
+    /* Build final file path */
+    std::string date = MainLoop::getSystemTime();
+    int firstSpace = -1;
+    int lastSpace = -1;
+    for(unsigned int i = 0; i<date.length(); i++) {
+        if( date[i]==' ' ) {
+            lastSpace = i;
+        }
+
+        if( firstSpace<0 && date[i]==' ' ) {
+            firstSpace = i;
+        }
+
+        if( date[i]==':' ) {
+            date[i] = '_';
+        }
+    }
+    std::string path = resourcePath + "saved\\screenshots\\" + date.substr(firstSpace+1, lastSpace-4) + ".png";
+
+    /* Get window width and height */
+    int width = 0; int height = 0;
+    SDL_GetWindowSize(w, &width, &height);
+
+    /* Create surface that looks like the current screen */
+    SDL_Surface* surf = SDL_CreateRGBSurfaceWithFormat( 0, width, height, 32, pf->format );
+    SDL_RenderReadPixels( r, NULL, pf->format, surf->pixels, surf->pitch );
+
+    /* Save the newly created surface as an image */
+    //Success
+    if( IMG_SavePNG(surf, path.c_str())==0 ) {
+        //Message
+        std::string msg = "Screenshot saved to " + path;
+        Log::log(msg);
+        //Free surface
+        SDL_FreeSurface(surf);
+        return 0;
+    //Failure
+    } else {
+        //Message
+        std::string msg = "Failed to save screenshot saved at " + path;
+        Log::error(__PRETTY_FUNCTION__, msg);
+        //Free surface
+        SDL_FreeSurface(surf);
+        return -1;
+    }
+}
+
+/**
+    Opens file to write to (all contents are deleted!)
+    Returns:
+        -1 if file not found and could not be created
+        0 if file not found and new file is created
+        1 if file found
+*/
+int FileHandler::cEditFile(FilePath fp)
 {
     //If there is another file being edited, save and close it.
     saveAndCloseFile();
 
     //Set ifstream and ofstream.
-    setIFS( path, fileFormat );
-    setOFS( path, fileFormat );
+    setIFS(fp);
+    setOFS(fp);
 
     //Try to create new file if file is not found.
     if( !ifs ) {
-        Log::debug( __PRETTY_FUNCTION__, "File '"+path+"' not found, attempting to create new file..." );
+        Log::debug( __PRETTY_FUNCTION__, "File '"+fp.get()+"' not found, attempting to create new file..." );
         if( !ofs ) {
             //If file was not found and could not be created, return -1.
             Log::warn( __PRETTY_FUNCTION__, "Could not create ofstream" );
@@ -66,22 +139,44 @@ int FileHandler::editFile(std::string path, std::string fileFormat)
 }
 
 /**
-    Opens file to write to (all contents are deleted!)
-    returns -1 if file not found and could not be created
-    returns 0 if file not found and new file is created
-    returns 1 if file found
-
+    Edit part of a file.
+        - Does not delete the entire file's contents but is a little more complex to use than cEditFile()
 */
-int FileHandler::editFile(std::string path) { return editFile(path, "txt"); }
+int FileHandler::pEditFile(FilePath fp)
+{
+    saveAndCloseFile();
+    setFS(fp);
 
-void FileHandler::writeChar(char c) { write(c); }
-void FileHandler::writeln(std::string text) { write(text+"\n"); }
-void FileHandler::writeln() { writeln(""); }
+    if( !fs.is_open() ) {
+        Log::error(__PRETTY_FUNCTION__, "fstream failed to open");
+    }
+
+    return 1;
+}
+
+int FileHandler::fsSeek(std::fstream* p_fs, int seekPos) { p_fs->seekp(seekPos); return p_fs->tellp(); }
+int FileHandler::seek(int seekPos) { return fsSeek(&fs, seekPos); }
+int FileHandler::seekD(int seekPosDelta) { return seek(getSeekPos()+seekPosDelta);  }
+int FileHandler::seekNextLine()
+{
+    if(usingLineMap) {
+        auto kv = lineMap.find(currentLine+1);
+        if( kv!=lineMap.end() ) {
+            seek( kv->first );
+            currentLine += 1;
+            return currentLine;
+        }
+        return -1;
+    }
+    return -2;
+}
+
 int FileHandler::saveAndCloseFile()
 {
     //Close ifstream and ofstream.
     ifs.close();
     ofs.close();
+    fs.close();
 
     return 0;
 }
@@ -91,7 +186,7 @@ int FileHandler::saveSettings(int index)
     int success = -1;
 
     if( index>=0 && index<Settings::LAST_INDEX ) {
-        editFile( files[index] );
+        cEditFile( files[index] );
 
         auto kvMap = settings.getKvMap(index);
         if( kvMap.size()!=0 ) {
@@ -150,18 +245,18 @@ int FileHandler::saveSettings()
     Get contents of a .txt file line by line. Returns empty vector if file loading failed.
     Escape sequences before a newline char or an equals sign char causes those characters to be read in normally.
 */
-Settings::t_kvMap FileHandler::readFileKVs(std::string path, std::string fileFormat)
+Settings::t_kvMap FileHandler::readFileKVs(FilePath fp)
 {
     saveAndCloseFile();
 
     Settings::t_kvMap contents;
 
     //Set ifstream (will not create file if nonexistent).
-    setIFS( path, fileFormat );
+    setIFS(fp);
 
     //return empty kvSet if file not found.
     if( !ifs ) {
-        Log::debug( __PRETTY_FUNCTION__, "File '"+path+"' not found" );
+        Log::debug( __PRETTY_FUNCTION__, "File '"+fp.get()+"' not found" );
         return contents;
     }
 
@@ -224,24 +319,100 @@ Settings::t_kvMap FileHandler::readFileKVs(std::string path, std::string fileFor
     return contents;
 }
 
-Settings::t_kvMap FileHandler::readFileKVs(std::string path) { return readFileKVs(path, "txt"); }
-
-/**
-    Create a directory inside of the main resource path (backtoearth folder)
-*/
-void FileHandler::createBteDir(std::string path)
+Settings::t_kvStrings FileHandler::readFileLines(FilePath fp)
 {
-    path = resourcePath+path;
+    saveAndCloseFile();
 
-    int x;
-    do {
-        x = createDir(path);
-    } while(x==0);
+    Settings::t_kvStrings res;
+    //Set ifstream (will not create file if nonexistent).
+    setIFS(fp);
+
+    for(std::string line; std::getline(ifs, line);) {
+        res.push_back(line);
+    }
+
+    return res;
+}
+
+int FileHandler::getSeekPos() { return getFsSeekPos(&fs); }
+std::string FileHandler::read(int readLen) { return fsRead(&fs, readLen); }
+int FileHandler::getFsSeekPos(std::fstream* p_fs) { return p_fs->tellp(); }
+std::string FileHandler::fsRead(std::fstream* p_fs, int readLen) { std::string buffer(readLen, ' '); p_fs->read(&buffer[0], readLen); return buffer; }
+
+Settings* FileHandler::getSettings() { return &settings; }
+std::string FileHandler::getResourcePath() { return resourcePath; }
+/**
+    Takes a file path and returns it with the base BTE path added at the beginning
+*/
+std::string FileHandler::getModifiedPath(FilePath fp)
+{
+    //Build path
+    std::string mp;
+    mp = resourcePath+fp.get();
+    return mp;
+}
+
+void FileHandler::writeChar(char c) { write(c); }
+void FileHandler::writeln(std::string text) { write(text+"\n"); }
+void FileHandler::writeln() { writeln(""); }
+
+void FileHandler::discardLineMap()
+{
+    currentLine = -1;
+    usingLineMap = false;
+
+    while(lineMap.begin()!=lineMap.end()) {
+        lineMap.erase(lineMap.begin());
+    }
+}
+
+int FileHandler::buildLineMap()
+{
+    if( !fs.is_open() ) {
+        Log::warn(__PRETTY_FUNCTION__, "FS (filestream) must be used instead of IFS or OFS");
+        return -1;
+    }
+
+    discardLineMap();
+
+    usingLineMap = true;
+
+    //# of first line = 0
+    currentLine = 0;
+    seek(0);
+    for( int num = 0;;currentLine++ ) {
+        //Read in first 10 chars
+        std::string linePrefix = read(10);
+        //Test if this is a proper line prefix
+        if( linePrefix[0]=='[' && linePrefix.substr(7)=="]! " ) {
+            lineMap.insert( std::make_pair(currentLine, num+10) );
+            num = std::stoi( linePrefix.substr(1, 6) );
+            seekD(num+10);
+        } else {
+            break;
+        }
+    }
+
+    int res = currentLine;
+    currentLine = 0;
+    return res;
+}
+
+void FileHandler::reload()
+{
+    //Load settings and track how much time it takes
+    {
+        Timer t("reloading settings");
+        unloadSettings();
+        loadSettings();
+    }
 }
 
 /**
-    This function tries to create a new directory (folder) at the specified path. It will also attempt to create parent directories if they don't already exist (only 1 folder at a time).
-    It should be impossible to create a new directory outside of the main resource path (backtoearth folder)
+    Create a new directory (folder) at the specified path.
+        - It will also attempt to create parent directories if they don't already exist (only 1 folder per function call).
+    WARNING: You should not be creating new directories outside of the main resource path (backtoearth folder)
+        - In most cases just use createBteDir() instead.
 */
 int FileHandler::createDir(std::string path)
 {
@@ -250,14 +421,18 @@ int FileHandler::createDir(std::string path)
     unsigned int minPathSize = resourcePath.length();
 
     if( path.substr(0, minPathSize)!=resourcePath ) {
-        Log::error(__PRETTY_FUNCTION__, "Tried to create a directory outside of the main resource path '"+resourcePath+"'", "If you are seeing this, something is very wrong");
+        Log::error( __PRETTY_FUNCTION__,
+                    "Tried to create a directory outside of the main resource path '"+resourcePath+"'",
+                    "If you are seeing this, you are doing something very wrong...");
         Log::throwException();
         return -2;
     }
 
     if ( opendir(path.c_str())==nullptr ) {
         if(path==resourcePath) {
-            Log::error(__PRETTY_FUNCTION__, "Could not find main directory '"+resourcePath+"'", "Make sure the 'backtoearth' folder is in the same location as the executable");
+            Log::error( __PRETTY_FUNCTION__,
+                        "Could not find main directory '"+resourcePath+"'",
+                        "Make sure the 'backtoearth' folder is in the same location as the executable");
             Log::throwException();
         } else {
             Log::trbshoot(__PRETTY_FUNCTION__, "Could not find directory '"+path+"', attempting to create it...");
@@ -282,7 +457,9 @@ int FileHandler::createDir(std::string path)
         }
 
         if( i<=minPathSize ) {
-            Log::trbshoot( __PRETTY_FUNCTION__, "Ignoring creation of a directory which already exists or has an invalid name", "unfortunately we can't tell the difference with mkdir()" );
+            Log::trbshoot(__PRETTY_FUNCTION__,
+                          "Ignoring creation of a directory which already exists or has an invalid name",
+                          "unfortunately we can't tell the difference with mkdir()");
             return -1;
         }
     }
@@ -290,93 +467,27 @@ int FileHandler::createDir(std::string path)
     return createDir(subPath);
 }
 
-void FileHandler::createPNGScreenshot( SDL_Window* w, SDL_Renderer* r, SDL_PixelFormat* pf )
-{
-    std::string date = MainLoop::getSystemTime();
-
-    int firstSpace = -1;
-    int lastSpace = -1;
-    for(unsigned int i = 0; i<date.length(); i++) {
-
-        if( date[i]==' ' ) {
-            lastSpace = i;
-        }
-
-        if( firstSpace<0 && date[i]==' ' ) {
-            firstSpace = i;
-        }
-
-        if( date[i]==':' ) {
-            date[i] = '_';
-        }
-    }
-
-    std::string path = resourcePath + "saved\\screenshots\\" + date.substr(firstSpace+1, lastSpace-4) + ".png";
-
-    //Get window width and height
-    int width = 0; int height = 0;
-    SDL_GetWindowSize(w, &width, &height);
-
-    //Source rect
-    SDL_Rect src; src.w = width; src.h = height;
-
-    //Create surface that looks like the current screen
-    SDL_Surface* surf = SDL_CreateRGBSurfaceWithFormat( 0, src.w, src.h, 32, pf->format );
-    SDL_RenderReadPixels( r, NULL, pf->format, surf->pixels, surf->pitch );
-
-    //Save img
-    IMG_SavePNG(surf, path.c_str());
-    std::string msg = "Screenshot saved to: " + path;
-    Log::log(msg);
-
-    //Free surface
-    SDL_FreeSurface(surf);
-}
-
-void FileHandler::reload()
-{
-    //Load settings and track how much time it takes
-    {
-        Timer t("reloading settings");
-        unloadSettings();
-        loadSettings();
-    }
-}
-
-Settings* FileHandler::getSettings() { return &settings; }
-std::string FileHandler::getResourcePath() { return resourcePath; }
+/**
+    Opens an input filestream at a specified path.
+        - Simply takes in data from the filesystem.
+    Will not create a new file if one is not already available.
+*/
+void FileHandler::setIFS(FilePath fp) { ifs.open(getModifiedPath(fp), std::ios::in); }
 
 /**
     Set an output filestream to a specified path.
-    Essentially writes data to a file in the filesystem.
+        - Simply writes data to a file in the filesystem.
     Will create a new file if one is not already available.
 */
-void FileHandler::setOFS( std::string path, std::string fileFormat)
-{
-    //Modify path
-    path = resourcePath+path;
-    path = path+"."+fileFormat; //fileFormat: can be "txt", "png" or really anything
-
-    //Open the output filestream
-    ofs.open(path, std::ios::out);
-}
-void FileHandler::setOFS( std::string path ) { setOFS(path, "txt"); }
+void FileHandler::setOFS(FilePath fp) { ofs.open(getModifiedPath(fp), std::ios::out); }
 
 /**
-    Opens an input filestream at a specified path.
-    Essentially takes in data from the filesystem.
-    Will not create a new file if one is not already available.
+    Set a filestream to a specified path.
+        - More complex to use than ifs/ofs but is is useful in editing a part of a large file.
+        - Use this if you really don't want to rewrite the entire contents of a file every time you open it.
+    Will create a new file if one is not already available.
 */
-void FileHandler::setIFS( std::string path, std::string fileFormat )
-{
-    //Modify path
-    path = resourcePath+path;
-    path = path+"."+fileFormat;
-
-    //Open the input filestream.
-    ifs.open(path, std::ios::in);
-}
-void FileHandler::setIFS( std::string path ) { setIFS(path, "txt"); }
+void FileHandler::setFS(FilePath fp) { fs.open(getModifiedPath(fp), fs.binary | fs.app | fs.in | fs.out ); }
 
 void FileHandler::unloadSettings()
 {

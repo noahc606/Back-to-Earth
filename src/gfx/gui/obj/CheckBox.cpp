@@ -116,6 +116,7 @@ int CheckBox::getStateFromString(std::string s)
     if( s=="false" ) {
         return FALSE;
     }
+    return UNKNOWN;
 }
 int CheckBox::getState() { return state; }
 

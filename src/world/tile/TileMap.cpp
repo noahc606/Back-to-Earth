@@ -174,26 +174,22 @@ int TileMap::loadRegion(long rX, long rY, long rZ)
     return -1;
 }
 
-int TileMap::saveRegion(FileHandler* fileHandler, long rX, long rY, long rZ)
+int TileMap::saveRegion(FileHandler* fileHandler, std::string dimPath, long rX, long rY, long rZ)
 {
     t_regionMap::iterator itr = regionMap.find( std::make_tuple(rX, rY, rZ) );
     if( itr!=regionMap.end() ) {
         TileRegion tr = itr->second;
-
-        if( rX==0 && rY==0 && rZ==0 ) {
-            Log::log("Saving region(0, 0, 0).");
-            tr.save(sdlHandler, fileHandler, false);
-        }
+        tr.save(sdlHandler, fileHandler, dimPath, rX, rY, rZ, false);
         return 0;
     }
     return -1;
 }
 
-int TileMap::unloadRegion(FileHandler* fileHandler, long rX, long rY, long rZ)
+int TileMap::unloadRegion(FileHandler* fileHandler, std::string dimPath, long rX, long rY, long rZ)
 {
     t_regionMap::iterator itr = regionMap.find( std::make_tuple(rX, rY, rZ) );
     if( itr!=regionMap.end() ) {
-        //saveRegion(fileHandler, rX, rY, rZ);
+        saveRegion(fileHandler, dimPath, rX, rY, rZ);
         regionMap.erase(itr);
         return 0;
     }

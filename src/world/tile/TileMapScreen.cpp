@@ -338,7 +338,7 @@ void TileMapScreen::updateMapMoved()
             int rY = camRY+dRY;
 
             for(int rZ = camRZ-outlineV; rZ<=camRZ+outlineV; rZ += dRZ) {
-                tileMap->unloadRegion(fileHandler, rX, rY, rZ);
+                tileMap->unloadRegion(fileHandler, currentDimPath, rX, rY, rZ);
             }
         }
     }
@@ -406,7 +406,7 @@ void TileMapScreen::updateMapIdle()
             rZ<camRZ-loadRadiusV || rZ>camRZ+loadRadiusV
         ) {
             //Unload region
-            tileMap->saveRegion(fileHandler, rX, rY, rZ);
+            tileMap->saveRegion(fileHandler, currentDimPath, rX, rY, rZ);
             itrRM = tileMap->getRegionMap()->erase(itrRM);
         } else {
             itrRM++;

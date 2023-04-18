@@ -1,6 +1,7 @@
 #include "TileType.h"
 #include <sstream>
 #include "DebugScreen.h"
+#include <string>
 
 TileType::TileType(){};
 
@@ -9,14 +10,22 @@ void TileType::init()
     null = false;
 }
 
+std::string TileType::toString()
+{
+    std::stringstream ss;
+    ss << "{";
+    ss << "solid=" << solid << ",";
+    ss << "visionBlocking=" << visionBlocking << ",";
+    ss << "rgb=(" << (int)std::get<0>(rgb) << ", " << (int)std::get<1>(rgb) << ", " << (int)std::get<2>(rgb) << "),";
+    ss << "textureXY=(" << (int)std::get<0>(textureXY) << ", " << (int)std::get<1>(textureXY) << ")";
+    ss << "}";
+    return ss.str();
+}
+
 void TileType::info(std::stringstream& ss, int& tabs)
 {
-
     DebugScreen::indentLine(ss, tabs);
-    ss << "solid=" << solid << "; ";
-    ss << "visionBlocking=" << visionBlocking << "; ";
-    ss << "rgb=(" << (int)std::get<0>(rgb) << ", " << (int)std::get<1>(rgb) << ", " << (int)std::get<2>(rgb) << "); ";
-    ss << "textureXY=(" << (int)std::get<0>(textureXY) << ", " << (int)std::get<1>(textureXY) << "); ";
+    ss << toString();
     DebugScreen::newLine(ss);
 }
 

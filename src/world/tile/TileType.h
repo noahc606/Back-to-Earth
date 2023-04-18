@@ -7,6 +7,7 @@ public:
     TileType();
     void init();
 
+    std::string toString();
     void info(std::stringstream& ss, int& tabs);
 
     bool isSolid();
