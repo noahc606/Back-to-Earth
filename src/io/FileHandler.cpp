@@ -78,7 +78,8 @@ int FileHandler::createPNGScreenshot(SDL_Window* w, SDL_Renderer* r, SDL_PixelFo
             date[i] = '_';
         }
     }
-    std::string path = resourcePath + "saved\\screenshots\\" + date.substr(firstSpace+1, lastSpace-4) + ".png";
+
+    FilePath ssPath(resourcePath + "saved/screenshots/" + date.substr(firstSpace+1, lastSpace-4), "png", filesystemType);
 
     /* Get window width and height */
     int width = 0; int height = 0;
@@ -90,9 +91,9 @@ int FileHandler::createPNGScreenshot(SDL_Window* w, SDL_Renderer* r, SDL_PixelFo
 
     /* Save the newly created surface as an image */
     //Success
-    if( IMG_SavePNG(surf, path.c_str())==0 ) {
+    if( IMG_SavePNG(surf, ssPath.get().c_str())==0 ) {
         //Message
-        std::string msg = "Screenshot saved to " + path;
+        std::string msg = "Screenshot saved to " + ssPath.get();
         Log::log(msg);
         //Free surface
         SDL_FreeSurface(surf);
@@ -100,7 +101,7 @@ int FileHandler::createPNGScreenshot(SDL_Window* w, SDL_Renderer* r, SDL_PixelFo
     //Failure
     } else {
         //Message
-        std::string msg = "Failed to save screenshot saved at " + path;
+        std::string msg = "Failed to save screenshot saved at " + ssPath.get();
         Log::error(__PRETTY_FUNCTION__, msg);
         //Free surface
         SDL_FreeSurface(surf);
@@ -449,7 +450,7 @@ int FileHandler::createDir(std::string path)
     // If filesystem type is Linux
     } else if(filesystemType==SDLHandler::LINUX) {
         // Convert all '\\'s into '/'.
-        for(int i = 0; i<path.length(); i++) {
+        for(unsigned i = 0; i<path.length(); i++) {
             if( path[i]=='\\' ) {
                 path[i] = '/';
             }

@@ -8279,7 +8279,7 @@
 	"DebugScreen.h"
 	<string>
 
-1687216358 source:/home/noahch/Desktop/Programming/Git/Back-to-Earth/src/io/FileHandler.cpp
+1687221146 source:/home/noahch/Desktop/Programming/Git/Back-to-Earth/src/io/FileHandler.cpp
 	"FileHandler.h"
 	<bits/stdc++.h>
 	<codecvt>
@@ -8297,7 +8297,7 @@
 	"SDLHandler.h"
 	"Timer.h"
 
-1687219445 source:/home/noahch/Desktop/Programming/Git/Back-to-Earth/src/world/tile/RegTexUpdates.cpp
+1687219888 source:/home/noahch/Desktop/Programming/Git/Back-to-Earth/src/world/tile/RegTexUpdates.cpp
 	"RegTexUpdates.h"
 	<math.h>
 	"DebugScreen.h"
