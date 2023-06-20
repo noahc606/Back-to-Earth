@@ -3,37 +3,40 @@
 #include <codecvt>
 #include <dirent.h>
 #include <fstream>
-#include <io.h>
 #include <iostream>
 #include <locale>
 #include <SDL_image.h>
 #include <sstream>
 #include <string.h>
+#include <sys/stat.h>
 #include "Controls.h"
 #include "Log.h"
 #include "MainLoop.h"
+#include "SDLHandler.h"
 #include "Timer.h"
 
 FileHandler::FileHandler(){}
 FileHandler::~FileHandler(){}
 
-void FileHandler::init( std::string rp )
+void FileHandler::init( std::string rp, int fsType )
 {
     //Resource path (for saving any type of file to disk)
     resourcePath = rp;
+    //Filesystem type (for directory creation functions)
+    filesystemType = fsType;
 
     //Set file paths.
-    files[Settings::controls] = "saved\\settings\\controls";
-    files[Settings::games] = "saved\\settings\\games";
-    files[Settings::options] = "saved\\settings\\options";
-    files[Settings::version] = "saved\\settings\\version";
-    files[Settings::session] = "saved\\settings\\session";
+    files[Settings::controls] = new FilePath("saved/settings/controls", filesystemType);
+    files[Settings::games] =    new FilePath("saved/settings/games", filesystemType);
+    files[Settings::options] =  new FilePath("saved/settings/options", filesystemType);
+    files[Settings::version] =  new FilePath("saved/settings/version", filesystemType);
+    files[Settings::session] =  new FilePath("saved/settings/session", filesystemType);
 
     //Create directories
     createDir(resourcePath);
-    createBteDir("saved\\games");
-    createBteDir("saved\\screenshots");
-    createBteDir("saved\\settings");
+    createBteDir("saved/games");
+    createBteDir("saved/screenshots");
+    createBteDir("saved/settings");
 
     //Load and save settings files.
     loadSettings();
@@ -186,7 +189,7 @@ int FileHandler::saveSettings(int index)
     int success = -1;
 
     if( index>=0 && index<Settings::LAST_INDEX ) {
-        cEditFile( files[index] );
+        cEditFile( *files[index] );
 
         auto kvMap = settings.getKvMap(index);
         if( kvMap.size()!=0 ) {
@@ -411,23 +414,24 @@ void FileHandler::reload()
 /**
     Create a new directory (folder) at the specified path.
         - It will also attempt to create parent directories if they don't already exist (only 1 folder per function call).
-    WARNING: You should not be creating new directories outside of the main resource path (backtoearth folder)
+    You should never be creating new directories outside of the main resource path (backtoearth folder)
         - In most cases just use createBteDir() instead.
 */
 int FileHandler::createDir(std::string path)
 {
-    Log::trbshoot( __PRETTY_FUNCTION__, "Attempting to create new directory at: '"+path+"'..." );
+    Log::trbshoot(__PRETTY_FUNCTION__, "Attempting to create new directory at: '"+path+"'..." );
 
+    // If 'path' is not within 'resourcePath'
     unsigned int minPathSize = resourcePath.length();
-
     if( path.substr(0, minPathSize)!=resourcePath ) {
         Log::error( __PRETTY_FUNCTION__,
                     "Tried to create a directory outside of the main resource path '"+resourcePath+"'",
-                    "If you are seeing this, you are doing something very wrong...");
+                    "If you are seeing this, something is very wrong...");
         Log::throwException();
         return -2;
     }
 
+    // If directory at 'path' isn't found
     if ( opendir(path.c_str())==nullptr ) {
         if(path==resourcePath) {
             Log::error( __PRETTY_FUNCTION__,
@@ -439,10 +443,30 @@ int FileHandler::createDir(std::string path)
         }
     }
 
-    if( mkdir(path.c_str())==0 ) {
-        Log::trbshoot( __PRETTY_FUNCTION__, "Successfully created new directory." );
-        return 0;
+    // If filesystem type is Windows
+    if(filesystemType==SDLHandler::WINDOWS) {
+
+    // If filesystem type is Linux
+    } else if(filesystemType==SDLHandler::LINUX) {
+        // Convert all '\\'s into '/'.
+        for(int i = 0; i<path.length(); i++) {
+            if( path[i]=='\\' ) {
+                path[i] = '/';
+            }
+        }
+
+        int mkdirResult = mkdir(path.c_str(), 0775);
+        if( mkdirResult==0 ) {
+            Log::trbshoot( __PRETTY_FUNCTION__, "Successfully created new directory." );
+            return 0;
+        } else {
+            Log::trbshoot( __PRETTY_FUNCTION__, "Found directory, doing nothing.");
+        }
+    // If filesystem type is unknown
+    } else {
     }
+
+
 
     if(path==resourcePath) {
         return 1;
@@ -451,15 +475,15 @@ int FileHandler::createDir(std::string path)
     std::string subPath = "";
     for( unsigned int i = path.length()-1; i>=minPathSize; i-- ) {
         char c = path.at(i);
-        if( c=='\\' ) {
+        if( c=='\\' || c=='/' ) {
             subPath = path.substr( 0, i );
             break;
         }
 
         if( i<=minPathSize ) {
             Log::trbshoot(__PRETTY_FUNCTION__,
-                          "Ignoring creation of a directory which already exists or has an invalid name",
-                          "unfortunately we can't tell the difference with mkdir()");
+                "Ignoring creation of a directory which already exists or has an invalid name",
+                "unfortunately we can't tell the difference with mkdir()");
             return -1;
         }
     }
@@ -499,7 +523,7 @@ void FileHandler::unloadSettings()
 void FileHandler::loadSettings()
 {
     for(int i = 0; i<Settings::LAST_INDEX; i++) {
-        Settings::t_kvMap kvm = readFileKVs( files[i] );
+        Settings::t_kvMap kvm = readFileKVs( *(files[i]) );
         settings.load( i, kvm );
     }
 }

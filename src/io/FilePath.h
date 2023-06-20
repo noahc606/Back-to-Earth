@@ -4,10 +4,11 @@
 class FilePath
 {
 public:
-    FilePath(std::string path, std::string extension);
-    FilePath(std::string path);
+    FilePath(std::string path, std::string extension, int filesystemType);
+    FilePath(std::string path, int filesystemType);
     virtual ~FilePath();
 
+    static std::string getConvertedPath(std::string path, int fileSystemType);
     std::string get();
 
 protected:

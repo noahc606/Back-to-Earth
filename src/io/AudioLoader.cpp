@@ -15,8 +15,9 @@ AudioLoader::~AudioLoader()
     Mix_CloseAudio();
     timesOpened = Mix_QuerySpec( &frequency, &format, &channels );
 
-    for(Mix_Chunk mc : mixChunks)
-        Mix_FreeChunk(&mc);
+    //Seems to cause a deallocation error in some cases
+    //for(Mix_Chunk mc : mixChunks)
+        //Mix_FreeChunk(&mc);
     mixChunks.clear();
 }
 
@@ -50,12 +51,11 @@ void AudioLoader::init(int p_frequency, uint16_t p_format, int p_channels)
     addMixChunks();
     std::stringstream ss2; ss2 << "Finished loading " << soundsLoaded << " sounds! SDL ticks=" << SDL_GetTicks();
     Log::trbshoot(__PRETTY_FUNCTION__, ss2.str());
-
 }
 
 void AudioLoader::play(int index)
 {
-    //play(index, -1, 0, -1);
+    play(index, -1, 0, -1);
 }
 
 void AudioLoader::play(int index, int channel, int loops, int ticks)
@@ -76,26 +76,26 @@ void AudioLoader::addMixChunks()
 
     missingChunk = addMixChunk("missing");
 
-    addMixChunk("title\\impact");
+    addMixChunk("title/impact");
 
-    addMixChunk("world\\water\\flowing_heavy");
-    addMixChunk("world\\water\\flowing_normal");
-    addMixChunk("world\\water\\splash");
-    addMixChunk("world\\water\\submerge");
-    addMixChunk("world\\water\\swimming");
-    addMixChunk("world\\water\\underwater");
-    addMixChunk("world\\water\\underwater_deep");
+    addMixChunk("world/water/flowing_heavy");
+    addMixChunk("world/water/flowing_normal");
+    addMixChunk("world/water/splash");
+    addMixChunk("world/water/submerge");
+    addMixChunk("world/water/swimming");
+    addMixChunk("world/water/underwater");
+    addMixChunk("world/water/underwater_deep");
 
-    addMixChunk("world\\weather\\rain_outside_heavy");
-    addMixChunk("world\\weather\\rain_roof_generic");
-    addMixChunk("world\\weather\\rain_roof_metal");
+    addMixChunk("world/weather/rain_outside_heavy");
+    addMixChunk("world/weather/rain_roof_generic");
+    addMixChunk("world/weather/rain_roof_metal");
 }
 
 Mix_Chunk* AudioLoader::addMixChunk(std::string path)
 {
     soundsLoaded++;
 
-    path = resourcePath + "resources\\audio\\" + path + ".wav";
+    path = resourcePath + "resources/audio/" + path + ".wav";
 	Mix_Chunk* chunk = Mix_LoadWAV( path.c_str() );
 
 	if( chunk==NULL ) {
@@ -106,7 +106,7 @@ Mix_Chunk* AudioLoader::addMixChunk(std::string path)
 
         //If even the missingChunk is NULL, stop the program as something is very wrong.
         if( chunk==NULL ) {
-            Log::error(__PRETTY_FUNCTION__, "Could not find file 'resources\\audio\\missing.wav'");
+            Log::error(__PRETTY_FUNCTION__, "Could not find file 'resources/audio/missing.wav'");
             Log::throwException();
         }
 	}

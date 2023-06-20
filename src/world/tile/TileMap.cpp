@@ -179,7 +179,7 @@ int TileMap::saveRegion(FileHandler* fileHandler, std::string dimPath, long rX, 
     t_regionMap::iterator itr = regionMap.find( std::make_tuple(rX, rY, rZ) );
     if( itr!=regionMap.end() ) {
         TileRegion tr = itr->second;
-        tr.save(sdlHandler, fileHandler, dimPath, rX, rY, rZ, false);
+        //tr.save(sdlHandler, fileHandler, dimPath, rX, rY, rZ, false);
         return 0;
     }
     return -1;

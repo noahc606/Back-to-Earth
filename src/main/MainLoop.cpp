@@ -26,7 +26,7 @@ MainLoop::MainLoop()
     //Create Back to Earth subsystems
     Log::trbshoot(__PRETTY_FUNCTION__, "Creating BTE subsystems");
     sdlHandler.init();
-    fileHandler.init( sdlHandler.getResourcePath() );
+    fileHandler.init( sdlHandler.getResourcePath(), sdlHandler.getFilesystemType() );
     controls.init( fileHandler.getSettings() );
 
     bte.init( &sdlHandler, &fileHandler, &controls );

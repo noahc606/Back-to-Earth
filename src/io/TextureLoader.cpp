@@ -82,25 +82,25 @@ void TextureLoader::load()
         missingSurf = addSurface("missing");
         addSurface("icon");
         //GUI
-        addSurface("gui\\font\\bte");
-        addSurface("gui\\font\\robot");
-        addSurface("gui\\button");
-        addSurface("gui\\cursor");
-        addSurface("gui\\player_interactions");
-        addSurface("gui\\window");
+        addSurface("gui/font/bte");
+        addSurface("gui/font/robot");
+        addSurface("gui/button");
+        addSurface("gui/cursor");
+        addSurface("gui/player_interactions");
+        addSurface("gui/window");
         //Player
-        addSurface("player\\hair");
-        addSurface("player\\head");
-        addSurface("player\\arms");
-        addSurface("player\\middle_body");
-        addSurface("player\\lower_body");
-        addSurface("player\\feet");
+        addSurface("player/hair");
+        addSurface("player/head");
+        addSurface("player/arms");
+        addSurface("player/middle_body");
+        addSurface("player/lower_body");
+        addSurface("player/feet");
         //World
-        addSurface("world\\background\\space\\interstellar");
-        addSurface("world\\region0");
-        addSurface("world\\region1");
-        addSurface("world\\tile\\type_a");
-        addSurface("world\\tile\\overlay\\wall");
+        addSurface("world/background/space/interstellar");
+        addSurface("world/region0");
+        addSurface("world/region1");
+        addSurface("world/tile/type_a");
+        addSurface("world/tile/overlay/wall");
 
         //Create textures from all surfaces
         addTextures();
@@ -161,7 +161,7 @@ SDL_Surface* TextureLoader::loadSurface(std::string path)
 {
     std::string filename = path;
 	//Load image at specified path
-	path = resourcePath + "resources\\textures\\" + path;
+	path = resourcePath + "resources/textures/" + path;
 
 	SDL_Surface* img = IMG_Load(path.c_str());
 	SDL_Surface* surf = SDL_ConvertSurface(img, pixelFormat, 0);
@@ -171,6 +171,7 @@ SDL_Surface* TextureLoader::loadSurface(std::string path)
 	    if(filename=="missing.png") {
             Log::error(__PRETTY_FUNCTION__, "Failed to load image resources", "unable to load default image '"+path+"'");
             Log::error(__PRETTY_FUNCTION__, "IMG_Error: ", IMG_GetError());
+            Log::log("Is the \"backtoearth\" folder in the same directory as the main executable file? If not, move file(s) around so that it is.");
             Log::throwException();
             return nullptr;
 	    } else {

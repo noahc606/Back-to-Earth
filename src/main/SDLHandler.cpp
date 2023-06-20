@@ -21,8 +21,6 @@ void SDLHandler::init()
     audioLoader.init(resourcePath);
     SDL_SetWindowIcon(window, textureLoader.getSurface(TextureLoader::icon));
 
-
-
     /*
     std::stringstream ss;
     ss << SDL_GetCurrentVideoDriver() << "\n";
@@ -57,6 +55,8 @@ bool SDLHandler::usingBTECursor() { return bteCursor; }
 
 std::string SDLHandler::getVideoDriversDesc() { return videoDriversDesc; }
 std::string SDLHandler::getResourcePath() { return resourcePath; }
+std::string SDLHandler::getDevicePlatform() { return devicePlatform; }
+int SDLHandler::getFilesystemType() { return filesystemType; }
 TextureLoader* SDLHandler::getTextureLoader() { return &textureLoader; }
 AudioLoader* SDLHandler::getAudioLoader() { return &audioLoader; }
 
@@ -159,10 +159,21 @@ void SDLHandler::createSubsystems()
         Log::error(__PRETTY_FUNCTION__, "Failed to get resource path", "SDL_GetBasePath()==NULL");
         Log::throwException();
     } else {
-        resourcePath = (std::string)path+"backtoearth\\";
+        resourcePath = (std::string)path+"backtoearth/";
         Log::trbshoot(__PRETTY_FUNCTION__, "Got path as: "+resourcePath);
     }
     delete path;
+
+    /* Get OS of this device and set filesystem type */
+    const char* platform = SDL_GetPlatform();
+    if( platform==NULL ) {
+        Log::error(__PRETTY_FUNCTION__, "Failed to get operating system", "SDL_GetPlatform()==NULL");
+        Log::throwException();
+    } else {
+        devicePlatform = (std::string)platform+"";
+        Log::trbshoot(__PRETTY_FUNCTION__, "Got OS as: "+devicePlatform);
+    }
+    validateDevicePlatform();
 
     /* Get display information */
     SDL_DisplayMode dm;
@@ -235,6 +246,21 @@ void SDLHandler::createWindowAndRenderer()
         //Print error, stop program.
         Log::error(__PRETTY_FUNCTION__, "Pixel format is null");
         Log::throwException();
+    }
+}
+
+void SDLHandler::validateDevicePlatform()
+{
+    // If SDL says "Windows"
+    if( devicePlatform=="Windows" ) {
+        filesystemType = Platforms::WINDOWS;
+    // If SDL says "Linux"
+    } else if( devicePlatform=="Linux" ) {
+        filesystemType = Platforms::LINUX;
+    // If SDL says anything else
+    } else {
+        Log::warn(__PRETTY_FUNCTION__, "Unknown operating system '"+devicePlatform+"' detected", "using Linux filesystem functions");
+        filesystemType = Platforms::UNKNOWN;
     }
 }
 

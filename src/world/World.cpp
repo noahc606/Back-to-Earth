@@ -17,7 +17,7 @@ void World::init(SDLHandler* sh, FileHandler* fh, Controls* ctrls)
     player.init(sh, ctrls);
     player.setPos(0, 0, -32);
     tileMap.init(sdlHandler, fileHandler);
-    tileMapScreen.init(sdlHandler, fileHandler, controls, &tileMap, &player);
+    tileMapScreen.init(sdlHandler, fileHandler, controls, &player, &tileMap, &csTileMap);
 
     //Init csTileMap
     csTileMap.init(sdlHandler, controls, player.getCamera());
@@ -63,10 +63,7 @@ World::~World()
 void World::draw()
 {
     /** Tile Canvas */
-    tileMapScreen.draw(&csTileMap);
-
-    csTileMap.draw();
-
+    tileMapScreen.draw();
 
     /** Entity Canvas */
     csEntities.clearCanvas();
@@ -151,7 +148,7 @@ void World::updateMouseAndCamInfo()
     TileIterator ti(&tileMap);
     ti.setBoundsByRXYZ( TileMap::getRegRXYZ(mouseXLL), TileMap::getRegRXYZ(mouseYLL), cRZ);
     ti.setTrackerSub( TileMap::getRegSubPos(mouseXLL), TileMap::getRegSubPos(mouseYLL), TileMap::getRegSubPos(player.getCamera()->getLayer()) );
-    mouseZLL = player.getCamera()->getLayer() +( std::get<0>(tileMapScreen.topTrackedTile(ti)) );
+    mouseZLL = player.getCamera()->getLayer() +( std::get<0>(RegTexUpdates::topTrackedTile(ti)) );
 }
 
 void World::playerInteractions(GUIHandler& guiHandler)

@@ -17,6 +17,7 @@
 				<Option projectLibDirsRelation="0" />
 				<Compiler>
 					<Add option="-g" />
+					<Add directory="src/world/tile" />
 				</Compiler>
 				<Linker>
 					<Add option="-lmingw32 -lSDL2main -lSDL2" />
@@ -43,6 +44,7 @@
 				<Option projectLibDirsRelation="0" />
 				<Compiler>
 					<Add option="-O2" />
+					<Add directory="src/world/tile" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -62,6 +64,7 @@
 		</Build>
 		<Compiler>
 			<Add option="-Wall" />
+			<Add option="-std=c11" />
 			<Add option="-std=c++11" />
 			<Add option="-fexceptions" />
 			<Add directory="lib/SDL2-2.0.10-i686-w64-mingw32/include/SDL2" />
@@ -91,17 +94,10 @@
 		<Linker>
 			<Add option="-static-libstdc++" />
 			<Add option="-static-libgcc" />
-			<Add option="-lmingw32 -lSDL2main -lSDL2" />
+			<Add option="-lSDL2" />
 			<Add option="-lSDL2_image" />
 			<Add option="-lSDL2_mixer" />
 			<Add option="-lSDL2_ttf" />
-			<Add library="mingw32" />
-			<Add library="SDL2main" />
-			<Add library="SDL2.dll" />
-			<Add library="user32" />
-			<Add library="gdi32" />
-			<Add library="winmm" />
-			<Add library="dxguid" />
 			<Add directory="lib/SDL2-2.0.10-i686-w64-mingw32/lib" />
 			<Add directory="lib/SDL2_image-2.0.5-i686-w64-mingw32/lib" />
 			<Add directory="lib/SDL2_mixer-2.0.4-i686-w64-mingw32/lib" />
@@ -215,6 +211,8 @@
 		<Unit filename="src/world/phys/collidingvolume.h" />
 		<Unit filename="src/world/tile/RegTexBuilder.cpp" />
 		<Unit filename="src/world/tile/RegTexBuilder.h" />
+		<Unit filename="src/world/tile/RegTexUpdates.cpp" />
+		<Unit filename="src/world/tile/RegTexUpdates.h" />
 		<Unit filename="src/world/tile/TileIterator.cpp" />
 		<Unit filename="src/world/tile/TileIterator.h" />
 		<Unit filename="src/world/tile/TileMap.cpp" />
@@ -227,9 +225,6 @@
 		<Unit filename="src/world/tile/TileType.h" />
 		<Extensions>
 			<lib_finder disable_auto="1" />
-			<code_completion />
-			<envvars />
-			<debugger />
 		</Extensions>
 	</Project>
 </CodeBlocks_project_file>

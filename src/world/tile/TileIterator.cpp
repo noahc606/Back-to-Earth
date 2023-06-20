@@ -199,7 +199,7 @@ TileType TileIterator::peekTile()
 
 TileType TileIterator::peekTile(int offsetX, int offsetY, int offsetZ)
 {
-    int posInReg[3] = {itrSub[0]+offsetX, itrSub[1]+offsetY, itrSub[2]+offsetZ};
+    int posInReg[3] = { (int)itrSub[0]+offsetX, (int)itrSub[1]+offsetY, (int)itrSub[2]+offsetZ };
     int regOffset[3] = {0, 0, 0};
 
     for( int i = 0; i<3; i++ ) {
@@ -231,7 +231,7 @@ TileType TileIterator::peekTrackedTile()
 
 TileType TileIterator::peekTrackedTile(int offsetX, int offsetY, int offsetZ)
 {
-    int posInReg[3] = {trackerSub[0]+offsetX, trackerSub[1]+offsetY, trackerSub[2]+offsetZ};
+    int posInReg[3] = { (int)trackerSub[0]+offsetX, (int)trackerSub[1]+offsetY, (int)trackerSub[2]+offsetZ };
 
     int regOffset[3] = {0, 0, 0};
 

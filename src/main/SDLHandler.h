@@ -30,9 +30,17 @@ public:
     //Get Resources
     std::string getVideoDriversDesc();
     std::string getResourcePath();
+    std::string getDevicePlatform();
+    int getFilesystemType();
     TextureLoader* getTextureLoader();
     AudioLoader* getAudioLoader();
-
+    //Operating system types
+    enum Platforms {
+        UNKNOWN = -10,
+        UNSET = 0,
+        WINDOWS = 1,
+        LINUX = 2,
+    };
 
     /**/
     void toggleFullScreen();
@@ -49,14 +57,18 @@ private:
     /**/
     void createSubsystems();
     void createWindowAndRenderer();
+    void validateDevicePlatform();
     void setVideoDriversDesc();
 
     /**/
     /* Resources */
-    //Video drivers description
+    // Video drivers description
     std::string videoDriversDesc;
-    //Resource Path
+    // Resource Path
     std::string resourcePath = "";
+    // Operating system
+    std::string devicePlatform = "";
+    int filesystemType = UNSET;
     //Texture Loader
     TextureLoader textureLoader;
     //Audio Loader

@@ -14,7 +14,6 @@
 #include <codecvt>
 #include <fstream>
 #include <iostream>
-#include <io.h>
 #include <fcntl.h>
 using namespace std;
 /**/
@@ -23,20 +22,10 @@ Tests::Tests(){}
 void Tests::init(SDLHandler* sh, FileHandler* fh, Controls* ctrls)
 {
     BTEObject::init(sh, fh, ctrls);
+    fileHandler->createBteDir("asdf");
+    std::cout << "creating directory...\n";
 
-    TileMap tileMap;
-    tileMap.loadRegion(0, 0, -1);
 
-    Timer sr("save regions");
-    for(int i = 0; i<1; i++) {
-        tileMap.saveRegion(fileHandler, "default", 0, 0, -1);
-    }
-    sr.debugElapsedTimeMS();
-
-    fileHandler->pEditFile( FilePath("test") );
-    fileHandler->seek(4);
-    std::cout << fileHandler->read(3) << "\n";
-    fileHandler->saveAndCloseFile();
 }
 Tests::~Tests(){}
 

@@ -12,7 +12,7 @@ public:
 /**/
     FileHandler();
     virtual ~FileHandler();
-    void init(std::string p_resourcePath);
+    void init(std::string p_resourcePath, int p_filesystemType);
 /**/
     /* File creation + editing */
     int createBteDir(std::string path);
@@ -76,6 +76,7 @@ private:
 /**/
     /* Resource path */
     std::string resourcePath;
+    int filesystemType;
 
     /* file stream types */
     std::ifstream ifs;
@@ -90,5 +91,5 @@ private:
 
     /* Settings handler and files that hold settings */
     Settings settings;
-    std::string files[Settings::LAST_INDEX];
+    FilePath* files[Settings::LAST_INDEX];
 };

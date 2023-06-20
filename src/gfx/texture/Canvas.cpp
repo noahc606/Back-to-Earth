@@ -13,6 +13,7 @@ void Canvas::init(SDLHandler* sh, Controls* ctrls, Camera* cam)
     setCroppingRendering(false);
 
     realloc(0, 0);
+
 }
 
 void Canvas::destroy()
@@ -378,8 +379,8 @@ void Canvas::realloc(long rX, long rY, int maxRegions)
 
         //Unload texes with extreme X or Y coords.
         if( riX<rX-texAllocRadiusX || riX>rX+texAllocRadiusY ||
-            riY<rY-texAllocRadiusX || riY>rY+texAllocRadiusY
-           ) {
+            riY<rY-texAllocRadiusX || riY>rY+texAllocRadiusY )
+        {
             itrTM->second->destroy();
             delete itrTM->second;
             itrTM = texes.erase(itrTM);

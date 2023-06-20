@@ -5,7 +5,6 @@
 class NameBuilder
 {
 public:
-    Real();
 
     std::string getAdjective(std::string name);
     std::string getRandomPlanetName(int syllables);

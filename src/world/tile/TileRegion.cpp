@@ -200,7 +200,7 @@ void TileRegion::save(SDLHandler* sh, FileHandler* fh, std::string path, long rX
 {
     std::stringstream filename;
     filename << "saved\\games\\" << path << "\\" << rX << "," << rY << "," << rZ;
-    fh->cEditFile( FilePath(filename.str(), "bte_tr") );
+    fh->cEditFile( FilePath(filename.str(), "bte_tr", sh->getFilesystemType() ) );
 
     if( p_compress ) {
         Timer t1;

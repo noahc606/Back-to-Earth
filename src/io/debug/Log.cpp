@@ -2,6 +2,8 @@
 #include <SDL.h>
 #include "Main.h"
 
+bool Log::trbsOverride = false;
+
 Log::Log(){}
 Log::~Log(){}
 
@@ -40,14 +42,14 @@ void Log::coords(std::string object, int x, int y, int w, int h)
 
 void Log::trbshoot(std::string p_method, std::string p_message)
 {
-    if(Main::TROUBLESHOOTING) {
+    if(Main::TROUBLESHOOTING || trbsOverride) {
         std::cout << "[ TrbSh ] " << p_method << " - " << p_message << std::endl;
     }
 }
 
 void Log::trbshoot(std::string p_method, std::string p_message, std::string p_resolution)
 {
-    if(Main::TROUBLESHOOTING) {
+    if(Main::TROUBLESHOOTING || trbsOverride) {
         std::cout << "[ TrbSh ] " << p_method << " - " << p_message << ", " << p_resolution << std::endl;
     }
 }

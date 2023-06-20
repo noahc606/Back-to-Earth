@@ -11,7 +11,7 @@ public:
     void init(std::string resourcePath);
     void init(int p_frequency, uint16_t p_format, int p_channels);
 
-    querySpecs(int& frequency, uint16_t& format, int& channels);
+    void querySpecs(int& frequency, uint16_t& format, int& channels);
 
     void play(int index);
     void play(int index, int channel, int loops, int ticks);

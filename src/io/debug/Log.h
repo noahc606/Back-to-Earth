@@ -29,6 +29,7 @@ public:
     static void throwException();
     /**/
 
+    static bool trbsOverride;
     //static std::stringstream log;
     //static std::stringstream debug;
     //static std::stringstream trbsh;

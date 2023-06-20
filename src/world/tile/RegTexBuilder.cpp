@@ -19,7 +19,7 @@ RegTexBuilder::~RegTexBuilder(){}
 
 void RegTexBuilder::info(std::stringstream& ss, int& tabs, TileIterator& ti, int dZ)
 {
-    bool bl[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
+    bool bl[8] = { 0, 0, 0, 0, 0, 0, 0, 0 }; // "Block-light" tile locations
     infoBl(ti, bl, dZ);
 
     bool co[4] = { 0, 0, 0, 0 }; //Corners
