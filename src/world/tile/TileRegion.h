@@ -39,7 +39,8 @@ public:
 
     void compress();
     void queueUnload();
-    void save( SDLHandler* sh, FileHandler* fh, std::string path, long rX, long rY, long rZ, bool compress );
+    void save( SDLHandler* sh, FileHandler* fh, std::string saveGameName, long rX, long rY, long rZ, bool compress );
+    void save( SDLHandler* sh, FileHandler* fh, std::string saveGameName, long rX, long rY, long rZ );
 
     enum RegTexState {
         NONE = 0,
@@ -57,7 +58,4 @@ private:
     uint16_t tiles[32][32][32];
 
     int regTexState = UNGENERATED;
-
-    const static uint16_t ampSBits[];
-    const static uint8_t pows2[];
 };

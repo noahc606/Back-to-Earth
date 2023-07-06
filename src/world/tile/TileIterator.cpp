@@ -392,7 +392,7 @@ void TileIterator::scanBounds()
     int numScans = 1;
     int start = 0; int end = 0;
     int num = 0; int numNull = 0; int total = 0;
-    std::tuple<int, int> textureXY = std::make_tuple(2, 0);
+    std::tuple<int, int, int> textureXYZ = std::make_tuple(2, 0, 0);
 
     //Message
     Log::debug("Scanning bounds...");
@@ -404,7 +404,7 @@ void TileIterator::scanBounds()
 
         while( !invalidIndex() ) {
             TileType tt = peekTile();
-            if( tt.getTextureXY()==textureXY ) num++;
+            if( tt.getTextureXYZ()==textureXYZ ) num++;
             if(tt.isNull()) numNull++;
 
             total++;

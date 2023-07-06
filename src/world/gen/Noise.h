@@ -17,13 +17,12 @@ public:
     /**/
     static inline int32_t fastfloor(float fp);
     static int64_t stringSeedToI64Seed(std::string s);
-    float interpolate(float a0, float a1, float w);
-    vec2D gradient2D(int ix, int iy);
-    float dotGridGradient2D(int ix, int iy, float x, float y);
-    float noise2D(float x, float y);
-    float clampedNoise2D(float x, float y);
+    static float interpolate(float a0, float a1, float w);
+    static vec2D gradient2D(int ix, int iy);
+    static float dotGridGradient2D(int ix, int iy, float x, float y);
+    static float noise2D(float x, float y);
+    static float clampedNoise2D(float x, float y);
     /**/
-    void populateRegion(TileRegion& tr, int rX, int rY, int rZ);
     /**/
 protected:
 

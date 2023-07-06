@@ -22,12 +22,16 @@ public:
     void destroy();
     /**/
     bool isInitialized();
+    TextureLoader* getTextureLoader();
     SDL_Texture* getSDLTexture();
+    SDL_Texture* getSDLTextureCopy();
     SDL_Surface* createSurfaceFromTexture();
     int getTexWidth();
     int getTexHeight();
     double getDrawScale();
     int getBlendMode();
+
+
     void queryTexInfo(int &texW, int &texH);
     void queryDrawInfo(int &drawX, int &drawY, double &drawScale);
 

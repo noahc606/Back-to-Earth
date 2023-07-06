@@ -22,7 +22,6 @@ uint64_t MainLoop::nextSecond = 0;
 MainLoop::MainLoop()
 {
     setMaxFPS(maxFPS);
-
     //Create Back to Earth subsystems
     Log::trbshoot(__PRETTY_FUNCTION__, "Creating BTE subsystems");
     sdlHandler.init();

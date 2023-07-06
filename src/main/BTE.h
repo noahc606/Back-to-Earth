@@ -61,7 +61,6 @@ private:
     std::string lastBTECursorState = "false";
 
     /* Debugging, testing */
-    const bool testing = false;
     DebugScreen debugScreen;
     Tests* tests = nullptr;
 };

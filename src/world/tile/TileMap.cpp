@@ -3,7 +3,7 @@
 #include <sstream>
 #include "DebugScreen.h"
 #include "Log.h"
-#include "Noise.h"
+#include "Terrain.h"
 #include "TileIterator.h"
 #include "TileType.h"
 
@@ -163,10 +163,10 @@ int TileMap::loadRegion(long rX, long rY, long rZ)
 {
     t_regionMap::iterator itr = regionMap.find( std::make_tuple(rX, rY, rZ) );
     if( itr==regionMap.end() ) {
-        Noise noise;
+        Terrain terra;
         TileRegion tr;
         tr.setRegTexState(tr.GENERATING);
-        noise.populateRegion(tr, rX, rY, rZ);
+        terra.populateRegion(tr, rX, rY, rZ);
         tr.setRegTexState(tr.FINISHED_GENERATING);
         regionMap.insert( std::make_pair(std::make_tuple(rX, rY, rZ), tr) );
         return 0;
@@ -179,7 +179,12 @@ int TileMap::saveRegion(FileHandler* fileHandler, std::string dimPath, long rX, 
     t_regionMap::iterator itr = regionMap.find( std::make_tuple(rX, rY, rZ) );
     if( itr!=regionMap.end() ) {
         TileRegion tr = itr->second;
-        //tr.save(sdlHandler, fileHandler, dimPath, rX, rY, rZ, false);
+
+        if( rX==0 && rY==1 && rZ==0 ) {
+            tr.save(sdlHandler, fileHandler, dimPath, rX, rY, rZ, false);
+        }
+
+
         return 0;
     }
     return -1;

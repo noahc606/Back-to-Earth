@@ -54,7 +54,24 @@ void Texture::destroy()
 
 
 bool Texture::isInitialized() { return initialized; }
+TextureLoader* Texture::getTextureLoader() { return textureLoader; }
+/**
+    This function returns 'tex' directly which will be destroyed when
+    this Texture object is destroyed.
+
+    To get a copy of 'tex', use getSDLTextureCopy().
+*/
 SDL_Texture* Texture::getSDLTexture() { return tex; }
+/**
+    This function creates + returns a copy of 'tex' (SDL_Texture*) that will
+    live indefinitely until you free it yourself using SDL_DestroyTexture().
+
+    If you just need quick access to 'tex' (no new memory alloc), use getSDLTexture().
+*/
+SDL_Texture* Texture::getSDLTextureCopy()
+{
+    return SDL_CreateTextureFromSurface(renderer, createSurfaceFromTexture());
+}
 SDL_Surface* Texture::createSurfaceFromTexture()
 {
     //Save render target

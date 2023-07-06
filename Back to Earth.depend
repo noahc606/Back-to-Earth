@@ -7632,7 +7632,7 @@
 1686590960 /home/noahch/Desktop/Programming/Git/Back-to-Earth/src/io/FilePath.h
 	<string>
 
-1686591319 /home/noahch/Desktop/Programming/Git/Back-to-Earth/src/main/SDLHandler.h
+1687278782 /home/noahch/Desktop/Programming/Git/Back-to-Earth/src/main/SDLHandler.h
 	<SDL.h>
 	<string>
 	"AudioLoader.h"
@@ -7704,7 +7704,7 @@
 	"Texture.h"
 	"TextureLoader.h"
 
-1681870823 /home/noahch/Desktop/Programming/Git/Back-to-Earth/src/gfx/texture/Texture.h
+1688609091 /home/noahch/Desktop/Programming/Git/Back-to-Earth/src/gfx/texture/Texture.h
 	<cstdint>
 	<SDL.h>
 	"Color.h"
@@ -7762,7 +7762,7 @@
 	"Button.h"
 	"Texture.h"
 
-1681870823 source:/home/noahch/Desktop/Programming/Git/Back-to-Earth/src/gfx/gui/obj/TextBox.cpp
+1687278977 source:/home/noahch/Desktop/Programming/Git/Back-to-Earth/src/gfx/gui/obj/TextBox.cpp
 	"TextBox.h"
 	<sstream>
 	"Text.h"
@@ -7827,7 +7827,7 @@
 	"FileHandler.h"
 	"SDLHandler.h"
 
-1687216572 /home/noahch/Desktop/Programming/Git/Back-to-Earth/src/main/BTE.h
+1687281326 /home/noahch/Desktop/Programming/Git/Back-to-Earth/src/main/BTE.h
 	<string>
 	"Controls.h"
 	"DebugScreen.h"
@@ -7838,7 +7838,7 @@
 	"Tests.h"
 	"World.h"
 
-1681870823 /home/noahch/Desktop/Programming/Git/Back-to-Earth/src/io/debug/DebugScreen.h
+1688495441 /home/noahch/Desktop/Programming/Git/Back-to-Earth/src/io/debug/DebugScreen.h
 	"Controls.h"
 	"GUIHandler.h"
 	"SDLHandler.h"
@@ -7878,13 +7878,13 @@
 1681870823 /home/noahch/Desktop/Programming/Git/Back-to-Earth/src/gfx/texture/access/TTexture.h
 	"Texture.h"
 
-1681870823 /home/noahch/Desktop/Programming/Git/Back-to-Earth/src/world/tile/TileRegion.h
+1687484617 /home/noahch/Desktop/Programming/Git/Back-to-Earth/src/world/tile/TileRegion.h
 	<vector>
 	<string>
 	"Camera.h"
 	"TileType.h"
 
-1681871030 /home/noahch/Desktop/Programming/Git/Back-to-Earth/src/world/tile/TileType.h
+1688503500 /home/noahch/Desktop/Programming/Git/Back-to-Earth/src/world/tile/TileType.h
 	<string>
 	<tuple>
 
@@ -7999,7 +7999,7 @@
 	<sstream>
 	"Log.h"
 
-1681870823 source:/home/noahch/Desktop/Programming/Git/Back-to-Earth/src/gfx/texture/Texture.cpp
+1688609125 source:/home/noahch/Desktop/Programming/Git/Back-to-Earth/src/gfx/texture/Texture.cpp
 	"Texture.h"
 	<iostream>
 	<sstream>
@@ -8079,7 +8079,7 @@
 	<vector>
 	"Log.h"
 
-1682081082 source:/home/noahch/Desktop/Programming/Git/Back-to-Earth/src/io/debug/DebugScreen.cpp
+1688495459 source:/home/noahch/Desktop/Programming/Git/Back-to-Earth/src/io/debug/DebugScreen.cpp
 	"DebugScreen.h"
 	<sstream>
 	"MainLoop.h"
@@ -8103,7 +8103,7 @@
 	"Log.h"
 	"SDLHandler.h"
 
-1681870823 source:/home/noahch/Desktop/Programming/Git/Back-to-Earth/src/io/Settings.cpp
+1688495318 source:/home/noahch/Desktop/Programming/Git/Back-to-Earth/src/io/Settings.cpp
 	"Settings.h"
 	<fstream>
 	<iostream>
@@ -8121,7 +8121,7 @@
 	"SDLHandler.h"
 	"Timer.h"
 
-1687202364 source:/home/noahch/Desktop/Programming/Git/Back-to-Earth/src/main/BTE.cpp
+1688495677 source:/home/noahch/Desktop/Programming/Git/Back-to-Earth/src/main/BTE.cpp
 	"BTE.h"
 	<sstream>
 	"ButtonAction.h"
@@ -8131,7 +8131,7 @@
 	"Text.h"
 	"TextBox.h"
 
-1687202433 source:/home/noahch/Desktop/Programming/Git/Back-to-Earth/src/main/Main.cpp
+1687484047 source:/home/noahch/Desktop/Programming/Git/Back-to-Earth/src/main/Main.cpp
 	"Main.h"
 	<SDL.h>
 	"MainLoop.h"
@@ -8144,7 +8144,7 @@
 	<string>
 	<vector>
 
-1687203069 source:/home/noahch/Desktop/Programming/Git/Back-to-Earth/src/main/MainLoop.cpp
+1687484231 source:/home/noahch/Desktop/Programming/Git/Back-to-Earth/src/main/MainLoop.cpp
 	"MainLoop.h"
 	<ctime>
 	<iostream>
@@ -8160,12 +8160,12 @@
 	"Log.h"
 	"Main.h"
 
-1681870823 source:/home/noahch/Desktop/Programming/Git/Back-to-Earth/src/world/gen/Noise.cpp
+1688494891 source:/home/noahch/Desktop/Programming/Git/Back-to-Earth/src/world/gen/Noise.cpp
 	"Noise.h"
 	<cstdint>
 	<math.h>
 
-1681870823 /home/noahch/Desktop/Programming/Git/Back-to-Earth/src/world/gen/Noise.h
+1688494845 /home/noahch/Desktop/Programming/Git/Back-to-Earth/src/world/gen/Noise.h
 	"TileRegion.h"
 
 1681870823 source:/home/noahch/Desktop/Programming/Git/Back-to-Earth/src/world/phys/Box3D.cpp
@@ -8192,7 +8192,7 @@
 	"TextureLoader.h"
 	"TileMap.h"
 
-1685645595 source:/home/noahch/Desktop/Programming/Git/Back-to-Earth/src/world/tile/RegTexBuilder.cpp
+1688609540 source:/home/noahch/Desktop/Programming/Git/Back-to-Earth/src/world/tile/RegTexBuilder.cpp
 	"RegTexBuilder.h"
 	"DebugScreen.h"
 	<math.h>
@@ -8203,7 +8203,7 @@
 	"Texture.h"
 	"TileIterator.h"
 
-1682081495 source:/home/noahch/Desktop/Programming/Git/Back-to-Earth/src/world/tile/TileIterator.cpp
+1688494002 source:/home/noahch/Desktop/Programming/Git/Back-to-Earth/src/world/tile/TileIterator.cpp
 	"TileIterator.h"
 	<iostream>
 	<sstream>
@@ -8211,17 +8211,17 @@
 	<SDL.h>
 	"Log.h"
 
-1681871999 source:/home/noahch/Desktop/Programming/Git/Back-to-Earth/src/world/tile/TileMap.cpp
+1688494964 source:/home/noahch/Desktop/Programming/Git/Back-to-Earth/src/world/tile/TileMap.cpp
 	"TileMap.h"
 	<math.h>
 	<sstream>
 	"DebugScreen.h"
 	"Log.h"
-	"Noise.h"
+	"Terrain.h"
 	"TileIterator.h"
 	"TileType.h"
 
-1687219321 source:/home/noahch/Desktop/Programming/Git/Back-to-Earth/src/world/tile/TileMapScreen.cpp
+1687278113 source:/home/noahch/Desktop/Programming/Git/Back-to-Earth/src/world/tile/TileMapScreen.cpp
 	"TileMapScreen.h"
 	<iomanip>
 	<iostream>
@@ -8236,34 +8236,35 @@
 	"TileIterator.h"
 	"Timer.h"
 
-1686591500 source:/home/noahch/Desktop/Programming/Git/Back-to-Earth/src/world/tile/TileRegion.cpp
+1687647317 source:/home/noahch/Desktop/Programming/Git/Back-to-Earth/src/world/tile/TileRegion.cpp
 	"TileRegion.h"
 	<iostream>
 	<math.h>
 	<stdlib.h>
 	<sstream>
 	"DebugScreen.h"
+	"LevelSave.h"
 	"Log.h"
 	"TileMap.h"
 	"Timer.h"
 
-1687203285 source:/home/noahch/Desktop/Programming/Git/Back-to-Earth/src/main/Tests.cpp
+1688609495 source:/home/noahch/Desktop/Programming/Git/Back-to-Earth/src/main/Tests.cpp
 	"Tests.h"
 	<map>
-	"Color.h"
-	"Log.h"
-	"Noise.h"
-	"Real.h"
-	"Text.h"
-	"TileMap.h"
-	"Timer.h"
-	"Window.h"
 	<math.h>
 	<bitset>
 	<codecvt>
 	<fstream>
 	<iostream>
 	<fcntl.h>
+	"Color.h"
+	"Log.h"
+	"Terrain.h"
+	"Real.h"
+	"Text.h"
+	"TileMap.h"
+	"Timer.h"
+	"Window.h"
 
 1687217807 source:/home/noahch/Desktop/Programming/Git/Back-to-Earth/src/world/World.cpp
 	"World.h"
@@ -8273,13 +8274,14 @@
 	"MainLoop.h"
 	"Timer.h"
 
-1681870823 source:/home/noahch/Desktop/Programming/Git/Back-to-Earth/src/world/tile/TileType.cpp
+1688510282 source:/home/noahch/Desktop/Programming/Git/Back-to-Earth/src/world/tile/TileType.cpp
 	"TileType.h"
 	<sstream>
-	"DebugScreen.h"
 	<string>
+	"DebugScreen.h"
+	"Log.h"
 
-1687221146 source:/home/noahch/Desktop/Programming/Git/Back-to-Earth/src/io/FileHandler.cpp
+1687221313 source:/home/noahch/Desktop/Programming/Git/Back-to-Earth/src/io/FileHandler.cpp
 	"FileHandler.h"
 	<bits/stdc++.h>
 	<codecvt>
@@ -8311,4 +8313,84 @@
 	"Defs.h"
 	"TileIterator.h"
 	"TileMap.h"
+
+1687649668 /home/noahch/Desktop/Programming/Git/Back-to-Earth/src/io/file/FileHandler.h
+	<fstream>
+	<SDL.h>
+	<string>
+	<vector>
+	"FilePath.h"
+	"Settings.h"
+
+1686590960 /home/noahch/Desktop/Programming/Git/Back-to-Earth/src/io/file/FilePath.h
+	<string>
+
+1681870978 /home/noahch/Desktop/Programming/Git/Back-to-Earth/src/io/file/AudioLoader.h
+	<SDL_mixer.h>
+	<string>
+	<vector>
+
+1688587133 /home/noahch/Desktop/Programming/Git/Back-to-Earth/src/io/file/TextureLoader.h
+	<iostream>
+	<memory>
+	<SDL.h>
+	<SDL_image.h>
+	<vector>
+	"Main.h"
+
+1682081997 source:/home/noahch/Desktop/Programming/Git/Back-to-Earth/src/io/file/AudioLoader.cpp
+	"AudioLoader.h"
+	<sstream>
+	"Log.h"
+	"SDLHandler.h"
+
+1688502697 source:/home/noahch/Desktop/Programming/Git/Back-to-Earth/src/io/file/FileHandler.cpp
+	"FileHandler.h"
+	<bits/stdc++.h>
+	<codecvt>
+	<dirent.h>
+	<fstream>
+	<iostream>
+	<locale>
+	<SDL_image.h>
+	<sstream>
+	<string.h>
+	<sys/stat.h>
+	"Controls.h"
+	"Log.h"
+	"MainLoop.h"
+	"SDLHandler.h"
+	"Timer.h"
+
+1688588565 source:/home/noahch/Desktop/Programming/Git/Back-to-Earth/src/io/file/TextureLoader.cpp
+	"TextureLoader.h"
+	<iostream>
+	<sstream>
+	"Controls.h"
+	"Log.h"
+	"SDLHandler.h"
+	"Timer.h"
+	"Texture.h"
+
+1687278957 source:/home/noahch/Desktop/Programming/Git/Back-to-Earth/src/io/file/FilePath.cpp
+	"FilePath.h"
+	<sstream>
+	"Log.h"
+	"SDLHandler.h"
+
+1687649463 source:/home/noahch/Desktop/Programming/Git/Back-to-Earth/src/io/file/LevelSave.cpp
+	"LevelSave.h"
+	<sstream>
+	<iostream>
+
+1687647336 /home/noahch/Desktop/Programming/Git/Back-to-Earth/src/io/file/LevelSave.h
+	"FileHandler.h"
+	"TileType.h"
+
+1688494865 source:/home/noahch/Desktop/Programming/Git/Back-to-Earth/src/world/gen/noise/Terrain.cpp
+	"Terrain.h"
+	"Noise.h"
+
+1688494731 /home/noahch/Desktop/Programming/Git/Back-to-Earth/src/world/gen/noise/Terrain.h
+	"TileRegion.h"
 

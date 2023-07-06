@@ -189,9 +189,37 @@ void RegTexBuilder::detailDepthPTiles(Texture* tex, TileIterator& ti, int dstX, 
 */
 void RegTexBuilder::drawTypeA(Texture* tex, int dstX, int dstY, int blitScalePx, int srcX, int srcY, Color c, int dZ)
 {
-    tex->lock( dstX, dstY, blitScalePx, blitScalePx);
+    //TextureLoader::tileBlit(tex, dstX, dstY, blitScalePx, TextureLoader::WORLD_TILE_type_a, srcX, srcY);
+
+    TextureLoader* tl = tex->getTextureLoader();
+
+    tex->lock(dstX, dstY, blitScalePx, blitScalePx);
     tex->setColorMod(c.r, c.g, c.b);
-    tex->blit(TextureLoader::WORLD_TILE_type_a, srcX, srcY, 32, 32 );
+
+    if( blitScalePx<=1 ) {
+        tex->blit( tl->getTexture(TextureLoader::WORLD_TILE_type_a, 5), srcX/32, srcY/32 );
+    } else
+    if( blitScalePx<=2 ) {
+        tex->blit( tl->getTexture(TextureLoader::WORLD_TILE_type_a, 4), srcX/16, srcY/16 );
+    } else
+    if( blitScalePx<=4 ) {
+        tex->blit( tl->getTexture(TextureLoader::WORLD_TILE_type_a, 3), srcX/8, srcY/8 );
+    } else
+    if( blitScalePx<=8 ) {
+        tex->blit( tl->getTexture(TextureLoader::WORLD_TILE_type_a, 2), srcX/4, srcY/4 );
+    } else
+    if( blitScalePx<=16 ) {
+        tex->blit( tl->getTexture(TextureLoader::WORLD_TILE_type_a, 1), srcX/2, srcY/2 );
+    } else
+    {
+        tex->blit( tl->getTexture(TextureLoader::WORLD_TILE_type_a, 0), srcX, srcY );
+    }
+
+
+
+    //tex->lock( dstX, dstY, blitScalePx, blitScalePx);
+    //
+    //tex->blit(TextureLoader::WORLD_TILE_type_a, srcX, srcY, 32, 32 );
 
     int depth = dZ;
     if( depth!=0 ) {
@@ -199,9 +227,9 @@ void RegTexBuilder::drawTypeA(Texture* tex, int dstX, int dstY, int blitScalePx,
             depth = 6;
         }
 
-        //int sky[] = { 135, 206, 235 }; //Sky blue
+        int sky[] = { 135, 206, 235 }; //Sky blue
         //int sky[] = { 135, 206, 250 }; //Light sky blue
-        int sky[] = {  25,  25, 112 }; //Midnight blue
+        //int sky[] = {  25,  25, 112 }; //Midnight blue
         //int sky[] = {   0,   0, 128 }; //Navy blue
 
         tex->rect( dstX, dstY, blitScalePx, blitScalePx, sky[0]/6, sky[1]/6, sky[2]/6, 40*(depth-1), SDL_BLENDMODE_BLEND);
@@ -209,8 +237,8 @@ void RegTexBuilder::drawTypeA(Texture* tex, int dstX, int dstY, int blitScalePx,
 }
 void RegTexBuilder::drawTypeA(Texture* tex, int dstX, int dstY, int blitScalePx, TileType tt, int depth)
 {
-    int srcX = 32*std::get<0>(tt.getTextureXY());
-    int srcY = 32*std::get<1>(tt.getTextureXY());
+    int srcX = 32*std::get<0>(tt.getTextureXYZ());
+    int srcY = 32*std::get<1>(tt.getTextureXYZ());
     int r = std::get<0>(tt.getRGB());
     int g = std::get<1>(tt.getRGB());
     int b = std::get<2>(tt.getRGB());

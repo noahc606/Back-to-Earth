@@ -8,14 +8,16 @@ class DebugScreen
 public:
     /**/
     DebugScreen();
-    void init(SDLHandler* sH, Controls* ctrls);
+    void init(SDLHandler* sH, GUIHandler* guis, Controls* ctrls);
     virtual ~DebugScreen();
     /**/
     void draw();
-    void tick(GUIHandler* guiHandler);
+    void tick();
     /**/
     bool getVisible();
     /**/
+    void setVisible(bool visible);
+    void setHaxEnabled(bool haxEnabled);
     void setDebugString(std::string s);
     static void newGroup(std::stringstream& ss, int& indents, std::string s);
     static void endGroup(int& indents);
@@ -35,11 +37,13 @@ private:
     //MainLoop objects
     SDLHandler* sdlHandler;
     Controls* controls;
+    GUIHandler* guiHandler;
     //Debug text properties
     bool visible = true;
     std::string debugString = "";
 
     //Debug text rgb
+    bool haxEnabled = false;
     bool hax0rMode = false;
     bool rgbCycleState[3] = {false, false, false};
 

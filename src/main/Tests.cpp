@@ -1,38 +1,81 @@
 #include "Tests.h"
 #include <map>
-#include "Color.h"
-#include "Log.h"
-#include "Noise.h"
-#include "Real.h"
-#include "Text.h"
-#include "TileMap.h"
-#include "Timer.h"
-#include "Window.h"
-
 #include <math.h>
 #include <bitset>
 #include <codecvt>
 #include <fstream>
 #include <iostream>
 #include <fcntl.h>
+#include "Color.h"
+#include "Log.h"
+#include "Terrain.h"
+#include "Real.h"
+#include "Text.h"
+#include "TileMap.h"
+#include "Timer.h"
+#include "Window.h"
+
 using namespace std;
 /**/
 
 Tests::Tests(){}
 void Tests::init(SDLHandler* sh, FileHandler* fh, Controls* ctrls)
 {
+    TileType tt; tt.init();
+    tt.setRGB(128, 32, 10);
+    tt.setTextureXYZ(5, 8, 10);
+
+    std::stringstream ss;
+    int tabs = 0;
+    tt.info(ss, tabs);
+    std::cout << "Tile info: " << ss.str();
+
     BTEObject::init(sh, fh, ctrls);
-    fileHandler->createBteDir("asdf");
-    std::cout << "creating directory...\n";
+    std::cout << "before\n";
 
+    TileRegion testReg;
+    Terrain terra;
+    terra.populateRegion( testReg, 0, 0, 0 );
 
+    std::cout << "Saving...\n";
+    Timer timer("Level save test", true);
+    {
+        testReg.save(sdlHandler, fileHandler, "test123456", 0, 0, 0, false);
+    }
+    std::cout << "Saved in: \n";
 }
+
 Tests::~Tests(){}
 
 /**/
 
 void Tests::draw()
 {
+    SDL_Rect dst; dst.x = 0; dst.y = 0; dst.w = 512; dst.h = 512;
+    counter++;
+
+
+    if(counter%100<50) {
+        SDL_RenderCopy(
+            sdlHandler->getRenderer(),
+            sdlHandler->getTextureLoader()->getTexture(TextureLoader::WORLD_TILE_type_a, 0),
+            NULL,
+            &dst
+        );
+    } else {
+        SDL_RenderCopy(
+            sdlHandler->getRenderer(),
+            sdlHandler->getTextureLoader()->getTexture(TextureLoader::WORLD_TILE_type_a, 1),
+            NULL,
+            &dst
+        );
+    }
+
+
+
+
+    //sdlHandler->renderCopy(3, &dst, &dst);
+
     for(int i = 0; i<10; i++) {
         //stex.lock(rx*32, ry*32, 32, 32);
         //stex.

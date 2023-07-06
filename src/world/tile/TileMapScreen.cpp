@@ -224,36 +224,40 @@ void TileMapScreen::info(std::stringstream& ss, int& tabs, TileMap::t_ll mouseX,
 
 void TileMapScreen::updateMapVisible()
 {
+    //Place updates at every tile onscreen
     regTexUpdates->placeEntireScreen();
 
-    // Update scaling of region textures
+    //Update scaling of region textures
     regTexUpdates->updateScaling( tileSize*camZoom, 32.0*Canvas::getTexLODBasedOnZoom(camZoom) );
 }
 
 void TileMapScreen::updateRegTicked(int rX, int rY, int rZ)
 {
+    //Count how many regions have been loaded during this function call
     int loadCount = 0;
 
-    //Check if this region at (rX, rY) is onscreen (vertical coordinate doesn't matter)
+    //Check if this region at (rX, rY) is onscreen (vertical Z coordinate doesn't matter). Store in 'onscreen'.
     bool onscreen = false;
     if( rX>=camRX-regTexUpdates->getScreenSemiWidth() && rX<=camRX+regTexUpdates->getScreenSemiWidth() ) {
         if( rY>=camRY-regTexUpdates->getScreenSemiHeight() && rY<=camRY+regTexUpdates->getScreenSemiHeight() ) {
             onscreen = true;
-            //std::cout << "{" << rX << ", " << rY << "} ";
         }
     }
 
     //Load region if loadCount<loadCountMax
     if( loadCount<loadCountMax ) {
-        //If region has not been loaded yet, load the region.
+        //Timer for debugging
         Timer rlt;
 
+        //If region has not been loaded yet, load the region.
         int lr = -1;
         lr = tileMap->loadRegion(rX, rY, rZ);
 
+        //If region load was successful
         if( lr==0 ) {
+            //Increment loadcount
             loadCount++;
-
+            //Set debug info
             infoRegLoadTimeLatest = rlt.getElapsedTimeMS();
             infoRegLoadCount++;
             infoRegLoadTime += infoRegLoadTimeLatest;
@@ -325,7 +329,8 @@ void TileMapScreen::updateMapMoved()
                 regTexUpdates->blackOutRegionArea(rX, rY);
             }
 
-            for(int rZ = camRZ-outlineV; rZ<=camRZ+outlineV; rZ += dRZ) {
+            for( int rZ = camRZ-outlineV; rZ<=camRZ+outlineV; rZ += dRZ ) {
+                //Unload regions
                 tileMap->unloadRegion(fileHandler, currentDimPath, rX, rY, rZ);
             }
         }

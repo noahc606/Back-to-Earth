@@ -63,6 +63,9 @@ Settings::Settings()
     kv(s, "fullscreen", "false");
     kv(s, "maxFPS", "none");
     kv(s, "bteCursor", "true");
+    kv(s, "debugEnabled", "false");
+    kv(s, "debugHacks", "typeincorrectpassword");
+    kv(s, "debugTesting", "false");
 
     s = &(defaultSettings[version]);
     kv(s, "version", Main::VERSION);

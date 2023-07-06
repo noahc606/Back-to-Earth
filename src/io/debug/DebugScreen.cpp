@@ -5,9 +5,10 @@
 #include "TextBox.h"
 
 DebugScreen::DebugScreen(){}
-void DebugScreen::init(SDLHandler* sh, Controls* ctrls)
+void DebugScreen::init(SDLHandler* sh, GUIHandler* guis, Controls* ctrls)
 {
     sdlHandler = sh;
+    guiHandler = guis;
     controls = ctrls;
 
     bg.set(255, 255, 255, 0);
@@ -23,7 +24,7 @@ void DebugScreen::draw()
     }
 }
 
-void DebugScreen::tick(GUIHandler* guiHandler)
+void DebugScreen::tick()
 {
     //If RSHIFT is pressed
     bool rshift = false;
@@ -34,12 +35,10 @@ void DebugScreen::tick(GUIHandler* guiHandler)
     }
 
     //If FUNC_DEBUG and CTRL and ALT are pressed
-    if( controls->isPressed("FUNC_DEBUG") && rshift ) {
+    if( controls->isPressed("FUNC_DEBUG") && rshift && haxEnabled ) {
         if( hax0rMode ) {
-            guiHandler->removeGUI(GUIHandler::ID::tb_DEBUG);
             setHax0rMode(false);
         } else {
-            guiHandler->addGUI( new TextBox(0, 0, 800, GUIHandler::ID::tb_DEBUG) );
             setHax0rMode(true);
         }
         //Stop press
@@ -58,6 +57,11 @@ void DebugScreen::tick(GUIHandler* guiHandler)
         controls->stopPress("FUNC_DEBUG", __PRETTY_FUNCTION__);
     }
 
+    //If hax are disabled for this user
+    if(!haxEnabled) {
+        setHax0rMode(false);
+    }
+
     //If 1337 hax0r
     if(hax0rMode) {
         int _5p33d = 5;
@@ -74,6 +78,21 @@ void DebugScreen::tick(GUIHandler* guiHandler)
     }
 }
 
+void DebugScreen::setVisible(bool p_visible)
+{
+    visible = p_visible;
+}
+
+void DebugScreen::setHaxEnabled(bool p_haxEnabled)
+{
+    haxEnabled = p_haxEnabled;
+
+    if( haxEnabled==false ) {
+        setHax0rMode(false);
+    }
+
+}
+
 bool DebugScreen::getVisible() { return visible; }
 
 void DebugScreen::setDebugString(std::string s) { debugString = s; }
@@ -87,32 +106,32 @@ void DebugScreen::newGroup(std::stringstream& ss, int& indents, std::string s)
 
     indents++;
 }
-
 void DebugScreen::endGroup(int& indents)
 {
     indents--;
 }
-
 void DebugScreen::indentLine(std::stringstream& ss, int& indents)
 {
     for(int i = 0; i<indents; i++) {
         ss << "\t";
     }
 }
-
 void DebugScreen::newLine(std::stringstream& ss)
 {
     ss << "\n";
 }
+
 
 void DebugScreen::setHax0rMode(bool val)
 {
     if(val) {
         fg.set(0, 85, 170, 255);
         hax0rMode = true;
+        guiHandler->addGUI( new TextBox(0, 0, 800, GUIHandler::ID::tb_DEBUG) );
     } else {
         fg.set(255, 255, 255, 255);
         hax0rMode = false;
+        guiHandler->removeGUI(GUIHandler::ID::tb_DEBUG);
     }
 }
 

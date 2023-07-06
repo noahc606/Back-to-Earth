@@ -15,10 +15,6 @@
 				<Option projectLinkerOptionsRelation="0" />
 				<Option projectIncludeDirsRelation="0" />
 				<Option projectLibDirsRelation="0" />
-				<Compiler>
-					<Add option="-g" />
-					<Add directory="src/world/tile" />
-				</Compiler>
 				<Linker>
 					<Add option="-lmingw32 -lSDL2main -lSDL2" />
 					<Add option="-lSDL2_image" />
@@ -44,7 +40,6 @@
 				<Option projectLibDirsRelation="0" />
 				<Compiler>
 					<Add option="-O2" />
-					<Add directory="src/world/tile" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -65,6 +60,7 @@
 		<Compiler>
 			<Add option="-Wall" />
 			<Add option="-std=c11" />
+			<Add option="-g" />
 			<Add option="-std=c++11" />
 			<Add option="-fexceptions" />
 			<Add directory="lib/SDL2-2.0.10-i686-w64-mingw32/include/SDL2" />
@@ -83,13 +79,15 @@
 			<Add directory="src/helper/type" />
 			<Add directory="src/io" />
 			<Add directory="src/io/debug" />
+			<Add directory="src/io/file" />
+			<Add directory="src/world/tile" />
+			<Add directory="src/world/gen" />
+			<Add directory="src/world/entity" />
+			<Add directory="src/helper/math" />
 			<Add directory="src/main" />
 			<Add directory="src/world" />
-			<Add directory="src/world/entity" />
-			<Add directory="src/world/gen" />
 			<Add directory="src/world/phys" />
-			<Add directory="src/world/tile" />
-			<Add directory="src/helper/math" />
+			<Add directory="src/world/gen/noise" />
 		</Compiler>
 		<Linker>
 			<Add option="-static-libstdc++" />
@@ -163,22 +161,14 @@
 		<Unit filename="src/helper/type/Defs.h" />
 		<Unit filename="src/helper/type/Real.cpp" />
 		<Unit filename="src/helper/type/Real.h" />
-		<Unit filename="src/io/AudioLoader.cpp" />
-		<Unit filename="src/io/AudioLoader.h" />
 		<Unit filename="src/io/ButtonAction.cpp" />
 		<Unit filename="src/io/ButtonAction.h" />
 		<Unit filename="src/io/ControlBinding.cpp" />
 		<Unit filename="src/io/ControlBinding.h" />
 		<Unit filename="src/io/Controls.cpp" />
 		<Unit filename="src/io/Controls.h" />
-		<Unit filename="src/io/FileHandler.cpp" />
-		<Unit filename="src/io/FileHandler.h" />
-		<Unit filename="src/io/FilePath.cpp" />
-		<Unit filename="src/io/FilePath.h" />
 		<Unit filename="src/io/Settings.cpp" />
 		<Unit filename="src/io/Settings.h" />
-		<Unit filename="src/io/TextureLoader.cpp" />
-		<Unit filename="src/io/TextureLoader.h" />
 		<Unit filename="src/io/debug/Commands.cpp" />
 		<Unit filename="src/io/debug/Commands.h" />
 		<Unit filename="src/io/debug/DebugScreen.cpp" />
@@ -187,6 +177,16 @@
 		<Unit filename="src/io/debug/Log.h" />
 		<Unit filename="src/io/debug/Timer.cpp" />
 		<Unit filename="src/io/debug/Timer.h" />
+		<Unit filename="src/io/file/AudioLoader.cpp" />
+		<Unit filename="src/io/file/AudioLoader.h" />
+		<Unit filename="src/io/file/FileHandler.cpp" />
+		<Unit filename="src/io/file/FileHandler.h" />
+		<Unit filename="src/io/file/FilePath.cpp" />
+		<Unit filename="src/io/file/FilePath.h" />
+		<Unit filename="src/io/file/LevelSave.cpp" />
+		<Unit filename="src/io/file/LevelSave.h" />
+		<Unit filename="src/io/file/TextureLoader.cpp" />
+		<Unit filename="src/io/file/TextureLoader.h" />
 		<Unit filename="src/main/BTE.cpp" />
 		<Unit filename="src/main/BTE.h" />
 		<Unit filename="src/main/Main.cpp" />
@@ -203,6 +203,8 @@
 		<Unit filename="src/world/World.h" />
 		<Unit filename="src/world/gen/Noise.cpp" />
 		<Unit filename="src/world/gen/Noise.h" />
+		<Unit filename="src/world/gen/noise/Terrain.cpp" />
+		<Unit filename="src/world/gen/noise/Terrain.h" />
 		<Unit filename="src/world/phys/Box3D.cpp" />
 		<Unit filename="src/world/phys/Box3D.h" />
 		<Unit filename="src/world/phys/CollidingVolume.cpp" />

@@ -22,7 +22,7 @@ void BTE::init(SDLHandler* p_sh, FileHandler* p_fh, Controls* p_ctrls)
     guiHandler.init(sdlHandler, fileHandler, controls);
 
     //Init debugScreen
-    debugScreen.init(sdlHandler, controls);
+    debugScreen.init(sdlHandler, &guiHandler, controls);
 
     //If we need to toggle fullscreen upon startup
     if( settings->get(Settings::options, "fullscreen")=="true" ) {
@@ -34,11 +34,14 @@ void BTE::init(SDLHandler* p_sh, FileHandler* p_fh, Controls* p_ctrls)
         lastBTECursorState = "true";
     }
 
+    if( settings->get(Settings::options, "debugHacks")=="joseph is lame" ) {
+        debugScreen.setHaxEnabled(true);
+    }
 
-    if(!testing) {
-        setGameState(GameState::MAIN_MENU);
-    } else {
+    if( settings->get(Settings::options, "debugTesting")=="true" ) {
         setGameState(GameState::TESTING);
+    } else {
+        setGameState(GameState::MAIN_MENU);
     }
 
 }
@@ -174,11 +177,16 @@ void BTE::tick()
         }
 
         /** Debug screen */
-        //Tick
-        debugScreen.tick(&guiHandler);
-        //Update the string as long as it is supposed to be visible
-        if(debugScreen.getVisible()) {
-            debugScreen.setDebugString(getInfo());
+        // Set debug screen to be invisible if it is disabled
+        if( settings->get(Settings::options, "debugEnabled")!="true" ) {
+            debugScreen.setVisible(false);
+        } else {
+            //Tick
+            debugScreen.tick();
+            // Update the string as long as it is supposed to be visible
+            if(debugScreen.getVisible()) {
+                debugScreen.setDebugString(getInfo());
+            }
         }
     }
 

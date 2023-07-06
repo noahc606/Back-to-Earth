@@ -4,29 +4,10 @@
 #include <stdlib.h>
 #include <sstream>
 #include "DebugScreen.h"
+#include "LevelSave.h"
 #include "Log.h"
 #include "TileMap.h"
 #include "Timer.h"
-
-const uint16_t TileRegion::ampSBits[] = {
-        0b1000000000000000,
-        0b0100000000000000,
-        0b0010000000000000,
-        0b0001000000000000,
-        0b0000100000000000,
-        0b0000010000000000,
-        0b0000001000000000,
-        0b0000000100000000,
-        0b0000000010000000,
-        0b0000000001000000,
-        0b0000000000100000,
-        0b0000000000010000,
-        0b0000000000001000,
-        0b0000000000000100,
-        0b0000000000000010,
-        0b0000000000000001 };
-
-const uint8_t TileRegion::pows2[] = { 32, 16, 8, 4, 2, 1 };
 
 /**
 (X+, Y+, Z+) = (East, South, Up)
@@ -196,89 +177,31 @@ void TileRegion::compress()
         -This region needs to be unloaded (compress==true). More expensive option
         -This region is auto-saved (compress==false). Less expensive option
 */
-void TileRegion::save(SDLHandler* sh, FileHandler* fh, std::string path, long rX, long rY, long rZ, bool p_compress)
+void TileRegion::save(SDLHandler* sh, FileHandler* fh, std::string saveGameName, long rX, long rY, long rZ, bool p_compress)
 {
-    std::stringstream filename;
-    filename << "saved\\games\\" << path << "\\" << rX << "," << rY << "," << rZ;
-    fh->cEditFile( FilePath(filename.str(), "bte_tr", sh->getFilesystemType() ) );
+    //Make sure folder which contains the region files themselves exists
+    std::string regFilesPath = "saved/games/"+saveGameName+"/tilemap/area1/";
+    fh->createBteDir(regFilesPath);
 
+    //Find the name of the file that should contain this region after it is saved
+    std::stringstream filename;
+    filename << regFilesPath << "/" << rX << "," << rY << "," << rZ;
+
+    //Find path of the appropriate file to edit
+    FilePath formattedPath(filename.str(), "bte_tr", sh->getFilesystemType());
+
+    //Compression
     if( p_compress ) {
         Timer t1;
         compress();
     }
 
-    std::string line1;
-    const std::string::size_type new_capacity{ 100000u };
-    line1.reserve( new_capacity );
+    //Level saving logic
+    LevelSave ls(fh);
+    ls.trSave(formattedPath, rX, rY, rZ, &palette, tiles);
+}
 
-    line1 += "Region("; line1 += std::to_string(rX); line1 += ","; line1 += std::to_string(rY); line1 += ","; line1 += std::to_string(rZ); line1 += ").palette={";
-    for(unsigned int i = 0; i<palette.size()-1; i++) {
-        TileType tt = palette[i];
-        line1 += tt.toString();
-        line1 += ",";
-    }
-    line1 += palette[palette.size()-1].toString();
-    line1 += "}, ";
-
-    //8 characters = 3 tiles
-    //1 tile = 16 bits, each character = 6bits
-    int x = 0;
-    int y = 0;
-    int z = 0;
-    uint8_t counter = 0;
-    uint8_t bits = 0;
-    char base64Char = 64;
-
-    line1 += "Region("; line1 += rX; line1 += ","; line1 += rY; line1 += ","; line1 += rZ; line1+= ").data={";
-
-    while(true) {
-        if( (tiles[x][y][z]&ampSBits[bits])>0 ) {
-            base64Char += pows2[counter];
-        }
-
-        counter++;
-        if(counter==6) {
-            line1 += base64Char;
-            base64Char = 64;
-            counter = 0;
-        }
-
-        bits++;
-        if(bits==16) {
-            bits = 0;
-            x++;
-            if(x>31) {
-                x = 0;
-                y++;
-                if( y>31 ) {
-                    line1 += base64Char;
-                    base64Char = 64;
-                    counter = 0;
-                    y = 0;
-                    z++;
-                    if( z>31 ) {
-                        z = 0; break;
-                    } else {
-                        line1 += ";";
-                    }
-                }
-            }
-        }
-    }
-    line1 += "}\n";
-
-    int strSize = 100000;//line1.length();
-
-    std::stringstream prefix;
-    std::stringstream numSS; numSS << strSize; std::string num = numSS.str();
-    //num must be less than 1000000!
-    if(strSize>999999) num = "ERROR!";
-    while( num.length()<6 ) {
-        num = "0"+num;
-    }
-    prefix << "[" << num << "]! "; //Length of prefix will always be 10 (4 characters + 6 numerical chracters)
-
-    fh->write(prefix.str());
-    fh->write(line1);
-    fh->saveAndCloseFile();
+void TileRegion::save(SDLHandler* sh, FileHandler* fh, std::string saveGameName, long rX, long rY, long rZ)
+{
+    save(sh, fh, saveGameName, rX, rY, rZ, false);
 }

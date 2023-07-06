@@ -1,3 +1,6 @@
 bteCursor=false
+debugEnabled=false
+debugHacks=typeincorrectpassword
+debugTesting=false
 fullscreen=false
 maxFPS=none
