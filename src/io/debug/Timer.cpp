@@ -11,7 +11,7 @@ Timer::Timer(std::string p_desc, bool p_logging)
     logging = p_logging;
 
     //Start timer
-    t0 = SDL_GetPerformanceCounter()/10000.0;
+    t0 = getCurrentTime();
 }
 Timer::Timer(std::string p_desc): Timer::Timer(p_desc, false){}
 Timer::Timer(): Timer::Timer("Generic timer", false){}
@@ -27,6 +27,11 @@ Timer::~Timer()
     }
 }
 /**/
+
+uint64_t Timer::getCurrentTime()
+{
+    return SDL_GetPerformanceCounter();
+}
 
 double Timer::getElapsedTimeMS()
 {
@@ -48,7 +53,7 @@ void Timer::debugElapsedTimeMS()
 void Timer::updateElapsedTime()
 {
     //End timer
-    t1 = SDL_GetPerformanceCounter()/10000.0;
+    t1 = getCurrentTime();
     //Calculate time elapsed (end time - initial time)
-    dT = t1-t0;
+    dT = (t1-t0)*1000.0/(double)SDL_GetPerformanceFrequency();
 }

@@ -1,11 +1,12 @@
 #include "CheckBox.h"
 #include "TextureBuilder.h"
 
-CheckBox::CheckBox(Window* p_parentWindow, int p_x, int p_y, std::string p_text, int p_cbs, int p_id)
+CheckBox::CheckBox(Window* p_parentWindow, int p_x, int p_y, std::string p_text, int p_checkBoxState, bool p_largerButton, int p_id)
 : Button::Button(p_parentWindow, p_x, p_y, 0, p_text, p_id)
 {
     setSubType(BTEObject::Type::GUI_checkbox);
-    state = p_cbs;
+    largerButton = p_largerButton;
+    state = p_checkBoxState;
 
     btnString = p_text;
 
@@ -17,17 +18,20 @@ CheckBox::CheckBox(Window* p_parentWindow, int p_x, int p_y, std::string p_text,
     }
 }
 
-CheckBox::CheckBox(Window* p_parentWindow, int p_x, int p_y, std::string p_text, std::string p_cbs, int p_id)
-: CheckBox::CheckBox(p_parentWindow, p_x, p_y, p_text, getStateFromString(p_cbs), p_id){}
+CheckBox::CheckBox(Window* p_parentWindow, int p_x, int p_y, std::string p_text, int p_checkBoxState, int p_id)
+: CheckBox::CheckBox(p_parentWindow, p_x, p_y, p_text, p_checkBoxState, false, p_id) {}
+
+CheckBox::CheckBox(Window* p_parentWindow, int p_x, int p_y, std::string p_text, std::string p_checkBoxState, int p_id)
+: CheckBox::CheckBox(p_parentWindow, p_x, p_y, p_text, getStateFromString(p_checkBoxState), p_id) {}
 
 CheckBox::CheckBox(Window* p_parentWindow, int p_x, int p_y, std::string p_text, int p_id)
-: CheckBox::CheckBox(p_parentWindow, p_x, p_y, p_text, FALSE, p_id){};
+: CheckBox::CheckBox(p_parentWindow, p_x, p_y, p_text, FALSE, p_id) {}
 
 CheckBox::CheckBox(Window* p_parentWindow, int p_x, int p_y, int p_cbs, int p_id)
-: CheckBox::CheckBox(p_parentWindow, p_x, p_y, "", p_cbs, p_id){};
+: CheckBox::CheckBox(p_parentWindow, p_x, p_y, "", p_cbs, p_id) {}
 
 CheckBox::CheckBox(Window* p_parentWindow, int p_x, int p_y, int p_id)
-: CheckBox::CheckBox(p_parentWindow, p_x, p_y, "", FALSE, p_id){};
+: CheckBox::CheckBox(p_parentWindow, p_x, p_y, "", FALSE, p_id) {}
 
 CheckBox::~CheckBox(){}
 
@@ -37,53 +41,105 @@ void CheckBox::init(SDLHandler* sh, Controls* ctrls)
 
     btnText.init(sh);
     btnText.setString(btnString);
-    width = btnText.getWidth()/2+2*24;
 
-    //Build Tex
-    texBtn.init(sdlHandler, 10, 10);
-    texBtn.setDrawScale(2);
-    texBtn.lock();
-    texBtn.blit(TextureLoader::GUI_button, 0, 68);
+    if(btnString!="") {
+        width = btnText.getWidth()/2+2*24;
+    } else {
+        if(!largerButton) {
+            width = 10;
+        } else {
+            width = 16;
+        }
+    }
 
-    texBtnHovering.init(sdlHandler, width/2, 16, 2);
-    texBtnHovering.setColorMod(100, 95, 51);
-    texBtnHovering.lock(0, 0, 3, 16); texBtnHovering.blit(TextureLoader::GUI_button, 41, 34);
-    texBtnHovering.lock(3, 0, width/2-6, 16); texBtnHovering.blit(TextureLoader::GUI_button, 45, 34, 32, 16);
-    texBtnHovering.lock(width/2-3, 0, 3, 16); texBtnHovering.blit(TextureLoader::GUI_button, 78, 34);
+    texBtn.init(sdlHandler);
+    texBtnHovering.init(sdlHandler);
+    buildTexes();
 
     onWindowUpdate();
 }
 
+void CheckBox::buildTexes()
+{
+    //Build 'texBtn' (primary button which includes the button icon)
+    texBtn.clear();
+    if(!largerButton) {
+        texBtn.setTexDimensions(10, 10);
+        texBtn.setDrawScale(2);
+        texBtn.lock();
+        texBtn.blit(TextureLoader::GUI_button, 0, 68);
+    } else {
+        texBtn.setTexDimensions(16, 16);
+        texBtn.setDrawScale(2);
+        texBtn.lock();
+        texBtn.blit(TextureLoader::GUI_button, 0, 112);
+    }
+
+    //Build 'texBtnHovering' (Hover outline overlay)
+    texBtnHovering.clear();
+    if(!largerButton) {
+        texBtnHovering.setTexDimensions(width/2+5, 16);
+        texBtnHovering.setDrawScale(2);
+        texBtnHovering.setColorMod(53, 221, 213);
+        //Button selection overlay left part
+        texBtnHovering.lock(0, 0, 3, 16); texBtnHovering.blit(TextureLoader::GUI_button, 41, 34);
+        //Button selection overlay center part
+        texBtnHovering.lock(3, 0, (width)/2-6+5, 16); texBtnHovering.blit(TextureLoader::GUI_button, 45, 34, 32, 16);
+        //Button selection overlay right part
+        texBtnHovering.lock((width)/2-3+5, 0, 3, 16); texBtnHovering.blit(TextureLoader::GUI_button, 78, 34);
+    }
+}
+
 void CheckBox::draw()
 {
+    texBtn.lock();
     if(hovering) {
-        texBtn.blit(TextureLoader::GUI_button, 11, 68);
+        if(largerButton) {
+            texBtn.blit(TextureLoader::GUI_button, 17, 112);
+        } else {
+            texBtn.blit(TextureLoader::GUI_button, 11, 68);
+        }
         texBtnHovering.draw();
     } else {
-        texBtn.blit(TextureLoader::GUI_button, 0, 68);
+        if(largerButton) {
+            texBtn.blit(TextureLoader::GUI_button, 0, 112);
+        } else {
+            texBtn.blit(TextureLoader::GUI_button, 0, 68);
+        }
+    }
+
+    if(largerButton) {
+        texBtn.lock(3, 3, 10, 10);
     }
 
     switch( state ) {
-        case 0: {
+        case BLANK: {
 
         } break;
-        case 1: {
+        case FALSE: {
             texBtn.blit(TextureLoader::GUI_button, 0, 79);
         } break;
-        case 2: {
+        case TRUE: {
             texBtn.blit(TextureLoader::GUI_button, 11, 79);
         } break;
-        case 3: {
+        case SHUFFLE: {
             texBtn.blit(TextureLoader::GUI_button, 0, 90);
+        } break;
+        case RESET: {
+            texBtn.blit(TextureLoader::GUI_button, 22, 79);
         } break;
         default: {
             texBtn.blit(TextureLoader::GUI_button, 11, 90);
         } break;
     }
 
+    texBtn.lock();
     if(clicked) {
-        texBtn.blit(TextureLoader::GUI_button, 22, 68);
-        clicked = false;
+        if(largerButton) {
+            texBtn.blit(TextureLoader::GUI_button, 34, 112);
+        } else {
+            texBtn.blit(TextureLoader::GUI_button, 22, 68);
+        }
     }
 
     texBtn.draw();
@@ -94,9 +150,17 @@ void CheckBox::onWindowUpdate()
 {
     Button::onWindowUpdate();
 
-    texBtn.setDrawPos(sX+4, sY+6);
-    texBtnHovering.setDrawPos(sX, sY);
-    btnText.setPos(sX+36, sY+10);
+
+    if(!largerButton) {
+        texBtn.setDrawPos(sX+4, sY+6);
+        texBtnHovering.setDrawPos(sX, sY);
+        btnText.setPos(sX+36, sY+10);
+    } else {
+        texBtn.setDrawPos(sX, sY);
+        texBtnHovering.setDrawPos(sX, sY);
+        btnText.setPos(sX+36, sY);
+    }
+
 }
 
 void CheckBox::tick()
@@ -119,21 +183,33 @@ int CheckBox::getStateFromString(std::string s)
     return UNKNOWN;
 }
 int CheckBox::getState() { return state; }
+bool CheckBox::isLargerButton() { return largerButton; }
+bool CheckBox::justClicked() { return clicked; }
 
 void CheckBox::cycleState()
 {
-    state++;
-    if( state>=UNKNOWN ) {
-        state = 0;
-    }
+    if( state==RESET ) {
 
-    if( !canShuffle && state==SHUFFLE ) {
-        state = BLANK;
-    }
+    } else {
+        state++;
+        if( state>=UNKNOWN ) {
+            state = 0;
+        }
 
-    if( !canLeaveBlank && state==BLANK ) {
-        state = FALSE;
+        if( !canShuffle && state==SHUFFLE ) {
+            state = BLANK;
+        }
+
+        if( !canLeaveBlank && state==BLANK ) {
+            state = FALSE;
+        }
     }
+}
+void CheckBox::unclick() { clicked = false; }
+
+void CheckBox::setLargerButton(bool ilb)
+{
+    largerButton = ilb;
 }
 
 void CheckBox::setCanLeaveBlank(bool clb) { canLeaveBlank = clb; }

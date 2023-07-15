@@ -5,6 +5,7 @@
 #include <vector>
 #include "BTEObject.h"
 #include "Canvas.h"
+#include "Defs.h"
 #include "Player.h"
 #include "RegTexUpdates.h"
 #include "TileIterator.h"
@@ -38,6 +39,7 @@ private:
     void updateMapTicked();
     void updateMapMoved();
     void updateMapIdle();
+    void updateMapAutosave();
 
     Camera* cam = nullptr;                              //Area of the world shown on screen. Also tracks size of each tile (zoom factor).
     TileMap* tileMap = nullptr;
@@ -49,11 +51,10 @@ private:
 
     double camZoom = 2;                                 //Zoom factor. Determines how many onscreen pixels take up 1px of a single onscreen 32x32px tile
                                                         //e.g. mapZoom of 2 = each tile will be 64x64pixels on the screen.
-    double regScale = tileSize*regionSize*camZoom;      //Size of the region in screen pixels based on camera's zoom.
 
     /* Map update distance + counts */
     int umiTicks = 0;
-    int umiTicksMax = 300;
+    int umiTicksMax = 10;
     int loadCountMax = 1;
     int loadRadiusH = 4;
     int loadRadiusV = 1;

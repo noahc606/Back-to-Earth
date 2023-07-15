@@ -128,7 +128,7 @@ void SDLHandler::createSubsystems()
 
     /* Init SDL subsystems */
     //Init SDL
-    flags = SDL_INIT_AUDIO|SDL_INIT_VIDEO;
+    flags = SDL_INIT_AUDIO|SDL_INIT_VIDEO|SDL_INIT_JOYSTICK|SDL_INIT_GAMECONTROLLER;
     if( SDL_Init(flags)!=0 ) {
         Log::error( __PRETTY_FUNCTION__, "Failed to SDL_Init()!", SDL_GetError() );
     }
@@ -143,9 +143,25 @@ void SDLHandler::createSubsystems()
         Log::error( __PRETTY_FUNCTION__, "Failed to Mix_Init()!", Mix_GetError() );
     }
 
+    //Find game controllers/joysticks
+    if( SDL_NumJoysticks()>=1 ) {
+        joystick = SDL_JoystickOpen(0);
+        if( joystick==NULL ) {
+            Log::error( __PRETTY_FUNCTION__, "Failed to open joystick!", SDL_GetError() );
+        } else {
+            std::stringstream ss;
+            ss << "Successfully found joystick '"; ss << SDL_JoystickName(joystick);
+            ss << "' with "; ss << SDL_JoystickNumAxes(joystick) << " axes ";
+            ss << "and "; ss << SDL_JoystickNumButtons(joystick) << " buttons...";
+            Log::log(ss.str());
+        }
+    }
+
+
+
     /* Set Hints */
-    //Render driver must be opengl rather than Windows' default of direct3d.
-    //This is done to prevent graphical issues when rendering to SDL_TEXTUREACCESS_TARGET textures.
+    //Render driver should be opengl rather than Windows' default of direct3d.
+    //Done to prevent graphical issues when rendering to SDL_TEXTUREACCESS_TARGET textures.
     if(true) {
         if( SDL_SetHint(SDL_HINT_RENDER_DRIVER, "opengl")==SDL_FALSE ) {
             Log::error( __PRETTY_FUNCTION__, "Failed to set hint", SDL_GetError() );
@@ -212,7 +228,7 @@ void SDLHandler::createWindowAndRenderer()
                                   Main::VERSION.c_str(),
                                   SDL_WINDOWPOS_UNDEFINED_DISPLAY(lastDisplayID),
                                   SDL_WINDOWPOS_UNDEFINED_DISPLAY(lastDisplayID),
-                                  maxWidth/2, maxHeight/2,
+                                  maxWidth*3/4, maxHeight*3/4,
                                   SDL_WINDOW_RESIZABLE | SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN
                                   );
     }

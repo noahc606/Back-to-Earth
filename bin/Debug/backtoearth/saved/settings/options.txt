@@ -1,4 +1,4 @@
-bteCursor=false
+bteCursor=true
 debugEnabled=false
 debugHacks=typeincorrectpassword
 debugTesting=false

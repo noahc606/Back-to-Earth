@@ -16,14 +16,17 @@ public:
     bool unload(int index);
     bool load(int index, t_kvMap kvMap);
 
-    std::string get(int index, std::string key);
-    t_kvMap getKvMap(int index);
+    std::string get(int kvMapIndex, std::string key);
+    t_kvMap getDefaultSettings(int kvMapIndex);
+    t_kvMap getKvMap(int kvMapIndex);
 
+    static std::string getKey(t_kvMap kvMap, int index);
     static std::string get(t_kvMap kvMap, std::string key);
+    static int find(t_kvMap kvMap, std::string key);
     static void kv(t_kvMap* kvMap, std::string key, std::string val);
     static void kv(t_kvMap* kvMap, std::string key, int val);
-    void kv(int index, std::string key, std::string val);
-    void kv(int index, std::string key, int val);
+    void kv(int kvMapIndex, std::string key, std::string val);
+    void kv(int kvMapIndex, std::string key, int val);
 
     enum TextFiles
     {

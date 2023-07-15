@@ -18,7 +18,8 @@ public:
     /**/
     void setVisible(bool visible);
     void setHaxEnabled(bool haxEnabled);
-    void setDebugString(std::string s);
+    void debugSetString(std::string s);
+    void debugDrawTexTemporarily(int id);
     static void newGroup(std::stringstream& ss, int& indents, std::string s);
     static void endGroup(int& indents);
     static void indentLine(std::stringstream& ss, int& indents);
@@ -46,5 +47,9 @@ private:
     bool haxEnabled = false;
     bool hax0rMode = false;
     bool rgbCycleState[3] = {false, false, false};
+
+    //Debug misc.
+    int debugDrawTimeLeft = 0;
+    int debugDrawTexID = 0;
 
 };

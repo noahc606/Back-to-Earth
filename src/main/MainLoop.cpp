@@ -141,33 +141,31 @@ void MainLoop::trackEvents()
                 }
             } break;
 
+            //Any other event (vast majority will be related to moving mouse, keyboard, etc)
             default: {
-                //Track all keyboard and mouse events
+                //Track input events in the Controls class
                 controls.trackEvents(e);
             } break;
         }
 
-        //Pass normal keyboard input to BTE
-        if( e.type==SDL_TEXTINPUT ) {
-            std::stringstream ss;
-            ss << e.text.text;
-
-            bte.getGUIHandler()->passKeyboardInput(ss.str(), false);
+        //Pass special input to GUIHandler
+        switch( e.type ) {
+            case SDL_TEXTINPUT:
+            case SDL_KEYDOWN:
+            case SDL_JOYBUTTONDOWN: {
+                //Pass special input to GUIHandler
+                ControlBinding cbsi = controls.getSpecialInput();
+                if( cbsi.getType()!=cbsi.NOTHING ) {
+                    bte.getGUIHandler()->passSpecialInput(cbsi);
+                    controls.resetSpecialInput(__PRETTY_FUNCTION__);
+                }
+            } break;
         }
-
-        //Pass special keyboard input to BTE
-        Controls::KeyboardInput kbi = controls.getKeyboardInput();
-        if( kbi.inputReceived ) {
-            bte.getGUIHandler()->passKeyboardInput(kbi.inputString, kbi.inputSpecial);
-            controls.resetKBInput(__PRETTY_FUNCTION__);
-        }
-
     }
 }
 
 void MainLoop::tick()
 {
-
     controls.tick();
 
     if( controls.isPressed("FUNC_9") ) {
@@ -198,6 +196,8 @@ void MainLoop::tick()
 
 void MainLoop::draw()
 {
+    controls.draw();
+
     SDL_RenderClear( sdlHandler.getRenderer() );
     SDL_SetRenderDrawColor( sdlHandler.getRenderer(), 0, 0, 0, 0 );
     SDL_SetRenderDrawBlendMode( sdlHandler.getRenderer(), SDL_BLENDMODE_BLEND );

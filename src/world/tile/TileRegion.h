@@ -26,6 +26,7 @@ public:
     TileType getTileSafe ( int x, int y, int z );
     //Region State
     int getRegTexState();
+    int getRegTexPriority();
 
     /**/
     //Tiles
@@ -36,6 +37,7 @@ public:
     //Region state
     void setRegTexState(int p_rts);
     void resetRegTexState();
+    void setRegTexPriority(int p_rtp);
 
     void compress();
     void queueUnload();
@@ -58,4 +60,6 @@ private:
     uint16_t tiles[32][32][32];
 
     int regTexState = UNGENERATED;
+    int regTexPriority = -1;
+
 };

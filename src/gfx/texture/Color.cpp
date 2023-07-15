@@ -81,3 +81,9 @@ void Color::set(uint8_t p_r, uint8_t p_g, uint8_t p_b, uint8_t p_a)
     b = p_b;
     a = p_a;
 }
+
+Color& Color::operator=(const Color& other)
+{
+    set(other.r, other.g, other.b, other.a);
+    return *this;
+}

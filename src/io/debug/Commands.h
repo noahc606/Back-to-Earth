@@ -29,6 +29,8 @@ public:
     static int* getInt(std::string key);
     static std::string* getString(int key);
     static std::string* getString(std::string key);
+    /* Misc. getters */
+    static int getCmdID(std::string cmd);
     /**/
     /**/
 protected:
@@ -40,15 +42,25 @@ private:
     static int cmdKV(std::string arg1);
     /**/
     static int parseString(std::string& word);
+    static std::string errorInvalidArg(std::string commandName, int argNumber, std::string validType);
     static std::string errorMissingArg(int args, std::string commandName);
+    static std::string errorTooManyArgs(int args, std::string commandName);
     static std::string getArgID(int arg);
     /**/
     static void surpressMessages(bool sm);
     static void ssWords(const std::vector<std::string>& words);
 
-    static int cmdPos;
-    static std::vector<std::string> cmds;
+    static int userHistoryPos;
+    static std::vector<std::string> userHistory;
+    static std::vector<std::string> commandList;
 
+    enum CommandIDs {
+        CMD_kv,
+        CMD_ksv,
+        CMD_debug,
+        CMD_gs,
+        CMD_tele,
+    };
 
     enum ParseTypes {
         UNKNOWN = -1,

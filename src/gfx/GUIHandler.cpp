@@ -3,6 +3,7 @@
 #include "CheckBox.h"
 #include "Color.h"
 #include "GUIAligner.h"
+#include "GUIBuilder.h"
 #include "Log.h"
 #include "MainLoop.h"
 #include "RadioButton.h"
@@ -14,7 +15,6 @@ GUIHandler::GUIHandler(){}
 void GUIHandler::init(SDLHandler* sh, FileHandler* fh, Controls* ctrls)
 {
     BTEObject::init(sh, fh, ctrls);
-
     setGUIs(MAIN);
 }
 GUIHandler::~GUIHandler()
@@ -31,14 +31,14 @@ void GUIHandler::draw()
 {
     //Draw windows
     for( GUI* gui : guis ) {
-        if( gui->getType()==BTEObject::GUI_window ) {
+        if( gui->getType()==BTEObject::GUI_window && gui->exists() ) {
             gui->draw();
         }
     }
 
     //Draw window components (we do it after windows since wc's go on top of windows)
     for( GUI* gui : guis ) {
-        if( gui->isWindowComponent() ) {
+        if( gui->isWindowComponent() && gui->exists() ) {
             gui->draw();
         }
     }
@@ -62,61 +62,73 @@ void GUIHandler::tick()
         }
     }
 
+    //Upon click
+    if( controls->isPressed("HARDCODE_LEFT_CLICK") ) {
+        for( GUI* gui : guis ) {
+            //If we find a textbox
+            if( gui->getType()==BTEObject::GUI_textbox ) {
+                //Deselect it
+                TextBox* tbx = ((TextBox*)gui);
+                tbx->deselect();
+            }
+        }
+    }
+
+
     //Iterate through all guis
     for( GUI* gui : guis ) {
+
         //If gui is a textbox
         if( gui->getType()==BTEObject::GUI_textbox ) {
             //cast gui to textbox
-            TextBox* txtb = ((TextBox*)gui);
+            TextBox* tbx = ((TextBox*)gui);
             //If text box selected
-            if( txtb->isSelected() ) {
-                if(kbInput!="") {
-                    lastKBInput = kbInput;
-                    lastKBInputSpecial = kbInputSpecial;
-                    txtb->passKeyboardInput(kbInput, kbInputSpecial);
+            if( tbx->isSelected() ) {
+                if( cbSpecialInput.getType()!=ControlBinding::NOTHING ) {
+                    tbx->passSpecialInput(cbSpecialInput);
                 }
             }
             //If pressing enter in textbox
-            if( txtb->isEntered() ) {
-                Commands::executeCMD(txtb->getString());
-                txtb->setEntered(false);
-                txtb->setString("");
+            if( tbx->isEntered() ) {
+                Commands::executeCMD(tbx->getString());
+                tbx->setEntered(false);
+                tbx->setString("");
             }
-            int a = txtb->getActionID();
+            int a = tbx->getActionID();
             if( a!=TextBox::Actions::NONE ) {
 
-                if(txtb->getID()==ID::tb_DEBUG ) {
+                if(tbx->getID()==ID::tbx_DEBUG ) {
                     if( a==TextBox::Actions::UP_ARROW ) {
                         std::string s = Commands::cycleCMDs(-1);
                         if( s!="" ) {
-                            txtb->setString(s);
-                            txtb->setInsertionPoint(s.size());
+                            tbx->setString(s);
+                            tbx->setInsertionPoint(s.size());
                         }
                     }
                     if( a==TextBox::Actions::DOWN_ARROW ) {
                         std::string s = Commands::cycleCMDs(1);
                         if( s!="" ) {
-                            txtb->setString(s);
-                            txtb->setInsertionPoint(s.size());
+                            tbx->setString(s);
+                            tbx->setInsertionPoint(s.size());
                         }
                     }
                     if( a==SDLK_ESCAPE ) {
-                        txtb->setString("");
-                        txtb->setInsertionPoint(0);
-                        txtb->deselect();
+                        tbx->setString("");
+                        tbx->setInsertionPoint(0);
+                        tbx->deselect();
                         Commands::cycleCMDs(1000000);
                     }
 
                 }
 
-                txtb->resetActionID(__PRETTY_FUNCTION__);
+                tbx->resetActionID(__PRETTY_FUNCTION__);
             }
         }
         //If gui is a button
         if( gui->getType()==BTEObject::GUI_button ) {
             //cast gui to button
             Button* btn = ((Button*)gui);
-            //If button clicked
+            //If button selected (not clicked)
             if( btn->isSelected() ) {
                 guiActionID = btn->getID();
                 removeGUI( btn->getID() );
@@ -143,14 +155,28 @@ void GUIHandler::tick()
                 }
             }
         }
+        //If gui is a checkbox
+        if( gui->getType()==BTEObject::GUI_checkbox ) {
+            CheckBox* cbx = ((CheckBox*)gui);
+
+            //If that checkbox is clicked and needs to reset something
+            if( cbx->justClicked() ) {
+                //Unclick
+                cbx->unclick();
+                //If this is a reset checkbox
+                if( cbx->getState()==CheckBox::RESET ) {
+                    //Reset all GUIs with the same extraID as this checkBox
+                    resetGUIs(cbx->getExtraID());
+                }
+            }
+        }
 
         //Tick gui
         gui->tick();
     }
 
-    //Set keyboard input to nothing (Keep this at the end of the method!)
-    kbInput = "";
-    kbInputSpecial = false;
+    //Reset special input (Keep this at the end of the method!)
+    cbSpecialInput.reset();
 }
 
 void GUIHandler::onWindowUpdate()
@@ -194,11 +220,7 @@ void GUIHandler::onWindowUpdate()
     }
 }
 
-void GUIHandler::passKeyboardInput(std::string text, bool special)
-{
-    kbInput = text;
-    kbInputSpecial = special;
-}
+void GUIHandler::passSpecialInput(ControlBinding& passedCB) { cbSpecialInput += passedCB; }
 
 void GUIHandler::info(std::stringstream& ss, int& tabs)
 {
@@ -243,79 +265,53 @@ void GUIHandler::resetGUIAction(std::string methodName)
     guiActionID = -1;
 }
 
-void GUIHandler::addGUI(GUI* gui)
+GUI* GUIHandler::addGUI(GUI* gui, int extraID)
 {
+    //Set extra ID
+    gui->setExtraID(extraID);
+    //Call init constructor based on its type
     switch(gui->getType()) {
         case BTEObject::GUI_tooltip: {
             gui->init(sdlHandler);
+        } break;
+        case BTEObject::GUI_textbox: {
+            gui->init(sdlHandler, fileHandler, controls);
         } break;
         default: {
             gui->init(sdlHandler, controls);
         } break;
     }
 
+    //Add the GUI to 'guis'
     guis.push_back(gui);
+    //Return gui
+    return gui;
 }
+
+GUI* GUIHandler::addGUI(GUI* gui) { return addGUI(gui, -1); }
 
 void GUIHandler::setGUIs(int guis)
 {
+    GUIBuilder gb;
+
     switch(guis) {
+        /** Main UIs */
         case MAIN: {
             AudioLoader* al = sdlHandler->getAudioLoader();
             al->play(AudioLoader::TITLE_impact);
-
-            removeAllUserGUIs();
-            addGUI(new Window(win_MAIN));
-            addGUI(new Tooltip(getWindow(win_MAIN), GUIAlignable::CENTER_H, GUIAlignable::CENTER_V, "Back to Earth", ttp_MAIN_title ));
-            addGUI(new Button( getWindow(win_MAIN), GUIAlignable::CENTER_H, GUIAlignable::CENTER_V, 450, "Play", btn_MAIN_play ));
-            addGUI(new Button( getWindow(win_MAIN), GUIAlignable::CENTER_H, GUIAlignable::CENTER_V, 450, "Options", btn_MAIN_options ));
-            addGUI(new Button( getWindow(win_MAIN), GUIAlignable::CENTER_H, GUIAlignable::CENTER_V, 450, "Exit", btn_MAIN_exit ));
-
-
+            gb.buildTitleScreen(*this);
         } break;
         case OPTIONS: {
-            removeGUI(ttp_MAIN_title);
-            removeGUI(btn_MAIN_play);
-            removeGUI(btn_MAIN_options);
-            removeGUI(btn_MAIN_exit);
-
-            removeGUI(win_PAUSED);
-
-            removeGUI(win_CONTROLS);
-            removeGUI(win_GRAPHICS_SETTINGS);
-
-            int width = 300;
-            addGUI(new Window( GUIAlignable::CENTER_H, GUIAlignable::CENTER_V, 800, 800, "Options", "", win_OPTIONS ));
-            addGUI(new Button( getWindow(win_OPTIONS), GUIAlignable::CENTER_H, GUIAlignable::CENTER_V, width, "Controls", btn_OPTIONS_controls ));
-            addGUI(new Button( getWindow(win_OPTIONS), GUIAlignable::CENTER_H, GUIAlignable::CENTER_V, width, "Graphics Settings", btn_OPTIONS_graphics_settings ));
-            addGUI(new Button( getWindow(win_OPTIONS), GUIAlignable::CENTER_H, 730, width, "Back", btn_OPTIONS_back ));
-
+            gb.buildMainOptions(*this);
         } break;
         case CONTROLS: {
-            removeGUI(win_OPTIONS);
-
-            int width = 300;
-            addGUI(new Window( GUIAlignable::CENTER_H, GUIAlignable::CENTER_V, 800, 800, "Controls", "", win_CONTROLS ));
-            addGUI(new Button( getWindow(win_CONTROLS), GUIAlignable::CENTER_H, 80, width, "Move North: [w]", btn_CONTROLS_keybind ));
-            addGUI(new Button( getWindow(win_CONTROLS), GUIAlignable::CENTER_H, 80, width, "Move East: [d]", btn_CONTROLS_keybind ));
-            addGUI(new Button( getWindow(win_CONTROLS), GUIAlignable::CENTER_H, 120, width, "Move South: [s]", btn_CONTROLS_keybind ));
-            addGUI(new Button( getWindow(win_CONTROLS), GUIAlignable::CENTER_H, 120, width, "Move West: [a]", btn_CONTROLS_keybind ));
-            addGUI(new Button( getWindow(win_CONTROLS), GUIAlignable::CENTER_H, 730, width, "Back", btn_back_to_OPTIONS ));
+            gb.buildMainControls(*this, *fileHandler);
         } break;
-        case GRAPHICS_SETTINGS: {
-            removeGUI(win_OPTIONS);
-
-            int width = 300;
-            addGUI(new Window( GUIAlignable::CENTER_H, GUIAlignable::CENTER_V, 800, 800, "Graphics Settings", "", win_GRAPHICS_SETTINGS ));
-
-            Settings* stngs = fileHandler->getSettings();
-
-            addGUI(new CheckBox( getWindow(win_CONTROLS), 40, 120, "Use Different Cursor", stngs->get(Settings::TextFiles::options, "bteCursor"), cbx_GRAPHICS_SETTINGS_bteCursor ));
-            addGUI(new CheckBox( getWindow(win_CONTROLS), 40, 160, "Force Fullscreen on Startup", stngs->get(Settings::TextFiles::options, "fullscreen"), cbx_GRAPHICS_SETTINGS_fullscreen ));
-            addGUI(new Button( getWindow(win_CONTROLS), GUIAlignable::CENTER_H, 730, width, "Back", btn_back_to_OPTIONS ));
+        case GRAPHICS: {
+            gb.buildMainGraphics(*this, *fileHandler);
         } break;
 
-
+        /** Pause/Unpause in World */
         case PAUSE: {
             removeGUI(win_OPTIONS);
 
@@ -328,62 +324,33 @@ void GUIHandler::setGUIs(int guis)
             removeGUI(win_PAUSED);
         } break;
 
+        /** Active World UIs */
         case WORLD: {
             removeAllUserGUIs();
         } break;
-
         case WORLD_characterMenu_open: {
-            if( getGUI(BTEObject::GUI_window, ID::win_CHARACTER)==nullptr ) {
-
-                int w = 18;
-                int h = 10;
-
-                /*
-                    's': Scroll through buttons representing other menu options
-                    'd': Brief Character description. Can be clicked on to view even more info
-                    'c': Character menu which is dynamic
-                    'x': Character graphic. Translucent background
-                    'e': Essential info. 3 graphics which represent Health, nutrition, oxygen + buttons
-                         to view specifics of these 3 graphics. More on the right half.
-                    'b': Bottom tab for extra pages (next/prev)
-
-                */
-                WindowData* wd = new WindowData(w, h);
-                wd->setPanelData(0, "ssssssddddcccccccc");
-                wd->setPanelData(1, "ssssssxxxxcccccccc");
-                wd->setPanelData(2, "ssssssxxxxcccccccc");
-                wd->setPanelData(3, "ssssssxxxxcccccccc");
-                wd->setPanelData(4, "ssssssxxxxcccccccc");
-                wd->setPanelData(5, "ssssssxxxxcccccccc");
-                wd->setPanelData(6, "ssssssddddcccccccc");
-                wd->setPanelData(7, "ssssssddddcccccccc");
-                wd->setPanelData(8, "eeeeeeeeeeeeeeeeee");
-                wd->setPanelData(9, "eeeeeeeeeeeeeeeeee");
-                wd->setPanelData(10,"bbbbbbbbbbbbbbbbbb");
-
-                wd->setPanelColor('s', Color(0, 0, 200, 240) );
-                wd->setPanelColor('d', Color(150, 105, 55, 240) );
-                wd->setPanelColor('c', Color(255, 255, 255, 240) );
-                wd->setPanelColor('x', Color(0, 100, 0, 240) );
-                wd->setPanelColor('e', Color(100, 0, 0, 240) );
-                wd->setPanelColor('b', Color(130, 210, 180, 240) );
-
-                addGUI(new Window( GUIAlignable::CENTER_H, GUIAlignable::CENTER_V, wd, win_CHARACTER ));
-                addGUI(new Tooltip( getWindow(win_CHARACTER), 30, 30, "Character Tabs", ttp_CHARACTER_tabs_desc ) );
-                addGUI(new RadioButton( getWindow(win_CHARACTER), 30, 60, "Inventory", true, rbtn_CHARACTER_inventory, rbtn_CHARACTER_tabs_1a, rbtn_CHARACTER_tabs_1b ) );
-                addGUI(new RadioButton( getWindow(win_CHARACTER), 30, 100, "Engineering", rbtn_CHARACTER_engineering, rbtn_CHARACTER_tabs_1a, rbtn_CHARACTER_tabs_1b ) );
-            }
+            gb.buildCharacterMenu(*this);
         } break;
         case WORLD_characterMenu_close: {
             removeGUI(win_CHARACTER);
         } break;
-
-
     }
 
 
     //Window is updated whenever new GUIs are set
     onWindowUpdate();
+}
+
+void GUIHandler::resetGUIs(int extraID)
+{
+    for( GUI* gui : guis ) {
+        if( gui->getType()==BTEObject::GUI_textbox ) {
+            TextBox* tbx = (TextBox*)gui;
+            if( tbx->getExtraID()==extraID ) {
+                tbx->resetEnteredData();
+            }
+        }
+    }
 }
 
 void GUIHandler::removeGUI(int id) { removeGUIs(id, id); }

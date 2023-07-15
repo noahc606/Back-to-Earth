@@ -4,8 +4,15 @@
 
 Commands::t_kvIntSet Commands::kvIntSet;
 Commands::t_kvStrSet Commands::kvStrSet;
-int Commands::cmdPos = 0;
-std::vector<std::string> Commands::cmds;
+int Commands::userHistoryPos = 0;
+std::vector<std::string> Commands::userHistory;
+std::vector<std::string> Commands::commandList = {
+    "kv",
+    "ksv",
+    "debug",
+    "gs",
+    "tele"
+};
 
 bool Commands::surpressingMessages = false;
 
@@ -19,14 +26,14 @@ int Commands::executeCMD(std::string cmd)
     if(cmd=="") return -1;
 
     //Add to 'cmds' vector
-    cmds.push_back(cmd);
-    cmdPos = (int)cmds.size();
+    userHistory.push_back(cmd);
+    userHistoryPos = (int)userHistory.size();
 
     //Create a vector of "word" strings
     std::vector<std::string> words;
 
     //Split cmd string into smaller strings split by ' ', and put them into "words".
-    //Make sure spaces within quotes  aren't counted, escape characters ('\\') allow for special characters, etc.
+    //Make sure spaces within quotes aren't counted, escape characters ('\\') allow for special characters, etc.
     bool withinQuotes = false;
     bool withinEsc = false;
     std::string currentWord = "";
@@ -68,110 +75,133 @@ int Commands::executeCMD(std::string cmd)
 
     //
     std::string args[10] = { "" };
-    std::string kvCMD = "kv";
-    std::string ksvCMD = "ksv";
-    std::string gsCMD = "gs";
-    std::string teleCMD = "tele";
 
     int s = (int)words.size();
-    for( int w = 0; w<s; w++ ) {
+    int cmdID = -1;
+    for( int w = 1; w<s+1; w++ ) {
 
-        std::string word = words.at(w);
-
-        if( w==0 ) {
-            if( word==kvCMD ||
-                word==ksvCMD ||
-                word==gsCMD ||
-                word==teleCMD
-            ) {
-                args[0] = word;
-                if(s<=1) {
-                    Log::log(errorMissingArg(2, args[0]));
-                    return -1;
-                }
-            }
-        }
+        std::string word = words.at(w-1);
 
         if( w==1 ) {
-            if( args[0]==kvCMD ) {
-                //Set arg1 to word
-                args[1] = word;
-                //If there are only two arguments
-                if(s==2) {
-                    int x = cmdKV(word);
-                    if( x!=0 ) {
-                        Log::log(errorMissingArg(3, args[0]));
+            //Set arg0 to word
+            args[0] = word;
+            cmdID = getCmdID(word);
+            switch(cmdID) {
+                case CMD_kv:
+                case CMD_ksv:
+                case CMD_debug:
+                case CMD_gs:
+                case CMD_tele: {
+                    if(s<=1) {
+                        Log::log(errorMissingArg(2, args[0]));
                         return -1;
                     }
-                }
+                } break;
             }
 
-            if( args[0]==ksvCMD ) {
-                //Set arg1 to word
-                args[1] = "\""+word+"\"";
-                //If there are only two arguments
-                if(s==2) {
-                    int x = cmdKV("\""+word+"\"");
-                    if( x!=0 ) {
-                        Log::log(errorMissingArg(3, args[0]));
+            // Check number of arguments before proceeding
+            switch(cmdID) {
+                case CMD_debug: {
+                    //If there are too many arguments
+                    if(s>3) {
+                        Log::log( errorTooManyArgs(3, commandList[cmdID]) );
                         return -1;
                     }
-                }
+                } break;
+                case CMD_tele: {
+                    //If there are only two arguments
+                    if(s==2) {
+                        Log::log( errorMissingArg(3, args[0]) );
+                        return -1;
+                    }
+                } break;
             }
-
-            if( args[0]==gsCMD ) {
-                args[1] = word;
-                if( parseString(word)==ParseTypes::INT ) {
-                    cKV("~cmd.gs", std::stoi(word));
-                } else {
-                    Log::log("Argument 2 must be an integer!");
-                    return -1;
-                }
-            }
-
-            if( args[0]==teleCMD ) {
-                //Set arg1 to word
-                args[1] = word;
-                //If there are only two arguments
-                if(s==2) {
-                    Log::log(errorMissingArg(3, args[0]));
-                    return -1;
-                }
-                //Parse string as an int
-                if( parseString(word)==ParseTypes::INT ) {
-                    cKV("~cmd.tele.x", std::stoi(word));
-                } else {
-                    Log::log("Argument 2 must be an integer!");
-                    return -1;
-                }
-            }
-
         }
 
         if( w==2 ) {
-            if(args[0]==kvCMD) {
-                args[2] = word;
-                cmdKV(args[1], args[2]);
+            //Set arg1 to word
+            args[1] = word;
+            switch(cmdID)
+            {
+                case CMD_kv: {
+                    //If the second argument needs a third argument
+                    if(s==2) {
+                        int x = cmdKV(word);
+                        if( x!=0 ) {
+                            Log::log(errorMissingArg(3, commandList[cmdID]));
+                            return -1;
+                        }
+                    }
+                } break;
+                case CMD_ksv: {
+                    //If the second argument needs a third argument
+                    if(s==2) {
+                        int x = cmdKV("\""+word+"\"");
+                        if( x!=0 ) {
+                            Log::log(errorMissingArg(3, commandList[cmdID]));
+                            return -1;
+                        }
+                    }
+                } break;
+                case CMD_debug: {
+                    if( word=="\"memTexes\"" ) {
+                        cKV("~cmd.debug.type", "\"memTexes\"");
+                    } else {
+                        Log::log("Unknown argument '"+word+"'...");
+                    }
+                } break;
+                case CMD_gs: {
+                    if( parseString(word)==ParseTypes::INT ) {
+                        cKV("~cmd.gs", std::stoi(word));
+                    } else {
+                        Log::log(errorInvalidArg(commandList[cmdID], 2, "integer"));
+                        return -1;
+                    }
+                } break;
+                case CMD_tele: {
+                    //Parse string as an int
+                    if( parseString(word)==ParseTypes::INT ) {
+                        cKV("~cmd.tele.x", std::stoi(word));
+                    } else {
+                        Log::log(errorInvalidArg(commandList[cmdID], 2, "integer"));
+                        return -1;
+                    }
+                } break;
             }
+        }
 
-            if(args[0]==ksvCMD) {
-                args[2] = word;
-                cmdKV(args[1], args[2]);
+        if( w==3 ) {
+            //Set arg2 to word
+            args[2] = word;
+            switch(cmdID) {
+                case CMD_kv: {
+                    cmdKV(args[1], args[2]);
+                } break;
+                case CMD_ksv: {
+                    cmdKV(args[1], args[2]);
+                } break;
+                case CMD_debug: {
+                    //Parse string as an int
+                    if( args[1]=="\"memTexes\"" ) {
+                        if( parseString(word)==ParseTypes::INT ) {
+                            cKV("~cmd.debug", 1);
+                            cKV("~cmd.debug.memTexesID", std::stoi(word));
+                        } else {
+                            Log::log(errorInvalidArg(commandList[cmdID], 3, "integer"));
+                        }
+                    }
+                } break;
+                case CMD_tele: {
+                    //Parse string as an int
+                    if( parseString(word)==ParseTypes::INT ) {
+                        cKV("~cmd.tele.y", std::stoi(word));
+                        cKV("~cmd.tele", 1);
+                    } else {
+                        Log::log(errorInvalidArg(commandList[cmdID], 3, "integer"));
+                        return -1;
+                    }
+                } break;
             }
-
-            if( args[0]==teleCMD ) {
-                //Set arg2 to word
-                args[2] = word;
-                //Parse string as an int
-                if( parseString(word)==ParseTypes::INT ) {
-                    cKV("~cmd.tele.y", std::stoi(word));
-                    cKV("~cmd.tele", 1);
-                } else {
-                    Log::log("Argument 3 must be an integer!");
-                    return -1;
-                }
-            }
-
         }
     }
 
@@ -192,17 +222,17 @@ int Commands::cKV(std::string arg1, std::string arg2) { return cmdKV("\""+arg1+"
 
 std::string Commands::cycleCMDs(int x)
 {
-    if( cmds.size()==0 ) return "";
+    if( userHistory.size()==0 ) return "";
 
     //Cycle left/right x amount of times
-    cmdPos += x;
+    userHistoryPos += x;
 
     //'cmds' bounds
-    if( cmdPos<0 ) cmdPos = 0;
-    if( cmdPos>=(int)cmds.size() ) cmdPos = (int)cmds.size()-1;
+    if( userHistoryPos<0 ) userHistoryPos = 0;
+    if( userHistoryPos>=(int)userHistory.size() ) userHistoryPos = (int)userHistory.size()-1;
 
     //Return the string in 'cmds' at cycle position
-    return cmds[cmdPos];
+    return userHistory[userHistoryPos];
 }
 
 int Commands::resetCMDEntered(std::string methodName)
@@ -216,6 +246,7 @@ int Commands::resetCMDEntered(std::string methodName)
 
     surpressMessages(true);
     cKV("~cmd.gs", "null");
+    cKV("~cmd.debug", "null");
     cKV("~cmd.tele", "null");
     cKV("~cmd.state", "null");
     surpressMessages(false);
@@ -282,6 +313,16 @@ std::string* Commands::getString(std::string key)
     } else {
         return nullptr;
     }
+}
+
+int Commands::getCmdID(std::string cmd)
+{
+    for( unsigned int i = 0; i<commandList.size(); i++ ) {
+        if( cmd==commandList[i] ) {
+            return i;
+        }
+    }
+    return -1;
 }
 
 /**/
@@ -469,7 +510,11 @@ int Commands::cmdKV(std::string arg1)
 
 int Commands::parseString(std::string& word)
 {
-    //Try to parse "word" as a string
+    if(word=="") {
+        return ParseTypes::UNKNOWN;
+    }
+
+    //Try to parse 'word' as a string
     int s = (int)word.size();
     if( s>=2 ) {
         if( word[0]=='\"' && word[s-1]=='\"' ) {
@@ -479,7 +524,7 @@ int Commands::parseString(std::string& word)
         }
     }
 
-    //Try to parse 2nd arg as an int
+    //Try to parse 'word' as an int
     bool parseIntSuccess = true;
     for( int i = 0; i<s; i++ ) {
         if( !( word[i]=='-' || (word[i]>='0' && word[i]<='9') ) ) {
@@ -489,12 +534,12 @@ int Commands::parseString(std::string& word)
     }
     if( parseIntSuccess==true ) return ParseTypes::INT;
 
-    //Try to parse 2nd arg as a bool
+    //Try to parse 'word' as a bool
     if( word=="true" || word=="false" ) {
         return ParseTypes::BOOL;
     }
 
-    //Try to parse 2nd arg as null
+    //Try to parse 'word' as null
     if( word=="null" ) {
         return ParseTypes::NULL_;
     }
@@ -506,10 +551,31 @@ int Commands::parseString(std::string& word)
     return ParseTypes::UNKNOWN;
 }
 
+std::string Commands::errorInvalidArg(std::string commandName, int argNumber, std::string validType)
+{
+    std::stringstream ss;
+    ss << "Usage for command '" << commandName << "': ";
+    ss << getArgID(argNumber) << " must be ";
+
+    if( validType=="integer" ) {
+        ss << "an " << validType << "!";
+    } else {
+        ss << "a " << validType << "!";
+    }
+    return ss.str();
+}
+
 std::string Commands::errorMissingArg(int arg, std::string commandName)
 {
     std::stringstream ss;
     ss << "No " << getArgID(arg) << " for command \"" << commandName << "\".";
+    return ss.str();
+}
+
+std::string Commands::errorTooManyArgs(int arg, std::string commandName)
+{
+    std::stringstream ss;
+    ss << "Too many arguments (>" << arg << ") for command \"" << commandName << "\".";
     return ss.str();
 }
 

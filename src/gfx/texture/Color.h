@@ -31,7 +31,7 @@ public:
     void mod(uint8_t p_r, uint8_t p_g, uint8_t p_b, uint8_t p_a);
     void mod(Color& c);
     void set(uint8_t p_r, uint8_t p_g, uint8_t p_b, uint8_t p_a);
-
+    Color& operator=( const Color& other );
     /**/
     uint8_t r = 0;
     uint8_t g = 0;

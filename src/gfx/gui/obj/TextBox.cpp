@@ -3,14 +3,27 @@
 #include "Text.h"
 #include "Log.h"
 
-TextBox::TextBox(int p_x, int p_y, int p_width, int p_id)
-: Button::Button(nullptr, p_x, p_y, p_width, "", p_id )
+TextBox::TextBox(Window* p_parentWindow, int p_x, int p_y, int p_width, int p_id)
+: Button::Button(p_parentWindow, p_x, p_y, p_width, "", p_id)
 {
     setSubType(BTEObject::Type::GUI_textbox);
 }
-void TextBox::init(SDLHandler* sh, Controls* ctrls)
+
+TextBox::TextBox(int p_x, int p_y, int p_width, int p_id)
+: TextBox::TextBox(nullptr, p_x, p_y, p_width, p_id ){}
+
+void TextBox::init(SDLHandler* sh, FileHandler* fh, Controls* ctrls)
 {
+    if( getID()==GUIHandler::tbx_DEBUG ) {
+        inputType = FREE_TEXT;
+    }
+    if( getID()==GUIHandler::tbx_CONTROLS_set_keybind ) {
+        inputType = CONTROL_BINDINGS;
+    }
+
     Button::init(sh, ctrls);
+    fileHandler = fh;
+
     onWindowUpdate();
 }
 TextBox::~TextBox(){}
@@ -25,9 +38,23 @@ void TextBox::tick()
 {
     Button::tick();
 
-    if(entered) {
+    if( entered && inputType!=CONTROL_BINDINGS ) {
         selected = false;
     }
+
+    if( inputType==CONTROL_BINDINGS ) {
+        btnText.selected = false;
+
+        if( selected ) {
+            btnText.setString("Enter input...");
+            btnText.foreground = Color(0, 255, 0);
+        } else {
+            btnText.setString(setCB.toCtrlString());
+        }
+    }
+
+
+
 }
 
 void TextBox::onWindowUpdate()
@@ -35,21 +62,17 @@ void TextBox::onWindowUpdate()
     Button::onWindowUpdate();
 }
 
-void TextBox::passKeyboardInput(std::string s, bool specialInput)
+void TextBox::passFreeTextInput(std::string s, int type)
 {
     int ip = btnText.getInsertionPoint();
     std::string btn = btnText.getString();
 
-    std::string s1 = btn.substr(0, ip);
-    std::string s2 = s;
-    std::string s3 = btn.substr(ip);
+    std::string s1 = btn.substr(0, ip); //Substring from beginning up to insertion point
+    std::string s2 = s;                 //Substring to be inserted
+    std::string s3 = btn.substr(ip);    //Substring from insertion point to the end
 
-    if(s=="\n") {
-        entered = true;
-        return;
-    }
     try {
-        if( specialInput ) {
+        if( type==ControlBinding::KEYBOARD_ACTION ) {
 
             int i = std::stoi(s2);
             s2="";
@@ -64,6 +87,11 @@ void TextBox::passKeyboardInput(std::string s, bool specialInput)
                 s3 = s3.substr(1);
             break;
 
+            case SDLK_RETURN: {
+                entered = true;
+                return;
+            } break;
+
             case SDLK_LEFT: ip--; break;
             case SDLK_RIGHT: if(s3!="") ip++; break;
             case SDLK_HOME: ip = 0; break;
@@ -72,32 +100,47 @@ void TextBox::passKeyboardInput(std::string s, bool specialInput)
             case SDLK_ESCAPE: actionID = SDLK_ESCAPE; break;
             case SDLK_UP: actionID = UP_ARROW; break;
             case SDLK_DOWN: actionID = DOWN_ARROW; break;
-
-
-
             }
         }
-    } catch (std::exception e) { }
+    } catch(...) {
+
+    }
 
     btnText.setString(s1+s2+s3);
     btnText.setInsertionPoint( ip+s2.size() );
+
 }
 
-void TextBox::setEntered(bool p_entered) { entered = p_entered; }
-void TextBox::setString(std::string s)
+void TextBox::passSpecialInput(ControlBinding& cb)
 {
-    int i = btnText.getInsertionPoint();
-    Button::setString(s);
-    if( i>=(int)btnText.getString().size() ) {
-        i = btnText.getString().size();
-    }
-    btnText.setInsertionPoint(i);
-}
+    switch( inputType ) {
+        case FREE_TEXT: {
+            if(cb.getType()==cb.KEYBOARD_ACTION) {
+                std::stringstream ss; ss << cb.keyboardAction;
+                passFreeTextInput(ss.str(), cb.KEYBOARD_ACTION);
+            } else {
+                passFreeTextInput(cb.textInput, cb.TEXT_INPUT);
+            }
+        } break;
+        case CONTROL_BINDINGS: {
+            if( cb.keyboardAction!=-1 ) {
+                //Set setCB
+                setCB = ControlBinding(cb.KEYBOARD_ACTION, cb.keyboardAction);
+                //Set setting to the last input
+                Settings* stngs = fileHandler->getSettings();
+                std::string key = stngs->getKey( stngs->getKvMap(Settings::controls), getExtraID());
+                stngs->kv(Settings::controls, key, setCB.keyboardAction);
+                fileHandler->saveSettings(Settings::controls);
+                //Deselect
+                deselect();
+            }
 
-void TextBox::setInsertionPoint(int ip) { btnText.setInsertionPoint(ip); }
-void TextBox::deselect() { selected = false; }
+        } break;
+    }
+}
 
 int TextBox::getActionID() { return actionID; }
+int TextBox::getInputType() { return inputType; }
 bool TextBox::isEntered() { return entered; }
 
 void TextBox::resetActionID(std::string methodName)
@@ -109,4 +152,45 @@ void TextBox::resetActionID(std::string methodName)
     }
 
     actionID = -1;
+}
+
+void TextBox::resetEnteredData()
+{
+    Settings* stngs = fileHandler->getSettings();
+    Settings::t_kvMap defaultCtrls = stngs->getDefaultSettings(Settings::controls);
+    std::string key = stngs->getKey( defaultCtrls, getExtraID());
+    std::string val = stngs->get( defaultCtrls, key);
+
+    stngs->kv(Settings::TextFiles::controls, key, val);
+    fileHandler->saveSettings(Settings::controls);
+
+    setCB = ControlBinding(stngs->get(defaultCtrls, key));
+
+    deselect();
+}
+
+void TextBox::setEntered(bool p_entered) { entered = p_entered; }
+void TextBox::setString(std::string s)
+{
+    if( inputType==FREE_TEXT ) {
+        int i = btnText.getInsertionPoint();
+        Button::setString(s);
+        if( i>=(int)btnText.getString().size() ) {
+            i = btnText.getString().size();
+        }
+        btnText.setInsertionPoint(i);
+    }
+}
+void TextBox::setControlBinding(ControlBinding& cb) { setCB = cb; }
+void TextBox::setInsertionPoint(int ip) { btnText.setInsertionPoint(ip); }
+void TextBox::deselect() {
+
+    if( inputType==CONTROL_BINDINGS ) {
+        if( setCB.getType()==setCB.NOTHING ) {
+            btnText.setString("Unset Binding");
+        }
+    }
+
+    btnText.selected = false;
+    selected = false;
 }

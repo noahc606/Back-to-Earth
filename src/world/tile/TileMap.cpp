@@ -53,16 +53,6 @@ void TileMap::info(std::stringstream& ss, int& tabs, t_ll p_mouseX, t_ll p_mouse
     }
     ss << "updatesMap size (tiles)=" << updateCount << "; ";
     DebugScreen::newLine(ss);
-
-    //Selected TileRegion
-    TileRegion* tr = getRegByRXYZ(rX, rY, rZ);
-    if(tr!=nullptr) {
-        std::stringstream selTR;
-        selTR << "Selected TileRegion: (" << rX << ", " << rY << ", " << rZ << ")";
-        DebugScreen::newGroup(ss, tabs, "Selected TileRegion");
-            tr->info(ss, tabs, sx, sy, sz);
-        DebugScreen::endGroup(tabs);
-    }
 }
 
 TileMap::t_regionMap* TileMap::getRegionMap() { return &regionMap; }
@@ -238,6 +228,9 @@ int TileMap::addTileUpdates(t_ll x0, t_ll y0, t_ll z0, t_ll x1, t_ll y1, t_ll z1
     return result;
 }
 
+/**
+    Create a 3x3 of tile updates at the specified position
+*/
 int TileMap::addTileUpdates(t_ll x, t_ll y, t_ll z)
 {
     return addTileUpdates(x-1, y-1, z, x+1, y+1, z);

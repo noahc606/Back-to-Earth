@@ -52,7 +52,7 @@ private:
     Settings* settings;
 
     /* Back to Earth */
-    int gamestate = TESTING;
+    int gamestate = 0;
     GUIHandler guiHandler;
     Commands commands;
 

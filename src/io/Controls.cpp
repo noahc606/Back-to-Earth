@@ -12,21 +12,7 @@
 Controls::Controls(){}
 void Controls::init(Settings* settings)
 {
-    //Store configured control bindings
-    for(Settings::t_kvPair kvp : settings->getKvMap(Settings::controls)) {
-        cbIndices.push_back(kvp.first);
-        ctrlBindings.push_back(getControlBindingFromString(kvp.second));
-    }
-
-    //Set all control states to false.
-    for(int i = 0; i<(int)cbIndices.size(); i++) {
-        ctrlsPressed.push_back(false);
-        ctrlsHeld.push_back(false);
-        ctrlsReleased.push_back(false);
-
-        lastCtrlPress.push_back(false);
-        lastCtrlRelease.push_back(false);
-    }
+    reloadBindings(settings);
 }
 Controls::~Controls(){}
 
@@ -34,15 +20,22 @@ Controls::~Controls(){}
 
 void Controls::trackEvents(SDL_Event p_e)
 {
+    // Process keyboard, mouse buttons, and mousewheel input
     switch(p_e.type)
     {
-        case SDL_KEYDOWN: case SDL_MOUSEBUTTONDOWN: {
+        case SDL_KEYDOWN:
+        case SDL_MOUSEBUTTONDOWN:
+        case SDL_JOYBUTTONDOWN:
+        {
             if(p_e.key.repeat == 0) {
                 eventPressed(p_e);
             }
         } break;
 
-        case SDL_KEYUP: case SDL_MOUSEBUTTONUP: {
+        case SDL_KEYUP:
+        case SDL_MOUSEBUTTONUP:
+        case SDL_JOYBUTTONUP:
+        {
             eventReleased(p_e);
         } break;
 
@@ -51,12 +44,17 @@ void Controls::trackEvents(SDL_Event p_e)
         } break;
     }
 
-    switch(p_e.type)
-    {
-        case SDL_KEYDOWN: case SDL_TEXTINPUT: {
-            eventTextInput(p_e);
-        } break;
-    }
+    // Process special input:
+    // Text input:          regular typing, a phone popup keyboard, etc.
+    // Keyboard actions:    Arrow keys, backspace/delete, home/end, return, etc.
+    // Controller input:    Anything done on joystick/controller: dpads, direction sticks, buttons, etc.
+    eventSpecialInput(p_e);
+
+}
+
+void Controls::draw()
+{
+    SDL_GetMouseState(&mouseX, &mouseY);
 }
 
 void Controls::tick()
@@ -112,7 +110,7 @@ bool Controls::isPressed(std::string id) { return is("pressed", id); }
 bool Controls::isHeld(std::string id) { return is("held", id); }
 bool Controls::isReleased(std::string id) { return is("released", id); }
 
-const Controls::KeyboardInput& Controls::getKeyboardInput() { return kbInfo; }
+const ControlBinding& Controls::getSpecialInput() { return cbSpecialInput; }
 
 ControlBinding Controls::getControlBindingFromString(std::string s)
 {
@@ -133,6 +131,34 @@ ControlBinding Controls::getControlBindingFromString(std::string s)
 }
 
 /**/
+
+void Controls::reloadBindings(Settings* settings)
+{
+    //Clear 'cbIndices' and 'ctrlBindings'
+    cbIndices.clear();
+    ctrlBindings.clear();
+    //Add currently configured control bindings to 'cbIndices' and 'ctrlBindings'
+    for(Settings::t_kvPair kvp : settings->getKvMap(Settings::controls)) {
+        cbIndices.push_back(kvp.first);
+        ctrlBindings.push_back(getControlBindingFromString(kvp.second));
+    }
+
+    //Clear all control states.
+    ctrlsPressed.clear();
+    ctrlsHeld.clear();
+    ctrlsReleased.clear();
+    lastCtrlPress.clear();
+    lastCtrlRelease.clear();
+    //Set all control states to false.
+    for(int i = 0; i<(int)cbIndices.size(); i++) {
+        ctrlsPressed.push_back(false);
+        ctrlsHeld.push_back(false);
+        ctrlsReleased.push_back(false);
+
+        lastCtrlPress.push_back(false);
+        lastCtrlRelease.push_back(false);
+    }
+}
 
 void Controls::stop(std::string action, std::string id, std::string methodName)
 {
@@ -182,80 +208,62 @@ void Controls::resetWheel(std::string methodName)
     wheel = 0;
 }
 
-void Controls::resetKBInput(std::string methodName)
+void Controls::resetSpecialInput(std::string methodName)
 {
-    if( !kbInfo.inputReceived ) {
+    if( cbSpecialInput.getType()==ControlBinding::NOTHING ) {
         std::stringstream ss;
-        ss << "Tried to reset keyboard input that hasn't even been received yet";
+        ss << "Tried to reset special input that is already reset";
         Log::warn(methodName, ss.str());
     }
 
-    /* Reset kbInput data */
-    kbInfo.inputReceived = false;
-    kbInfo.inputString = "";
-    kbInfo.inputSpecial = false;
+    cbSpecialInput.reset();
 }
 
 /**/
 
 void Controls::eventPressed(SDL_Event e)
 {
-    //Get SDL_Keycode or other button from event
-    SDL_Keycode kc = e.key.keysym.sym;
-    uint8_t btn = e.button.button-1;
+    //Get info from event
+    SDL_Keycode key = e.key.keysym.sym;
+    uint8_t mouseButton = e.button.button-1;
+    uint8_t joystickButton = e.jbutton.button;
 
     //Set appropriate element in ctrlsPressed to true.
     //Allows for outside access to whether a key is currently held down.
     for(int i = 0; i<(int)cbIndices.size(); i++) {
-        if( ctrlBindings[i].type==ControlBinding::KEY )
-        {
-            if( kc==ctrlBindings[i].key ) {
-                ctrlsPressed[i] = true;
-                ctrlsHeld[i] = true;
+        if(
+            (ctrlBindings[i].getType()==ControlBinding::KEY              && key           ==ctrlBindings[i].key           ) ||
+            (ctrlBindings[i].getType()==ControlBinding::MOUSE_BUTTON     && mouseButton   ==ctrlBindings[i].mouseButton   ) ||
+            (ctrlBindings[i].getType()==ControlBinding::JOYSTICK_BUTTON  && joystickButton==ctrlBindings[i].joystickButton)
+        ) {
+            ctrlsPressed[i] = true;
+            ctrlsHeld[i] = true;
 
-                lastCtrlPress[i] = SDL_GetTicks();
-            }
-        } else
-        if( ctrlBindings[i].type==ControlBinding::MISC_BUTTON )
-        {
-            if( btn==ctrlBindings[i].miscButton ) {
-                ctrlsPressed[i] = true;
-                ctrlsHeld[i] = true;
-
-                lastCtrlPress[i] = SDL_GetTicks();
-            }
+            lastCtrlPress[i] = SDL_GetTicks();
         }
     }
 }
 
 void Controls::eventReleased(SDL_Event e)
 {
-    //Get SDL_Keycode or other button from event
-    SDL_Keycode kc = e.key.keysym.sym;
-    uint8_t btn = e.button.button-1;
+    //Get info from event
+    SDL_Keycode key = e.key.keysym.sym;
+    uint8_t mouseButton = e.button.button-1;
+    uint8_t joystickButton = e.jbutton.button;
 
-    //Set appropriate element in ctrlsPressed to true.
-    //Allows for outside access to whether a key is currently held down.
+    //Set appropriate elements in the arrays to indicate that that control was released.
+    //Allows for outside access to whether a key was released
     for(int i = 0; i<(int)cbIndices.size(); i++) {
-        if( ctrlBindings[i].type==ControlBinding::KEY )
-        {
-            if( kc==ctrlBindings[i].key ) {
-                ctrlsPressed[i] = false;
-                ctrlsHeld[i] = false;
-                ctrlsReleased[i] = true;
+        if(
+            (ctrlBindings[i].getType()==ControlBinding::KEY              && key           ==ctrlBindings[i].key           ) ||
+            (ctrlBindings[i].getType()==ControlBinding::MOUSE_BUTTON     && mouseButton   ==ctrlBindings[i].mouseButton   ) ||
+            (ctrlBindings[i].getType()==ControlBinding::JOYSTICK_BUTTON  && joystickButton==ctrlBindings[i].joystickButton)
+        ) {
+            ctrlsPressed[i] = false;
+            ctrlsHeld[i] = false;
+            ctrlsReleased[i] = true;
 
-                lastCtrlRelease[i] = SDL_GetTicks();
-            }
-        } else
-        if( ctrlBindings[i].type==ControlBinding::MISC_BUTTON )
-        {
-            if( btn==ctrlBindings[i].miscButton ) {
-                ctrlsPressed[i] = false;
-                ctrlsHeld[i] = false;
-                ctrlsReleased[i] = true;
-
-                lastCtrlRelease[i] = SDL_GetTicks();
-            }
+            lastCtrlRelease[i] = SDL_GetTicks();
         }
     }
 }
@@ -266,45 +274,28 @@ void Controls::eventMouseWheel(SDL_Event e)
     wheel += e.wheel.y;
 }
 
-void Controls::eventTextInput(SDL_Event e)
+void Controls::eventSpecialInput(SDL_Event e)
 {
+    ControlBinding cb;
+
+    /** Inputting: general text */
     if( e.type==SDL_TEXTINPUT ) {
         /* Basic keyboard input */
         //Any keystroke that can be represented as a string (numbers, symbols, letters);
         std::stringstream ss;
         ss << e.text.text;
 
-        kbInfo.inputReceived = true;
-        kbInfo.inputString = ss.str();
-        kbInfo.inputSpecial = false;
+        cbSpecialInput.textInput = ss.str();
+    }
 
-    } else
+    /** Inputting: any keyboard action */
     if( e.type==SDL_KEYDOWN ) {
         //Get keyboard state
         const Uint8 *state = SDL_GetKeyboardState(NULL);
         SDL_Keycode kc = e.key.keysym.sym;
 
-        //Special keys (backspace, arrow keys, etc)
-        switch(kc)
-        {
-            case SDLK_ESCAPE:
-            case SDLK_BACKSPACE: case SDLK_DELETE:
-            case SDLK_LEFT: case SDLK_RIGHT: case SDLK_UP: case SDLK_DOWN:
-            case SDLK_HOME: case SDLK_END: {
-                std::stringstream ss;
-                ss << kc;
-                kbInfo.inputReceived = true;
-                kbInfo.inputString = ss.str();
-                kbInfo.inputSpecial = true;
-            } break;
-
-            //Input newline
-            case SDLK_RETURN: {
-                kbInfo.inputReceived = true;
-                kbInfo.inputString = "\n";
-                kbInfo.inputSpecial = false;
-            } break;
-        }
+        /* Keys on keyboard */
+        cbSpecialInput.keyboardAction = kc;
 
         /* Special keyboard input */
         //If holding ctrl + v
@@ -312,9 +303,30 @@ void Controls::eventTextInput(SDL_Event e)
             //Paste clipboard text into kbInfo.inputString
             std::stringstream ss;
             ss << SDL_GetClipboardText();
-            kbInfo.inputReceived = true;
-            kbInfo.inputString = ss.str();
-            kbInfo.inputSpecial = false;
+            cbSpecialInput.textInput = ss.str();
         }
+    }
+
+    /** Inputting: Joysticks/Controllers, or anything else */
+    //Buttons with an on/off state
+    if( e.type==SDL_JOYBUTTONDOWN ) {
+        cbSpecialInput.joystickButton = e.jbutton.button;
+    }
+    //Joystick
+    ControlBinding cbNew;
+    cbNew.joystickAction = cbNew.UNKNOWN_ACTION;
+    if( e.type==SDL_JOYAXISMOTION ) {
+        // Axis ID 0 (Stick A, left/right)
+        if( e.jaxis.axis==0 ) {
+            if( e.jaxis.value<-8000 ) { cbNew.joystickAction = cbNew.JS_STICK_A_LEFT; }
+            if( e.jaxis.value>8000  ) { cbNew.joystickAction = cbNew.JS_STICK_A_RIGHT; }
+        } else
+        // Axis ID 1 (Stick A, up/down)
+        if( e.jaxis.axis==1 ) {
+            if( e.jaxis.value<-8000 ) { cbNew.joystickAction = cbNew.JS_STICK_A_DOWN; }
+            if( e.jaxis.value>8000  ) { cbNew.joystickAction = cbNew.JS_STICK_A_UP; }
+        }
+
+        if(e.jaxis.axis==2 || e.jaxis.axis==3) { cbNew.joystickAction += 4; }
     }
 }

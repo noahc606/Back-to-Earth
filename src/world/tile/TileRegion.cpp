@@ -35,8 +35,10 @@ TileRegion::~TileRegion(){}
 void TileRegion::info(std::stringstream& ss, int& tabs, int subX, int subY, int subZ)
 {
     DebugScreen::indentLine(ss, tabs);
+    ss << "RegTex(State, Priority)=(" << regTexState << ", " << regTexPriority << "); ";
+    DebugScreen::newLine(ss);
+    DebugScreen::indentLine(ss, tabs);
     ss << "palette.size()=" << (int)palette.size() << "; ";
-    ss << "Selected Tile [" << subX << "][" << subY << "][" << subZ << "]";
     DebugScreen::newLine(ss);
 
     TileType tt = getTile(subX, subY, subZ);
@@ -66,7 +68,7 @@ TileType TileRegion::getTileSafe( int x, int y, int z )
 }
 
 int TileRegion::getRegTexState() { return regTexState; }
-
+int TileRegion::getRegTexPriority() { return regTexPriority; }
 /**
     General-purpose setTile function.
     Performance:
@@ -108,11 +110,8 @@ void TileRegion::setRegTexState(int p_rts)
     regTexState = p_rts;
 }
 
-void TileRegion::resetRegTexState()
-{
-    regTexState = 0;
-}
-
+void TileRegion::resetRegTexState() { regTexState = 0; }
+void TileRegion::setRegTexPriority(int p_rtp) { regTexPriority = p_rtp; }
 
 int TileRegion::addToPalette( TileType tile, t_palette& pal)
 {

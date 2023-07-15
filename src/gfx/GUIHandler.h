@@ -14,7 +14,7 @@ public:
     void draw();
     void tick();
     void onWindowUpdate();
-    void passKeyboardInput(std::string text, bool special);
+    void passSpecialInput(ControlBinding& cbsi);
     /**/
     void info(std::stringstream& ss, int& tabs);
     int getGUIActionID();
@@ -22,8 +22,10 @@ public:
     GUI* getGUI(int type, int id);
     /**/
     void resetGUIAction(std::string methodName);
-    void addGUI(GUI* gui);
+    GUI* addGUI(GUI* gui, int extraID);
+    GUI* addGUI(GUI* gui);
     void setGUIs(int guis);
+    void resetGUIs(int extraID);
     void removeGUI(int id);
     void removeGUIs(int idMin, int idMax);
     void removeChildGUIs(int id);
@@ -32,7 +34,7 @@ public:
     enum ID {
         null = -1,
 
-        tb_DEBUG = 0,
+        tbx_DEBUG = 0,
 
         win_MAIN = 100,
         ttp_MAIN_title,
@@ -48,9 +50,11 @@ public:
         btn_back_to_OPTIONS,
 
             win_CONTROLS = 300,
-            btn_CONTROLS_keybind,
+            ttp_CONTROLS_keybind,
+            tbx_CONTROLS_set_keybind,
+            cbx_CONTROLS_set_defaults,
 
-            win_GRAPHICS_SETTINGS = 300,
+            win_GRAPHICS_SETTINGS = 400,
             cbx_GRAPHICS_SETTINGS_bteCursor,
             cbx_GRAPHICS_SETTINGS_fullscreen,
 
@@ -72,7 +76,7 @@ public:
         MAIN,
         OPTIONS,
             CONTROLS,
-            GRAPHICS_SETTINGS,
+            GRAPHICS,
 
         PAUSE, UNPAUSE,
         WORLD,
@@ -84,13 +88,7 @@ protected:
     std::vector<GUI*> guis;
 
 private:
-    //Controls::KeyboardInput kbInput;
-    //Controls::KeyboardInput lastkbInput;
-
-    std::string kbInput = "";
-    bool kbInputSpecial = false;
-    std::string lastKBInput = "";
-    bool lastKBInputSpecial = false;
+    ControlBinding cbSpecialInput;
 
     int guiActionID = -1;
 

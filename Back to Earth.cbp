@@ -15,6 +15,10 @@
 				<Option projectLinkerOptionsRelation="0" />
 				<Option projectIncludeDirsRelation="0" />
 				<Option projectLibDirsRelation="0" />
+				<Compiler>
+					<Add directory="src/io/debug" />
+					<Add directory="src/gfx/" />
+				</Compiler>
 				<Linker>
 					<Add option="-lmingw32 -lSDL2main -lSDL2" />
 					<Add option="-lSDL2_image" />
@@ -40,6 +44,8 @@
 				<Option projectLibDirsRelation="0" />
 				<Compiler>
 					<Add option="-O2" />
+					<Add directory="src/io/debug" />
+					<Add directory="src/gfx/" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -105,6 +111,8 @@
 		<Unit filename="src/gfx/Camera.h" />
 		<Unit filename="src/gfx/GUIAligner.cpp" />
 		<Unit filename="src/gfx/GUIAligner.h" />
+		<Unit filename="src/gfx/GUIBuilder.cpp" />
+		<Unit filename="src/gfx/GUIBuilder.h" />
 		<Unit filename="src/gfx/GUIHandler.cpp" />
 		<Unit filename="src/gfx/GUIHandler.h" />
 		<Unit filename="src/gfx/Text.cpp" />
@@ -169,6 +177,8 @@
 		<Unit filename="src/io/Controls.h" />
 		<Unit filename="src/io/Settings.cpp" />
 		<Unit filename="src/io/Settings.h" />
+		<Unit filename="src/io/debug/CommandParser.cpp" />
+		<Unit filename="src/io/debug/CommandParser.h" />
 		<Unit filename="src/io/debug/Commands.cpp" />
 		<Unit filename="src/io/debug/Commands.h" />
 		<Unit filename="src/io/debug/DebugScreen.cpp" />

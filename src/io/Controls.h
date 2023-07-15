@@ -21,6 +21,7 @@ public:
     /**/
     /* Track events and update */
     void trackEvents(SDL_Event p_e);
+    void draw();
     void tick();
     /**/
     /* Mouse info */
@@ -32,15 +33,16 @@ public:
     bool isPressed(std::string id);
     bool isHeld(std::string id);
     bool isReleased(std::string id);
-    const KeyboardInput& getKeyboardInput();
+    const ControlBinding& getSpecialInput();
     ControlBinding getControlBindingFromString(std::string s);
     /**/
+    void reloadBindings(Settings* settings);
     /* Manually reset press, release, or the mouse wheel immediately after it happens (it will stop on its own after 100ms anyway) */
     void stop(std::string action, std::string id, std::string methodName);
     void stopPress(std::string methodName, std::string id);
     void stopRelease(std::string methodName, std::string id);
     void resetWheel(std::string methodName);
-    void resetKBInput(std::string methodName);
+    void resetSpecialInput(std::string methodName);
     /**/
     /**/
 private:
@@ -50,10 +52,10 @@ private:
     void eventPressed(SDL_Event e);
     void eventReleased(SDL_Event e);
     void eventMouseWheel(SDL_Event e);
-    void eventTextInput(SDL_Event e);
+    void eventSpecialInput(SDL_Event e);
     /**/
-    /* Store information about keyboard input into a textbox or other type-able GUI. */
-    KeyboardInput kbInfo;
+    /* Store information about special input */
+    ControlBinding cbSpecialInput;
 
     /* Mouse information */
     int mouseX = -1000;

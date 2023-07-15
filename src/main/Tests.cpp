@@ -15,64 +15,46 @@
 #include "Timer.h"
 #include "Window.h"
 
-using namespace std;
 /**/
 
 Tests::Tests(){}
 void Tests::init(SDLHandler* sh, FileHandler* fh, Controls* ctrls)
 {
-    TileType tt; tt.init();
-    tt.setRGB(128, 32, 10);
-    tt.setTextureXYZ(5, 8, 10);
+    sdlHandler = sh;
+    fileHandler = fh;
+    controls = ctrls;
 
-    std::stringstream ss;
-    int tabs = 0;
-    tt.info(ss, tabs);
-    std::cout << "Tile info: " << ss.str();
+    ControlBinding cb;
+    cb.keyboardAction = SDLK_SPACE;
 
-    BTEObject::init(sh, fh, ctrls);
-    std::cout << "before\n";
+    Settings* stngs = fileHandler->getSettings();
 
-    TileRegion testReg;
-    Terrain terra;
-    terra.populateRegion( testReg, 0, 0, 0 );
-
-    std::cout << "Saving...\n";
-    Timer timer("Level save test", true);
-    {
-        testReg.save(sdlHandler, fileHandler, "test123456", 0, 0, 0, false);
-    }
-    std::cout << "Saved in: \n";
+    //Set setting to the last input
+    std::string key = stngs->getKey( stngs->getKvMap(Settings::controls), 11);
+    std::cout << "Value: " << stngs->get(Settings::controls, "FUNC_9") << "\n";
+    stngs->kv(Settings::controls, key, cb.keyboardAction);
 }
 
 Tests::~Tests(){}
 
 /**/
 
+void Tests::thing1()
+{
+    TextureLoader* tl = sdlHandler->getTextureLoader();
+
+    SDL_Rect dst; dst.x = 0; dst.y = 0; dst.w = 512; dst.h = 512;
+    SDL_RenderCopy(
+        sdlHandler->getRenderer(),
+        tl->getTexture(TextureLoader::WORLD_TILE_type_a),
+        NULL,
+        &dst
+    );
+}
+
 void Tests::draw()
 {
-    SDL_Rect dst; dst.x = 0; dst.y = 0; dst.w = 512; dst.h = 512;
     counter++;
-
-
-    if(counter%100<50) {
-        SDL_RenderCopy(
-            sdlHandler->getRenderer(),
-            sdlHandler->getTextureLoader()->getTexture(TextureLoader::WORLD_TILE_type_a, 0),
-            NULL,
-            &dst
-        );
-    } else {
-        SDL_RenderCopy(
-            sdlHandler->getRenderer(),
-            sdlHandler->getTextureLoader()->getTexture(TextureLoader::WORLD_TILE_type_a, 1),
-            NULL,
-            &dst
-        );
-    }
-
-
-
 
     //sdlHandler->renderCopy(3, &dst, &dst);
 

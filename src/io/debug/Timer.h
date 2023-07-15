@@ -10,6 +10,7 @@ public:
     Timer();
     virtual ~Timer();
     /**/
+    uint64_t getCurrentTime();
     double getElapsedTimeMS();
     /**/
     void debugElapsedTimeMS();
@@ -20,8 +21,8 @@ private:
     void updateElapsedTime();
     /**/
     /* Times (in milliseconds) */
-    double t0 = 0.0;    //Initial time
-    double t1 = 0.0;    //End time
+    uint64_t t0 = 0.0;    //Initial time
+    uint64_t t1 = 0.0;    //End time
     double dT = -1.0;   //Time elapsed
 
     /* Peripherals */

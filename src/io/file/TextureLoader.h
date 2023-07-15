@@ -3,7 +3,9 @@
 #include <memory>
 #include <SDL.h>
 #include <SDL_image.h>
+#include <map>
 #include <vector>
+#include "Defs.h"
 #include "Main.h"
 
 class TextureLoader
@@ -56,14 +58,16 @@ protected:
 
 private:
     /**/
-    void addTextures();
-    void addScaledTextures();
     SDL_Surface* loadSurface(std::string path);
     SDL_Surface* addSurface(std::string path);
 
     /**/
+
+    void addTextures();
+    void addScaledTextures();
     void load();
     void unload();
+    void errorFailedTexLoad();
 
     /**/
     /* SDLHandler peripherals */
@@ -74,8 +78,6 @@ private:
     /* List of loaded surfaces + textures */
     SDL_Surface* missingSurf;
     std::vector<SDL_Surface*> surfaces;
-    std::vector<SDL_Texture*> textures;
-    std::vector<SDL_Texture*> scaledTileTypeA;
-    std::vector<SDL_Texture*> scaledTileOverlayWall;
+    Defs::t_textureMap textureMap;
     bool resourcesLoaded = false;
 };

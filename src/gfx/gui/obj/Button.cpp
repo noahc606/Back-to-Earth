@@ -2,6 +2,7 @@
 #include "CheckBox.h"
 #include "GUIHandler.h"
 #include "TextureBuilder.h"
+#include "TextBox.h"
 
 /**/
 
@@ -30,16 +31,20 @@ void Button::init(SDLHandler* sh, Controls* ctrls)
     TextureBuilder tb(sdlHandler);
 
     if( getType()==GUI_textbox ) {
-        tb.init(TextureBuilder::BTN_Tex, texBtn, texW, texH,  0,  0);
-        tb.init(TextureBuilder::BTN_Tex, texBtnHovering, texW, texH, 41,  0);
-        tb.init(TextureBuilder::BTN_Tex, texTbxSelected, texW, texH,  0, 17);
-        tb.init(TextureBuilder::BTN_Tex, texBtnSelected, texW, texH,  0, 34);
+        tb.init(TextureBuilder::BTN_Tex, texBtn, texW, texH,  82,  0);
+        tb.init(TextureBuilder::BTN_Tex, texBtnHovering, texW, texH, 123,  0);
+        if( ((TextBox*)this)->getInputType()==TextBox::CONTROL_BINDINGS ) {
+            tb.init(TextureBuilder::BTN_Tex, texTbxSelected, texW, texH,  123, 17);
+        } else {
+            tb.init(TextureBuilder::BTN_Tex, texTbxSelected, texW, texH,  41, 17);
+        }
+        tb.init(TextureBuilder::BTN_Tex, texBtnSelected, texW, texH,  0, 17);   //This component is unused in a textbox
         tb.init(TextureBuilder::BTN_ShineTex, btnShineTex0);
         tb.init(TextureBuilder::BTN_ShineTex, btnShineTex1);
     } else {
         tb.init(TextureBuilder::BTN_Tex, texBtn, texW, texH,  0,  0);
         tb.init(TextureBuilder::BTN_Tex, texBtnHovering, texW, texH, 41,  0);
-        tb.init(TextureBuilder::BTN_Tex, texTbxSelected, texW, texH,  0, 17);
+        tb.init(TextureBuilder::BTN_Tex, texTbxSelected, texW, texH,  0, 17);   //This component is unused in a non-textbox
         tb.init(TextureBuilder::BTN_Tex, texBtnSelected, texW, texH,  0, 34);
         tb.init(TextureBuilder::BTN_ShineTex, btnShineTex0);
         tb.init(TextureBuilder::BTN_ShineTex, btnShineTex1);
@@ -111,8 +116,8 @@ void Button::tick()
 
     //If mouse hovering
     if(
-        mX>=sX && mX<sX+width+12
-     && mY>=sY && mY<sY+32
+        mX>sX+1 && mX<=sX+1+width+12
+     && mY>sY+1 && mY<=sY+1+32
      ) {
         if(!hovering) shineAnimation = 1;
         hovering = true;
@@ -132,26 +137,32 @@ void Button::tick()
 
     //If mouse is hovering...
     if( hovering ) {
+        //If mouse is left clicked
         if( controls->isPressed("HARDCODE_LEFT_CLICK") ) {
-
+            //If this is a textbox
             if( getType()==GUI_textbox ) {
                 btnText.setInsertionPointByPx( mX-sX );
             }
-
+            //If this is a checkbox
             if( getType()==GUI_checkbox ) {
                 CheckBox* cbObj = (CheckBox*)this;
                 cbObj->cycleState();
             }
 
+            //Stop pressing, set clicked+selected
             controls->stopPress("HARDCODE_LEFT_CLICK", __PRETTY_FUNCTION__);
             clicked = true;
             selected = true;
             btnText.setSelected(true);
         }
+    //If mouse is NOT hovering...
     } else {
+        //If mouse is left clicked
         if( controls->isPressed("HARDCODE_LEFT_CLICK") ) {
+            //If this is not a radio button
             if(selected && getType()!=GUI_radiobutton ) {
-            controls->stopPress("HARDCODE_LEFT_CLICK", __PRETTY_FUNCTION__);
+                //Stop pressing and end selection
+                controls->stopPress("HARDCODE_LEFT_CLICK", __PRETTY_FUNCTION__);
                 selected = false;
                 btnText.setSelected(false);
             }
@@ -163,7 +174,7 @@ void Button::onWindowUpdate()
 {
     translateSPos();
 
-    if(getID()==GUIHandler::ID::tb_DEBUG) {
+    if(getID()==GUIHandler::ID::tbx_DEBUG) {
         sY = sdlHandler->getHeight()-height*2;
     }
 
@@ -174,11 +185,13 @@ void Button::onWindowUpdate()
     btnShineTex0.setDrawPos(sX, sY);
     btnShineTex1.setDrawPos(sX, sY);
 
-    //If not textbox, center the text.
+
     int txtX = 0;
     if( getType()==GUI_textbox ) {
+    //If textbox, text is going to be just to the right of the far left of button
         txtX = sX+4*2;
     } else {
+    //If not textbox, center the text.
         int txtW = btnText.getWidth()/2;
         txtX = sX+(12+width-txtW)/2;
     }

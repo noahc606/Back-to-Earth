@@ -15,6 +15,7 @@ public:
     void info(std::stringstream& ss, int& tabs);
     int getScreenSemiWidth();
     int getScreenSemiHeight();
+    bool isOnScreen(int rX, int rY);
     int getTileScale();
     int getBlitScale();
 
@@ -26,8 +27,8 @@ public:
     void blackOutRegionArea(Defs::t_ll rX, Defs::t_ll rY);
 
     void placeEntireScreen();
-    void placeRandom(int updates);
-    void processRegion(Defs::t_ll camRX, Defs::t_ll camRY, Defs::t_ll camRZ, int loadRadiusH);
+    void processRegions(Defs::t_ll camRX, Defs::t_ll camRY, Defs::t_ll camRZ, int loadRadiusH);
+    void processRegions2(Defs::t_ll camRX, Defs::t_ll camRY, Defs::t_ll camRZ, int loadRadiusH);
     void processRegionLayer(TileIterator& ti, Defs::t_ll rX, Defs::t_ll rY, Defs::t_ll camRZ, Defs::t_ll camLayer);
     void processTileArea(TileIterator& ti, Texture* tex);
 
@@ -42,6 +43,7 @@ private:
 
     int tileScale = 32;
     int blitScale = 32;
+    int regionScale = 32*32;
 
     int screenWT = 1; int screenHT = 1;
     int screenWR = 1; int screenHR = 1;

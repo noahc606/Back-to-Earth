@@ -13,10 +13,7 @@ RegTexUpdates::RegTexUpdates(SDLHandler* sdlHandler, Camera* camera, TileMap* ti
     RegTexUpdates::csTileMap = csTileMap;
 }
 
-RegTexUpdates::~RegTexUpdates()
-{
-    //dtor
-}
+RegTexUpdates::~RegTexUpdates(){}
 
 std::tuple<Defs::t_ll, Defs::t_ll, TileType> RegTexUpdates::topTrackedTile(TileIterator& ti)
 {
@@ -32,7 +29,7 @@ std::tuple<Defs::t_ll, Defs::t_ll, TileType> RegTexUpdates::topTrackedTile(TileI
         }
     }
 
-    //Return pair of two objects:
+    //Return tuple:
     //1st object: t_ll equal to the height of the top tile from the camera (topmost would be = 0)
     //2nd object: Depth of the toptile from the camera
     //3nd object: TileType which represents the top tile from the camera.
@@ -56,6 +53,25 @@ void RegTexUpdates::info(std::stringstream& ss, int& tabs)
 
 int RegTexUpdates::getScreenSemiWidth() { return screenSWR; }
 int RegTexUpdates::getScreenSemiHeight() { return screenSHR; }
+bool RegTexUpdates::isOnScreen(int rX, int rY)
+{
+    //Get camRX and camRY
+    int camRX = floor( camera->getX()/TileMapScreen::regionSize );
+    int camRY = floor( camera->getY()/TileMapScreen::regionSize );
+
+    //Check if this region at (rX, rY) is onscreen (vertical Z coordinate doesn't matter). Store in 'onScreen'.
+    bool onScreen = false;
+    if( rX >= camRX-getScreenSemiWidth() &&
+        rX <= camRX+getScreenSemiWidth() &&
+        rY >= camRY-getScreenSemiHeight() &&
+        rY <= camRY+getScreenSemiHeight() )
+    {
+        onScreen = true;
+    }
+
+    //Return result
+    return onScreen;
+}
 int RegTexUpdates::getTileScale() { return tileScale; }
 int RegTexUpdates::getBlitScale() { return blitScale; }
 
@@ -100,33 +116,19 @@ void RegTexUpdates::draw(Defs::t_ll camRX, Defs::t_ll camRY, Defs::t_ll camRZ, i
     {
         std::stringstream ss; ss << "Performing " << rtUpdatesToDo << " regTexUpdates";
         Timer t(ss.str(), false);
-        processRegion(camRX, camRY, camRZ, loadRadiusH);
+        processRegions(camRX, camRY, camRZ, loadRadiusH);
         rtUpdatesTime = t.getElapsedTimeMS();
     }
     rtUpdatesTimeTotal += rtUpdatesTime;
-
-    //double rtUpdatesTimeMax = 6;
-    //if(rtUpdatesTime < rtUpdatesTimeMax) {
-        //Increase rtUpdatesToDo if rtUpdatesTimeMax is NOT exceeded
-        //rtUpdatesToDo = (double)rtUpdatesToDo*rtUpdatesTimeMax/rtUpdatesTime;
-    //} else {
-        //Decrease rtUpdatesToDo if rtUpdatesTimeMax IS exceeded
-        //rtUpdatesToDo = (double)rtUpdatesToDo*rtUpdatesTimeMax/rtUpdatesTime;
-    //}
-
-    //int rtUpdatesLimit = 512;
-    //if(rtUpdatesToDo>rtUpdatesLimit) rtUpdatesToDo = rtUpdatesLimit;
-    //placeRandom(rtUpdatesToDo/2);
 }
 
 /**
-    Debugging tool: useful for seeing where regions of interest are on the current screen. Pretty bussin poggers tbqh famalam frfr no cap ongod in ohio
+    Debugging tool: useful for seeing where regions of interest are on the current screen.
 */
 void RegTexUpdates::colorFillRegionArea(Defs::t_ll rX, Defs::t_ll rY, uint8_t r, uint8_t g, uint8_t b)
 {
     /** Get 'tex' located at this region from csTileMap */
     Texture* tex = csTileMap->getTex(rX, rY);
-    // If 'tex' is null
     if(tex==nullptr) {
         return;
     }
@@ -136,12 +138,9 @@ void RegTexUpdates::colorFillRegionArea(Defs::t_ll rX, Defs::t_ll rY, uint8_t r,
 }
 
 /**
-    Blacks out regions that can't be seen anymore (if region load distance is really low)
+    Blacks out regions that can't be seen anymore
 */
-void RegTexUpdates::blackOutRegionArea(Defs::t_ll rX, Defs::t_ll rY)
-{
-    colorFillRegionArea(rX, rY, 0, 0, 0);
-}
+void RegTexUpdates::blackOutRegionArea(Defs::t_ll rX, Defs::t_ll rY) { colorFillRegionArea(rX, rY, 0, 0, 0); }
 
 void RegTexUpdates::placeEntireScreen()
 {
@@ -150,71 +149,23 @@ void RegTexUpdates::placeEntireScreen()
 
     // Place updates @ every tile position on screen.
     int margin = 4;
-
-    for(int dx = -screenWT/2-margin; dx<screenWT/2+margin; dx++) {
-        for(int dy = -screenHT/2-margin; dy<screenHT/2+margin; dy++) {
-            tileMap->addTileUpdate( camera->getX()+dx, camera->getY()+dy, camera->getLayer());
-        }
-    }
+    tileMap->addTileUpdates(
+        camera->getX()-screenWT/2-margin,
+        camera->getY()-screenHT/2-margin,
+        camera->getLayer(),
+        camera->getX()+screenWT/2+margin,
+        camera->getY()+screenHT/2+margin,
+        camera->getLayer()
+    );
 }
 
-/**
-    Place regTexUpdates randomly throughout the map on any tile that is onscreen
-*/
-void RegTexUpdates::placeRandom(int updates)
-{
-    return;
-    if(tileMap==nullptr) return;
-
-    TileMap::t_ll scrRW2T = screenWT/4; if( scrRW2T==0 ) scrRW2T = 1;
-    TileMap::t_ll scrRH2T = screenWT/4; if( scrRH2T==0 ) scrRH2T = 1;
-    TileMap::t_ll scrRW4T = screenWT/8;
-    TileMap::t_ll scrRH4T = screenHT/8;
-    TileMap::t_ll scrCX = floor( camera->getX()/4 )*4;
-    TileMap::t_ll scrCY = floor( camera->getY()/4 )*4;
-
-    for( int i = 0; i<updates/16+1; i++ ) {
-
-        TileMap::t_ll updatesX = scrCX-4*scrRW4T+4*(rand())%(4*scrRW2T);
-        TileMap::t_ll updatesY = scrCY-4*scrRH4T+4*(rand())%(4*scrRH2T);
-
-        for(TileMap::t_ll sx = 0; sx<4; sx++) {
-            for(TileMap::t_ll sy = 0; sy<4; sy++) {
-                tileMap->addTileUpdate( updatesX+sx, updatesY+sy, camera->getLayer() );
-            }
-        }
-    }
-}
-
-void RegTexUpdates::processRegion(Defs::t_ll camRX, Defs::t_ll camRY, Defs::t_ll camRZ, int loadRadiusH)
+void RegTexUpdates::processRegions(Defs::t_ll camRX, Defs::t_ll camRY, Defs::t_ll camRZ, int loadRadiusH)
 {
     if( csTileMap==nullptr || camera==nullptr || tileMap==nullptr || tileMap->getRegionMap()==nullptr ) return;
 
     TileIterator ti(tileMap);
     ti.logWarnings(false);
     ti.setTrackerMode(ti.FULL);
-
-    /*
-    ti.setBoundsByRXYZ(camRX, camRY, camRZ);
-    //processRegionLayer(csTileMap, ti, -1, -1, camRZ, camera->getLayer());
-    int sz = TileMap::getRegSubPos( camera->getLayer() );
-    Texture* tex = csTileMap->getTex(camRX, camRY);
-    if(tex==nullptr) {
-        std::cout << "tex is null!\n";
-        return;
-    }
-
-    std::cout << camRX << ", " << camRY << "\n";
-
-    for(int x = 0; x<32; x++) {
-        for(int y = 0; y<32; y++) {
-            tex->lock(x*32, y*32, 32, 32);
-            tex->blit(TextureLoader::WORLD_TILE_type_a, 32, 0, 32, 32);
-        }
-    }
-    tex->draw();
-    return;
-    */
 
     for( int outline = 0; outline<=loadRadiusH; outline++ ) {
         //Iterate dRX (delta RX) from -outline to +outline
@@ -234,6 +185,17 @@ void RegTexUpdates::processRegion(Defs::t_ll camRX, Defs::t_ll camRY, Defs::t_ll
             }
         }
     }
+
+}
+
+void RegTexUpdates::processRegions2(Defs::t_ll camRX, Defs::t_ll camRY, Defs::t_ll camRZ, int loadRadiusH)
+{
+    if( csTileMap==nullptr || camera==nullptr || tileMap==nullptr || tileMap->getRegionMap()==nullptr ) return;
+
+    TileIterator ti(tileMap);
+    ti.logWarnings(false);
+    ti.setTrackerMode(ti.FULL);
+
 
 }
 
@@ -288,15 +250,6 @@ void RegTexUpdates::processTileArea(TileIterator& ti, Texture* tex)
     int dstX = blitScale*ti.getTrackerSub(0);  //blit scale*X
     int dstY = blitScale*ti.getTrackerSub(1);  //blit scale*Y
 
-
-    /*
-    tex->lock(dstX, dstY, blitScalePx, blitScalePx);
-    int r = std::get<0>(topTileFromCam.getRGB());
-    int g = std::get<1>(topTileFromCam.getRGB());
-    int b = std::get<2>(topTileFromCam.getRGB());
-    tex->setColorMod(r, g, b);
-    tex->fill();
-    */
-
+    //Create RegTexBuilder
     RegTexBuilder rtb(tex, ti, dstX, dstY, blitScale, topTileFromCam, dZ);
 }

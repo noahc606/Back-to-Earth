@@ -16,6 +16,7 @@ public:
     void init(SDLHandler* sh, FileHandler* fh, Controls* ctrls);
     virtual ~Tests();
     /**/
+    void thing1();
     void draw();
     void tick();
     /**/

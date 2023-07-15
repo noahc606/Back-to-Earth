@@ -10,9 +10,11 @@
 #include "TileMap.h"
 
 Player::Player() { }
-void Player::init(SDLHandler* sh, Controls* ctrls)
+void Player::init(SDLHandler* sh, GUIHandler* guih, Controls* ctrls)
 {
-    BTEObject::init(sh, nullptr, ctrls);
+    sdlHandler = sh;
+    guiHandler = guih;
+    controls = ctrls;
     camera.init(ctrls);
 
     /** Build player spritesheet */
@@ -196,9 +198,14 @@ void Player::tick()
         }
     }
 
+    controllable = true;
+    if( guiHandler->getGUI(BTEObject::GUI_textbox, GUIHandler::tbx_DEBUG)!=nullptr ) {
+        controllable = false;
+    }
+
     /** Player control */
     //Movement (sprint/crouch, walk)
-    if( !camera.isFreecam() ) {
+    if( !camera.isFreecam() && controllable ) {
         double speed = 0.05;
         if( controls->isHeld("PLAYER_SPRINT") ) speed = 0.10;
         if( controls->isHeld("PLAYER_CROUCH") ) speed = 0.005;

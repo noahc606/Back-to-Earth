@@ -12,7 +12,7 @@ class World : public BTEObject
 public:
     typedef TileMap::t_ll t_ll;
     /**/
-    void init(SDLHandler* sh, FileHandler* fh, Controls* ctrls);
+    void init(SDLHandler* sh, GUIHandler* gh, FileHandler* fh, Controls* ctrls);
     virtual ~World();
     /**/
     void draw();
@@ -22,6 +22,7 @@ public:
 protected:
 
 private:
+    GUIHandler* guiHandler;
     Texture defaultTile;
 
 

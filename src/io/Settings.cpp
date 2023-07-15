@@ -134,9 +134,9 @@ bool Settings::load(int index, t_kvMap kvMap)
     return true;
 }
 
-std::string Settings::get(int index, std::string key)
+std::string Settings::get(int kvMapIndex, std::string key)
 {
-    t_settingsMap::iterator itr = settingsMap.find(index);
+    t_settingsMap::iterator itr = settingsMap.find(kvMapIndex);
     if( itr!=settingsMap.end() ) {
         return get(itr->second, key);
     }
@@ -144,6 +144,8 @@ std::string Settings::get(int index, std::string key)
     Log::warn(__PRETTY_FUNCTION__, "Tried to find a key-value pair in a nonexistent file index", "returning \"null\"");
     return "null";
 }
+
+Settings::t_kvMap Settings::getDefaultSettings(int kvMapIndex) { return Settings::defaultSettings[kvMapIndex]; }
 
 Settings::t_kvMap Settings::getKvMap(int index)
 {
@@ -157,7 +159,23 @@ Settings::t_kvMap Settings::getKvMap(int index)
     return contents;
 }
 
+std::string Settings::getKey(t_kvMap kvMap, int index)
+{
+    int currIndex = 0;
+    t_kvMap::iterator kvmItr = kvMap.begin();
+    while( kvmItr!=kvMap.end() ) {
+        if( currIndex==index ) {
+            return kvmItr->first;
+        }
+        currIndex++;
+        kvmItr++;
+    }
 
+    std::stringstream ss;
+    ss << "Failed to find the key-value pair at " << index << " in the key-value set";
+    Log::warn(__PRETTY_FUNCTION__, ss.str(), "returning \"null\"");
+    return "null";
+}
 /**
     Gets a value from a 'key' located in 'kvMap'.
 */
@@ -169,9 +187,27 @@ std::string Settings::get(t_kvMap kvMap, std::string key)
     }
 
     std::stringstream ss;
-    ss << "Failed to find a value for key \"" << key << "\" in the key-value set";
+    ss << "Failed to find the key \"" << key << "\" in the key-value set";
     Log::warn(__PRETTY_FUNCTION__, ss.str(), "returning \"null\"");
     return "null";
+}
+
+int Settings::find(t_kvMap kvMap, std::string key)
+{
+    unsigned int index = 0;
+    t_kvMap::iterator kvmItr = kvMap.begin();
+    while( kvmItr->first!=key && kvmItr!=kvMap.end() ) {
+        index++;
+        kvmItr++;
+    }
+
+    if( index>=kvMap.size() ) {
+        std::stringstream ss;
+        ss << "Failed to find the key \"" << key << "\" in the key-value set";
+        Log::warn(__PRETTY_FUNCTION__, ss.str(), "returning -1");
+        return -1;
+    }
+    return (int)index;
 }
 
 /**

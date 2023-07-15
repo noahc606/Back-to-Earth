@@ -3,6 +3,7 @@
 #include "MainLoop.h"
 #include "Text.h"
 #include "TextBox.h"
+#include "TextureLoader.h"
 
 DebugScreen::DebugScreen(){}
 void DebugScreen::init(SDLHandler* sh, GUIHandler* guis, Controls* ctrls)
@@ -19,6 +20,38 @@ DebugScreen::~DebugScreen(){}
 
 void DebugScreen::draw()
 {
+    if( debugDrawTimeLeft>0 ) {
+        TextureLoader* tl = sdlHandler->getTextureLoader();
+
+        SDL_Texture* stex = tl->getTexture(debugDrawTexID);
+        int texW = 0; int texH = 0;
+        int sdlW = sdlHandler->getWidth(); int sdlH = sdlHandler->getHeight();
+        SDL_QueryTexture(stex, nullptr, nullptr, &texW, &texH);
+
+
+        SDL_Rect dr;
+        dr.w = texW*512; dr.h = texH*512;
+
+        while( dr.w>sdlW*3/4 || dr.h>sdlH*3/4 ) {
+            dr.w /= 2;
+            dr.h /= 2;
+        }
+
+        dr.x = (sdlW-dr.w);
+        dr.y = 0;
+
+        SDL_RenderCopy(
+            sdlHandler->getRenderer(),
+            stex,
+            NULL,
+            &dr
+        );
+
+        std::stringstream txt;
+        txt << "Dimensions:\n" << texW << "x" << texH;
+        Text::draw(sdlHandler, txt.str(), dr.x, dr.h, 2, fg, bg, TextureLoader::GUI_FONT_robot);
+    }
+
     if(visible) {
         Text::draw(sdlHandler, debugString, 2, 2, 2, fg, bg, TextureLoader::GUI_FONT_robot);
     }
@@ -26,6 +59,10 @@ void DebugScreen::draw()
 
 void DebugScreen::tick()
 {
+    if( debugDrawTimeLeft>0 ) {
+        debugDrawTimeLeft--;
+    }
+
     //If RSHIFT is pressed
     bool rshift = false;
     const Uint8 *state = SDL_GetKeyboardState(NULL);
@@ -78,6 +115,9 @@ void DebugScreen::tick()
     }
 }
 
+bool DebugScreen::getVisible() { return visible; }
+
+
 void DebugScreen::setVisible(bool p_visible)
 {
     visible = p_visible;
@@ -93,9 +133,12 @@ void DebugScreen::setHaxEnabled(bool p_haxEnabled)
 
 }
 
-bool DebugScreen::getVisible() { return visible; }
-
-void DebugScreen::setDebugString(std::string s) { debugString = s; }
+void DebugScreen::debugSetString(std::string s) { debugString = s; }
+void DebugScreen::debugDrawTexTemporarily(int id)
+{
+    debugDrawTimeLeft = 5*60;
+    debugDrawTexID = id;
+}
 
 void DebugScreen::newGroup(std::stringstream& ss, int& indents, std::string s)
 {
@@ -127,11 +170,11 @@ void DebugScreen::setHax0rMode(bool val)
     if(val) {
         fg.set(0, 85, 170, 255);
         hax0rMode = true;
-        guiHandler->addGUI( new TextBox(0, 0, 800, GUIHandler::ID::tb_DEBUG) );
+        guiHandler->addGUI( new TextBox(0, 0, 800, GUIHandler::ID::tbx_DEBUG) );
     } else {
         fg.set(255, 255, 255, 255);
         hax0rMode = false;
-        guiHandler->removeGUI(GUIHandler::ID::tb_DEBUG);
+        guiHandler->removeGUI(GUIHandler::ID::tbx_DEBUG);
     }
 }
 

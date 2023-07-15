@@ -86,4 +86,7 @@ private:
     bool bteCursor = false;
     int lastDisplayID = 0;
 
+    /* Game Controller/Joystick */
+    SDL_Joystick* joystick = nullptr;
+
 };

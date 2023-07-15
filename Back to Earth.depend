@@ -7253,12 +7253,12 @@
 	"SDLHandler.h"
 	"Settings.h"
 
-1681870823 /home/noahch/Desktop/Programming/Git/Back-to-Earth/src/io/debug/Commands.h
+1688716053 /home/noahch/Desktop/Programming/Git/Back-to-Earth/src/io/debug/Commands.h
 	<map>
 	<string>
 	<vector>
 
-1681870823 /home/noahch/Desktop/Programming/Git/Back-to-Earth/src/io/Controls.h
+1689297931 /home/noahch/Desktop/Programming/Git/Back-to-Earth/src/io/Controls.h
 	<memory>
 	<SDL.h>
 	<vector>
@@ -7612,11 +7612,11 @@
 	"begin_code.h"
 	"close_code.h"
 
-1681870823 /home/noahch/Desktop/Programming/Git/Back-to-Earth/src/io/ControlBinding.h
+1689278210 /home/noahch/Desktop/Programming/Git/Back-to-Earth/src/io/ControlBinding.h
 	<SDL.h>
 	<string>
 
-1681870969 /home/noahch/Desktop/Programming/Git/Back-to-Earth/src/io/Settings.h
+1689295310 /home/noahch/Desktop/Programming/Git/Back-to-Earth/src/io/Settings.h
 	<map>
 	<string>
 	<vector>
@@ -7632,7 +7632,7 @@
 1686590960 /home/noahch/Desktop/Programming/Git/Back-to-Earth/src/io/FilePath.h
 	<string>
 
-1687278782 /home/noahch/Desktop/Programming/Git/Back-to-Earth/src/main/SDLHandler.h
+1689024145 /home/noahch/Desktop/Programming/Git/Back-to-Earth/src/main/SDLHandler.h
 	<SDL.h>
 	<string>
 	"AudioLoader.h"
@@ -7654,7 +7654,7 @@
 	"begin_code.h"
 	"close_code.h"
 
-1681870823 /home/noahch/Desktop/Programming/Git/Back-to-Earth/src/gfx/texture/Color.h
+1689274115 /home/noahch/Desktop/Programming/Git/Back-to-Earth/src/gfx/texture/Color.h
 	<cstdint>
 	<SDL.h>
 
@@ -7675,14 +7675,15 @@
 1681870823 /home/noahch/Desktop/Programming/Git/Back-to-Earth/src/main/Main.h
 	<string>
 
-1681870823 source:/home/noahch/Desktop/Programming/Git/Back-to-Earth/src/gfx/gui/GUI.cpp
+1689280465 source:/home/noahch/Desktop/Programming/Git/Back-to-Earth/src/gfx/gui/GUI.cpp
 	"GUI.h"
 	"GUIHandler.h"
+	"Log.h"
 
-1681870823 /home/noahch/Desktop/Programming/Git/Back-to-Earth/src/gfx/gui/GUI.h
+1689280346 /home/noahch/Desktop/Programming/Git/Back-to-Earth/src/gfx/gui/GUI.h
 	"BTEObject.h"
 
-1681870823 /home/noahch/Desktop/Programming/Git/Back-to-Earth/src/gfx/GUIHandler.h
+1689284651 /home/noahch/Desktop/Programming/Git/Back-to-Earth/src/gfx/GUIHandler.h
 	<vector>
 	"BTEObject.h"
 	"GUI.h"
@@ -7697,7 +7698,7 @@
 1681870823 /home/noahch/Desktop/Programming/Git/Back-to-Earth/src/gfx/gui/GUIAlignable.h
 	"GUI.h"
 
-1681870823 /home/noahch/Desktop/Programming/Git/Back-to-Earth/src/gfx/Text.h
+1688852817 /home/noahch/Desktop/Programming/Git/Back-to-Earth/src/gfx/Text.h
 	<string>
 	"Color.h"
 	"SDLHandler.h"
@@ -7720,11 +7721,12 @@
 1681870823 source:/home/noahch/Desktop/Programming/Git/Back-to-Earth/src/gfx/gui/GUIAlignable.cpp
 	"GUIAlignable.h"
 
-1681870823 source:/home/noahch/Desktop/Programming/Git/Back-to-Earth/src/gfx/gui/obj/Button.cpp
+1689297282 source:/home/noahch/Desktop/Programming/Git/Back-to-Earth/src/gfx/gui/obj/Button.cpp
 	"Button.h"
 	"CheckBox.h"
 	"GUIHandler.h"
 	"TextureBuilder.h"
+	"TextBox.h"
 
 1681870823 /home/noahch/Desktop/Programming/Git/Back-to-Earth/src/gfx/gui/obj/Button.h
 	"Text.h"
@@ -7735,7 +7737,7 @@
 	"GUIAlignable.h"
 	"Window.h"
 
-1681870823 /home/noahch/Desktop/Programming/Git/Back-to-Earth/src/gfx/gui/obj/CheckBox.h
+1689296732 /home/noahch/Desktop/Programming/Git/Back-to-Earth/src/gfx/gui/obj/CheckBox.h
 	"Button.h"
 
 1681870823 /home/noahch/Desktop/Programming/Git/Back-to-Earth/src/gfx/texture/TextureBuilder.h
@@ -7743,7 +7745,7 @@
 	"Texture.h"
 	"WindowData.h"
 
-1681870823 source:/home/noahch/Desktop/Programming/Git/Back-to-Earth/src/gfx/gui/obj/CheckBox.cpp
+1689297392 source:/home/noahch/Desktop/Programming/Git/Back-to-Earth/src/gfx/gui/obj/CheckBox.cpp
 	"CheckBox.h"
 	"TextureBuilder.h"
 
@@ -7762,23 +7764,24 @@
 	"Button.h"
 	"Texture.h"
 
-1687278977 source:/home/noahch/Desktop/Programming/Git/Back-to-Earth/src/gfx/gui/obj/TextBox.cpp
+1689298355 source:/home/noahch/Desktop/Programming/Git/Back-to-Earth/src/gfx/gui/obj/TextBox.cpp
 	"TextBox.h"
 	<sstream>
 	"Text.h"
 	"Log.h"
 
-1681870823 /home/noahch/Desktop/Programming/Git/Back-to-Earth/src/gfx/gui/obj/TextBox.h
+1689284920 /home/noahch/Desktop/Programming/Git/Back-to-Earth/src/gfx/gui/obj/TextBox.h
 	<string>
+	"Button.h"
+	"ControlBinding.h"
 	"GUIHandler.h"
 	"Texture.h"
-	"Button.h"
 
 1682081749 /home/noahch/Desktop/Programming/Git/Back-to-Earth/src/io/debug/Log.h
 	<iostream>
 	<sstream>
 
-1681870823 source:/home/noahch/Desktop/Programming/Git/Back-to-Earth/src/gfx/gui/obj/Tooltip.cpp
+1688853245 source:/home/noahch/Desktop/Programming/Git/Back-to-Earth/src/gfx/gui/obj/Tooltip.cpp
 	"Tooltip.h"
 
 1681870823 /home/noahch/Desktop/Programming/Git/Back-to-Earth/src/gfx/gui/obj/Tooltip.h
@@ -7807,12 +7810,13 @@
 	"GUIHandler.h"
 	<set>
 
-1681870823 source:/home/noahch/Desktop/Programming/Git/Back-to-Earth/src/gfx/GUIHandler.cpp
+1689297455 source:/home/noahch/Desktop/Programming/Git/Back-to-Earth/src/gfx/GUIHandler.cpp
 	"GUIHandler.h"
 	<set>
 	"CheckBox.h"
 	"Color.h"
 	"GUIAligner.h"
+	"GUIBuilder.h"
 	"Log.h"
 	"MainLoop.h"
 	"RadioButton.h"
@@ -7827,7 +7831,7 @@
 	"FileHandler.h"
 	"SDLHandler.h"
 
-1687281326 /home/noahch/Desktop/Programming/Git/Back-to-Earth/src/main/BTE.h
+1689012267 /home/noahch/Desktop/Programming/Git/Back-to-Earth/src/main/BTE.h
 	<string>
 	"Controls.h"
 	"DebugScreen.h"
@@ -7838,12 +7842,12 @@
 	"Tests.h"
 	"World.h"
 
-1688495441 /home/noahch/Desktop/Programming/Git/Back-to-Earth/src/io/debug/DebugScreen.h
+1688716303 /home/noahch/Desktop/Programming/Git/Back-to-Earth/src/io/debug/DebugScreen.h
 	"Controls.h"
 	"GUIHandler.h"
 	"SDLHandler.h"
 
-1681870823 /home/noahch/Desktop/Programming/Git/Back-to-Earth/src/main/Tests.h
+1688714486 /home/noahch/Desktop/Programming/Git/Back-to-Earth/src/main/Tests.h
 	<vector>
 	"BTEObject.h"
 	"DebugObject.h"
@@ -7878,7 +7882,7 @@
 1681870823 /home/noahch/Desktop/Programming/Git/Back-to-Earth/src/gfx/texture/access/TTexture.h
 	"Texture.h"
 
-1687484617 /home/noahch/Desktop/Programming/Git/Back-to-Earth/src/world/tile/TileRegion.h
+1689335091 /home/noahch/Desktop/Programming/Git/Back-to-Earth/src/world/tile/TileRegion.h
 	<vector>
 	<string>
 	"Camera.h"
@@ -7888,7 +7892,7 @@
 	<string>
 	<tuple>
 
-1681870823 /home/noahch/Desktop/Programming/Git/Back-to-Earth/src/world/World.h
+1688718525 /home/noahch/Desktop/Programming/Git/Back-to-Earth/src/world/World.h
 	"BTEObject.h"
 	"Canvas.h"
 	"GUIHandler.h"
@@ -7897,13 +7901,14 @@
 	"TileMap.h"
 	"TileMapScreen.h"
 
-1681870823 /home/noahch/Desktop/Programming/Git/Back-to-Earth/src/world/Player.h
+1688718482 /home/noahch/Desktop/Programming/Git/Back-to-Earth/src/world/Player.h
 	<tuple>
 	"BTEObject.h"
 	"Canvas.h"
 	"Camera.h"
 	"CollidingVolume.h"
 	"ColorPalette.h"
+	"GUIHandler.h"
 	"SpriteSheet.h"
 	"Texture.h"
 
@@ -7922,7 +7927,10 @@
 1681870823 /home/noahch/Desktop/Programming/Git/Back-to-Earth/src/world/phys/Point3D.h
 	"Real.h"
 
-1681870823 /home/noahch/Desktop/Programming/Git/Back-to-Earth/src/helper/type/Defs.h
+1688711631 /home/noahch/Desktop/Programming/Git/Back-to-Earth/src/helper/type/Defs.h
+	<map>
+	<vector>
+	<SDL2/SDL.h>
 
 1681870989 /home/noahch/Desktop/Programming/Git/Back-to-Earth/src/gfx/texture/ColorPalette.h
 	<map>
@@ -7942,13 +7950,14 @@
 	"Texture.h"
 	"TileRegion.h"
 
-1687217797 /home/noahch/Desktop/Programming/Git/Back-to-Earth/src/world/tile/TileMapScreen.h
+1689394834 /home/noahch/Desktop/Programming/Git/Back-to-Earth/src/world/tile/TileMapScreen.h
 	<map>
 	<memory>
 	<set>
 	<vector>
 	"BTEObject.h"
 	"Canvas.h"
+	"Defs.h"
 	"Player.h"
 	"RegTexUpdates.h"
 	"TileIterator.h"
@@ -7977,7 +7986,7 @@
 	<SDL2/SDL.h>
 	<sys/time.h>
 
-1681870823 /home/noahch/Desktop/Programming/Git/Back-to-Earth/src/io/debug/Timer.h
+1688721450 /home/noahch/Desktop/Programming/Git/Back-to-Earth/src/io/debug/Timer.h
 	<string>
 
 1681870823 source:/home/noahch/Desktop/Programming/Git/Back-to-Earth/src/gfx/texture/access/TTexture.cpp
@@ -7990,7 +7999,7 @@
 	"MainLoop.h"
 	"TileMap.h"
 
-1681870823 source:/home/noahch/Desktop/Programming/Git/Back-to-Earth/src/gfx/texture/Color.cpp
+1689274132 source:/home/noahch/Desktop/Programming/Git/Back-to-Earth/src/gfx/texture/Color.cpp
 	"Color.h"
 
 1681870823 source:/home/noahch/Desktop/Programming/Git/Back-to-Earth/src/gfx/texture/SpriteSheet.cpp
@@ -8037,22 +8046,26 @@
 	"Log.h"
 	"SDLHandler.h"
 
-1681870823 source:/home/noahch/Desktop/Programming/Git/Back-to-Earth/src/io/ButtonAction.cpp
+1689298358 source:/home/noahch/Desktop/Programming/Git/Back-to-Earth/src/io/ButtonAction.cpp
 	"ButtonAction.h"
 	"CheckBox.h"
 	"FileHandler.h"
 	"Log.h"
 	"MainLoop.h"
 
-1681870823 /home/noahch/Desktop/Programming/Git/Back-to-Earth/src/io/ButtonAction.h
+1689297906 /home/noahch/Desktop/Programming/Git/Back-to-Earth/src/io/ButtonAction.h
+	"Controls.h"
 	"GUIHandler.h"
 	"SDLHandler.h"
 	"World.h"
 
-1681870823 source:/home/noahch/Desktop/Programming/Git/Back-to-Earth/src/io/ControlBinding.cpp
+1689282604 source:/home/noahch/Desktop/Programming/Git/Back-to-Earth/src/io/ControlBinding.cpp
 	"ControlBinding.h"
+	<sstream>
+	<string>
+	<Log.h>
 
-1681870823 source:/home/noahch/Desktop/Programming/Git/Back-to-Earth/src/io/Controls.cpp
+1689298034 source:/home/noahch/Desktop/Programming/Git/Back-to-Earth/src/io/Controls.cpp
 	"Controls.h"
 	<iostream>
 	<sstream>
@@ -8074,24 +8087,25 @@
 	"SDLHandler.h"
 	"SpriteSheet.h"
 
-1681870823 source:/home/noahch/Desktop/Programming/Git/Back-to-Earth/src/io/debug/Commands.cpp
+1688719381 source:/home/noahch/Desktop/Programming/Git/Back-to-Earth/src/io/debug/Commands.cpp
 	"Commands.h"
 	<vector>
 	"Log.h"
 
-1688495459 source:/home/noahch/Desktop/Programming/Git/Back-to-Earth/src/io/debug/DebugScreen.cpp
+1688854848 source:/home/noahch/Desktop/Programming/Git/Back-to-Earth/src/io/debug/DebugScreen.cpp
 	"DebugScreen.h"
 	<sstream>
 	"MainLoop.h"
 	"Text.h"
 	"TextBox.h"
+	"TextureLoader.h"
 
 1682081752 source:/home/noahch/Desktop/Programming/Git/Back-to-Earth/src/io/debug/Log.cpp
 	"Log.h"
 	<SDL.h>
 	"Main.h"
 
-1681870823 source:/home/noahch/Desktop/Programming/Git/Back-to-Earth/src/io/debug/Timer.cpp
+1688721861 source:/home/noahch/Desktop/Programming/Git/Back-to-Earth/src/io/debug/Timer.cpp
 	"Timer.h"
 	<SDL.h>
 	<sstream>
@@ -8103,7 +8117,7 @@
 	"Log.h"
 	"SDLHandler.h"
 
-1688495318 source:/home/noahch/Desktop/Programming/Git/Back-to-Earth/src/io/Settings.cpp
+1689295325 source:/home/noahch/Desktop/Programming/Git/Back-to-Earth/src/io/Settings.cpp
 	"Settings.h"
 	<fstream>
 	<iostream>
@@ -8121,7 +8135,7 @@
 	"SDLHandler.h"
 	"Timer.h"
 
-1688495677 source:/home/noahch/Desktop/Programming/Git/Back-to-Earth/src/main/BTE.cpp
+1689297952 source:/home/noahch/Desktop/Programming/Git/Back-to-Earth/src/main/BTE.cpp
 	"BTE.h"
 	<sstream>
 	"ButtonAction.h"
@@ -8131,7 +8145,7 @@
 	"Text.h"
 	"TextBox.h"
 
-1687484047 source:/home/noahch/Desktop/Programming/Git/Back-to-Earth/src/main/Main.cpp
+1689094889 source:/home/noahch/Desktop/Programming/Git/Back-to-Earth/src/main/Main.cpp
 	"Main.h"
 	<SDL.h>
 	"MainLoop.h"
@@ -8144,7 +8158,7 @@
 	<string>
 	<vector>
 
-1687484231 source:/home/noahch/Desktop/Programming/Git/Back-to-Earth/src/main/MainLoop.cpp
+1689277758 source:/home/noahch/Desktop/Programming/Git/Back-to-Earth/src/main/MainLoop.cpp
 	"MainLoop.h"
 	<ctime>
 	<iostream>
@@ -8153,7 +8167,7 @@
 	"Main.h"
 	"Timer.h"
 
-1687203045 source:/home/noahch/Desktop/Programming/Git/Back-to-Earth/src/main/SDLHandler.cpp
+1689333689 source:/home/noahch/Desktop/Programming/Git/Back-to-Earth/src/main/SDLHandler.cpp
 	"SDLHandler.h"
 	<SDL_image.h>
 	<SDL_mixer.h>
@@ -8180,7 +8194,7 @@
 	"Point3D.h"
 	"Defs.h"
 
-1681870823 source:/home/noahch/Desktop/Programming/Git/Back-to-Earth/src/world/Player.cpp
+1688854862 source:/home/noahch/Desktop/Programming/Git/Back-to-Earth/src/world/Player.cpp
 	"Player.h"
 	<cmath>
 	<math.h>
@@ -8211,7 +8225,7 @@
 	<SDL.h>
 	"Log.h"
 
-1688494964 source:/home/noahch/Desktop/Programming/Git/Back-to-Earth/src/world/tile/TileMap.cpp
+1689366301 source:/home/noahch/Desktop/Programming/Git/Back-to-Earth/src/world/tile/TileMap.cpp
 	"TileMap.h"
 	<math.h>
 	<sstream>
@@ -8221,7 +8235,7 @@
 	"TileIterator.h"
 	"TileType.h"
 
-1687278113 source:/home/noahch/Desktop/Programming/Git/Back-to-Earth/src/world/tile/TileMapScreen.cpp
+1689395092 source:/home/noahch/Desktop/Programming/Git/Back-to-Earth/src/world/tile/TileMapScreen.cpp
 	"TileMapScreen.h"
 	<iomanip>
 	<iostream>
@@ -8236,7 +8250,7 @@
 	"TileIterator.h"
 	"Timer.h"
 
-1687647317 source:/home/noahch/Desktop/Programming/Git/Back-to-Earth/src/world/tile/TileRegion.cpp
+1689366717 source:/home/noahch/Desktop/Programming/Git/Back-to-Earth/src/world/tile/TileRegion.cpp
 	"TileRegion.h"
 	<iostream>
 	<math.h>
@@ -8248,7 +8262,7 @@
 	"TileMap.h"
 	"Timer.h"
 
-1688609495 source:/home/noahch/Desktop/Programming/Git/Back-to-Earth/src/main/Tests.cpp
+1689295695 source:/home/noahch/Desktop/Programming/Git/Back-to-Earth/src/main/Tests.cpp
 	"Tests.h"
 	<map>
 	<math.h>
@@ -8266,7 +8280,7 @@
 	"Timer.h"
 	"Window.h"
 
-1687217807 source:/home/noahch/Desktop/Programming/Git/Back-to-Earth/src/world/World.cpp
+1689366366 source:/home/noahch/Desktop/Programming/Git/Back-to-Earth/src/world/World.cpp
 	"World.h"
 	<math.h>
 	"TextureBuilder.h"
@@ -8299,7 +8313,7 @@
 	"SDLHandler.h"
 	"Timer.h"
 
-1687219888 source:/home/noahch/Desktop/Programming/Git/Back-to-Earth/src/world/tile/RegTexUpdates.cpp
+1689373994 source:/home/noahch/Desktop/Programming/Git/Back-to-Earth/src/world/tile/RegTexUpdates.cpp
 	"RegTexUpdates.h"
 	<math.h>
 	"DebugScreen.h"
@@ -8307,7 +8321,7 @@
 	"TileMapScreen.h"
 	"Timer.h"
 
-1687219315 /home/noahch/Desktop/Programming/Git/Back-to-Earth/src/world/tile/RegTexUpdates.h
+1689367128 /home/noahch/Desktop/Programming/Git/Back-to-Earth/src/world/tile/RegTexUpdates.h
 	<sstream>
 	"Canvas.h"
 	"Defs.h"
@@ -8330,12 +8344,14 @@
 	<string>
 	<vector>
 
-1688587133 /home/noahch/Desktop/Programming/Git/Back-to-Earth/src/io/file/TextureLoader.h
+1688762396 /home/noahch/Desktop/Programming/Git/Back-to-Earth/src/io/file/TextureLoader.h
 	<iostream>
 	<memory>
 	<SDL.h>
 	<SDL_image.h>
+	<map>
 	<vector>
+	"Defs.h"
 	"Main.h"
 
 1682081997 source:/home/noahch/Desktop/Programming/Git/Back-to-Earth/src/io/file/AudioLoader.cpp
@@ -8344,7 +8360,7 @@
 	"Log.h"
 	"SDLHandler.h"
 
-1688502697 source:/home/noahch/Desktop/Programming/Git/Back-to-Earth/src/io/file/FileHandler.cpp
+1688609778 source:/home/noahch/Desktop/Programming/Git/Back-to-Earth/src/io/file/FileHandler.cpp
 	"FileHandler.h"
 	<bits/stdc++.h>
 	<codecvt>
@@ -8362,7 +8378,7 @@
 	"SDLHandler.h"
 	"Timer.h"
 
-1688588565 source:/home/noahch/Desktop/Programming/Git/Back-to-Earth/src/io/file/TextureLoader.cpp
+1688768075 source:/home/noahch/Desktop/Programming/Git/Back-to-Earth/src/io/file/TextureLoader.cpp
 	"TextureLoader.h"
 	<iostream>
 	<sstream>
@@ -8393,4 +8409,23 @@
 
 1688494731 /home/noahch/Desktop/Programming/Git/Back-to-Earth/src/world/gen/noise/Terrain.h
 	"TileRegion.h"
+
+1688718682 source:/home/noahch/Desktop/Programming/Git/Back-to-Earth/src/io/debug/CommandParser.cpp
+	"CommandParser.h"
+
+1688718693 /home/noahch/Desktop/Programming/Git/Back-to-Earth/src/io/debug/CommandParser.h
+
+1689282156 /home/noahch/Desktop/Programming/Git/Back-to-Earth/src/gfx/GUIBuilder.h
+	"GUIHandler.h"
+
+1689296310 source:/home/noahch/Desktop/Programming/Git/Back-to-Earth/src/gfx/GUIBuilder.cpp
+	"GUIBuilder.h"
+	<vector>
+	"Button.h"
+	"CheckBox.h"
+	"GUIAlignable.h"
+	"RadioButton.h"
+	"TextBox.h"
+	"Tooltip.h"
+	"Window.h"
 

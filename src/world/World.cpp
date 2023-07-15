@@ -5,16 +5,17 @@
 #include "MainLoop.h"
 #include "Timer.h"
 
-void World::init(SDLHandler* sh, FileHandler* fh, Controls* ctrls)
+void World::init(SDLHandler* sh, GUIHandler* gh, FileHandler* fh, Controls* ctrls)
 {
     if( exists() ) return;
     BTEObject::init(sh, fh, ctrls);
+    guiHandler = gh;
 
     Commands::cKV("x1", -16);
     Commands::cKV("y1", -16);
 
     //Init player, tileMap, tileMapScreen.
-    player.init(sh, ctrls);
+    player.init(sh, guiHandler, ctrls);
     player.setPos(0, 0, -32);
     tileMap.init(sdlHandler, fileHandler);
     tileMapScreen.init(sdlHandler, fileHandler, controls, &player, &tileMap, &csTileMap);
@@ -109,7 +110,9 @@ void World::info(std::stringstream& ss, int& tabs)
 
     //Mouse Info
     DebugScreen::indentLine(ss, tabs);
-    ss << "Mouse(x, y, z)=(" << mouseX << ", " << mouseY << ", " << mouseZLL << ");";
+    ss << "Mouse(XYZ)=(" << mouseXLL << ", " << mouseYLL << ", " << mouseZLL << "); ";
+    ss << "Mouse(xy)=(" << mouseX << ", " << mouseY << "); ";
+
     DebugScreen::newLine(ss);
     DebugScreen::indentLine(ss, tabs);
     ss << "World tick=" << performanceCounter << "ms; ";
@@ -121,15 +124,15 @@ void World::info(std::stringstream& ss, int& tabs)
     player.info(ss, tabs);
     DebugScreen::endGroup(tabs);
 
-    //TileMapScreen
-    DebugScreen::newGroup(ss, tabs, "World::tileMapScreen");
-    tileMapScreen.info(ss, tabs, mouseXLL, mouseYLL, mouseZLL);
-    DebugScreen::endGroup(tabs);
-
     //TileMap
     DebugScreen::newGroup(ss, tabs, "World::tileMap");
     if(player.getCamera()!=nullptr)
         tileMap.info(ss, tabs, mouseXLL, mouseYLL, mouseZLL);
+    DebugScreen::endGroup(tabs);
+
+    //TileMapScreen
+    DebugScreen::newGroup(ss, tabs, "World::tileMapScreen");
+    tileMapScreen.info(ss, tabs, mouseXLL, mouseYLL, mouseZLL);
     DebugScreen::endGroup(tabs);
 }
 
@@ -224,7 +227,14 @@ void World::playerInteractions(GUIHandler& guiHandler)
                     ti.nextRegion();
                 }
 
-                tileMap.addTileUpdates(mouseXLL-squareSize, mouseYLL-squareSize, player.getCamera()->getLayer(), mouseXLL+squareSize, mouseYLL+squareSize, player.getCamera()->getLayer() );
+
+                tileMap.addTileUpdates(
+                    mouseXLL-squareSize-1,
+                    mouseYLL-squareSize-1,
+                    player.getCamera()->getLayer(),
+                    mouseXLL+squareSize+1,
+                    mouseYLL+squareSize+1,
+                    player.getCamera()->getLayer() );
             }; break;
         }
     }

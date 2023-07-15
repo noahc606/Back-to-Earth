@@ -5,6 +5,7 @@
 #include "Camera.h"
 #include "CollidingVolume.h"
 #include "ColorPalette.h"
+#include "GUIHandler.h"
 #include "SpriteSheet.h"
 #include "Texture.h"
 
@@ -14,7 +15,7 @@ class Player : public BTEObject
 public:
     /**/
     Player();
-    void init(SDLHandler* sh, Controls* ctrls);
+    void init(SDLHandler* sh, GUIHandler* guih, Controls* ctrls);
     virtual ~Player();
     void destroy();
     /**/
@@ -76,8 +77,10 @@ private:
     bool godMode = true;
     bool ghost = true;
     bool charMenuOpen = false;
+    bool controllable = false;
 
     Camera camera;
+    GUIHandler* guiHandler;
 
     int action = NONE;
 

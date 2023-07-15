@@ -18,11 +18,19 @@ public:
     /**/
     bool isUserGUI();
     bool isWindowComponent();
-
+    int getExtraID();
+    /**/
+    void setExtraID(int extid);
+    /**/
 protected:
+    /**/
     bool windowComponent = false;
-
+    /**/
 private:
+    /**/
     void setUserGUI();
+    /**/
+    int extraID = -1;
     bool userGUI = true;
+    /**/
 };
