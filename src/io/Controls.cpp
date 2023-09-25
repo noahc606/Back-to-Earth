@@ -155,8 +155,8 @@ void Controls::reloadBindings(Settings* settings)
         ctrlsHeld.push_back(false);
         ctrlsReleased.push_back(false);
 
-        lastCtrlPress.push_back(false);
-        lastCtrlRelease.push_back(false);
+        lastCtrlPress.push_back(0);
+        lastCtrlRelease.push_back(0);
     }
 }
 

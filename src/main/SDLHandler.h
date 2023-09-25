@@ -1,5 +1,5 @@
 #pragma once
-#include <SDL.h>
+#include <SDL2/SDL.h>
 #include <string>
 #include "AudioLoader.h"
 #include "Color.h"
@@ -11,6 +11,7 @@ class SDLHandler
 public:
     /**/
     SDLHandler();
+    void preinit();
     void init();
     virtual ~SDLHandler();
 

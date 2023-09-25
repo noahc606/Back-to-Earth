@@ -22,7 +22,7 @@ void Terrain::populateRegion(TileRegion& tr, int rX, int rY, int rZ)
     tt.setVisionBlocking(false); tt.setTextureXY(0, 0); tt.setSolid(false);
     int air = tr.addToPaletteFast(tt);
 
-    tt.setVisionBlocking(true); tt.setTextureXY(3, 5); tt.setRGB(51, 255, 187); tt.setSolid(true);
+    tt.setVisionBlocking(true); tt.setTextureXY(1, 5); tt.setRGB(51, 255, 187); tt.setSolid(true);
     int topsoil = tr.addToPaletteFast(tt);
 
     tt.setVisionBlocking(true); tt.setTextureXY(3, 1); tt.setRGB(128, 50, 0); tt.setSolid(true);

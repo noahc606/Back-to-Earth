@@ -52,9 +52,12 @@ void TileRegion::info(std::stringstream& ss, int& tabs, int subX, int subY, int 
     DebugScreen::endGroup(tabs);
 }
 
+
 TileType TileRegion::getTile( int x, int y, int z )
 {
-    return palette[tiles[x][y][z]];
+    //Negative index indicates artificial tile. Positive index indicates natural tile. 0 always = space = 0x0000000000000000.
+    uint16_t palIndex = std::abs(tiles[x][y][z]);
+    return palette[palIndex];
 }
 
 TileType TileRegion::getTileSafe( int x, int y, int z )
@@ -75,10 +78,7 @@ int TileRegion::getRegTexPriority() { return regTexPriority; }
         -This is expensive when used in multidimensional loops - use setTiles() to fill any rectangular-prism-area with a single type of tile.
         -Use setTile(int, int, int, int) whenever you want to place tiles directly from the palette (for example, during region generation).
 */
-void TileRegion::setTile( int x, int y, int z, TileType tile )
-{
-    tiles[x][y][z] = addToPalette(tile);
-}
+void TileRegion::setTile( int x, int y, int z, TileType tile ) { tiles[x][y][z] = addToPalette(tile); }
 
 /**
     A faster setTile function that copies a tile from the palette directly and places it somewhere.
@@ -169,6 +169,55 @@ void TileRegion::compress()
     palette = paletteNew;
 }
 
+void TileRegion::dumpPaletteData(DataStream& ds, long rX, long rY, long rZ)
+{
+    for( TileType tt : palette ) {
+        ds.putXBits(tt.getVal(), 64);
+    }
+}
+
+void TileRegion::dumpTileData(DataStream& ds, long rX, long rY, long rZ)
+{
+    bool forceSaveAll = true;
+    int psb = LevelSave::getPaletteSizeBucket(palette.size());
+    psb = 100;
+    // File format: <bucket size: single hex>|<palette id: 4 hex>|<palette data: length proportional to palette size*bytesize>
+    std::stringstream ss;
+    int tabs = 0;
+    ds.info(ss, tabs); std::cout << ss.str() << "\n"; ss.str("");
+    return;
+    //Split TileRegion into 32 save areas (each of these are 16x16x4 tiles large).
+    for( int ax = 0; ax<2; ax++ ) {
+        for( int ay = 0; ay<2; ay++ ) {
+            for( int az = 0; az<8; az++ ) {
+                //Find offset dxyz of this area's location from (0,0,0) of the TileRegion
+                int dx = ax*16;
+                int dy = ay*16;
+                int dz = az*4;
+
+
+                ds.putBit(1);
+                //Build the set of artificial tiles that are in this 1024 tile area.
+                for( int x = dx; x<dx+16; x++ ) {
+                    for( int y = dy; y<dy+16; y++ ) {
+                        for( int z = dz; z<dz+4; z++ ) {
+                            uint16_t tileVal = tiles[x][y][z];
+							
+							ds.putXBits(tileVal, psb);
+							
+                            if( forceSaveAll ) {
+                                //std::cout << "t:" << tileVal << " ";
+                                //Palette size bucket 5: 2^5=32 different tile types max = 5 bits per tile.
+
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
 /**
     Saves this region to disk.
 
@@ -179,8 +228,8 @@ void TileRegion::compress()
 void TileRegion::save(SDLHandler* sh, FileHandler* fh, std::string saveGameName, long rX, long rY, long rZ, bool p_compress)
 {
     //Make sure folder which contains the region files themselves exists
-    std::string regFilesPath = "saved/games/"+saveGameName+"/tilemap/area1/";
-    fh->createBteDir(regFilesPath);
+    std::string regFilesPath = "saved/games/"+saveGameName+"/tilemap/default/";
+    fh->createBTEDir(regFilesPath);
 
     //Find the name of the file that should contain this region after it is saved
     std::stringstream filename;
@@ -196,7 +245,8 @@ void TileRegion::save(SDLHandler* sh, FileHandler* fh, std::string saveGameName,
     }
 
     //Level saving logic
-    LevelSave ls(fh);
+    LevelSave ls;
+    ls.init(fh);
     ls.trSave(formattedPath, rX, rY, rZ, &palette, tiles);
 }
 

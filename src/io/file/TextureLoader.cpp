@@ -16,7 +16,8 @@ void TextureLoader::init(SDL_Renderer* p_renderer, SDL_PixelFormat* p_pixelForma
 
     load();
 }
-TextureLoader::~TextureLoader()
+TextureLoader::~TextureLoader(){}
+void TextureLoader::destroy()
 {
     unload();
 }

@@ -102,6 +102,9 @@ long TileMap::getRegSubPos(t_ll c) { c %= 32; if( c<0 ) c+=32; return c; }
 void TileMap::getRegRXYZ(t_ll& x, t_ll& y, t_ll& z) { x = getRegRXYZ(x); y = getRegRXYZ(y); z = getRegRXYZ(z); }
 void TileMap::getRegRXYZ(long& x, long& y, long& z) { x = getRegRXYZ(x); y = getRegRXYZ(y); z = getRegRXYZ(z); }
 long TileMap::getRegRXYZ(t_ll c) { c = floor(c/32.0); return c; }
+void TileMap::getRegSRXYZ(t_ll& x, t_ll& y, t_ll& z) { x = getRegSRXYZ(x); y = getRegSRXYZ(y); z = getRegSRXYZ(z); }
+void TileMap::getRegSRXYZ(long& x, long& y, long& z) { x = getRegSRXYZ(x); y = getRegSRXYZ(y); z = getRegSRXYZ(z); }
+long TileMap::getRegSRXYZ(t_ll c) { c = floor(c/1024.0); return c; }
 
 bool TileMap::collides( Box3D& b )
 {

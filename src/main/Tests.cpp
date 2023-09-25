@@ -6,8 +6,12 @@
 #include <fstream>
 #include <iostream>
 #include <fcntl.h>
+#include <set>
+#include <sstream>
 #include "Color.h"
+#include "DataStream.h"
 #include "Log.h"
+#include "Noise.h"
 #include "Terrain.h"
 #include "Real.h"
 #include "Text.h"
@@ -17,6 +21,95 @@
 
 /**/
 
+void allocNew(DataStream& ds, uint8_t bitsize)
+{
+    int nhe = 16*16*4;  // (n)umber of (h)eader (e)ntries
+    int she = 9;        // (s)ize of 1 (h)eader (e)ntry (in bytes)
+
+    for( int i = 0; i<nhe; i++ ) {
+        ds.seekByte(9*she);
+
+        ds.peekHexDigitCell();
+    }
+}
+
+void old1()
+{
+    FileHandler* fh;
+    TileRegion tr;
+    Terrain terra;
+    terra.populateRegion(tr, 0, 0, 0);
+
+    DataStream ds1;
+
+
+
+
+    Timer tmr;
+
+    for( int drx = 0; drx<16; drx++ ) {
+        for( int dry = 0; dry<16; dry++ ) {
+            for( int drz = 0; drz<4; drz++ ) {
+                ds1.putXBits(0b111001101, 9);
+            }
+        }
+    }
+
+    /**
+        Save file "header" made up of 1024 save entry location (SEL) blocks. Each will have:
+        1st hex =...
+            0: Flag to allocate new space (either find a block of unused space or write new data at the end of the file)
+            1: Available space for 1bit palette (2 different tiletypes)
+            2: Available space for 2bit palette (4 different tiletypes)
+            .
+            .
+            .
+            E: Available space for 14bit palette
+            F: Available space for 15bit palette
+        2nd-9th hex (8 hexes/32 bits) = location of save entry data
+    */
+
+
+    tmr.debugElapsedTimeMS();
+
+    ds1.close();
+
+    //fh->pOpenFile("dump/data.txt");
+    //std::cout << fh->pSeekPos() << "\n";
+    //fh->pWrite("test1234");
+    //std::cout << fh->pSeekPos() << "\n";
+    //fh->pSeek(0);
+    //fh->pWrite("a");
+    //std::cout << fh->pSeekPos() << "\n";
+    //ds1.dumpBytestream(fh);
+    //fh->saveCloseFile();
+
+    return;
+    //fh->pWriteByte(0xfa);
+    //fh->pWriteByte(0x01);
+    //fh->pWriteByte(0xfc);
+    //fh->pWriteByte(0xbd);
+    //fh->pSeek(3);
+    //fh->pWriteByte(0x55);
+    //fh->pWriteByte(0x12);
+    //fh->pWriteByte(0x34);
+
+    //ds1.putXBits(0b1010010101011111110010011011);
+    //tr.dumpTileData(ds1, 0, 0, 0);
+    //ds1.close();
+
+    //tr.dumpTileData(ds1, 0, 0, 0);
+    //ds1.close();
+    //fileHandler->saveAndCloseFile();
+
+    //fh->clearFile("dump/pal.txt");
+    //DataStream ds2(fh, "dump/pal.txt");
+    //tr.dumpPaletteData(ds2, 0, 0, 0);
+    //ds2.close();
+    //tr.dumpPaletteData(ds2, 0, 0, 0);
+    //fileHandler->saveAndCloseFile();
+}
+
 Tests::Tests(){}
 void Tests::init(SDLHandler* sh, FileHandler* fh, Controls* ctrls)
 {
@@ -24,33 +117,38 @@ void Tests::init(SDLHandler* sh, FileHandler* fh, Controls* ctrls)
     fileHandler = fh;
     controls = ctrls;
 
-    ControlBinding cb;
-    cb.keyboardAction = SDLK_SPACE;
 
-    Settings* stngs = fileHandler->getSettings();
+	TileRegion tr;
+	Terrain terra;
+	terra.populateRegion(tr, 0, 0, 0);
+	
 
-    //Set setting to the last input
-    std::string key = stngs->getKey( stngs->getKvMap(Settings::controls), 11);
-    std::cout << "Value: " << stngs->get(Settings::controls, "FUNC_9") << "\n";
-    stngs->kv(Settings::controls, key, cb.keyboardAction);
+	fileHandler->openFile("test5.bte_ltr", FileHandler::WRITE, true);
+	
+	DataStream ds;
+	tr.dumpTileData(ds, 0, 0, 0);
+
+	//File Header
+	for(int i = 0; i<32*32*32; i++) {
+		//ds.putXBits(0b1111111111111111111111111111111111111111111111111111111111111111);
+	}
+	ds.dumpBytestream(fileHandler);
+	
+	//
+	
+	fileHandler->seekTo(5);
+	fileHandler->seekThru(2);
+	ds.putXBits(0, 8);
+	ds.dumpBytestream(fileHandler);
+	
+	
+	
+	fileHandler->saveCloseFile();
 }
 
 Tests::~Tests(){}
 
 /**/
-
-void Tests::thing1()
-{
-    TextureLoader* tl = sdlHandler->getTextureLoader();
-
-    SDL_Rect dst; dst.x = 0; dst.y = 0; dst.w = 512; dst.h = 512;
-    SDL_RenderCopy(
-        sdlHandler->getRenderer(),
-        tl->getTexture(TextureLoader::WORLD_TILE_type_a),
-        NULL,
-        &dst
-    );
-}
 
 void Tests::draw()
 {
@@ -76,7 +174,7 @@ void Tests::draw()
 
 void Tests::tick()
 {
-
+	std::cout << "test";
 }
 
 /**/

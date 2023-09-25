@@ -8,7 +8,7 @@ class GUIHandler : public BTEObject
 {
 public:
     GUIHandler();
-    void init(SDLHandler* sh, FileHandler* fh, Controls* ctrls);
+    void init(SDLHandler* sh, FileHandler* fh, Controls* ctrls, bool testing);
     virtual ~GUIHandler();
     /**/
     void draw();

@@ -2,6 +2,7 @@
 #include "BTEObject.h"
 #include "Canvas.h"
 #include "GUIHandler.h"
+#include "LevelSave.h"
 #include "Player.h"
 #include "Texture.h"
 #include "TileMap.h"
@@ -35,6 +36,7 @@ private:
 
     TileMap tileMap;
     TileMapScreen tileMapScreen;
+    LevelSave lesa;
 
     Canvas csTileMap;
     Canvas csATileMap;

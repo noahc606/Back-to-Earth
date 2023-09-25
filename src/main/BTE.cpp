@@ -1,5 +1,6 @@
 #include "BTE.h"
 #include <sstream>
+#include <type_traits>
 #include "ButtonAction.h"
 #include "Log.h"
 #include "MainLoop.h"
@@ -10,21 +11,15 @@
 /**/
 
 BTE::BTE(){}
-void BTE::init(SDLHandler* p_sh, FileHandler* p_fh, Controls* p_ctrls)
+void BTE::preinit(SDLHandler* sh, FileHandler* fh, Controls* ctrls)
 {
     //MainLoop
-    sdlHandler = p_sh;
-    fileHandler = p_fh;
-    controls = p_ctrls;
+    sdlHandler = sh;
+    fileHandler = fh;
+    controls = ctrls;
     settings = fileHandler->getSettings();
-
-    //GUIHandler
-    guiHandler.init(sdlHandler, fileHandler, controls);
-
-    //Init debugScreen
-    debugScreen.init(sdlHandler, &guiHandler, controls);
-
-    //If we need to toggle fullscreen upon startup
+	
+    //Settings
     if( settings->get(Settings::options, "fullscreen")=="true" ) {
         sdlHandler->toggleFullScreen();
     }
@@ -38,11 +33,27 @@ void BTE::init(SDLHandler* p_sh, FileHandler* p_fh, Controls* p_ctrls)
         debugScreen.setHaxEnabled(true);
     }
 
-    if( settings->get(Settings::options, "debugTesting")=="true" ) {
+    //Testing
+    if( alwaysTest || settings->get(Settings::options, "debugTesting")=="true" ) {
+        testing = true;
+    }
+    if( alwaysTest || settings->get(Settings::options, "debugHardTesting")=="true" ) {
+        hardTesting = true;
+    }
+    if( testing||hardTesting ) {
         setGameState(GameState::TESTING);
     }
+}
+void BTE::init()
+{
+    //GUIHandler
+    guiHandler.init(sdlHandler, fileHandler, controls, testing);
+
+    //Init debugScreen
+    debugScreen.init(sdlHandler, &guiHandler, controls);
 
 }
+
 BTE::~BTE()
 {
     unload(world);
@@ -206,6 +217,10 @@ void BTE::tick()
     }
 }
 
+void BTE::onWindowUpdate() { guiHandler.onWindowUpdate(); }
+
+bool BTE::isHardTesting() { return hardTesting; }
+
 std::string BTE::getInfo()
 {
     std::stringstream ss;
@@ -268,11 +283,6 @@ std::string BTE::getInfo()
     return ss.str();
 }
 
-void BTE::onWindowUpdate()
-{
-    guiHandler.onWindowUpdate();
-}
-
 GUIHandler* BTE::getGUIHandler()
 {
     return &guiHandler;
@@ -321,23 +331,7 @@ void BTE::setGameState(int p_gamestate)
     }
 }
 
-
-void BTE::unload(World*& w)
-{
-    if( w!=nullptr ) {
-        delete w;
-        w = nullptr;
-    }
-}
-
-void BTE::load(World*& w)
-{
-    unload(w);
-    w = new World();
-    (w)->init(sdlHandler, &guiHandler, fileHandler, controls);
-}
-
-void BTE::unload(Tests*& t)
+template<typename T> void BTE::unload(T*& t)
 {
     if( t!=nullptr ) {
         delete t;
@@ -345,13 +339,16 @@ void BTE::unload(Tests*& t)
     }
 }
 
-void BTE::load(Tests*& t)
+void BTE::load(World*& world)
 {
-    unload(t);
-    t = new Tests();
-    t->init(sdlHandler, fileHandler, controls);
+	unload(world);
+	world = new World();
+	world->init(sdlHandler, &guiHandler, fileHandler, controls);
 }
 
-/**/
-
-
+void BTE::load(Tests*& tests)
+{
+	unload(tests);
+	tests = new Tests();
+	tests->init(sdlHandler, fileHandler, controls);
+}

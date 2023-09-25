@@ -1,5 +1,6 @@
 #include "Main.h"
-#include <SDL.h>
+#include <iostream>
+#include <SDL2/SDL.h>
 #include "MainLoop.h"
 
 //Constants
@@ -11,7 +12,12 @@ int main(int argc, char *argv[])
 {
     //Run the MainLoop
     MainLoop ml;
-
+	
     //Program ends
     return 0;
+}
+
+int WinMain()
+{
+    return main(0, new char*);
 }

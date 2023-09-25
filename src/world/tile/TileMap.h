@@ -41,6 +41,9 @@ public:
     static void getRegRXYZ  (t_ll& x, t_ll& y, t_ll& z);
     static void getRegRXYZ  (long& x, long& y, long& z);
     static long getRegRXYZ  (t_ll c);
+    static void getRegSRXYZ (t_ll& x, t_ll& y, t_ll& z);
+    static void getRegSRXYZ (long& x, long& y, long& z);
+    static long getRegSRXYZ (t_ll c);
 
     bool collides( Box3D &b );
 

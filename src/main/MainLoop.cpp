@@ -1,7 +1,7 @@
 #include "MainLoop.h"
 #include <ctime>
 #include <iostream>
-#include <SDL.h>
+#include <SDL2/SDL.h>
 #include "Log.h"
 #include "Main.h"
 #include "Timer.h"
@@ -24,23 +24,37 @@ MainLoop::MainLoop()
     setMaxFPS(maxFPS);
     //Create Back to Earth subsystems
     Log::trbshoot(__PRETTY_FUNCTION__, "Creating BTE subsystems");
-    sdlHandler.init();
+    //SDL (pre-init): file handler and controls.
+    sdlHandler.preinit();
     fileHandler.init( sdlHandler.getResourcePath(), sdlHandler.getFilesystemType() );
     controls.init( fileHandler.getSettings() );
-
-    bte.init( &sdlHandler, &fileHandler, &controls );
-
-    initialized = true;
+    //BTE (pre-init): Managing settings
+    bte.preinit( &sdlHandler, &fileHandler, &controls );
+    //SDL & BTE: init if hard testing is disabled
+    if( !bte.isHardTesting() ) {
+        //SDL (init): window and asset loading
+        sdlHandler.init();
+        //BTE (init): GUI and Debug
+        bte.init();
+    }
 
     //Start gameLoop
-    Log::log("Running "+Main::VERSION+"...");
-    while(running) gameLoop();
+    initialized = true;
+    if(!bte.isHardTesting()) {
+        Log::log("Running "+Main::VERSION+"...");
+        while(running) gameLoop();
+    }
 }
 
 MainLoop::~MainLoop()
 {
-    //Stop gameLoop
-    Log::log("Exiting "+Main::VERSION+"...");
+    if(!bte.isHardTesting()) {
+        sdlHandler.getTextureLoader()->destroy();
+        Log::log("Exiting "+Main::VERSION+"...");
+    } else {
+        Log::log("Finished hard testing "+Main::VERSION+"...");
+        Log::log("To enable the BTE window, make sure you have \"debugHardTesting=false\" in 'backtoearth/saved/settings/options.txt'!");
+    }
 }
 
 int MainLoop::getCurrentTPS() { return currentTPS; }
@@ -88,7 +102,10 @@ void MainLoop::gameLoop()
 
         //Draw objects and track milliseconds per frame (mspf)
         uint64_t t0 = SDL_GetPerformanceCounter();
-        draw();
+		
+		if(running) {
+			draw();
+		}
         uint64_t t1 = SDL_GetPerformanceCounter();
         mspfThisSec += (t1-t0)*1000.0/SDL_GetPerformanceFrequency();
     }
@@ -175,7 +192,7 @@ void MainLoop::tick()
         {
             Timer t("reloading all resources");
             sdlHandler.getTextureLoader()->reload();
-            fileHandler.reload();
+            fileHandler.reloadSettings();
         }
 
         controls.stopPress("FUNC_9", __PRETTY_FUNCTION__);

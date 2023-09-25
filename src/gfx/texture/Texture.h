@@ -1,6 +1,6 @@
 #pragma once
 #include <cstdint>
-#include <SDL.h>
+#include <SDL2/SDL.h>
 #include "Color.h"
 #include "FileHandler.h"
 #include "SDLHandler.h"

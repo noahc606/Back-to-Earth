@@ -1,6 +1,6 @@
 #pragma once
 #include <fstream>
-#include <SDL.h>
+#include <SDL2/SDL.h>
 #include <string>
 #include <vector>
 #include "FilePath.h"
@@ -14,80 +14,73 @@ public:
     virtual ~FileHandler();
     void init(std::string p_resourcePath, int p_filesystemType);
 /**/
-    /* File creation + editing */
-    int createBteDir(std::string path);
+    /* File creation/opening, editing, and save/closing */
+    int createBTEDir(std::string path);
     int createPNGScreenshot( SDL_Window* w, SDL_Renderer* r, SDL_PixelFormat* pf );
-    int cEditFile(FilePath fp);
-    int pEditFile(FilePath fp);
-    int pEditMappedFile(FilePath fp);
-
-    //Seek thru file
-    int pSeek(int seekPos);
-    int pSeekDelta(int seekPosDelta);
-    int pSeekNextLine();
-
+    int openFile(std::string path, int openType, bool binary);
+    int openFile(std::string path, int openType);
+    int cEditFile(std::string path);
+    int clearFile(std::string path);
+    //Write to file
+	template<typename T> int write(T t);
+    int writeByte(uint8_t byte);
+    int writeChar(char c);
+    int writeln(std::string text);
+    int writeln();
     //Save and close file
-    int saveAndCloseFile();
+    int saveCloseFile();
+
+	/* File reading and seeking */
+    //File exists?
+	bool fileExists(FilePath fp);
+    bool fileExists(std::string path);
+	//Read file types
+	uint8_t readByte();
+	Settings::t_kvMap readTxtFileKVs(FilePath fp);
+	//Seek thru files
+	long tellPos();					//Get current byte position
+	long seekTo(long byte);			//Seek to specified byte
+	long seekThru(long bytesDelta);	//Seek forward the specified number of bytes
 
     /* Settings */
     int saveSettings(int index);
     int saveSettings();
-/**/
-    /* File reading, getting seek position */
-    Settings::t_kvMap readFileKVs(FilePath fp);
-    Settings::t_kvStrings readFileLines(FilePath fp);
-    int getPSeekPos();
-    //static int getFsSeekPos(std::fstream* p_fs);
-    std::string pRead(int readLen);
-    //static std::string fsRead(std::fstream* fs, int readLen);
+    void reloadSettings();
 
-    /* Get settings and resource path */
+    /* Getters */
     Settings* getSettings();
     std::string getResourcePath();
     std::string getModifiedPath(FilePath fp);
-/**/
-    template<typename T> void cWrite(T t){ ofs<<t; };
-    void cWriteChar(char c);
-    void cWriteln(std::string text);
-    void cWriteln();
-    void pWrite(std::string s);
+    static std::string getFileOpenTypeStr(int fot);
 
-    //Reload settings
-    void reload();
+    enum FileStates {
+        FAILED_ACCESS = -1,
+        NEW,
+        EXISTING,
+    };
+
+    enum FileOpenTypes {
+        WRITE = 1,
+        APPEND = 2,
+        READ = 3,
+        UPDATE = 4,
+    };
 
 private:
-/**/
-    /* Create a new folder in disk */
-    //Create new folder
-    int createDir( std::string path );
-    //Discard or build Line map
-    void pDiscardLineMap();
-    int pBuildLineMap();
-/**/
-/**/
-    /* Set output file stream and input file stream */
-    void setIFS(FilePath fp);
-    void setOFS(FilePath fp);
-    void setFS(FilePath fp);
 
+    /* Create new folder ("unsafe" version of createBteDir()) */
+    int createDir(std::string path);
+	
     /* Load and save settings */
     void unloadSettings();
     void loadSettings();
-/**/
+
     /* Resource path */
     std::string resourcePath;
     int filesystemType;
 
     /* file stream types */
-    std::ifstream ifs;
-    std::ofstream ofs;
-    std::fstream fs;
-
-    /* Line mapping for large files */
-    bool usingLineMap = false;
-    std::map<int, int> lineMap;
-    int currentLine = 0;
-
+    FILE* file = nullptr;
 
     /* Settings handler and files that hold settings */
     Settings settings;

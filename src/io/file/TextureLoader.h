@@ -1,8 +1,8 @@
 #pragma once
 #include <iostream>
 #include <memory>
-#include <SDL.h>
-#include <SDL_image.h>
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
 #include <map>
 #include <vector>
 #include "Defs.h"
@@ -15,6 +15,7 @@ public:
     TextureLoader();
     void init(SDL_Renderer* renderer, SDL_PixelFormat* pixelFormat, std::string resourcePath);
     virtual ~TextureLoader();
+    void destroy();
     /**/
     /* Get a SDL_Surface or SDL_Texture from the lists, and their properties */
     SDL_Surface* getSurface(int index);

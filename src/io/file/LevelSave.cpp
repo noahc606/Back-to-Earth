@@ -1,6 +1,9 @@
 #include "LevelSave.h"
-#include <sstream>
 #include <iostream>
+#include <set>
+#include <sstream>
+#include "TileMap.h"
+#include "Log.h"
 
 const uint16_t LevelSave::ampSBits[] = {
         0b1000000000000000,
@@ -22,14 +25,76 @@ const uint16_t LevelSave::ampSBits[] = {
 
 const uint8_t LevelSave::pows2[] = { 32, 16, 8, 4, 2, 1 };
 
-LevelSave::LevelSave(FileHandler* parentFH)
+LevelSave::LevelSave(){}
+
+void LevelSave::init(FileHandler* parentFH)
 {
     fileHandler = parentFH;
 }
 
-void LevelSave::trSave(FilePath path, long rX, long rY, long rZ, t_palette* palette, uint16_t tiles[32][32][32])
+/**
+    Return size bucket value [-1-10]. Used to determine where a TilePalette will be saved.
+    0->-1, 1->0, 2->1, [3,4]->2, [5,8]->3, [9,16]->4, ..., [513,1024]->10.
+*/
+int LevelSave::getPaletteSizeBucket(int size)
 {
-    fileHandler->pEditMappedFile(path);
+    int res = -1;
+    while(size!=0) {
+        size /= 2;
+        res++;
+    }
+    return res;
+}
+
+void LevelSave::trSave(FilePath path, long rX, long rY, long rZ, t_palette* palette, int16_t tiles[32][32][32])
+{
+    // Get save region location (coords in 3D grid where each cubic "cell" is 1024x1024x1024 tiles)
+    long srX = rX*32;
+    long srY = rY*32;
+    long srZ = rZ*32;
+    TileMap::getRegSRXYZ(srX, srY, srZ);
+
+    //Build save area map. A save area is a 16x16x4 area of tiles
+    //std::map<std::tuple<int,int,int>, t_saveArea> saveAreaMap;
+
+    //Part 1: Save palette data to file
+    int fileState = fileHandler->cEditFile(path.get());
+    for(int i = 0; i<palette->size(); i++) {
+        TileType tt = palette->at(i);
+        tt.getVal();
+    }
+
+
+
+    //Part 2: Save tile data to file
+    fileState = fileHandler->cEditFile(path.get());
+    switch(fileState) {
+        case FileHandler::FAILED_ACCESS: {
+            std::stringstream ss;
+            ss << "Failed to save level at SRXYZ = (" << srX << ", " << srY << ", " << srZ << ")";
+            Log::error(__PRETTY_FUNCTION__, ss.str());
+        } break;
+        case FileHandler::NEW: {
+
+        } break;
+        case FileHandler::EXISTING: {
+
+        } break;
+    }
+
+
+    return;
+
+
+
+    //fileHandler->pEditMappedFile(path);
+    //fileHandler->pSeek()
+
+
+
+
+
+    //fileHandler->pEditMappedFile(path);
     //fileHandler->pBuildLineMap();
 
 
@@ -114,7 +179,7 @@ void LevelSave::trSave(FilePath path, long rX, long rY, long rZ, t_palette* pale
     }
     prefix << "[" << num << "]! "; //Length of prefix will always be 10 (4 characters + 6 numerical chracters)
 
-    fileHandler->cWrite(prefix.str());
-    fileHandler->cWrite(line1);
-    fileHandler->saveAndCloseFile();
+    fileHandler->write(prefix.str());
+    fileHandler->write(line1);
+    fileHandler->saveCloseFile();
 }
