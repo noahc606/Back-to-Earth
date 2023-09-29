@@ -15,13 +15,17 @@ public:
     virtual ~TileRegion();
 
     /**/
-    void info(std::stringstream& ss, int& tabs, int subX, int subY, int subZ);
+    void putInfo(std::stringstream& ss, int& tabs, int subX, int subY, int subZ);
+    std::string getInfo(int subX, int subY, int subZ);
     int addToPalette(TileType tile, t_palette& pal);
     int addToPalette(TileType tile);
     int addToPaletteFast(TileType tile);
 
     /**/
     //Palette Length
+	uint16_t getPaletteSize();
+	static int getPaletteSizeBucket(int size);
+	int getPaletteSizeBucket();
     //Tiles
     TileType getTile     (int x, int y, int z);
     TileType getTileSafe (int x, int y, int z);

@@ -19,20 +19,20 @@ void Terrain::populateRegion(TileRegion& tr, int rX, int rY, int rZ)
 
     TileType tt; tt.init();
 
-    tt.setVisionBlocking(false); tt.setTextureXY(0, 0); tt.setSolid(false);
-    int air = tr.addToPaletteFast(tt);
+    tt.setVisionBlocking(false); tt.setTextureXY(0, 0); tt.setRGB(0, 0, 0); tt.setSolid(false);
+    int air = tr.addToPalette(tt);
 
     tt.setVisionBlocking(true); tt.setTextureXY(1, 5); tt.setRGB(51, 255, 187); tt.setSolid(true);
-    int topsoil = tr.addToPaletteFast(tt);
+    int topsoil = tr.addToPalette(tt);
 
     tt.setVisionBlocking(true); tt.setTextureXY(3, 1); tt.setRGB(128, 50, 0); tt.setSolid(true);
-    int soil = tr.addToPaletteFast(tt);
+    int soil = tr.addToPalette(tt);
 
     tt.setVisionBlocking(true); tt.setTextureXY(2, 1); tt.setRGB(240, 240, 240); tt.setSolid(true);
-    int rock = tr.addToPaletteFast(tt);
+    int rock = tr.addToPalette(tt);
 
     tt.setVisionBlocking(true); tt.setTextureXY(0, 4); tt.setRGB(10, 80, 180); tt.setSolid(false);
-    int water = tr.addToPaletteFast(tt);
+    int water = tr.addToPalette(tt);
 
     //Height scale
     float verticalScaling = 32.0;

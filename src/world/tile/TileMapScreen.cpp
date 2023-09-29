@@ -194,7 +194,7 @@ void TileMapScreen::info(std::stringstream& ss, int& tabs, TileMap::t_ll mouseX,
         DebugScreen::newGroup(ss, tabs, "Selected TileRegion");
         if(tr!=nullptr) {
             //TileRegion info
-            tr->info(ss, tabs, msx, msy, msz);
+            tr->putInfo(ss, tabs, msx, msy, msz);
         } else {
             DebugScreen::indentLine(ss, tabs);
             ss << "Looking at a null TileRegion";

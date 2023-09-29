@@ -18,7 +18,7 @@ AudioLoader::~AudioLoader()
     //Seems to cause a deallocation error in some cases
     //for(Mix_Chunk mc : mixChunks)
         //Mix_FreeChunk(&mc);
-    mixChunks.clear();
+    audioChunks.clear();
 }
 
 void AudioLoader::init(std::string resourcePath)
@@ -53,51 +53,58 @@ void AudioLoader::init(int p_frequency, uint16_t p_format, int p_channels)
     Log::trbshoot(__PRETTY_FUNCTION__, ss2.str());
 }
 
-void AudioLoader::play(int index)
-{
-    play(index, -1, 0, -1);
-}
-
 void AudioLoader::play(int index, int channel, int loops, int ticks)
 {
     if( index<missing || index>=LAST_INDEX ) {
         Log::warn(__PRETTY_FUNCTION__, "Invalid index");
         return;
     }
-
-    if( Mix_PlayChannelTimed(channel, &(mixChunks[index]), loops, ticks)==-1 ) {
+	
+    if( Mix_PlayChannelTimed(channel, &(audioChunks[index]), loops, ticks)==-1 ) {
         Log::error(__PRETTY_FUNCTION__, "SDL_mixer error", Mix_GetError());
     }
+}
+
+void AudioLoader::play(int index)
+{
+    play(index, -1, 0, -1);
 }
 
 void AudioLoader::addMixChunks()
 {
     soundsLoaded = 0;
 
-    missingChunk = addMixChunk("missing");
+    missingChunk = addMixChunk(missing, "missing");
 
-    addMixChunk("title/impact");
+    addMixChunk(TITLE_impact, "title/impact");
+	
+	addMixChunk(MUSIC_blender_engine, "music/blender_engine", "mp3");
+	addMixChunk(MUSIC_cyber_city, "music/cyber_city", "mp3");
+	addMixChunk(MUSIC_entering_orbit, "music/entering_orbit", "mp3");
+	addMixChunk(MUSIC_kalliope, "music/kalliope", "mp3");
+	addMixChunk(MUSIC_mercury, "music/mercury", "mp3");
+	addMixChunk(MUSIC_space_travel, "music/space_travel", "mp3");
 
-    addMixChunk("world/water/flowing_heavy");
-    addMixChunk("world/water/flowing_normal");
-    addMixChunk("world/water/splash");
-    addMixChunk("world/water/submerge");
-    addMixChunk("world/water/swimming");
-    addMixChunk("world/water/underwater");
-    addMixChunk("world/water/underwater_deep");
+    addMixChunk(WORLD_WATER_flowing_heavy, "world/water/flowing_heavy");
+    addMixChunk(WORLD_WATER_flowing_normal, "world/water/flowing_normal");
+    addMixChunk(WORLD_WATER_splash, "world/water/splash");
+    addMixChunk(WORLD_WATER_submerge, "world/water/submerge");
+    addMixChunk(WORLD_WATER_swimming, "world/water/swimming");
+    addMixChunk(WORLD_WATER_underwater, "world/water/underwater");
+    addMixChunk(WORLD_WATER_underwater_deep, "world/water/underwater_deep");
 
-    addMixChunk("world/weather/rain_outside_heavy");
-    addMixChunk("world/weather/rain_roof_generic");
-    addMixChunk("world/weather/rain_roof_metal");
+    addMixChunk(WORLD_WEATHER_rain_outside_heavy, "world/weather/rain_outside_heavy");
+    addMixChunk(WORLD_WEATHER_rain_roof_generic, "world/weather/rain_roof_generic");
+    addMixChunk(WORLD_WEATHER_rain_roof_metal, "world/weather/rain_roof_metal");
 }
 
-Mix_Chunk* AudioLoader::addMixChunk(std::string path)
+Mix_Chunk* AudioLoader::addMixChunk(int id, std::string path, std::string extension)
 {
-    soundsLoaded++;
-
-    path = resourcePath + "resources/audio/" + path + ".wav";
+	//Get main path
+    path = resourcePath + "resources/audio/" + path + "." + extension;
+	//Load audio resource
 	Mix_Chunk* chunk = Mix_LoadWAV( path.c_str() );
-
+		
 	if( chunk==NULL ) {
         //Load the missingChunk
         Log::warn( __PRETTY_FUNCTION__, "Unable to load mix chunk '"+path+"'", "Using missing.wav instead" );
@@ -111,6 +118,13 @@ Mix_Chunk* AudioLoader::addMixChunk(std::string path)
         }
 	}
 
-    mixChunks.push_back(*chunk);
+	//Insert new element into map
+    audioChunks.insert(std::make_pair(id, *chunk));
+	soundsLoaded++;
     return chunk;
+}
+
+Mix_Chunk* AudioLoader::addMixChunk(int id, std::string path)
+{
+	return addMixChunk(id, path, "wav");
 }

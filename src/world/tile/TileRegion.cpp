@@ -32,13 +32,33 @@ TileRegion::TileRegion()
 
 TileRegion::~TileRegion(){}
 
-void TileRegion::info(std::stringstream& ss, int& tabs, int subX, int subY, int subZ)
+void TileRegion::putInfo(std::stringstream& ss, int& tabs, int subX, int subY, int subZ)
 {
     DebugScreen::indentLine(ss, tabs);
     ss << "RegTex(State, Priority)=(" << regTexState << ", " << regTexPriority << "); ";
     DebugScreen::newLine(ss);
     DebugScreen::indentLine(ss, tabs);
     ss << "palette.size()=" << (int)palette.size() << "; ";
+	ss << "paletteSizeBucket=" << getPaletteSizeBucket() << "; ";
+	ss << "palette={ ";
+	if(palette.size()<=10) {
+		for( int i = 0; i<palette.size(); i++ ) {
+			ss << palette[i].getVal();
+			if(i!=palette.size()-1)
+				ss << ", ";
+		}
+	} else {
+		for( int i = 0; i<5; i++ ) {
+			ss << palette[i].getVal() << ", ";
+		}
+		ss << "..., ";
+		for( int i = palette.size()-5; i<palette.size(); i++ ) {
+			ss << palette[i].getVal();
+			if(i!=palette.size()-1)
+				ss << ", ";
+		}
+	}
+	ss << " }; ";	
     DebugScreen::newLine(ss);
 
     TileType tt = getTile(subX, subY, subZ);
@@ -52,6 +72,30 @@ void TileRegion::info(std::stringstream& ss, int& tabs, int subX, int subY, int 
     DebugScreen::endGroup(tabs);
 }
 
+std::string TileRegion::getInfo(int subX, int subY, int subZ)
+{
+	std::stringstream ss;
+	int tabs = 0;
+	putInfo(ss, tabs, subX, subY, subZ);
+	return ss.str();
+}
+
+uint16_t TileRegion::getPaletteSize() { return palette.size(); }
+int TileRegion::getPaletteSizeBucket(int size)
+{
+	if(size==0) return -1;
+	
+    int res = 0;
+    while(size!=1) {
+        size = std::ceil( ((double)size)/2.0 );
+        res++;
+    }
+    return res;
+}
+int TileRegion::getPaletteSizeBucket()
+{
+	return getPaletteSizeBucket( getPaletteSize() );
+}
 
 TileType TileRegion::getTile( int x, int y, int z )
 {

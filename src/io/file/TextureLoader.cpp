@@ -79,22 +79,22 @@ SDL_Texture* TextureLoader::getTexture(std::vector<SDL_Texture*>& texCollection,
 SDL_Texture* TextureLoader::getTexture(int index, int scaledSheetIndex)
 {
     //Find position in map where key='index'
-    Defs::t_textureMap::iterator tmItr = textureMap.find(index);
+    Defs::t_textureAtlasesMap::iterator tamItr = textureAtlasesMap.find(index);
     //If we were able to find it...
-    if( tmItr!=textureMap.end() ) {
+    if( tamItr!=textureAtlasesMap.end() ) {
         //Return vector element
-        return getTexture(tmItr->second, scaledSheetIndex);
+        return getTexture(tamItr->second, scaledSheetIndex);
     //If we couldn't find it and the index is nonzero:
-    } else if( tmItr==textureMap.end() && index!=0 ) {
+    } else if( tamItr==textureAtlasesMap.end() && index!=0 ) {
         //Return missing texture
         std::stringstream ss;
         ss << "Texture with ID '" << index << "' doesn't exist";
         Log::warn(__PRETTY_FUNCTION__, ss.str(), "using missing texture");
         return getTexture( 0, 0 );
     //If we couldn't find it and the index IS 0:
-    } else if( tmItr==textureMap.end() && index==0 ) {
+    } else if( tamItr==textureAtlasesMap.end() && index==0 ) {
         //Major load error: stop program since even the missing texture is missing
-        Log::error(__PRETTY_FUNCTION__, "Failed to get textureMap.find(0)", "which should be the 'missing' texture at resources/textures/missing");
+        Log::error(__PRETTY_FUNCTION__, "Failed to get textureAtlasesMap.find(0)", "which should be the 'missing' texture at resources/textures/missing");
         errorFailedTexLoad();
     }
 
@@ -117,7 +117,7 @@ void TextureLoader::reload()
     double time = t.getElapsedTimeMS();
 
     std::stringstream ss;
-    ss << "Finished reloading " << textureMap.size() << " assets in " << time << "ms.";
+    ss << "Finished reloading " << textureAtlasesMap.size() << " assets in " << time << "ms.";
     Log::log(ss.str());
 }
 
@@ -166,8 +166,8 @@ void TextureLoader::addTextures()
 
 
         //Add a vector containing 'targetTex' as its only element
-        Defs::t_textureMap::iterator tmItr = textureMap.find(i);
-        if( tmItr==textureMap.end() ) {
+        Defs::t_textureAtlasesMap::iterator tmItr = textureAtlasesMap.find(i);
+        if( tmItr==textureAtlasesMap.end() ) {
             //Create 'targetTex'
             SDL_Texture* targetTex = SDL_CreateTexture(renderer, surf->format->format, SDL_TEXTUREACCESS_TARGET, surf->w, surf->h);
             SDL_SetTextureBlendMode(targetTex, SDL_BLENDMODE_BLEND);
@@ -178,7 +178,7 @@ void TextureLoader::addTextures()
 
             std::vector<SDL_Texture*> v;
             v.push_back(targetTex);
-            textureMap.insert(std::make_pair(i, v) );
+            textureAtlasesMap.insert(std::make_pair(i, v) );
         } else {
             std::vector<SDL_Texture*>* pv = &tmItr->second;
             SDL_Texture* memTex = pv->at(0);
@@ -220,14 +220,14 @@ void TextureLoader::addScaledTextures()
             SDL_SetRenderTarget( renderer, stex );
             SDL_RenderCopy( renderer, getTexture( scalables[i] ), NULL, NULL );
 
-            //Add stex to the proper vector in 'textureMap'
-            Defs::t_textureMap::iterator tmItr = textureMap.find( scalables[i] );
-            if( tmItr==textureMap.end() ) {
+            //Add stex to the proper vector in 'textureAtlasesMap'
+            Defs::t_textureAtlasesMap::iterator tamItr = textureAtlasesMap.find( scalables[i] );
+            if( tamItr==textureAtlasesMap.end() ) {
                 std::vector<SDL_Texture*> v;
                 v.push_back(stex);
-                textureMap.insert( std::make_pair(scalables[i], v) );
+                textureAtlasesMap.insert( std::make_pair(scalables[i], v) );
             } else {
-                tmItr->second.push_back( stex );
+                tamItr->second.push_back( stex );
             }
 
             //Halves the size of the texture next time.

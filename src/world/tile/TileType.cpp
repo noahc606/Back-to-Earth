@@ -19,7 +19,9 @@ std::string TileType::toString()
     ss << "visionBlocking=" << isVisionBlocking() << ",";
     ss << "rgb=(" << getRGB(0) << ", " << getRGB(1) << ", " << getRGB(2) << "),";
     ss << "textureXYZ=(" << getTextureXYZ(0) << ", " << getTextureXYZ(1) << ", " << getTextureXYZ(2) << ")";
-    ss << "}";
+    ss << "} = ";
+	ss << getVal();
+	
     return ss.str();
 }
 

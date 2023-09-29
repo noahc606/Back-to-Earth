@@ -21,18 +21,6 @@
 
 /**/
 
-void allocNew(DataStream& ds, uint8_t bitsize)
-{
-    int nhe = 16*16*4;  // (n)umber of (h)eader (e)ntries
-    int she = 9;        // (s)ize of 1 (h)eader (e)ntry (in bytes)
-
-    for( int i = 0; i<nhe; i++ ) {
-        ds.seekByte(9*she);
-
-        ds.peekHexDigitCell();
-    }
-}
-
 void old1()
 {
     FileHandler* fh;
@@ -110,6 +98,18 @@ void old1()
     //fileHandler->saveAndCloseFile();
 }
 
+void allocNew(DataStream& ds, uint8_t bitsize)
+{
+    int nhe = 16*16*4;  // (n)umber of (h)eader (e)ntries
+    int she = 9;        // (s)ize of 1 (h)eader (e)ntry (in bytes)
+
+    for( int i = 0; i<nhe; i++ ) {
+        ds.seekByte(9*she);
+
+        ds.peekHexDigitCell();
+    }
+}
+
 Tests::Tests(){}
 void Tests::init(SDLHandler* sh, FileHandler* fh, Controls* ctrls)
 {
@@ -117,32 +117,40 @@ void Tests::init(SDLHandler* sh, FileHandler* fh, Controls* ctrls)
     fileHandler = fh;
     controls = ctrls;
 
-
+	
 	TileRegion tr;
 	Terrain terra;
 	terra.populateRegion(tr, 0, 0, 0);
-	
-
-	fileHandler->openFile("test5.bte_ltr", FileHandler::WRITE, true);
-	
+		
+	fileHandler->openFile("dump/test5.bte_ltr", FileHandler::WRITE, true);
 	DataStream ds;
-	tr.dumpTileData(ds, 0, 0, 0);
-
 	//File Header
 	for(int i = 0; i<32*32*32; i++) {
 		//ds.putXBits(0b1111111111111111111111111111111111111111111111111111111111111111);
 	}
+	
+	int psb = tr.getPaletteSizeBucket();
+	psb += 0;
+	psb = 1;
+	
+	
+	uint8_t dsx = 0;	//0-1
+	uint8_t dsy = 0;	//0-1
+	uint8_t dsz = 4;	//0-7
+	
+		
+	std::cout << tr.getInfo(0, 0, 0);
+	
+	
+	for( uint8_t sx = dsx*16; sx<dsx*16+16; sx++ ) {
+		for( uint8_t sy = dsy*16; sy<dsy*16+16; sy++ ) {
+			for( uint8_t sz = dsz*4; sz<dsz*4+4; sz++ ) {
+				ds.putXBits( tr.getTile(sx, sy, sz).getVal(), psb );
+			}
+		} 
+	}
+	
 	ds.dumpBytestream(fileHandler);
-	
-	//
-	
-	fileHandler->seekTo(5);
-	fileHandler->seekThru(2);
-	ds.putXBits(0, 8);
-	ds.dumpBytestream(fileHandler);
-	
-	
-	
 	fileHandler->saveCloseFile();
 }
 

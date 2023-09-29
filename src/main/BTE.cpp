@@ -19,6 +19,7 @@ void BTE::preinit(SDLHandler* sh, FileHandler* fh, Controls* ctrls)
     controls = ctrls;
     settings = fileHandler->getSettings();
 	
+	
     //Settings
     if( settings->get(Settings::options, "fullscreen")=="true" ) {
         sdlHandler->toggleFullScreen();

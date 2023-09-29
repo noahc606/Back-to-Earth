@@ -1,4 +1,5 @@
 #pragma once
+#include <map>
 #include <SDL2/SDL_mixer.h>
 #include <string>
 #include <vector>
@@ -13,14 +14,22 @@ public:
 
     void querySpecs(int& frequency, uint16_t& format, int& channels);
 
-    void play(int index);
     void play(int index, int channel, int loops, int ticks);
-    std::vector<Mix_Chunk> mixChunks;
+    void play(int index);
+    std::map<int, Mix_Chunk> audioChunks;
+    std::map<int, bool> audioChunkStates;
 
     enum Chunks {
         missing,    //Always keep missing first
 
         TITLE_impact,
+		
+		MUSIC_blender_engine,
+		MUSIC_cyber_city,
+		MUSIC_entering_orbit,
+		MUSIC_kalliope,
+		MUSIC_mercury,
+		MUSIC_space_travel,
 
         WORLD_WATER_flowing_heavy,
         WORLD_WATER_flowing_normal,
@@ -44,7 +53,8 @@ private:
     std::string resourcePath;
 
     void addMixChunks();
-    Mix_Chunk* addMixChunk(std::string path);
+    Mix_Chunk* addMixChunk(int id, std::string path, std::string extension);
+    Mix_Chunk* addMixChunk(int id, std::string path);
 
     unsigned int soundsLoaded = 0;
     bool initialized = false;

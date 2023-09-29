@@ -23,7 +23,7 @@ DEPS_WIN := $(patsubst %.o,%.d,$(OBJS_WIN))
 FLAGS_INC := -I$(DIR_LIBSDL2_SDL)/include/SDL2 -I$(DIR_LIBSDL2_SDL)/include -I$(DIR_LIBSDL2_IMG)/include -I$(DIR_LIBSDL2_MIX)/include -I$(DIR_LIBSDL2_TTF)/include
 FLAGS_LIB := -L$(DIR_LIBSDL2_SDL)/lib -L$(DIR_LIBSDL2_IMG)/lib -L$(DIR_LIBSDL2_MIX)/lib -L$(DIR_LIBSDL2_TTF)/lib
 FLAGS_CPP := $(addprefix -I,$(DIR_SRCS)) -MMD -MP -std=c++11
-FLAGS_LD = -lSDL2 -lSDL2_image -lSDL2_mixer
+FLAGS_LD = -lSDL2 -lSDL2_image -lSDL2_mixer -lSDL2_ttf
 
 ## Miscellaneous
 #Executable name
@@ -37,7 +37,9 @@ build-interface:
 	@echo "    1. use 'make windows' in the root directory of the repo."
 	@echo "If on Unix (where executables have no extension):"
 	@echo "    1. Install sdl2, sdl2-img, sdl2-mixer, and sdl2-ttf using your package manager."
+	@echo "       (ex: 'sudo apt install libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev' for Debian/Ubuntu)"
 	@echo "    2. use 'make unix' in the root directory of the repo."
+	@echo "    "
 	@echo "Some stuff about platforms:"
 	@echo "    - Linux, macOS, iOS, and Android are all Unix. However, as of yet I have only tested building on Linux and Windows."
 	@echo "    - If you are on another platform, you will have to figure out how to build the src yourself (if SDL2 even works)."

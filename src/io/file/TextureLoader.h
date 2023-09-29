@@ -71,14 +71,14 @@ private:
     void errorFailedTexLoad();
 
     /**/
-    /* SDLHandler peripherals */
     SDL_Renderer* renderer;
+    /* SDLHandler peripherals */
     SDL_PixelFormat* pixelFormat;
     std::string resourcePath;
 
     /* List of loaded surfaces + textures */
     SDL_Surface* missingSurf;
     std::vector<SDL_Surface*> surfaces;
-    Defs::t_textureMap textureMap;
+    Defs::t_textureAtlasesMap textureAtlasesMap;
     bool resourcesLoaded = false;
 };

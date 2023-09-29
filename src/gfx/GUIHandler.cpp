@@ -301,6 +301,8 @@ void GUIHandler::setGUIs(int guis)
         case MAIN: {
             AudioLoader* al = sdlHandler->getAudioLoader();
             al->play(AudioLoader::TITLE_impact);
+			//al->play(AudioLoader::MUSIC_space_travel);
+			
             gb.buildTitleScreen(*this);
         } break;
         case OPTIONS: {
