@@ -28,16 +28,17 @@ void FileHandler::init( std::string rp, int fsType )
     filesystemType = fsType;
 
     //Set file paths.
-    files[Settings::controls] = new FilePath("saved/settings/controls", filesystemType);
-    files[Settings::games] =    new FilePath("saved/settings/games", filesystemType);
-    files[Settings::options] =  new FilePath("saved/settings/options", filesystemType);
-    files[Settings::version] =  new FilePath("saved/settings/version", filesystemType);
-    files[Settings::session] =  new FilePath("saved/settings/session", filesystemType);
+    files[Settings::controls] = new FilePath("saved/settings/controls.txt", filesystemType);
+    files[Settings::games] =    new FilePath("saved/settings/games.txt", filesystemType);
+    files[Settings::options] =  new FilePath("saved/settings/options.txt", filesystemType);
+    files[Settings::version] =  new FilePath("saved/settings/version.txt", filesystemType);
+    files[Settings::session] =  new FilePath("saved/settings/session.txt", filesystemType);
 
     //Create directories
     createDir(resourcePath);
     createBTEDir("dump");
     createBTEDir("saved/games");
+    createBTEDir("saved/logs");
     createBTEDir("saved/screenshots");
     createBTEDir("saved/settings");
 
@@ -64,25 +65,9 @@ int FileHandler::createBTEDir(std::string path)
 
 int FileHandler::createPNGScreenshot(SDL_Window* w, SDL_Renderer* r, SDL_PixelFormat* pf)
 {
-    /* Build final file path */
-    std::string date = MainLoop::getSystemTime();
-    int firstSpace = -1;
-    int lastSpace = -1;
-    for(unsigned int i = 0; i<date.length(); i++) {
-        if( date[i]==' ' ) {
-            lastSpace = i;
-        }
-
-        if( firstSpace<0 && date[i]==' ' ) {
-            firstSpace = i;
-        }
-
-        if( date[i]==':' ) {
-            date[i] = '_';
-        }
-    }
-
-    FilePath ssPath(resourcePath + "saved/screenshots/" + date.substr(firstSpace+1, lastSpace-4), "png", filesystemType);
+	/* Generate screenshot file path */
+	std::string name = MainLoop::getSystemTimeFilename();
+	FilePath ssPath(resourcePath+"saved/screenshots/"+name, "png", filesystemType);
 
     /* Get window width and height */
     int width = 0; int height = 0;
@@ -94,7 +79,7 @@ int FileHandler::createPNGScreenshot(SDL_Window* w, SDL_Renderer* r, SDL_PixelFo
 
     /* Save the newly created surface as an image */
     //Success
-    if( IMG_SavePNG(surf, ssPath.get().c_str())==0 ) {
+    if(IMG_SavePNG(surf, ssPath.get().c_str())==0) {
         //Message
         std::string msg = "Screenshot saved to " + ssPath.get();
         Log::log(msg);
@@ -119,11 +104,11 @@ int FileHandler::openFile(std::string path, int openType, bool binary)
 	saveCloseFile();
     //Get filepath
     FilePath fp(path, filesystemType);
-    std::string fpath = getModifiedPath(fp);
+    std::string mpath = getModifiedPath(fp);
     //Get whether file already exists
     bool fExists = (fileExists(path));
     if(!fExists) {
-        Log::debug( __PRETTY_FUNCTION__, "File '"+fpath+"' not found, attempting to create new file..." );
+        Log::debug( __PRETTY_FUNCTION__, "File '"+mpath+"' not found, attempting to create new file..." );
     }
     //Mode: Binary (b) or Text (t).
     std::string modeArg = "b";
@@ -134,10 +119,10 @@ int FileHandler::openFile(std::string path, int openType, bool binary)
     /* Open file */
     //Open file for writing, appending, or reading
     switch(openType) {
-    case FileOpenTypes::WRITE:  file = fopen(fpath.c_str(), ("w"+modeArg).c_str()); break;
-    case FileOpenTypes::APPEND: file = fopen(fpath.c_str(), ("a"+modeArg).c_str()); break;
-    case FileOpenTypes::READ:   file = fopen(fpath.c_str(), ("r"+modeArg).c_str()); break;
-    case FileOpenTypes::UPDATE:   file = fopen(fpath.c_str(), ("r"+modeArg+"+").c_str()); break;
+    case FileOpenTypes::WRITE:  file = std::fopen(mpath.c_str(), ("w"+modeArg).c_str()); break;
+    case FileOpenTypes::APPEND: file = std::fopen(mpath.c_str(), ("a"+modeArg).c_str()); break;
+    case FileOpenTypes::READ:   file = std::fopen(mpath.c_str(), ("r"+modeArg).c_str()); break;
+    case FileOpenTypes::UPDATE:   file = std::fopen(mpath.c_str(), ("r"+modeArg+"+").c_str()); break;
     }
 
     /* Return function value */
@@ -145,7 +130,7 @@ int FileHandler::openFile(std::string path, int openType, bool binary)
     if(file==NULL) {
         std::string action = "open";
         if(fExists) { action = "create"; }
-        Log::warn("Failed to "+action+" file '"+fpath+"' for "+getFileOpenTypeStr(openType), __PRETTY_FUNCTION__);
+        Log::warn("Failed to "+action+" file '"+mpath+"' for "+getFileOpenTypeStr(openType), __PRETTY_FUNCTION__);
         return FileStates::FAILED_ACCESS;
     //If file was successfully created
     } else {
@@ -180,11 +165,33 @@ int FileHandler::clearFile(std::string path)
 	return cEditFile(path);
 }
 
+int FileHandler::renameFile(std::string path, std::string newName)
+{
+	FilePath fp(path, filesystemType);
+	std::string mpath = getModifiedPath(fp);
+	
+	if(std::rename(mpath.c_str(), newName.c_str())==0) {
+		return 0;
+	}
+	
+	if( !fileExists(mpath) ) {
+		std::stringstream ss;
+		ss << "Can't rename file '" << mpath << "' which doesn't exist";
+		Log::error(__PRETTY_FUNCTION__, ss.str());
+		return -1;
+	}
+	
+	std::stringstream ss;
+	ss << "Unknown error in renaming file '" << mpath;
+	Log::error(__PRETTY_FUNCTION__, ss.str());
+	return -2;
+}
+
 template<typename T> int FileHandler::write(T t)
 {
 	std::stringstream ss; ss << t;
 	
-	if( fputs(ss.str().c_str(), file)==EOF ) {
+	if( std::fputs(ss.str().c_str(), file)==EOF ) {
 		std::string logres = "Unsuccessful fputs() call for string '"+ss.str()+"'";
 		Log::error(__PRETTY_FUNCTION__, logres, strerror(errno));
 		return -1;
@@ -207,18 +214,18 @@ int FileHandler::writeln() { return writeln(""); }
 
 int FileHandler::saveCloseFile()
 { 
-    //Check if file is already nullptr
-    if(file==nullptr) {
-        return -2;
-    }
-    
-    //Close file and set to nullptr
-    int fcRes = fclose(file);
-    file = nullptr;
-    if(fcRes==0) {
-        return 0;
-    }
-    return -1;
+	//Check if file is already nullptr
+	if(file==nullptr) {
+		return -2;
+	}
+	
+	//Close file and set to nullptr
+	int fcRes = std::fclose(file);
+	file = nullptr;
+	if(fcRes==0) {
+		return 0;
+	}
+	return -1;
 }
 
 bool FileHandler::fileExists(FilePath fp)
@@ -267,7 +274,7 @@ Settings::t_kvMap FileHandler::readTxtFileKVs(FilePath fp)
     bool foundNewLine = false;
 	
 	char c = '_';
-	while( (c = fgetc(file))!=EOF ) {
+	while( (c = std::fgetc(file))!=EOF ) {
         //Reset foundNewLine
         foundNewLine = false;
 

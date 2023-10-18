@@ -10,6 +10,7 @@ public:
 
     std::string toString();
     void info(std::stringstream& ss, int& tabs);
+	std::string getInfo();
 
     bool isNull();
     uint64_t getVal();
@@ -20,6 +21,7 @@ public:
     bool isSolid();
     bool isVisionBlocking();
 
+    void setVal(uint64_t newVal);
     void setRGB(uint8_t r, uint8_t g, uint8_t b);
     void setTextureXYZ(uint8_t x, uint8_t y, uint8_t z);
     void setTextureXY(uint8_t x, uint8_t y);

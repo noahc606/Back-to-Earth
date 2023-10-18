@@ -33,7 +33,9 @@ private:
     /**/
     /**/
     void setGameState(int p_gamestate);
-	template<typename T> void unload(T*& t);
+	void unload(World*& world);
+	void unload(Tests*& tests);
+
 	void load(World*& world);
 	void load(Tests*& tests);
 

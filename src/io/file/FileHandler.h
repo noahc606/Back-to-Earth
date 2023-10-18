@@ -21,6 +21,7 @@ public:
     int openFile(std::string path, int openType);
     int cEditFile(std::string path);
     int clearFile(std::string path);
+	int renameFile(std::string path, std::string newName);
     //Write to file
 	template<typename T> int write(T t);
     int writeByte(uint8_t byte);

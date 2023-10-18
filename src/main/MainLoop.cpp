@@ -27,6 +27,7 @@ MainLoop::MainLoop()
     //SDL (pre-init): file handler and controls.
     sdlHandler.preinit();
     fileHandler.init( sdlHandler.getResourcePath(), sdlHandler.getFilesystemType() );
+	Log::initAll( sdlHandler.getResourcePath(), sdlHandler.getFilesystemType() );
     controls.init( fileHandler.getSettings() );
     //BTE (pre-init): Managing settings
     bte.preinit( &sdlHandler, &fileHandler, &controls );
@@ -63,6 +64,31 @@ int MainLoop::getCurrentFPS() { return currentFPS; }
 double MainLoop::getCurrentMSPF() { return currentMSPF; }
 uint64_t MainLoop::getFrames() { return frames; }
 char* MainLoop::getSystemTime() { time_t now = time(0); return ctime(&now); }
+std::string MainLoop::getSystemTimeFilename()
+{
+	/* Build file name */
+	std::string date = MainLoop::getSystemTime();
+	int firstSpace = -1;
+	int lastSpace = -1;
+	for( unsigned int i = 0; i<date.length(); i++ ) {
+		if(date[i]==' ') {
+			lastSpace = i;
+			date[i] = '_';
+		}
+		
+		if(firstSpace<0 && date[i]==' ') {
+			firstSpace = i;
+			date[i] = '_';
+		}
+		
+		if(date[i]==':') {
+			date[i] = '_';
+		}
+	}
+	
+	/* Return */
+	return date.substr(firstSpace+1, lastSpace-4);
+}
 uint64_t MainLoop::getNextSecond() { return nextSecond; }
 
 

@@ -49,10 +49,9 @@ int LevelSave::getPaletteSizeBucket(int size)
 void LevelSave::trSave(FilePath path, long rX, long rY, long rZ, t_palette* palette, int16_t tiles[32][32][32])
 {
     // Get save region location (coords in 3D grid where each cubic "cell" is 1024x1024x1024 tiles)
-    long srX = rX*32;
-    long srY = rY*32;
-    long srZ = rZ*32;
-    TileMap::getRegSRXYZ(srX, srY, srZ);
+    TileMap::t_ll srX = rX*32;
+    TileMap::t_ll srY = rY*32;
+    TileMap::t_ll srZ = rZ*32;
 
     //Build save area map. A save area is a 16x16x4 area of tiles
     //std::map<std::tuple<int,int,int>, t_saveArea> saveAreaMap;

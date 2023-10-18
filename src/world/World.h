@@ -13,8 +13,9 @@ class World : public BTEObject
 public:
     typedef TileMap::t_ll t_ll;
     /**/
-    void init(SDLHandler* sh, GUIHandler* gh, FileHandler* fh, Controls* ctrls);
+	World();
     virtual ~World();
+    void init(SDLHandler* sh, GUIHandler* gh, FileHandler* fh, Controls* ctrls);
     /**/
     void draw();
     void tick(bool paused, GUIHandler& guiHandler);

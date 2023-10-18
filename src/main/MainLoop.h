@@ -1,5 +1,6 @@
 #pragma once
 #include <memory>
+#include <string>
 #include "BTE.h"
 #include "Controls.h"
 #include "FileHandler.h"
@@ -16,6 +17,7 @@ public:
     static double getCurrentMSPT(); static double getCurrentMSPF();
     static uint64_t getFrames();
     static char* getSystemTime();
+    static std::string getSystemTimeFilename();
     static uint64_t getNextSecond();
     static bool isInitialized();
     /**/

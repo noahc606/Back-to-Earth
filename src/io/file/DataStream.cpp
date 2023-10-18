@@ -113,6 +113,11 @@ void DataStream::putXBits(uint64_t data, uint8_t numBits)
 
     popWriteBytes();
 }
+/**
+ * 	This function will automatically put X bits toward the DataStream.
+ * 	Example: data=0b110101011 -> call putXBits(0b11010101, 9)
+ * 	WARNING: For values with leading zeros (ex: 0b0010101) the function treats those zeros as insignificant! In these cases, use putXBits(data, numBits) to specify exactly how many bits you want. 
+ */
 void DataStream::putXBits(uint64_t data)
 {
     //Find the number of significant bits in 'data'
@@ -130,7 +135,7 @@ void DataStream::putXBits(uint64_t data)
 void DataStream::putBit(bool bit) { putXBits(bit, 1); }
 void DataStream::put5Bits(uint64_t data) { putXBits(data, 5); }
 void DataStream::putByte(uint64_t byte) { putXBits(byte, 8); }
-
+void DataStream::put64Bits(uint64_t data) { putXBits(data, 64); }
 
 void DataStream::dumpBytestream(FileHandler* fh)
 {

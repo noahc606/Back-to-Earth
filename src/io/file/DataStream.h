@@ -36,6 +36,7 @@ public:
     void putBit(bool bit);
     void put5Bits(uint64_t data);
     void putByte(uint64_t byte);
+    void put64Bits(uint64_t byte);
     void dumpBytestream(FileHandler* fh);
     void close();
     /**/

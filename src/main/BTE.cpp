@@ -75,8 +75,9 @@ void BTE::draw()
         } break;
 
         case GameState::WORLD: {
-            if( world!=nullptr )
+            if( world!=nullptr ) {
                 world->draw();
+			}
         } break;
     }
 
@@ -332,12 +333,20 @@ void BTE::setGameState(int p_gamestate)
     }
 }
 
-template<typename T> void BTE::unload(T*& t)
+void BTE::unload(World*& world)
 {
-    if( t!=nullptr ) {
-        delete t;
-        t = nullptr;
-    }
+	if(world!=nullptr) {
+		delete world;
+		world = nullptr;
+	}
+}
+
+void BTE::unload(Tests*& tests)
+{
+	if(tests!=nullptr) {
+		delete tests;
+		tests = nullptr;
+	}
 }
 
 void BTE::load(World*& world)

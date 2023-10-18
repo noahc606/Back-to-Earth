@@ -99,7 +99,7 @@ void TileMapScreen::tick()
                 umiTicks = 0;
             }
         }
-
+		
         // Update different parts of the map under different conditions
         // Make sure to do it in the order of 1->2->3->4 (most expensive to least)
         if( doUpdMapVisible )   updateMapVisible();

@@ -124,7 +124,11 @@ ControlBinding Controls::getControlBindingFromString(std::string s)
     }
 
     if(isInt) {
-        return ControlBinding( ControlBinding::KEY, std::stoi(s) );
+		try {
+			return ControlBinding( ControlBinding::KEY, std::stoi(s) );
+		} catch(std::exception e) {
+			return ControlBinding( ControlBinding::KEY, -1 );
+		}
     } else {
         return ControlBinding( s );
     }

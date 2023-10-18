@@ -5,6 +5,8 @@
 #include "MainLoop.h"
 #include "Timer.h"
 
+World::World(){}
+
 void World::init(SDLHandler* sh, GUIHandler* gh, FileHandler* fh, Controls* ctrls)
 {
     if( exists() ) return;
