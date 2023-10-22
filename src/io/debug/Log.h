@@ -35,11 +35,6 @@ public:
     /**/
 
     static bool trbsOverride;
-    //static std::stringstream log;
-    //static std::stringstream debug;
-    //static std::stringstream trbsh;
-    //static std::stringstream error;
-
 
 protected:
 
@@ -47,4 +42,5 @@ private:
 
 	static FileHandler* fileHandler;
 	static bool fhInit;
+	static bool logDestroyed;
 };

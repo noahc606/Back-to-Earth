@@ -6,6 +6,7 @@
 bool Log::trbsOverride = false;
 FileHandler* Log::fileHandler = nullptr;
 bool Log::fhInit = false;
+bool Log::logDestroyed = false;
 
 Log::Log(){}
 Log::~Log(){}
@@ -17,7 +18,7 @@ void Log::initAll(std::string p_resourcePath, int p_filesystemType)
 		fileHandler->init(p_resourcePath, p_filesystemType);
 		fhInit = true;
 
-		fileHandler->openFile("saved/logs/latest.log", FileHandler::WRITE);
+		fileHandler->cEditFile("saved/logs/latest.log");
 	} else {
 		Log::warn(__PRETTY_FUNCTION__, "Already initialized fileHandler");
 	}
@@ -25,17 +26,21 @@ void Log::initAll(std::string p_resourcePath, int p_filesystemType)
 
 void Log::destroyAll()
 {
-	//fileHandler->saveCloseFile();
-	//fileHandler->renameFile("saved/logs/latest.log", "Log_"+MainLoop::getSystemTimeFilename() );
+	logDestroyed = true;
+	
+	Log::log("Destroying log...");
+	fileHandler->saveCloseFile();
+	fileHandler->mvFile("saved/logs/latest.log", "saved/logs/Log_"+MainLoop::getSystemTimeFilename()+".log" );
+	delete fileHandler;
 }
 
 void Log::printStringStream(std::stringstream& ss)
 {
-	std::cout << ss.str();
-	if(fileHandler!=nullptr) {
-		if(fileHandler->fileExists("saved/logs/latest.log")) {
+	if(!logDestroyed) {
+		std::cout << ss.str();
+		if( fileHandler!=nullptr && fileHandler->fileExists("saved/logs/latest.log") ) {
 			fileHandler->write(ss.str());
-		}
+		}	
 	}
 }
 

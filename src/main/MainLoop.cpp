@@ -56,6 +56,8 @@ MainLoop::~MainLoop()
         Log::log("Finished hard testing "+Main::VERSION+"...");
         Log::log("To enable the BTE window, make sure you have \"debugHardTesting=false\" in 'backtoearth/saved/settings/options.txt'!");
     }
+	
+	Log::destroyAll();
 }
 
 int MainLoop::getCurrentTPS() { return currentTPS; }
@@ -65,29 +67,19 @@ double MainLoop::getCurrentMSPF() { return currentMSPF; }
 uint64_t MainLoop::getFrames() { return frames; }
 char* MainLoop::getSystemTime() { time_t now = time(0); return ctime(&now); }
 std::string MainLoop::getSystemTimeFilename()
-{
-	/* Build file name */
-	std::string date = MainLoop::getSystemTime();
-	int firstSpace = -1;
-	int lastSpace = -1;
-	for( unsigned int i = 0; i<date.length(); i++ ) {
-		if(date[i]==' ') {
-			lastSpace = i;
-			date[i] = '_';
-		}
-		
-		if(firstSpace<0 && date[i]==' ') {
-			firstSpace = i;
-			date[i] = '_';
-		}
-		
-		if(date[i]==':') {
-			date[i] = '_';
-		}
-	}
+{	
+	//Time objects
+	 time_t t = time(0);   // get time now
+     struct tm* now = localtime(&t);
+    
+	//Build char array
+	char buffer [100];
+	strftime (buffer, 80,"%Y-%m-%d_%H.%M.%S", now);
 	
-	/* Return */
-	return date.substr(firstSpace+1, lastSpace-4);
+	//Convert char array to string using stringstream
+	std::stringstream ss;
+	ss << buffer;
+	return ss.str();
 }
 uint64_t MainLoop::getNextSecond() { return nextSecond; }
 

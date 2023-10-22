@@ -122,7 +122,7 @@ int FileHandler::openFile(std::string path, int openType, bool binary)
     case FileOpenTypes::WRITE:  file = std::fopen(mpath.c_str(), ("w"+modeArg).c_str()); break;
     case FileOpenTypes::APPEND: file = std::fopen(mpath.c_str(), ("a"+modeArg).c_str()); break;
     case FileOpenTypes::READ:   file = std::fopen(mpath.c_str(), ("r"+modeArg).c_str()); break;
-    case FileOpenTypes::UPDATE:   file = std::fopen(mpath.c_str(), ("r"+modeArg+"+").c_str()); break;
+    case FileOpenTypes::UPDATE: file = std::fopen(mpath.c_str(), ("r"+modeArg+"+").c_str()); break;
     }
 
     /* Return function value */
@@ -165,24 +165,34 @@ int FileHandler::clearFile(std::string path)
 	return cEditFile(path);
 }
 
-int FileHandler::renameFile(std::string path, std::string newName)
+/**
+ * Moves a file from 'srcPath' to 'dstPath'. Can be used to rename a file if the src and dst have the same directory but different filenames.
+ * Basically the same as the mv command in Linux.
+ * 
+ */
+int FileHandler::mvFile(std::string srcPath, std::string dstPath)
 {
-	FilePath fp(path, filesystemType);
-	std::string mpath = getModifiedPath(fp);
+	//Old path
+	FilePath srcFp(srcPath, filesystemType);
+	std::string srcMPath = getModifiedPath(srcFp);
+	//New path
+	FilePath dstFp(dstPath, filesystemType);
+	std::string dstMPath = getModifiedPath(dstFp);
 	
-	if(std::rename(mpath.c_str(), newName.c_str())==0) {
+	
+	if(std::rename(srcMPath.c_str(), dstMPath.c_str())==0) {
 		return 0;
 	}
 	
-	if( !fileExists(mpath) ) {
+	if( !fileExists(srcMPath) ) {
 		std::stringstream ss;
-		ss << "Can't rename file '" << mpath << "' which doesn't exist";
+		ss << "Can't rename file '" << srcMPath << "' which doesn't exist";
 		Log::error(__PRETTY_FUNCTION__, ss.str());
 		return -1;
 	}
 	
 	std::stringstream ss;
-	ss << "Unknown error in renaming file '" << mpath;
+	ss << "Unknown error in renaming file '" << srcMPath;
 	Log::error(__PRETTY_FUNCTION__, ss.str());
 	return -2;
 }
@@ -282,10 +292,8 @@ Settings::t_kvMap FileHandler::readTxtFileKVs(FilePath fp)
         if( c==27 && !doEscape ) {
             doEscape = true;
             continue;
-        //If we find an equals character that isn't escaped
-        } else
-        if( c=='=' && !doEscape )
-        {
+			//If we find an equals character that isn't escaped
+        } else if( c=='=' && !doEscape ) {
             //Edge case: multiple = signs after one another
             if( foundEqualSign ) {
                 currentValue += c;
@@ -293,8 +301,7 @@ Settings::t_kvMap FileHandler::readTxtFileKVs(FilePath fp)
             //foundEqualsSign set to true
             foundEqualSign = true;
         //If we find a newline character that isn't escaped
-        } else
-        if( c=='\n' && !doEscape ) {
+        } else if( c=='\n' && !doEscape ) {
             //update foundNewLine and foundEqualSign.
             foundNewLine = true;
             foundEqualSign = false;
@@ -315,8 +322,8 @@ Settings::t_kvMap FileHandler::readTxtFileKVs(FilePath fp)
             }
         }
 
-        //Reset doEscape
-        doEscape = false;
+		//Reset doEscape
+		doEscape = false;
     }
 
     //Push back currentKey and currentValue if newline not found

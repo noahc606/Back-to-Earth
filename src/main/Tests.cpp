@@ -21,83 +21,50 @@
 #include "Timer.h"
 #include "Window.h"
 
-/**/
-
-void old1()
+void save(FileHandler* fileHandler)
 {
-    FileHandler* fh;
-    TileRegion tr;
-    Terrain terra;
-    terra.populateRegion(tr, 0, 0, 0);
+	TileRegion tr;
+	Terrain terra;
+	terra.populateRegion(tr, 0, 0, 0);
+	
+	//LTR = (32*16)x(32*16)x(32*4)=512x512x128	
+	fileHandler->openFile("dump/test5.bte_ltr", FileHandler::WRITE, true);
+	DataStream ds;
+	//Magic Number
+	ds.put64Bits(0xaf0e66d7af0e66d7);
+	ds.put64Bits(0xce529030ce529030);
+	ds.seekBitDelta(64*2);
+	
+	//File Header (32*32*32=32768 entries. each having 40 bits of data.
+	//This data represents the location (in bytes) within the file for the save data.
+	int numBits = 40;
+	for(int i = 0; i<32*32*32; i++) {
+		ds.putXBits(0b1111111111111111111111111111111111111111, numBits);
+		ds.seekBitDelta(numBits);
+	}
+	
+	uint8_t dsx = 0;	//0-1
+	uint8_t dsy = 0;	//0-1
+	uint8_t dsz = 4;	//0-7
+	int psb = tr.getPaletteSizeBucket();
+	std::cout << "Tile: " << tr.getTile(0, 0, 0).getVal() << "\n";
+	//Total of 16*16*4=1024 tiles. Each tile = 'psb' bits. Two hex chars = 1 byte.
+	for( uint8_t sx = dsx*16; sx<dsx*16+16; sx++ ) {
+		for( uint8_t sy = dsy*16; sy<dsy*16+16; sy++ ) {
+			for( uint8_t sz = dsz*4; sz<dsz*4+4; sz++ ) {
+				ds.putXBits( tr.getTileKey(sx, sy, sz), psb );
+				ds.seekBitDelta(psb);
+			}
+		}
+	}
+		
+	ds.dumpBytestream(fileHandler);
+	fileHandler->saveCloseFile();
+}
 
-    DataStream ds1;
-
-
-
-
-    Timer tmr;
-
-    for( int drx = 0; drx<16; drx++ ) {
-        for( int dry = 0; dry<16; dry++ ) {
-            for( int drz = 0; drz<4; drz++ ) {
-                ds1.putXBits(0b111001101, 9);
-            }
-        }
-    }
-
-    /**
-        Save file "header" made up of 1024 save entry location (SEL) blocks. Each will have:
-        1st hex =...
-            0: Flag to allocate new space (either find a block of unused space or write new data at the end of the file)
-            1: Available space for 1bit palette (2 different tiletypes)
-            2: Available space for 2bit palette (4 different tiletypes)
-            .
-            .
-            .
-            E: Available space for 14bit palette
-            F: Available space for 15bit palette
-        2nd-9th hex (8 hexes/32 bits) = location of save entry data
-    */
-
-
-    tmr.debugElapsedTimeMS();
-
-    ds1.close();
-
-    //fh->pOpenFile("dump/data.txt");
-    //std::cout << fh->pSeekPos() << "\n";
-    //fh->pWrite("test1234");
-    //std::cout << fh->pSeekPos() << "\n";
-    //fh->pSeek(0);
-    //fh->pWrite("a");
-    //std::cout << fh->pSeekPos() << "\n";
-    //ds1.dumpBytestream(fh);
-    //fh->saveCloseFile();
-
-    return;
-    //fh->pWriteByte(0xfa);
-    //fh->pWriteByte(0x01);
-    //fh->pWriteByte(0xfc);
-    //fh->pWriteByte(0xbd);
-    //fh->pSeek(3);
-    //fh->pWriteByte(0x55);
-    //fh->pWriteByte(0x12);
-    //fh->pWriteByte(0x34);
-
-    //ds1.putXBits(0b1010010101011111110010011011);
-    //tr.dumpTileData(ds1, 0, 0, 0);
-    //ds1.close();
-
-    //tr.dumpTileData(ds1, 0, 0, 0);
-    //ds1.close();
-    //fileHandler->saveAndCloseFile();
-
-    //fh->clearFile("dump/pal.txt");
-    //DataStream ds2(fh, "dump/pal.txt");
-    //tr.dumpPaletteData(ds2, 0, 0, 0);
-    //ds2.close();
-    //tr.dumpPaletteData(ds2, 0, 0, 0);
-    //fileHandler->saveAndCloseFile();
+void load()
+{
+	
 }
 
 void allocNew(DataStream& ds, uint8_t bitsize)
@@ -118,64 +85,6 @@ void Tests::init(SDLHandler* sh, FileHandler* fh, Controls* ctrls)
     sdlHandler = sh;
     fileHandler = fh;
     controls = ctrls;
-
-	TileRegion tr;
-	Terrain terra;
-	terra.populateRegion(tr, 0, 0, 0);
-	std::cout << tr.getInfo(0, 0, 0);
-	
-	
-	fileHandler->openFile("dump/testasdf.txt", FileHandler::APPEND);
-	fileHandler->saveCloseFile();
-	
-	Log::destroyAll();
-	return;
-	
-	TileType tt; tt.init();
-	tt.setVal(3260029943);
-	
-	//LTR = (32*16)x(32*16)x(32*4)=512x512x128
-	TileMapScreen tms;
-	
-	fileHandler->openFile("dump/testasdf.txt", FileHandler::WRITE);
-	fileHandler->writeln("text 12345");
-
-	
-	fileHandler->openFile("dump/test5.bte_ltr", FileHandler::WRITE, true);
-	DataStream ds;
-	//Magic Number
-	ds.put64Bits(0b1010111101100100110111000011100110101111000011100110011011010111);
-	ds.put64Bits(0b0010100100001101111000110010101001001110010100101001000000110000);
-	ds.seekBitDelta(64*2);
-	
-	//File Header (32*32*32=32768 entries. each having 40 bits of data.
-	//This data represents the location (in bytes) within the file for the save data.
-	int numBits = 40;
-	for(int i = 0; i<32*32*32; i++) {
-		ds.putXBits(0b1111111111111111111111111111111111111111, numBits);
-		ds.seekBitDelta(numBits);
-	}
-	
-	
-	uint8_t dsx = 0;	//0-1
-	uint8_t dsy = 0;	//0-1
-	uint8_t dsz = 4;	//0-7	
-	int psb = tr.getPaletteSizeBucket();
-	std::cout << "Tile: " << tr.getTile(0, 0, 0).getVal() << "\n";
-	//Total of 16*16*4=1024 tiles. Each tile = 'psb' bits. Two hex chars = 1 byte.
-	for( uint8_t sx = dsx*16; sx<dsx*16+16; sx++ ) {
-		for( uint8_t sy = dsy*16; sy<dsy*16+16; sy++ ) {
-			for( uint8_t sz = dsz*4; sz<dsz*4+4; sz++ ) {
-				ds.putXBits( tr.getTileKey(sx, sy, sz), psb );
-				ds.seekBitDelta(psb);
-			}
-		}
-	}
-	
-	std::cout << ds.getSeekBytePos() << "\n";
-	
-	ds.dumpBytestream(fileHandler);
-	fileHandler->saveCloseFile();
 }
 
 Tests::~Tests(){}
