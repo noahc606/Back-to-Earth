@@ -35,13 +35,20 @@ public:
     TileRegion* getRegByRXYZ(long rX, long rY, long rZ);
     t_updates* getRTUsByRXYz(long rX, long rY, long z);
 
+	//Get position within region based on xyz
+    static long getRegSubPos(t_ll c);
     static void getRegSubPos(t_ll& x, t_ll& y, t_ll& z);
     static void getRegSubPos(long& x, long& y, long& z);
-    static long getRegSubPos(t_ll c);
+    //Get region coordinates based on xyz
+	static long getRegRXYZ  (t_ll c);
     static void getRegRXYZ  (t_ll& x, t_ll& y, t_ll& z);
     static void getRegRXYZ  (long& x, long& y, long& z);
-    static long getRegRXYZ  (t_ll c);
-
+    //Get save-region coordinates based on xyz.
+	static long convRxyToLSRxy (t_ll rxOrRy);
+	static long convRzToLSRz (t_ll rz);
+	static void convRxyzToLSRxyz (t_ll& rx, t_ll& ry, t_ll& rz);
+	static void convRxyzToLSRxyz (long& rx, long& ry, long& rz);
+    
     bool collides( Box3D &b );
 
     /** TileMap manipulation */

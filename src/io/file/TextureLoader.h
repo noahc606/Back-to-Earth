@@ -1,8 +1,8 @@
 #pragma once
 #include <iostream>
 #include <memory>
-#include <SDL.h>
-#include <SDL_image.h>
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
 #include <map>
 #include <vector>
 #include "Defs.h"
@@ -15,6 +15,7 @@ public:
     TextureLoader();
     void init(SDL_Renderer* renderer, SDL_PixelFormat* pixelFormat, std::string resourcePath);
     virtual ~TextureLoader();
+    void destroy();
     /**/
     /* Get a SDL_Surface or SDL_Texture from the lists, and their properties */
     SDL_Surface* getSurface(int index);
@@ -40,12 +41,16 @@ public:
         GUI_player_interactions,
         GUI_window,
 
-        PLAYER_hair,
-        PLAYER_head,
-        PLAYER_arms,
-        PLAYER_middle_body,
-        PLAYER_lower_body,
-        PLAYER_feet,
+        PLAYER_side_hair,
+        PLAYER_side_head,
+        PLAYER_side_arms,
+        PLAYER_side_middle_body,
+        PLAYER_side_lower_body,
+        PLAYER_side_feet,
+        PLAYER_top_hair,
+        PLAYER_top_arms,
+        PLAYER_top_middle_body,
+        PLAYER_top_lower_body,
 
         WORLD_background_space_interstellar,
         WORLD_region0,
@@ -70,14 +75,14 @@ private:
     void errorFailedTexLoad();
 
     /**/
-    /* SDLHandler peripherals */
     SDL_Renderer* renderer;
+    /* SDLHandler peripherals */
     SDL_PixelFormat* pixelFormat;
     std::string resourcePath;
 
     /* List of loaded surfaces + textures */
     SDL_Surface* missingSurf;
     std::vector<SDL_Surface*> surfaces;
-    Defs::t_textureMap textureMap;
+    Defs::t_textureAtlasesMap textureAtlasesMap;
     bool resourcesLoaded = false;
 };

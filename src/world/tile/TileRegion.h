@@ -1,48 +1,66 @@
 #pragma once
+#include <map>
 #include <vector>
 #include <string>
 #include "Camera.h"
+#include "DataStream.h"
 #include "TileType.h"
 
 class TileRegion
 {
 public:
-    typedef std::vector<TileType> t_palette;
+    typedef std::map<int16_t, TileType> t_palette;
 
     /**/
-    TileRegion( );
+    TileRegion();
     virtual ~TileRegion();
+    void putPaletteInfo(std::stringstream& ss, int& tabs, bool natural);
+	void putInfo(std::stringstream& ss, int& tabs, int subX, int subY, int subZ);
+    std::string getInfo(int subX, int subY, int subZ);
 
     /**/
-    void info(std::stringstream& ss, int& tabs, int subX, int subY, int subZ);
-    int addToPalette( TileType tile, t_palette& pal );
-    int addToPalette( TileType tile );
-    int addToPaletteFast( TileType tile );
-
-    /**/
-    //Palette Length
-    //Tiles
-    TileType getTile     ( int x, int y, int z );
-    TileType getTileSafe ( int x, int y, int z );
-    //Region State
+    //Get palette info
+	uint16_t getPaletteSize();
+	uint16_t getPaletteSizeNatural();
+	uint16_t getPaletteSizeArtificial();
+	static int getPaletteSizeBucket(int size);
+	int getArtificialPaletteSizeBucket();
+	int getPaletteSizeBucket();
+	TileType getPaletteElement(int16_t key);
+	//Get tile info
+	int16_t getTileKey(int x, int y, int z);
+    TileType getTile(int x, int y, int z);
+    //Get Region info
     int getRegTexState();
     int getRegTexPriority();
-
-    /**/
-    //Tiles
-    void setTile         ( int x, int y, int z,                       TileType tile );
-    void setTile         ( int x, int y, int z,                       int16_t paletteIndex );
-    void setTiles        ( int x1,int y1,int z1,int x2,int y2,int z2, TileType tile );
-    void setTiles        ( int x1,int y1,int z1,int x2,int y2,int z2, int16_t paletteIndex );
-    //Region state
+	
+	/**/
+	//Check palette
+	bool assertDefaultTileExists(t_palette& pal);
+	//Add to palette
+    int16_t addToPalette(TileType tile, t_palette& pal, bool natural);
+    int16_t addToPalette(TileType tile, t_palette& pal);
+    int16_t addToPalette(TileType tile, bool natural);
+    int16_t addToPalette(TileType tile);
+    int16_t addToPaletteFast(TileType tile, bool natural);
+    int16_t addToPaletteFast(TileType tile);
+    
+	/**/
+    //Set tiles
+    void setTile         (int x, int y, int z,                       TileType tile);
+    void setTile         (int x, int y, int z,                       int16_t paletteIndex);
+    void setTiles        (int x1,int y1,int z1,int x2,int y2,int z2, TileType tile);
+    void setTiles        (int x1,int y1,int z1,int x2,int y2,int z2, int16_t paletteIndex);
+    //Set region state/priority
     void setRegTexState(int p_rts);
     void resetRegTexState();
     void setRegTexPriority(int p_rtp);
-
+	//Used in level saving
     void compress();
-    void queueUnload();
-    void save( SDLHandler* sh, FileHandler* fh, std::string saveGameName, long rX, long rY, long rZ, bool compress );
-    void save( SDLHandler* sh, FileHandler* fh, std::string saveGameName, long rX, long rY, long rZ );
+    void dumpPaletteData(DataStream& ds, uint8_t dataBitsPerTile);
+    void dumpTileData(DataStream& ds, uint8_t dataBitsPerTile);
+    void save(SDLHandler* sh, FileHandler* fh, std::string saveGameName, long rX, long rY, long rZ, bool compress);
+    void save(SDLHandler* sh, FileHandler* fh, std::string saveGameName, long rX, long rY, long rZ);
 
     enum RegTexState {
         NONE = 0,
@@ -57,7 +75,7 @@ protected:
 
 private:
     t_palette palette;
-    uint16_t tiles[32][32][32];
+    int16_t tiles[32][32][32];
 
     int regTexState = UNGENERATED;
     int regTexPriority = -1;

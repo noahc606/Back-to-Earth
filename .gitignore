@@ -1,1 +1,10 @@
-/obj
+.cache
+.clang-format
+.clangd
+BTE-nightly.project
+BTE.project
+compile_commands.json
+nch_*
+/bin/src
+/bin/backtoearth/saved
+/bin/backtoearth/dump

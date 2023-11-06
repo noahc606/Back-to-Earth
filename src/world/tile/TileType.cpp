@@ -19,7 +19,9 @@ std::string TileType::toString()
     ss << "visionBlocking=" << isVisionBlocking() << ",";
     ss << "rgb=(" << getRGB(0) << ", " << getRGB(1) << ", " << getRGB(2) << "),";
     ss << "textureXYZ=(" << getTextureXYZ(0) << ", " << getTextureXYZ(1) << ", " << getTextureXYZ(2) << ")";
-    ss << "}";
+    ss << "} = ";
+	ss << getVal();
+	
     return ss.str();
 }
 
@@ -28,6 +30,13 @@ void TileType::info(std::stringstream& ss, int& tabs)
     DebugScreen::indentLine(ss, tabs);
     ss << toString();
     DebugScreen::newLine(ss);
+}
+std::string TileType::getInfo()
+{
+	std::stringstream ss;
+	int tabs;
+	info(ss, tabs);
+	return ss.str();
 }
 
 bool TileType::isNull() { return null; }
@@ -67,6 +76,11 @@ int TileType::getTextureXYZ(int component)
 }
 bool TileType::isVisionBlocking() { return value&HexMasks::VISION_BLOCKING; }
 bool TileType::isSolid() { return value&HexMasks::SOLID; }
+
+void TileType::setVal(uint64_t p_val)
+{
+	value = p_val;
+}
 
 void TileType::setRGB( uint8_t p_r, uint8_t p_g, uint8_t p_b )
 {

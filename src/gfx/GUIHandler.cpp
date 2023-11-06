@@ -12,10 +12,12 @@
 #include "WindowData.h"
 
 GUIHandler::GUIHandler(){}
-void GUIHandler::init(SDLHandler* sh, FileHandler* fh, Controls* ctrls)
+void GUIHandler::init(SDLHandler* sh, FileHandler* fh, Controls* ctrls, bool testing)
 {
     BTEObject::init(sh, fh, ctrls);
-    setGUIs(MAIN);
+    if(!testing) {
+        setGUIs(MAIN);
+    }
 }
 GUIHandler::~GUIHandler()
 {
@@ -132,6 +134,8 @@ void GUIHandler::tick()
             if( btn->isSelected() ) {
                 guiActionID = btn->getID();
                 removeGUI( btn->getID() );
+				AudioLoader* al = sdlHandler->getAudioLoader();
+				al->play(AudioLoader::TITLE_beam, 0.15);
             }
         }
         //If gui is a radiobutton
@@ -298,7 +302,6 @@ void GUIHandler::setGUIs(int guis)
         /** Main UIs */
         case MAIN: {
             AudioLoader* al = sdlHandler->getAudioLoader();
-            al->play(AudioLoader::TITLE_impact);
             gb.buildTitleScreen(*this);
         } break;
         case OPTIONS: {
@@ -335,7 +338,6 @@ void GUIHandler::setGUIs(int guis)
             removeGUI(win_CHARACTER);
         } break;
     }
-
 
     //Window is updated whenever new GUIs are set
     onWindowUpdate();

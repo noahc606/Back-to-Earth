@@ -1,33 +1,30 @@
 #include "SDLHandler.h"
-#include <SDL_image.h>
-#include <SDL_mixer.h>
+#include <SDL2/SDL_image.h>
+#include <SDL2/SDL_mixer.h>
 #include "Log.h"
 #include "Main.h"
 
 SDLHandler::SDLHandler(){}
-void SDLHandler::init()
+
+void SDLHandler::preinit()
 {
-    /* Init SDL */
+    /* Init SDL Subsystems */
     //Create Subsystems
     createSubsystems();
+}
+
+void SDLHandler::init()
+{
+    /* Init SDL Video and assets */
     //Create window and renderer
     createWindowAndRenderer();
-
     //Store information about video drivers
     setVideoDriversDesc();
-
-    /* Create resource loaders and set window icon */
+    //Create asset loaders
     textureLoader.init(windowRenderer, windowPixelFormat, resourcePath);
     audioLoader.init(resourcePath);
+    //Set window icon
     SDL_SetWindowIcon(window, textureLoader.getSurface(TextureLoader::icon));
-
-    /*
-    std::stringstream ss;
-    ss << SDL_GetCurrentVideoDriver() << "\n";
-    ss << SDL_GetNumVideoDrivers() << "\n";
-    ss << SDL_GetVideoDriver(0) << ", " << SDL_GetVideoDriver(1) << "\n";
-    std::cout << ss.str() << "\n";
-    */
 }
 SDLHandler::~SDLHandler()
 {
@@ -54,6 +51,11 @@ int SDLHandler::getHeight() { return height; }
 bool SDLHandler::usingBTECursor() { return bteCursor; }
 
 std::string SDLHandler::getVideoDriversDesc() { return videoDriversDesc; }
+std::string SDLHandler::getSystemRamDesc() {
+	std::stringstream ss;
+	ss << "System RAM available: " << SDL_GetSystemRAM() << "MB";
+	return ss.str();
+}
 std::string SDLHandler::getResourcePath() { return resourcePath; }
 std::string SDLHandler::getDevicePlatform() { return devicePlatform; }
 int SDLHandler::getFilesystemType() { return filesystemType; }

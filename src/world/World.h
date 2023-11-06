@@ -2,6 +2,7 @@
 #include "BTEObject.h"
 #include "Canvas.h"
 #include "GUIHandler.h"
+#include "LevelSave.h"
 #include "Player.h"
 #include "Texture.h"
 #include "TileMap.h"
@@ -12,8 +13,9 @@ class World : public BTEObject
 public:
     typedef TileMap::t_ll t_ll;
     /**/
-    void init(SDLHandler* sh, GUIHandler* gh, FileHandler* fh, Controls* ctrls);
+	World();
     virtual ~World();
+    void init(SDLHandler* sh, GUIHandler* gh, FileHandler* fh, Controls* ctrls);
     /**/
     void draw();
     void tick(bool paused, GUIHandler& guiHandler);
@@ -35,6 +37,7 @@ private:
 
     TileMap tileMap;
     TileMapScreen tileMapScreen;
+    LevelSave lesa;
 
     Canvas csTileMap;
     Canvas csATileMap;

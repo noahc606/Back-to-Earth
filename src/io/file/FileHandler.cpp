@@ -2,11 +2,12 @@
 #include <bits/stdc++.h>
 #include <codecvt>
 #include <dirent.h>
-#include <fstream>
-#include <iostream>
+#include <errno.h>
 #include <locale>
-#include <SDL_image.h>
+#include <SDL2/SDL_image.h>
 #include <sstream>
+#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
 #include "Controls.h"
@@ -22,22 +23,24 @@ void FileHandler::init( std::string rp, int fsType )
 {
     //Resource path (for saving any type of file to disk)
     resourcePath = rp;
+
     //Filesystem type (for directory creation functions)
     filesystemType = fsType;
 
     //Set file paths.
-    files[Settings::controls] = new FilePath("saved/settings/controls", filesystemType);
-    files[Settings::games] =    new FilePath("saved/settings/games", filesystemType);
-    files[Settings::options] =  new FilePath("saved/settings/options", filesystemType);
-    files[Settings::version] =  new FilePath("saved/settings/version", filesystemType);
-    files[Settings::session] =  new FilePath("saved/settings/session", filesystemType);
+    files[Settings::controls] = new FilePath("saved/settings/controls.txt", filesystemType);
+    files[Settings::games] =    new FilePath("saved/settings/games.txt", filesystemType);
+    files[Settings::options] =  new FilePath("saved/settings/options.txt", filesystemType);
+    files[Settings::version] =  new FilePath("saved/settings/version.txt", filesystemType);
+    files[Settings::session] =  new FilePath("saved/settings/session.txt", filesystemType);
 
     //Create directories
     createDir(resourcePath);
-    createBteDir("dump");
-    createBteDir("saved/games");
-    createBteDir("saved/screenshots");
-    createBteDir("saved/settings");
+    createBTEDir("dump");
+    createBTEDir("saved/games");
+    createBTEDir("saved/logs");
+    createBTEDir("saved/screenshots");
+    createBTEDir("saved/settings");
 
     //Load and save settings files.
     loadSettings();
@@ -48,7 +51,7 @@ void FileHandler::init( std::string rp, int fsType )
     Create a directory inside of the main resource path (backtoearth folder)
         - Also tries to create parent directories.
 */
-int FileHandler::createBteDir(std::string path)
+int FileHandler::createBTEDir(std::string path)
 {
     path = resourcePath+path;
 
@@ -62,25 +65,9 @@ int FileHandler::createBteDir(std::string path)
 
 int FileHandler::createPNGScreenshot(SDL_Window* w, SDL_Renderer* r, SDL_PixelFormat* pf)
 {
-    /* Build final file path */
-    std::string date = MainLoop::getSystemTime();
-    int firstSpace = -1;
-    int lastSpace = -1;
-    for(unsigned int i = 0; i<date.length(); i++) {
-        if( date[i]==' ' ) {
-            lastSpace = i;
-        }
-
-        if( firstSpace<0 && date[i]==' ' ) {
-            firstSpace = i;
-        }
-
-        if( date[i]==':' ) {
-            date[i] = '_';
-        }
-    }
-
-    FilePath ssPath(resourcePath + "saved/screenshots/" + date.substr(firstSpace+1, lastSpace-4), "png", filesystemType);
+	/* Generate screenshot file path */
+	std::string name = MainLoop::getSystemTimeFilename();
+	FilePath ssPath(resourcePath+"saved/screenshots/"+name, "png", filesystemType);
 
     /* Get window width and height */
     int width = 0; int height = 0;
@@ -92,7 +79,7 @@ int FileHandler::createPNGScreenshot(SDL_Window* w, SDL_Renderer* r, SDL_PixelFo
 
     /* Save the newly created surface as an image */
     //Success
-    if( IMG_SavePNG(surf, ssPath.get().c_str())==0 ) {
+    if(IMG_SavePNG(surf, ssPath.get().c_str())==0) {
         //Message
         std::string msg = "Screenshot saved to " + ssPath.get();
         Log::log(msg);
@@ -110,119 +97,335 @@ int FileHandler::createPNGScreenshot(SDL_Window* w, SDL_Renderer* r, SDL_PixelFo
     }
 }
 
+int FileHandler::openFile(std::string path, int openType, bool binary)
+{
+    /* Prelims */
+	//Close any old file
+	saveCloseFile();
+    //Get filepath
+    FilePath fp(path, filesystemType);
+    std::string mpath = getModifiedPath(fp);
+    //Get whether file already exists
+    bool fExists = (fileExists(path));
+    if(!fExists) {
+        Log::debug( __PRETTY_FUNCTION__, "File '"+mpath+"' not found, attempting to create new file..." );
+    }
+    //Mode: Binary (b) or Text (t).
+    std::string modeArg = "b";
+    if(!binary) {
+        modeArg = "t";
+    }
+
+    /* Open file */
+    //Open file for writing, appending, reading, or updating
+    switch(openType) {
+    case FileOpenTypes::WRITE:  file = std::fopen(mpath.c_str(), ("w"+modeArg).c_str()); break;
+    case FileOpenTypes::APPEND: file = std::fopen(mpath.c_str(), ("a"+modeArg).c_str()); break;
+    case FileOpenTypes::READ:   file = std::fopen(mpath.c_str(), ("r"+modeArg).c_str()); break;
+    case FileOpenTypes::UPDATE: file = std::fopen(mpath.c_str(), ("r"+modeArg+"+").c_str()); break;
+    }
+
+    /* Return function value */
+    //If file failed to create
+    if(file==NULL) {
+        std::string action = "open";
+        if(fExists) { action = "create"; }
+        Log::warn("Failed to "+action+" file '"+mpath+"' for "+getFileOpenTypeStr(openType), __PRETTY_FUNCTION__);
+        return FileStates::FAILED_ACCESS;
+    //If file was successfully created
+    } else {
+        if(fExists) {
+            return FileStates::EXISTING;
+        } else {
+            return FileStates::NEW;
+        }
+    }
+}
+int FileHandler::openFile(std::string path, int openType) { return openFile(path, openType, false); }
+
 /**
-    Opens file to write to (all contents are deleted!)
+    "(C)lear-Edit": Opens file (contents are cleared) for writing. Simpler to use than pOpenFile()
     Returns:
-        -1 if file not found and could not be created
-        0 if file not found and new file is created
-        1 if file found
+        Whether we fail to access the file (-1), create a new file (0), or access an existing file (1)
 */
-int FileHandler::cEditFile(FilePath fp)
+int FileHandler::cEditFile(std::string path)
 {
-    //If there is another file being edited, save and close it.
-    saveAndCloseFile();
+    //Save/close last file and set new FILE*. Store result of file-opening.
+    int foRes = openFile(path, FileOpenTypes::WRITE);
+    
+    //Return file-open result
+    return foRes;
+}
 
-    //Set ifstream and ofstream.
-    setIFS(fp);
-    setOFS(fp);
-
-    //Try to create new file if file is not found.
-    if( !ifs ) {
-        Log::debug( __PRETTY_FUNCTION__, "File '"+fp.get()+"' not found, attempting to create new file..." );
-        if( !ofs ) {
-            //If file was not found and could not be created, return -1.
-            Log::warn( __PRETTY_FUNCTION__, "Could not create ofstream" );
-            return -1;
-        }
-        //If file was created, return 1.
-        Log::debug( __PRETTY_FUNCTION__, "Created new file." );
-        return 0;
-    }
-
-    //If file was found, return 1.
-    return 1;
+int FileHandler::clearFile(std::string path)
+{ 
+	if( !fileExists(path) ) {
+		return -2;
+	}
+	return cEditFile(path);
 }
 
 /**
-    Edit part of a file.
-        - Does not delete the entire file's contents but is a little more complex to use than cEditFile()
-*/
-int FileHandler::pEditFile(FilePath fp)
+ * Moves a file from 'srcPath' to 'dstPath'. Can be used to rename a file if the src and dst have the same directory but different filenames.
+ * Basically the same as the mv command in Linux.
+ * 
+ */
+int FileHandler::mvFile(std::string srcPath, std::string dstPath)
 {
-    saveAndCloseFile();
-    setFS(fp);
+	//Old path
+	FilePath srcFp(srcPath, filesystemType);
+	std::string srcMPath = getModifiedPath(srcFp);
+	//New path
+	FilePath dstFp(dstPath, filesystemType);
+	std::string dstMPath = getModifiedPath(dstFp);
+	
+	
+	if(std::rename(srcMPath.c_str(), dstMPath.c_str())==0) {
+		return 0;
+	}
+	
+	if( !fileExists(srcMPath) ) {
+		std::stringstream ss;
+		ss << "Can't rename file '" << srcMPath << "' which doesn't exist";
+		Log::error(__PRETTY_FUNCTION__, ss.str());
+		return -1;
+	}
+	
+	std::stringstream ss;
+	ss << "Unknown error in renaming file '" << srcMPath;
+	Log::error(__PRETTY_FUNCTION__, ss.str());
+	return -2;
+}
 
-    if( !fs.is_open() ) {
-        Log::error(__PRETTY_FUNCTION__, "fstream failed to open");
-        return -1;
-    }
+template<typename T> int FileHandler::write(T t)
+{
+	std::stringstream ss; ss << t;
+	
+	if( std::fputs(ss.str().c_str(), file)==EOF ) {
+		std::string logres = "Unsuccessful fputs() call for string '"+ss.str()+"'";
+		Log::error(__PRETTY_FUNCTION__, logres, strerror(errno));
+		return -1;
+	}
+	return 0;
+}
+int FileHandler::writeByte(uint8_t byte)
+{
+	if(fwrite(&byte, 1, 1, file)!=1) {
+		std::stringstream logres;
+		logres << "Unsuccessful fwrite() call for data '" << byte << "'";
+		Log::error(__PRETTY_FUNCTION__, logres.str(), strerror(errno));
+		return -1;
+	}
+	return 0;
+}
+int FileHandler::writeChar(char c) { return write(c); }
+int FileHandler::writeln(std::string text) { return write(text+"\n"); }
+int FileHandler::writeln() { return writeln(""); }
 
-    return 1;
+int FileHandler::saveCloseFile()
+{ 
+	//Check if file is already nullptr
+	if(file==nullptr) {
+		return -2;
+	}
+	
+	//Close file and set to nullptr
+	int fcRes = std::fclose(file);
+	file = nullptr;
+	if(fcRes==0) {
+		return 0;
+	}
+	return -1;
+}
+
+bool FileHandler::fileExists(FilePath fp)
+{
+    struct stat buffer;
+    std::string absolutePath = (getModifiedPath(fp));
+    return (stat( absolutePath.c_str(), &buffer) == 0);
+}
+bool FileHandler::fileExists(std::string path)
+{
+    FilePath fp(path, filesystemType);
+    return fileExists(fp);
+}
+
+uint8_t FileHandler::readByte()
+{
+	uint8_t buffer = 0;
+	if( fread(&buffer, sizeof(uint8_t), 1, file)!=1 ) {
+		Log::warn(__PRETTY_FUNCTION__, "Failed to read byte from file");
+	}
+	return buffer;
+}
+
+uint8_t FileHandler::readByteStay()
+{
+	uint8_t byte = readByte();
+	seekThru(-1);
+	return byte;
 }
 
 /**
-    Edit a mapped file.
+    t_kvSet: A vector of key-value pairs (both elements of the pair are strings)
+    Get contents of a .txt file line by line. Returns empty vector if file loading failed.
+    Escape sequences before a newline char or an equals sign char causes those characters to be read in normally.
 */
-int FileHandler::pEditMappedFile(FilePath fp)
+Settings::t_kvMap FileHandler::readTxtFileKVs(FilePath fp)
 {
-    if( pEditFile(fp)==-1) {
-        return -1;
-    }
+    openFile(fp.get(), FileOpenTypes::READ, false);
 
-    int mappedLines = pBuildLineMap();
-    if(mappedLines==0) {
+	//Create an empty t_kvMap
+	Settings::t_kvMap contents;
 
-    }
+	//Return an empty kvMap if file not found.
+	if( !fileExists(fp) ) {
+		Log::debug( __PRETTY_FUNCTION__, "File '"+fp.get()+"' not found" );
+		return contents;
+	}
+	
+	std::string currentKey = "";
+    std::string currentValue = "";
+    bool doEscape = false;
+    bool foundEqualSign = false;
+    bool foundNewLine = false;
+	
+	char c = '_';
+	while( (c = std::fgetc(file))!=EOF ) {
+        //Reset foundNewLine
+        foundNewLine = false;
 
-    return 0;
-}
+        //If we find an escape character, go to the next character and add it normally
+        if( c==27 && !doEscape ) {
+            doEscape = true;
+            continue;
+			//If we find an equals character that isn't escaped
+        } else if( c=='=' && !doEscape ) {
+            //Edge case: multiple = signs after one another
+            if( foundEqualSign ) {
+                currentValue += c;
+            }
+            //foundEqualsSign set to true
+            foundEqualSign = true;
+        //If we find a newline character that isn't escaped
+        } else if( c=='\n' && !doEscape ) {
+            //update foundNewLine and foundEqualSign.
+            foundNewLine = true;
+            foundEqualSign = false;
 
+            //Add currentKey and currentValue as pairs to the vector
+            contents.insert( std::make_pair(currentKey, currentValue) );
 
-int FileHandler::pSeek(int seekPos) { fs.seekp(seekPos); return fs.tellp(); }
-int FileHandler::pSeekDelta(int seekPosDelta) { return pSeek(getPSeekPos()+seekPosDelta);  }
-int FileHandler::pSeekNextLine()
-{
-    if(usingLineMap) {
-        auto kv = lineMap.find(currentLine+1);
-        if( kv!=lineMap.end() ) {
-            pSeek( kv->first );
-            currentLine += 1;
-            return currentLine;
+            //Reset currentKey and currentValue
+            currentKey = ""; currentValue = "";
+        //If we find any other character
+        } else {
+            //If we are past an equals sign already, then add to currentValue.
+            //If we have not passed an equals sign yet, then add to currentKey.
+            if( foundEqualSign ) {
+                currentValue += c;
+            } else {
+                currentKey += c;
+            }
         }
-        return -1;
+
+		//Reset doEscape
+		doEscape = false;
     }
-    return -2;
+
+    //Push back currentKey and currentValue if newline not found
+    if( !foundNewLine ) {
+        contents.insert( std::make_pair(currentKey, currentValue) );
+    }
+	
+    return contents;
 }
 
-int FileHandler::saveAndCloseFile()
+
+bool FileHandler::checkMagicNumber(uint64_t mnPart1, uint64_t mnPart2)
 {
-    //Close ifstream, ofstream, and fstream.
-    ifs.close();
-    ofs.close();
-    fs.close();
-
-    return 0;
+	DataStream ds;
+	ds.putXBits(mnPart1, 64);
+	ds.putXBits(mnPart2, 64);
+	
+	//Find where we currently are
+	long originalPos = tellPos();
+	
+	//Compare the next 16 bytes (128) bits, between the FileHandler's bytes and the DataStream's bytes.
+	bool success = true;
+	for( int i = 0; i<16; i++ ) {
+		if( getFileLength()==0 || readByteStay()!=ds.peekByteCell() ) {
+			success = false;
+			break;
+		}
+		ds.seekByteDelta(1);
+		seekThru(1);
+	}
+	
+	//Go back to where we were.
+	seekTo(originalPos);
+	
+	//Return whether comparison was successful or not.
+	return success;
 }
+
+long FileHandler::tellPos()
+{
+	return ftell(file);
+}
+
+long FileHandler::getFileLength()
+{
+	long origPos = tellPos();
+	
+	seekToEnd();
+	long res = tellPos();
+
+	seekTo(origPos);
+	return res;
+}
+
+int FileHandler::seek(long byte, int seekType)
+{
+	if( fseek(file, byte, seekType)!=0 ) {
+		std::stringstream logres;
+		switch(seekType) {
+			case SEEK_SET: logres << "Failed to seek to position " << byte << " in file."; break;
+			case SEEK_END: logres << "Failed to seek to end of file."; break;
+			case SEEK_CUR: logres << "Failed to seek " << byte << " forward in file."; break;
+		}
+		Log::warn(__PRETTY_FUNCTION__, logres.str());
+		return -1;
+	}
+	return 0;
+}
+
+int FileHandler::seekTo(long byte)
+{
+	return seek(byte, SEEK_SET);
+}
+int FileHandler::seekToEnd() { return seek(0, SEEK_END); }
+int FileHandler::seekThru(long bytesDelta) { return seek(bytesDelta, SEEK_CUR); }
 
 int FileHandler::saveSettings(int index)
 {
     int success = -1;
 
     if( index>=0 && index<Settings::LAST_INDEX ) {
-        cEditFile( *files[index] );
+        cEditFile( (*files[index]).get() );
 
         auto kvMap = settings.getKvMap(index);
         if( kvMap.size()!=0 ) {
             for(auto kvp : kvMap) {
-                cWrite(kvp.first);
-                cWrite("=");
-                cWrite(kvp.second);
-                cWrite("\n");
+                write(kvp.first);
+                write("=");
+                write(kvp.second);
+                write("\n");
             }
             success = 1;
         }
 
-        saveAndCloseFile();
+        saveCloseFile();
     } else {
         success = -1000;
     }
@@ -257,135 +460,13 @@ int FileHandler::saveSettings()
         return 1;
 
     std::stringstream ss;
-    ss << "Failed to save " << fails << " files, something is terribly wrong";
+    ss << "Failed to save " << fails << " files, something is very wrong";
     Log::error(__PRETTY_FUNCTION__, ss.str());
 
     return -fails;
 }
 
-/**
-    t_kvSet: A vector of key-value pairs (both elements of the pair are strings)
-    Get contents of a .txt file line by line. Returns empty vector if file loading failed.
-    Escape sequences before a newline char or an equals sign char causes those characters to be read in normally.
-*/
-Settings::t_kvMap FileHandler::readFileKVs(FilePath fp)
-{
-    saveAndCloseFile();
-
-    Settings::t_kvMap contents;
-
-    //Set ifstream (will not create file if nonexistent).
-    setIFS(fp);
-
-    //return empty kvSet if file not found.
-    if( !ifs ) {
-        Log::debug( __PRETTY_FUNCTION__, "File '"+fp.get()+"' not found" );
-        return contents;
-    }
-
-    std::string currentKey = "";
-    std::string currentValue = "";
-    bool doEscape = false;
-    bool foundEqualSign = false;
-    bool foundNewLine = false;
-    for( char c = ifs.get(); ifs.good(); c = ifs.get() ) {
-
-        //Reset foundNewLine
-        foundNewLine = false;
-
-        //If we find an escape character, go to the next character and add it normally
-        if( c==27 && !doEscape ) {
-            doEscape = true;
-            continue;
-        //If we find an equals character that isn't escaped
-        } else
-        if( c=='=' && !doEscape )
-        {
-            //Edge case: multiple = signs after one another
-            if( foundEqualSign ) {
-                currentValue += c;
-            }
-            //foundEqualsSign set to true
-            foundEqualSign = true;
-        //If we find a newline character that isn't escaped
-        } else
-        if( c=='\n' && !doEscape ) {
-            //update foundNewLine and foundEqualSign.
-            foundNewLine = true;
-            foundEqualSign = false;
-
-            //Add currentKey and currentValue as pairs to the vector
-            contents.insert( std::make_pair(currentKey, currentValue) );
-
-            //Reset currentKey and currentValue
-            currentKey = ""; currentValue = "";
-        //If we find any other character
-        } else {
-            //If we are past an equals sign already, then add to currentValue.
-            //If we have not passed an equals sign yet, then add to currentKey.
-            if( foundEqualSign ) {
-                currentValue += c;
-            } else {
-                currentKey += c;
-            }
-        }
-
-        //Reset doEscape
-        doEscape = false;
-    }
-
-    //Push back currentKey and currentValue if newline not found
-    if( !foundNewLine ) {
-        contents.insert( std::make_pair(currentKey, currentValue) );
-    }
-
-    return contents;
-}
-
-Settings::t_kvStrings FileHandler::readFileLines(FilePath fp)
-{
-    saveAndCloseFile();
-
-    Settings::t_kvStrings res;
-    //Set ifstream (will not create file if nonexistent).
-    setIFS(fp);
-
-    for(std::string line; std::getline(ifs, line);) {
-        res.push_back(line);
-    }
-
-    return res;
-}
-
-int FileHandler::getPSeekPos() { return fs.tellp(); }
-std::string FileHandler::pRead(int readLen)
-{
-    std::string buffer(readLen, ' ');
-    fs.read(&buffer[0], readLen);
-    return buffer;
-}
-//int FileHandler::getFsSeekPos(std::fstream* p_fs) { return p_fs->tellp(); }
-//std::string FileHandler::fsRead(std::fstream* p_fs, int readLen) { std::string buffer(readLen, ' '); p_fs->read(&buffer[0], readLen); return buffer; }
-
-Settings* FileHandler::getSettings() { return &settings; }
-std::string FileHandler::getResourcePath() { return resourcePath; }
-/**
-    Takes a file path and returns it with the base BTE path added at the beginning
-*/
-std::string FileHandler::getModifiedPath(FilePath fp)
-{
-    //Build path
-    std::string mp;
-    mp = resourcePath+fp.get();
-    return mp;
-}
-
-void FileHandler::cWriteChar(char c) { cWrite(c); }
-void FileHandler::cWriteln(std::string text) { cWrite(text+"\n"); }
-void FileHandler::cWriteln() { cWriteln(""); }
-void FileHandler::pWrite(std::string s) { fs << s; }
-
-void FileHandler::reload()
+void FileHandler::reloadSettings()
 {
     //Load settings and track how much time it takes
     {
@@ -395,17 +476,47 @@ void FileHandler::reload()
     }
 }
 
+Settings* FileHandler::getSettings() { return &settings; }
+std::string FileHandler::getResourcePath() { return resourcePath; }
+/**
+    Takes a file path and returns it with the base BTE path added at the beginning
+*/
+std::string FileHandler::getModifiedPath(FilePath fp)
+{
+    //Get file path string
+    std::string fps = fp.get();
+
+    //Edge case: File path string already begins with a slash
+    if( fps[0]=='/' || fps[0]=='\\' ) {
+        fps = fps.substr(1);
+    }
+
+    //Build modified path that includes the bte path
+    std::string mp;
+    mp = resourcePath+fps;
+    return mp;
+}
+std::string FileHandler::getFileOpenTypeStr(int fot)
+{
+    switch(fot) {
+    case FileOpenTypes::WRITE:  return "writing";
+    case FileOpenTypes::APPEND: return "appending";
+    case FileOpenTypes::READ:   return "reading";
+    }
+    return "unknown";
+}
+
 /**
     Create a new directory (folder) at the path.
         - It will also attempt to create parent directories if they don't already exist (only 1 folder per function call).
-    You should never be creating new directories outside of the main resource path (backtoearth folder)
-        - In most cases just use createBteDir() instead.
+    Trying to create new directories outside of the main resource path (backtoearth folder) will not work.
+        - In most cases just use createBTEDir() instead.
 */
 int FileHandler::createDir(std::string path)
 {
     Log::trbshoot(__PRETTY_FUNCTION__, "Attempting to create new directory at: '"+path+"'..." );
 
-    // If 'path' is not within 'resourcePath'
+    // If 'path' is not within the backtoearth folder
     unsigned int minPathSize = resourcePath.length();
     if( path.substr(0, minPathSize)!=resourcePath ) {
         Log::error( __PRETTY_FUNCTION__,
@@ -416,7 +527,7 @@ int FileHandler::createDir(std::string path)
     }
 
     // If directory at 'path' isn't found
-    if ( opendir(path.c_str())==nullptr ) {
+    if (opendir(path.c_str())==nullptr) {
         if(path==resourcePath) {
             Log::error( __PRETTY_FUNCTION__,
                         "Could not find main directory '"+resourcePath+"'",
@@ -427,31 +538,35 @@ int FileHandler::createDir(std::string path)
         }
     }
 
-    // If filesystem type is Windows
-    if(filesystemType==SDLHandler::WINDOWS) {
-
-    // If filesystem type is Linux
-    } else if(filesystemType==SDLHandler::LINUX) {
-        // Convert all '\\'s into '/'.
-        for(unsigned i = 0; i<path.length(); i++) {
-            if( path[i]=='\\' ) {
-                path[i] = '/';
-            }
-        }
-
-        int mkdirResult = mkdir(path.c_str(), 0775);
-        if( mkdirResult==0 ) {
-            Log::trbshoot( __PRETTY_FUNCTION__, "Successfully created new directory." );
+    // Make the directory...
+    // ...for Windows
+    #if defined(WIN32)
+        FilePath fp(path, SDLHandler::WINDOWS);
+        if(mkdir(fp.get().c_str())==0) {
+            Log::trbshoot(__PRETTY_FUNCTION__, "Successfully created new directory." );
             return 0;
         } else {
-            Log::trbshoot( __PRETTY_FUNCTION__, "Found directory, doing nothing.");
+            Log::error(__PRETTY_FUNCTION__, "Couldn't create directory.");
         }
-    // If filesystem type is unknown
-    } else {
-    }
+    // ...for Linux and macOS
+    #elif (defined(__unix__) || defined(__unix) || (defined(__APPLE__) && defined(__MACH__)) )
+		#if defined(_POSIX_VERSION)
+			FilePath fp(path, SDLHandler::LINUX);
+			if(mkdir(fp.get().c_str(), 0775)==0) {
+				Log::trbshoot(__PRETTY_FUNCTION__, "Successfully created new directory." );
+				return 0;
+			} else {
+				Log::trbshoot(__PRETTY_FUNCTION__, "Found directory, doing nothing.");
+			}
+		#else
+			Log::error(__PRETTY_FUNCTION__, "POSIX version undefined for this Unix OS, could not create directory");
+		#endif
+    // ...for something else? -> Error
+    #else
+		Log::error(__PRETTY_FUNCTION__, "Unknown operating system, could not create directory");
+    #endif
 
-
-
+    //If path to be created is invalid
     if(path==resourcePath) {
         return 1;
     }
@@ -475,80 +590,6 @@ int FileHandler::createDir(std::string path)
     return createDir(subPath);
 }
 
-void FileHandler::pDiscardLineMap()
-{
-    currentLine = -1;
-    usingLineMap = false;
-
-    while(lineMap.begin()!=lineMap.end()) {
-        lineMap.erase(lineMap.begin());
-    }
-}
-
-/**
-    A "mapped file" always looks something like this (line by line):
-    [000010]! hello
-    [000026]! the text portion of this line has 84 characters, including the newline right here->
-    [000120]! The number within the 10 char 'prefix' of this line indicates the position of the beginning of the text portion of this line (in this case it is right before "The")
-    [000295]! There are 295 characters before the beginning of the text portion of this line.
-
-    This function goes through a mapped file and creates a map<int, int> where int1 = the line # and int2 = the char position stored within that line prefix
-
-*/
-int FileHandler::pBuildLineMap()
-{
-    //If FileStream isn't open
-    if( !fs.is_open() ) {
-        Log::warn(__PRETTY_FUNCTION__, "FS (filestream) must be used instead of IFS or OFS");
-        return -1;
-    }
-
-    //Discard any old line maps
-    pDiscardLineMap();
-
-    usingLineMap = true;
-
-    //# of first line = 0
-    currentLine = 0;
-    pSeek(0);
-    for( int num = 0;; currentLine++ ) {
-        //Read in first 10 chars
-        std::string linePrefix = pRead(10);
-        //Test if this is a proper line prefix
-        if( linePrefix[0]=='[' && linePrefix.substr(7)=="]! " ) {
-            lineMap.insert( std::make_pair(currentLine, num+10) );
-            num = std::stoi( linePrefix.substr(1, 6) );
-            pSeekDelta(num+10);
-        } else {
-            break;
-        }
-    }
-
-    int res = currentLine;
-    currentLine = 0;
-    return res;
-}
-
-/**
-    Opens an input filestream at a path.
-    Will not create a new file if one is not already available.
-*/
-void FileHandler::setIFS(FilePath fp) { ifs.open(getModifiedPath(fp), std::ios::in); }
-
-/**
-    Set an output filestream to a path.
-    Will create a new file if one is not already available.
-*/
-void FileHandler::setOFS(FilePath fp) { ofs.open(getModifiedPath(fp), std::ios::out); }
-
-/**
-    Set a filestream to a specified path.
-        - More complex to use than ifs/ofs but is is useful in editing a part of a large file.
-        - Use this if you really don't want to rewrite the entire contents of a file every time you open it.
-    Will create a new file if one is not already available.
-*/
-void FileHandler::setFS(FilePath fp) { fs.open(getModifiedPath(fp), fs.in | fs.out ); }
-
 void FileHandler::unloadSettings()
 {
     for(int i = 0; i<Settings::LAST_INDEX; i++) {
@@ -558,8 +599,15 @@ void FileHandler::unloadSettings()
 
 void FileHandler::loadSettings()
 {
+	//Iterate through all indices
     for(int i = 0; i<Settings::LAST_INDEX; i++) {
-        Settings::t_kvMap kvm = readFileKVs( *(files[i]) );
+		// Build kvm from files[i]
+		Settings::t_kvMap kvm = readTxtFileKVs( *(files[i]) );
         settings.load( i, kvm );
+		
+		// If kvm's size is still 0 for some reason, load default settings
+		if( settings.getKvMap(i).size()==0 ) {
+			settings.load( i, settings.getDefaultSettings(i) );
+		}
     }
 }

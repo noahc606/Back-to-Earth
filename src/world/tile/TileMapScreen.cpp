@@ -82,11 +82,6 @@ void TileMapScreen::tick()
                 doUpdMapVisible = true;
             }
 
-            //Constantly update the entire screen if zoom is large enough (not as much work)
-            if( camZoom>=1.5 ) {
-                regTexUpdates->placeEntireScreen();
-            }
-
             // Calculate screen width and screen height
             regTexUpdates->setScreenInfo();
         }
@@ -99,7 +94,7 @@ void TileMapScreen::tick()
                 umiTicks = 0;
             }
         }
-
+		
         // Update different parts of the map under different conditions
         // Make sure to do it in the order of 1->2->3->4 (most expensive to least)
         if( doUpdMapVisible )   updateMapVisible();
@@ -194,7 +189,7 @@ void TileMapScreen::info(std::stringstream& ss, int& tabs, TileMap::t_ll mouseX,
         DebugScreen::newGroup(ss, tabs, "Selected TileRegion");
         if(tr!=nullptr) {
             //TileRegion info
-            tr->info(ss, tabs, msx, msy, msz);
+            tr->putInfo(ss, tabs, msx, msy, msz);
         } else {
             DebugScreen::indentLine(ss, tabs);
             ss << "Looking at a null TileRegion";

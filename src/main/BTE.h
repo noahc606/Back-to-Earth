@@ -14,13 +14,15 @@ class BTE
 public:
     /**/
     BTE();
-    void init(SDLHandler* p_sdlHandler, FileHandler* p_fileHandler, Controls* p_controls);
+    void preinit(SDLHandler* sh, FileHandler* fh, Controls* ctrls);
+    void init();
     virtual ~BTE();
     /**/
     void draw();
     void tick();
     void onWindowUpdate();
     /**/
+    bool isHardTesting();
     std::string getInfo();
     GUIHandler* getGUIHandler();
     /**/
@@ -31,10 +33,12 @@ private:
     /**/
     /**/
     void setGameState(int p_gamestate);
-    void unload(World*& w);
-    void unload(Tests*& t);
-    void load(World*& w);
-    void load(Tests*& t);
+	void unload(World*& world);
+	void unload(Tests*& tests);
+
+	void load(World*& world);
+	void load(Tests*& tests);
+
     /**/
 
     enum GameState {
@@ -62,5 +66,8 @@ private:
 
     /* Debugging, testing */
     DebugScreen debugScreen;
-    Tests* tests = nullptr;
+    Tests* tests = nullptr;     //Object that tests everything inside of it
+    bool alwaysTest = false;
+    bool testing = false;       //If true, set gamestate to TESTING (blank screen to draw/tick stuff)
+    bool hardTesting = false;   //If true, disable window + loading of all texture/audio assets
 };

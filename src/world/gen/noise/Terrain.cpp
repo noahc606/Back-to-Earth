@@ -11,28 +11,26 @@ Terrain::~Terrain()
     //dtor
 }
 
-void Terrain::populateRegion(TileRegion& tr, int rX, int rY, int rZ)
+void Terrain::testRegion(TileRegion& tr, int rX, int rY, int rZ, bool natural)
 {
     float x = rX*32;
     float y = rY*32;
     float z = rZ*32;
 
     TileType tt; tt.init();
-
-    tt.setVisionBlocking(false); tt.setTextureXY(0, 0); tt.setSolid(false);
-    int air = tr.addToPaletteFast(tt);
-
-    tt.setVisionBlocking(true); tt.setTextureXY(3, 5); tt.setRGB(51, 255, 187); tt.setSolid(true);
-    int topsoil = tr.addToPaletteFast(tt);
+	int air = tr.addToPalette(tt);
+	
+    tt.setVisionBlocking(true); tt.setTextureXY(1, 5); tt.setRGB(204, 153, 0); tt.setSolid(true);
+    int regolith = tr.addToPalette(tt, natural);
 
     tt.setVisionBlocking(true); tt.setTextureXY(3, 1); tt.setRGB(128, 50, 0); tt.setSolid(true);
-    int soil = tr.addToPaletteFast(tt);
+    int soil = tr.addToPalette(tt, natural);
 
     tt.setVisionBlocking(true); tt.setTextureXY(2, 1); tt.setRGB(240, 240, 240); tt.setSolid(true);
-    int rock = tr.addToPaletteFast(tt);
+    int rock = tr.addToPalette(tt, natural);
 
     tt.setVisionBlocking(true); tt.setTextureXY(0, 4); tt.setRGB(10, 80, 180); tt.setSolid(false);
-    int water = tr.addToPaletteFast(tt);
+    int water = tr.addToPalette(tt, natural);
 
     //Height scale
     float verticalScaling = 32.0;
@@ -74,7 +72,7 @@ void Terrain::populateRegion(TileRegion& tr, int rX, int rY, int rZ)
                     tr.setTile(sx, sy, sz, soil);
                 } else
                 if(ld==0) {
-                    tr.setTile(sx, sy, sz, topsoil);
+                    tr.setTile(sx, sy, sz, regolith);
                 } else {
 
                     if( z+sz>-20 ) {
@@ -87,3 +85,6 @@ void Terrain::populateRegion(TileRegion& tr, int rX, int rY, int rZ)
         }
     }
 }
+
+void Terrain::testRegion(TileRegion& tr, int rX, int rY, int rZ) { testRegion(tr, rX, rY, rZ, false); }
+void Terrain::populateRegion(TileRegion& tr, int rX, int rY, int rZ) { testRegion(tr, rX, rY, rZ, true); }

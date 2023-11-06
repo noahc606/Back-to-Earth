@@ -96,12 +96,19 @@ TileMap::t_updates* TileMap::getRTUsByRXYz(long rX, long rY, long z)
     return nullptr;
 }
 
+
+long TileMap::getRegSubPos(t_ll c) { c %= 32; if( c<0 ) c+=32; return c; }
 void TileMap::getRegSubPos(t_ll& x, t_ll& y, t_ll& z) { x = getRegSubPos(x); y = getRegSubPos(y); z = getRegSubPos(z); }
 void TileMap::getRegSubPos(long& x, long& y, long& z) { x = getRegSubPos(x); y = getRegSubPos(y); z = getRegSubPos(z); }
-long TileMap::getRegSubPos(t_ll c) { c %= 32; if( c<0 ) c+=32; return c; }
+
+long TileMap::getRegRXYZ(t_ll c) { c = floor(c/32.0); return c; }
 void TileMap::getRegRXYZ(t_ll& x, t_ll& y, t_ll& z) { x = getRegRXYZ(x); y = getRegRXYZ(y); z = getRegRXYZ(z); }
 void TileMap::getRegRXYZ(long& x, long& y, long& z) { x = getRegRXYZ(x); y = getRegRXYZ(y); z = getRegRXYZ(z); }
-long TileMap::getRegRXYZ(t_ll c) { c = floor(c/32.0); return c; }
+
+long TileMap::convRxyToLSRxy(t_ll rxOrY) { rxOrY = floor(rxOrY/16.0); return rxOrY; }
+long TileMap::convRzToLSRz(t_ll rz) { rz = floor(rz/4.0); return rz; }
+void TileMap::convRxyzToLSRxyz(t_ll& rx, t_ll& ry, t_ll& rz) { rx = convRxyToLSRxy(rx); ry = convRxyToLSRxy(ry); rz = convRzToLSRz(rz); }
+void TileMap::convRxyzToLSRxyz(long& rx, long& ry, long& rz) { rx = convRxyToLSRxy(rx); ry = convRxyToLSRxy(ry); rz = convRzToLSRz(rz); }
 
 bool TileMap::collides( Box3D& b )
 {

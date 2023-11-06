@@ -6,20 +6,26 @@
 FilePath::FilePath(std::string path, std::string extension, int fsType)
 {
     FilePath::path = path+"."+extension; //'extension': can be "txt", "png" or really anything
-
     FilePath::path = getConvertedPath(FilePath::path, fsType);
 }
 
-FilePath::FilePath(std::string path, int fsType):
-FilePath::FilePath(path, "txt", fsType){}
+FilePath::FilePath(std::string path, int fsType)
+{
+	FilePath::path = getConvertedPath(path, fsType);
+}
 
+/**
+    Return formatted version of a path string.
+    Depending on the file system (Windows or Linux), either backslashes or forward slashes may be used by filestream functions.
+    This function ensures that any type of slash can be used when working with a path string.
+*/
 std::string FilePath::getConvertedPath(std::string path, int fsType)
 {
     std::string res = path;
 
     if(fsType==SDLHandler::WINDOWS) {
         //Convert any type of slash to backslash ('\\')
-        for(unsigned int i = 0; i<res.size(); i++) {
+        for( unsigned int i = 0; i<res.size(); i++ ) {
             if( res[i]=='\\' || res[i]=='/' ) {
                 res[i] = '\\';
             }
@@ -27,7 +33,7 @@ std::string FilePath::getConvertedPath(std::string path, int fsType)
     } else
     if(fsType==SDLHandler::LINUX) {
         //Convert any type of slash to frontslash ('/')
-        for(unsigned int i = 0; i<res.size(); i++) {
+        for( unsigned int i = 0; i<res.size(); i++ ) {
             if( res[i]=='\\' || res[i]=='/' ) {
                 res[i] = '/';
             }
@@ -41,9 +47,38 @@ std::string FilePath::getConvertedPath(std::string path, int fsType)
     return res;
 }
 
+std::string FilePath::getFileExtension(std::string path, int fsType)
+{
+    //Get path seperator character
+    char pathSeperator = '/';
+    if(fsType==SDLHandler::WINDOWS) {
+        pathSeperator = '\\';
+    }
+    path = getConvertedPath(path, fsType);
+
+    //Find extension by starting at the end and going back until we find "."
+    int dotIndex = -1;
+    for( int i = (int)path.size()-1; i>=0; i-- ) {
+        //If we find a period, break out of the function
+        if(path[i]=='.') {
+            dotIndex = i;
+            break;
+        //If we find any type of slash, break out of the function
+        } else if(path[i]==pathSeperator) {
+            dotIndex = -1;
+            break;
+        }
+    }
+
+    //-1 If we didn't find a file extension
+    if( dotIndex==-1 || dotIndex==(int)path.size()-1 ) {
+        return "";
+    } else {
+        return path.substr(dotIndex+1);
+    }
+}
+
 std::string FilePath::get()
 {
     return path;
 }
-
-FilePath::~FilePath(){}

@@ -2,7 +2,7 @@
 #include <iostream>
 #include <sstream>
 #include <string.h>
-#include <SDL.h>
+#include <SDL2/SDL.h>
 #include "Log.h"
 
 TileIterator::TileIterator(TileMap* p_tileMap)

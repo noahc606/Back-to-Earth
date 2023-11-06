@@ -124,7 +124,11 @@ ControlBinding Controls::getControlBindingFromString(std::string s)
     }
 
     if(isInt) {
-        return ControlBinding( ControlBinding::KEY, std::stoi(s) );
+		try {
+			return ControlBinding( ControlBinding::KEY, std::stoi(s) );
+		} catch(std::exception e) {
+			return ControlBinding( ControlBinding::KEY, -1 );
+		}
     } else {
         return ControlBinding( s );
     }
@@ -155,8 +159,8 @@ void Controls::reloadBindings(Settings* settings)
         ctrlsHeld.push_back(false);
         ctrlsReleased.push_back(false);
 
-        lastCtrlPress.push_back(false);
-        lastCtrlRelease.push_back(false);
+        lastCtrlPress.push_back(0);
+        lastCtrlRelease.push_back(0);
     }
 }
 

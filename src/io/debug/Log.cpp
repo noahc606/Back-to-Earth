@@ -1,82 +1,143 @@
 #include "Log.h"
 #include <SDL.h>
 #include "Main.h"
+#include "MainLoop.h"
 
 bool Log::trbsOverride = false;
+FileHandler* Log::fileHandler = nullptr;
+bool Log::fhInit = false;
+bool Log::logDestroyed = false;
 
 Log::Log(){}
 Log::~Log(){}
 
+void Log::initAll(std::string p_resourcePath, int p_filesystemType)
+{
+	if(!fhInit) {
+		fileHandler = new FileHandler();
+		fileHandler->init(p_resourcePath, p_filesystemType);
+		fhInit = true;
+
+		fileHandler->cEditFile("saved/logs/latest.log");
+	} else {
+		Log::warn(__PRETTY_FUNCTION__, "Already initialized fileHandler");
+	}
+}
+
+void Log::destroyAll()
+{
+	logDestroyed = true;
+	
+	Log::log("Destroying log...");
+	fileHandler->saveCloseFile();
+	fileHandler->mvFile("saved/logs/latest.log", "saved/logs/Log_"+MainLoop::getSystemTimeFilename()+".log" );
+	delete fileHandler;
+}
+
+void Log::printStringStream(std::stringstream& ss)
+{
+	if(!logDestroyed) {
+		std::cout << ss.str();
+		if( fileHandler!=nullptr && fileHandler->fileExists("saved/logs/latest.log") ) {
+			fileHandler->write(ss.str());
+		}	
+	}
+}
+
 void Log::log(std::string p_message)
 {
-    std::cout << "[  Log  ] " << p_message << std::endl;
+	std::stringstream ss;
+	ss << "[  Log  ] " << p_message << "\n";
+	printStringStream(ss);
 }
 
 void Log::debug(std::string p_message)
 {
     if( Main::DEBUG || Main::TROUBLESHOOTING ) {
-        std::cout << "[ Debug ] " << p_message << std::endl;
+		std::stringstream ss;
+		ss << "[ Debug ] " << p_message << "\n";
+		printStringStream(ss);
     }
 }
 
 void Log::debug(std::string p_method, std::string p_message)
 {
     if( Main::DEBUG || Main::TROUBLESHOOTING ) {
-        std::cout << "[ Debug ] " << p_method << " - " << p_message << std::endl;
+		std::stringstream ss;
+		ss << "[ Debug ] " << p_method << " - " << p_message << "\n";
+		printStringStream(ss);
     }
 }
 
 void Log::coords(std::string object, int x, int y)
 {
     if( Main::DEBUG || Main::TROUBLESHOOTING ) {
-        std::cout << "[ Debug ] (x, y) of object \"" << object << "\" = (" << x << ", " << y << ").\n";
+		std::stringstream ss;
+		ss << "[ Debug ] (x, y) of object \"" << object << "\" = (" << x << ", " << y << ").\n";
+		printStringStream(ss);
     }
 }
 
 void Log::coords(std::string object, int x, int y, int w, int h)
 {
     if( Main::DEBUG || Main::TROUBLESHOOTING ) {
-        std::cout << "[ Debug ] (x, y, w, h) of object \"" << object << "\" = (" << x << ", " << y << ", " << w << ", " << h << ").\n";
+		std::stringstream ss;
+		ss << "[ Debug ] (x, y, w, h) of object \"" << object << "\" = (" << x << ", " << y << ", " << w << ", " << h << ").\n";
+		printStringStream(ss);
     }
 }
 
 void Log::trbshoot(std::string p_method, std::string p_message)
 {
     if(Main::TROUBLESHOOTING || trbsOverride) {
-        std::cout << "[ TrbSh ] " << p_method << " - " << p_message << std::endl;
+		std::stringstream ss;
+		ss << "[ TrbSh ] " << p_method << " - " << p_message << "\n";
+		printStringStream(ss);
     }
 }
 
 void Log::trbshoot(std::string p_method, std::string p_message, std::string p_resolution)
 {
     if(Main::TROUBLESHOOTING || trbsOverride) {
-        std::cout << "[ TrbSh ] " << p_method << " - " << p_message << ", " << p_resolution << std::endl;
+		std::stringstream ss;
+		ss << "[ TrbSh ] " << p_method << " - " << p_message << ", " << p_resolution << "\n";
+		printStringStream(ss);
     }
 }
 
 void Log::warn(std::string p_method, std::string p_message, std::string p_resolution)
 {
-    std::cout << "[Warning] " << p_method << " - " << p_message << ", " << p_resolution << "..." << std::endl;
+	std::stringstream ss;
+	ss<< "[Warning] " << p_method << " - " << p_message << ", " << p_resolution << "...\n";
+	printStringStream(ss);
 }
 
 void Log::warn(std::string p_method, std::string p_message)
 {
-    std::cout << "[Warning] " << p_method << " - " << p_message << ", ignoring issue..." << std::endl;
+	std::stringstream ss;
+	ss << "[Warning] " << p_method << " - " << p_message << ", ignoring issue...\n";
+	printStringStream(ss);
 }
 
 void Log::error(std::string p_method, std::string p_message)
 {
-    std::cout << "[ ERROR ] " << p_method << " - " << p_message << "!" << std::endl;
+	std::stringstream ss;
+	ss << "[ ERROR ] " << p_method << " - " << p_message << "!\n";
+	printStringStream(ss);
 }
 
 void Log::error(std::string p_method, std::string p_message, std::string error)
 {
-    std::cout << "[ ERROR ] " << p_method << " - " << p_message << ": " << error << "!" << std::endl;
+	std::stringstream ss;
+	ss << "[ ERROR ] " << p_method << " - " << p_message << ": " << error << "!\n";
+	printStringStream(ss);
 }
 
 void Log::error(std::string p_method, std::string p_message, const char* error)
 {
-    std::cout << "[ ERROR ] " << p_method << " - " << p_message << ": " << error << "!" << std::endl;
+	std::stringstream ss;
+	ss << "[ ERROR ] " << p_method << " - " << p_message << ": " << error << "!\n";
+	printStringStream(ss);
 }
 
 

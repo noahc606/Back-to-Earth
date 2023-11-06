@@ -66,6 +66,7 @@ Settings::Settings()
     kv(s, "debugEnabled", "false");
     kv(s, "debugHacks", "typeincorrectpassword");
     kv(s, "debugTesting", "false");
+    kv(s, "debugHardTesting", "false");
 
     s = &(defaultSettings[version]);
     kv(s, "version", Main::VERSION);
@@ -76,6 +77,7 @@ Settings::Settings()
 
 bool Settings::unload(int index)
 {
+	//Erase all elements in settingsMap.
     t_settingsMap::iterator itr = settingsMap.find(index);
     if( itr!=settingsMap.end() ) {
         settingsMap.erase(itr);

@@ -6,16 +6,20 @@
 #include <fstream>
 #include <iostream>
 #include <fcntl.h>
+#include <set>
+#include <sstream>
 #include "Color.h"
+#include "DataStream.h"
 #include "Log.h"
+#include "MainLoop.h"
+#include "Noise.h"
 #include "Terrain.h"
 #include "Real.h"
 #include "Text.h"
 #include "TileMap.h"
+#include "TileMapScreen.h"
 #include "Timer.h"
 #include "Window.h"
-
-/**/
 
 Tests::Tests(){}
 void Tests::init(SDLHandler* sh, FileHandler* fh, Controls* ctrls)
@@ -23,34 +27,24 @@ void Tests::init(SDLHandler* sh, FileHandler* fh, Controls* ctrls)
     sdlHandler = sh;
     fileHandler = fh;
     controls = ctrls;
-
-    ControlBinding cb;
-    cb.keyboardAction = SDLK_SPACE;
-
-    Settings* stngs = fileHandler->getSettings();
-
-    //Set setting to the last input
-    std::string key = stngs->getKey( stngs->getKvMap(Settings::controls), 11);
-    std::cout << "Value: " << stngs->get(Settings::controls, "FUNC_9") << "\n";
-    stngs->kv(Settings::controls, key, cb.keyboardAction);
+	
+	//Build tile region
+	TileRegion tr;
+	Terrain terra;
+	terra.testRegion(tr, 0, 0, -1, 1);
+	Log::log( tr.getInfo(0, 0, 0) );
+	
+	Timer t;
+	for(int i = 0; i<1; i++) {
+		LevelSave ls;
+		ls.saveTileRegion(fileHandler, tr, 1312+12, 112+11, 12344+1);
+	}
+	t.debugElapsedTimeMS();
 }
 
 Tests::~Tests(){}
 
 /**/
-
-void Tests::thing1()
-{
-    TextureLoader* tl = sdlHandler->getTextureLoader();
-
-    SDL_Rect dst; dst.x = 0; dst.y = 0; dst.w = 512; dst.h = 512;
-    SDL_RenderCopy(
-        sdlHandler->getRenderer(),
-        tl->getTexture(TextureLoader::WORLD_TILE_type_a),
-        NULL,
-        &dst
-    );
-}
 
 void Tests::draw()
 {
@@ -76,7 +70,7 @@ void Tests::draw()
 
 void Tests::tick()
 {
-
+	std::cout << "test";
 }
 
 /**/

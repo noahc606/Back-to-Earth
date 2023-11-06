@@ -54,7 +54,7 @@ void ColorPalette::init(int id)
     switch( id )
     {
         case DEFAULT_PLAYER: {
-            palette.insert( std::make_pair( "hair", hairColors[8] ) );
+            palette.insert( std::make_pair( "hair", hairColors[12] ) );
             palette.insert( std::make_pair( "skin", skinColors[7] ) );
             palette.insert( std::make_pair( "eyes", Color(130, 183, 211) ) );
             palette.insert( std::make_pair( "mouth", Color(234, 171, 169) ) );
