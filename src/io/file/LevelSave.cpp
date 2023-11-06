@@ -1,5 +1,6 @@
 #include "LevelSave.h"
 #include <math.h>
+#include <cmath>
 #include <iostream>
 #include <set>
 #include <sstream>

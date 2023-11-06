@@ -2,6 +2,7 @@
 #include <iomanip>
 #include <iostream>
 #include <math.h>
+#include <cmath>
 #include <stdlib.h>
 #include <sstream>
 #include "DebugScreen.h"
