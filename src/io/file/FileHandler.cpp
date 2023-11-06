@@ -117,7 +117,7 @@ int FileHandler::openFile(std::string path, int openType, bool binary)
     }
 
     /* Open file */
-    //Open file for writing, appending, or reading
+    //Open file for writing, appending, reading, or updating
     switch(openType) {
     case FileOpenTypes::WRITE:  file = std::fopen(mpath.c_str(), ("w"+modeArg).c_str()); break;
     case FileOpenTypes::APPEND: file = std::fopen(mpath.c_str(), ("a"+modeArg).c_str()); break;
@@ -254,9 +254,16 @@ uint8_t FileHandler::readByte()
 {
 	uint8_t buffer = 0;
 	if( fread(&buffer, sizeof(uint8_t), 1, file)!=1 ) {
-		Log::warn(__PRETTY_FUNCTION__, "Failed to read byte from file.");
+		Log::warn(__PRETTY_FUNCTION__, "Failed to read byte from file");
 	}
 	return buffer;
+}
+
+uint8_t FileHandler::readByteStay()
+{
+	uint8_t byte = readByte();
+	seekThru(-1);
+	return byte;
 }
 
 /**
@@ -334,30 +341,71 @@ Settings::t_kvMap FileHandler::readTxtFileKVs(FilePath fp)
     return contents;
 }
 
+
+bool FileHandler::checkMagicNumber(uint64_t mnPart1, uint64_t mnPart2)
+{
+	DataStream ds;
+	ds.putXBits(mnPart1, 64);
+	ds.putXBits(mnPart2, 64);
+	
+	//Find where we currently are
+	long originalPos = tellPos();
+	
+	//Compare the next 16 bytes (128) bits, between the FileHandler's bytes and the DataStream's bytes.
+	bool success = true;
+	for( int i = 0; i<16; i++ ) {
+		if( getFileLength()==0 || readByteStay()!=ds.peekByteCell() ) {
+			success = false;
+			break;
+		}
+		ds.seekByteDelta(1);
+		seekThru(1);
+	}
+	
+	//Go back to where we were.
+	seekTo(originalPos);
+	
+	//Return whether comparison was successful or not.
+	return success;
+}
+
 long FileHandler::tellPos()
 {
 	return ftell(file);
 }
-long FileHandler::seekTo(long byte)
+
+long FileHandler::getFileLength()
 {
-	if( fseek(file, byte, SEEK_SET)!=0 ) {
+	long origPos = tellPos();
+	
+	seekToEnd();
+	long res = tellPos();
+
+	seekTo(origPos);
+	return res;
+}
+
+int FileHandler::seek(long byte, int seekType)
+{
+	if( fseek(file, byte, seekType)!=0 ) {
 		std::stringstream logres;
-		logres << "Failed to seek to position " << byte << " in file.";
+		switch(seekType) {
+			case SEEK_SET: logres << "Failed to seek to position " << byte << " in file."; break;
+			case SEEK_END: logres << "Failed to seek to end of file."; break;
+			case SEEK_CUR: logres << "Failed to seek " << byte << " forward in file."; break;
+		}
 		Log::warn(__PRETTY_FUNCTION__, logres.str());
 		return -1;
 	}
 	return 0;
 }
-long FileHandler::seekThru(long bytesDelta)
+
+int FileHandler::seekTo(long byte)
 {
-	if( fseek(file, bytesDelta, SEEK_CUR) !=0 ) {
-		std::stringstream logres;
-		logres << "Failed to seek " << bytesDelta << " forward in file.";
-		Log::warn(__PRETTY_FUNCTION__, logres.str());
-		return -1;
-	}
-	return 0;
+	return seek(byte, SEEK_SET);
 }
+int FileHandler::seekToEnd() { return seek(0, SEEK_END); }
+int FileHandler::seekThru(long bytesDelta) { return seek(bytesDelta, SEEK_CUR); }
 
 int FileHandler::saveSettings(int index)
 {

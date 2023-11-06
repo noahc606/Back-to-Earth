@@ -44,10 +44,19 @@ void Player::destroy()
 
 void Player::draw(Canvas* csEntities)
 {
-    /** Frames */
-
-    /** Rebuild player texture */
+    /*
+	 *	Rebuild player texture from spritesheet
+	 *	
+	 *	We rebuild the player's texture every frame.
+	 *	Meanwhile, the spritesheet was built once during player initialization.
+	 */
+	bool cameraHorizontal = false;
     playerTex.clear();
+	if(cameraHorizontal) {
+		playerTex.setTexDimensions(32, 64);
+	} else {
+		playerTex.setTexDimensions(32, 32);
+	}
     Texture* sst = spsh.getSheetTexture();
 
     //Render spritesheet on screen if it should be shown (debug feature)
@@ -62,62 +71,97 @@ void Player::draw(Canvas* csEntities)
     if(facing==WEST) {
         flip = sst->Flip::H;
     }
+	
+	int rotation = 0;
+	switch(facing) {
+		case WEST: rotation = 270;	break;
+		case NORTH: rotation = 0;	break;
+		case EAST: rotation = 90;	break;
+		case SOUTH: rotation = 180;	break;
+	}
+	
+	
+	if(!cameraHorizontal) {
+		/* Lower body (legs) */
+		playerTex.lock();
+		//playerTex.blitEx(sst, 0, 32*TOP_LOWER_BODY, 32, 32, rotation);
+		//if( anWalkState==0 ) {
+		playerTex.blitEx(sst, 32*anWalkFrameX, (TOP_LOWER_BODY+1)*32, 32, 32, rotation);
+		//}
+		
+		
+		/* Middle body */
+		playerTex.lock();
+		playerTex.blitEx(sst, 0, 32*TOP_MIDDLE_BODY, 32, 32, rotation);
+		
+		/* Arms (if player is walking) */
+		if(walkSpeed>0)
+		{
+			playerTex.lock();
+			playerTex.blitEx(sst, 0, 32*TOP_ARMS, 32, 32, rotation);
+		}
+		
+		
+		/* Head */
+		playerTex.lock();
+		playerTex.blitEx(sst, 0, 32*TOP_HAIR, 32, 32, rotation);
+	} else {
+		/** Head */
+		//Head base
+		playerTex.lock(0, 0, 32, 32);
+		playerTex.blitEx(sst, 0, 32*SIDE_HEAD_BASE, 32, 32, flip);
 
-    /** Head */
-    //Head base
-    playerTex.lock(0, 0, 32, 32);
-    playerTex.blitEx(sst, 0, 32, 32, 32, flip);
+		//Eyes layer 1
+		if(anBlinkTimer<0) {
+			playerTex.lock(0, 0, 32, 32);
+			playerTex.blitEx(sst, 0, 32*SIDE_HEAD_EYES, 32, 32, flip);
+		}
 
-    //Eyes layer 1
-    if(anBlinkTimer<0) {
-        playerTex.lock(0, 0, 32, 32);
-        playerTex.blitEx(sst, 0, 64, 32, 32, flip);
-    }
+		//Eyes layer 2
+		if(anBlinkTimer<0) {
+			playerTex.lock(0, 0, 32, 32);
+			playerTex.blitEx(sst, 0, 32*SIDE_HEAD_PUPILS, 32, 32, flip);
+		}
 
-    //Eyes layer 2
-    if(anBlinkTimer<0) {
-        playerTex.lock(0, 0, 32, 32);
-        playerTex.blitEx(sst, 0, 96, 32, 32, flip);
-    }
+		//Lips
+		playerTex.lock(0, 0, 32, 32);
+		playerTex.blitEx(sst, 0, 32*SIDE_HEAD_MOUTH, 32, 32, flip);
 
-    //Lips
-    playerTex.lock(0, 0, 32, 32);
-    playerTex.blitEx(sst, 0, 128, 32, 32, flip);
+		/** Arms */
+		//Arms
+		int aTX = (anWalkFrameX%2);
+		playerTex.lock(0+aTX, 16, 32+aTX, 32);
+		playerTex.blitEx(sst, 0, 32*SIDE_ARMS, flip);
 
-    /** Arms */
-    //Arms
-    int aTX = (anWalkFrameX%2);
-    playerTex.lock(0+aTX, 16, 32+aTX, 32);
-    playerTex.blitEx(sst, 0, 160, flip);
+		/** Body */
+		//Legs
+		playerTex.lock(0, 29, 32, 32);
+		if( anWalkState!=0 ) {
+			int dy = 1;
+			if( facing==SOUTH || facing==NORTH ) {
+				dy = 2;
+			}
+			playerTex.blitEx(sst, 32*anWalkFrameX, (SIDE_LOWER_BODY+dy)*32, 32, 32, flip);
+		} else {
+			playerTex.blitEx(sst, 32*anWalkFrameX, (SIDE_LOWER_BODY)*32, 32, 32, flip);
+		}
+		//Middle body
+		{
+			playerTex.lock(0+aTX, 9, 32+aTX, 32);
 
-    /** Body */
-    //Legs
+			playerTex.blitEx(sst, 0, (SIDE_MIDDLE_BODY)*32, 32, 32, flip);
+		}
+		
+		/** Extra */
+		//Shoes
+		//playerTex.lock(1, 48, 32, 32);
+		//playerTex.blitEx(sst, 0, FEET*32, 31, 32, flip);
 
-    playerTex.lock(0, 29, 32, 32);
-    if( anWalkState!=0 ) {
-        int dy = 1;
-        if( facing==SOUTH || facing==NORTH ) {
-            dy = 2;
-        }
-        playerTex.blitEx(sst, 32*anWalkFrameX, (LOWER_BODY+dy)*32, 32, 32, flip);
-    } else {
-        playerTex.blitEx(sst, 32*anWalkFrameX, (LOWER_BODY)*32, 32, 32, flip);
-    }
-    //Middle body
-    {
-        playerTex.lock(0+aTX, 9, 32+aTX, 32);
-
-        playerTex.blitEx(sst, 0, (MIDDLE_BODY)*32, 32, 32, flip);
-    }
-
-    /** Extra */
-    //Shoes
-    playerTex.lock(1, 48, 32, 32);
-    playerTex.blitEx(sst, 0, FEET*32, 31, 32, flip);
-
-    //Hair
-    playerTex.lock(0, 0, 32, 32);
-    playerTex.blitEx(sst, 0, 0, 32, 32, flip);
+		//Hair
+		playerTex.lock(0, 0, 32, 32);
+		playerTex.blitEx(sst, 0, 32*SIDE_HAIR, 32, 32, flip);
+	}
+	
 
     //If player is inside a tile, make sure part of the player isn't rendered
 
@@ -126,7 +170,7 @@ void Player::draw(Canvas* csEntities)
     /** Draw player texture to canvas */
     //playerTex.rect(0, 0, 32, 64, 255, 0, 0);
     csEntities->setSourceTex(&playerTex);
-    csEntities->rcopy(x*32, y*32, 32, 64);
+    csEntities->rcopy(x*32, y*32, playerTex.getTexWidth(), playerTex.getTexHeight());
 }
 
 void Player::tick()

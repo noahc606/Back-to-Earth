@@ -257,12 +257,16 @@ void TextureLoader::load()
             addSurface("gui/player_interactions");
             addSurface("gui/window");
             //Player
-            addSurface("player/hair");
-            addSurface("player/head");
-            addSurface("player/arms");
-            addSurface("player/middle_body");
-            addSurface("player/lower_body");
-            addSurface("player/feet");
+            addSurface("player/side/hair");
+            addSurface("player/side/head");
+            addSurface("player/side/arms");
+            addSurface("player/side/middle_body");
+            addSurface("player/side/lower_body");
+            addSurface("player/side/feet");
+            addSurface("player/top/hair");
+            addSurface("player/top/arms");
+            addSurface("player/top/middle_body");
+            addSurface("player/top/lower_body");
             //World
             addSurface("world/background/space/interstellar");
             addSurface("world/region0");

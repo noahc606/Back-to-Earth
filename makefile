@@ -33,9 +33,9 @@ CXX := g++
 
 # [ Build interface ] ##########################################################################################################
 build-interface:
-	@echo "If on Windows (where executables have a .exe extension):"
+	@echo "Only if you are on Windows (where executables have a .exe extension):"
 	@echo "    1. use 'make windows' in the root directory of the repo."
-	@echo "If on Unix (where executables have no extension):"
+	@echo "Only if you are on Unix (where executables have no extension):"
 	@echo "    1. Install sdl2, sdl2-img, sdl2-mixer, and sdl2-ttf using your package manager."
 	@echo "       (ex: 'sudo apt install libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev' for Debian/Ubuntu)"
 	@echo "    2. use 'make unix' in the root directory of the repo."

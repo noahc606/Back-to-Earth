@@ -44,10 +44,10 @@ public:
     static void getRegRXYZ  (t_ll& x, t_ll& y, t_ll& z);
     static void getRegRXYZ  (long& x, long& y, long& z);
     //Get save-region coordinates based on xyz.
-	static long getRegSrXY (t_ll xOrY);
-	static long getRegSrZ (t_ll z);
-	static void getRegSrXYZ (t_ll& x, t_ll& y, t_ll& z);
-	static void getRegSrXYZ (long& x, long& y, long& z);
+	static long convRxyToLSRxy (t_ll rxOrRy);
+	static long convRzToLSRz (t_ll rz);
+	static void convRxyzToLSRxyz (t_ll& rx, t_ll& ry, t_ll& rz);
+	static void convRxyzToLSRxyz (long& rx, long& ry, long& rz);
     
     bool collides( Box3D &b );
 

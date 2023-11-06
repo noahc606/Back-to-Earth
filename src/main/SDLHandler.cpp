@@ -51,6 +51,11 @@ int SDLHandler::getHeight() { return height; }
 bool SDLHandler::usingBTECursor() { return bteCursor; }
 
 std::string SDLHandler::getVideoDriversDesc() { return videoDriversDesc; }
+std::string SDLHandler::getSystemRamDesc() {
+	std::stringstream ss;
+	ss << "System RAM available: " << SDL_GetSystemRAM() << "MB";
+	return ss.str();
+}
 std::string SDLHandler::getResourcePath() { return resourcePath; }
 std::string SDLHandler::getDevicePlatform() { return devicePlatform; }
 int SDLHandler::getFilesystemType() { return filesystemType; }

@@ -134,6 +134,8 @@ void GUIHandler::tick()
             if( btn->isSelected() ) {
                 guiActionID = btn->getID();
                 removeGUI( btn->getID() );
+				AudioLoader* al = sdlHandler->getAudioLoader();
+				al->play(AudioLoader::TITLE_beam, 0.15);
             }
         }
         //If gui is a radiobutton
@@ -300,9 +302,6 @@ void GUIHandler::setGUIs(int guis)
         /** Main UIs */
         case MAIN: {
             AudioLoader* al = sdlHandler->getAudioLoader();
-            al->play(AudioLoader::TITLE_impact);
-			//al->play(AudioLoader::MUSIC_space_travel);
-			
             gb.buildTitleScreen(*this);
         } break;
         case OPTIONS: {

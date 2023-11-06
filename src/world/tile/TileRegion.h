@@ -21,9 +21,10 @@ public:
     /**/
     //Get palette info
 	uint16_t getPaletteSize();
-	uint16_t getPaletteSizePositive();
-	uint16_t getPaletteSizeNegative();
+	uint16_t getPaletteSizeNatural();
+	uint16_t getPaletteSizeArtificial();
 	static int getPaletteSizeBucket(int size);
+	int getArtificialPaletteSizeBucket();
 	int getPaletteSizeBucket();
 	TileType getPaletteElement(int16_t key);
 	//Get tile info
@@ -34,6 +35,8 @@ public:
     int getRegTexPriority();
 	
 	/**/
+	//Check palette
+	bool assertDefaultTileExists(t_palette& pal);
 	//Add to palette
     int16_t addToPalette(TileType tile, t_palette& pal, bool natural);
     int16_t addToPalette(TileType tile, t_palette& pal);
@@ -54,8 +57,8 @@ public:
     void setRegTexPriority(int p_rtp);
 	//Used in level saving
     void compress();
-    void dumpPaletteData(DataStream& ds, long rX, long rY, long rZ);
-    void dumpTileData(DataStream& ds, long rX, long rY, long rZ);
+    void dumpPaletteData(DataStream& ds, uint8_t dataBitsPerTile);
+    void dumpTileData(DataStream& ds, uint8_t dataBitsPerTile);
     void save(SDLHandler* sh, FileHandler* fh, std::string saveGameName, long rX, long rY, long rZ, bool compress);
     void save(SDLHandler* sh, FileHandler* fh, std::string saveGameName, long rX, long rY, long rZ);
 

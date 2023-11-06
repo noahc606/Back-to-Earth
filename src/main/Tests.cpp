@@ -21,70 +21,25 @@
 #include "Timer.h"
 #include "Window.h"
 
-void save(FileHandler* fileHandler)
-{
-	TileRegion tr;
-	Terrain terra;
-	terra.populateRegion(tr, 0, 0, 0);
-	
-	//LTR = (32*16)x(32*16)x(32*4)=512x512x128	
-	fileHandler->openFile("dump/test5.bte_ltr", FileHandler::WRITE, true);
-	DataStream ds;
-	//Magic Number
-	ds.put64Bits(0xaf0e66d7af0e66d7);
-	ds.put64Bits(0xce529030ce529030);
-	ds.seekBitDelta(64*2);
-	
-	//File Header (32*32*32=32768 entries. each having 40 bits of data.
-	//This data represents the location (in bytes) within the file for the save data.
-	int numBits = 40;
-	for(int i = 0; i<32*32*32; i++) {
-		ds.putXBits(0b1111111111111111111111111111111111111111, numBits);
-		ds.seekBitDelta(numBits);
-	}
-	
-	uint8_t dsx = 0;	//0-1
-	uint8_t dsy = 0;	//0-1
-	uint8_t dsz = 4;	//0-7
-	int psb = tr.getPaletteSizeBucket();
-	std::cout << "Tile: " << tr.getTile(0, 0, 0).getVal() << "\n";
-	//Total of 16*16*4=1024 tiles. Each tile = 'psb' bits. Two hex chars = 1 byte.
-	for( uint8_t sx = dsx*16; sx<dsx*16+16; sx++ ) {
-		for( uint8_t sy = dsy*16; sy<dsy*16+16; sy++ ) {
-			for( uint8_t sz = dsz*4; sz<dsz*4+4; sz++ ) {
-				ds.putXBits( tr.getTileKey(sx, sy, sz), psb );
-				ds.seekBitDelta(psb);
-			}
-		}
-	}
-		
-	ds.dumpBytestream(fileHandler);
-	fileHandler->saveCloseFile();
-}
-
-void load()
-{
-	
-}
-
-void allocNew(DataStream& ds, uint8_t bitsize)
-{
-    int nhe = 16*16*4;  // (n)umber of (h)eader (e)ntries
-    int she = 9;        // (s)ize of 1 (h)eader (e)ntry (in bytes)
-
-    for( int i = 0; i<nhe; i++ ) {
-        ds.seekByte(9*she);
-
-        ds.peekHexDigitCell();
-    }
-}
-
 Tests::Tests(){}
 void Tests::init(SDLHandler* sh, FileHandler* fh, Controls* ctrls)
 {
     sdlHandler = sh;
     fileHandler = fh;
     controls = ctrls;
+	
+	//Build tile region
+	TileRegion tr;
+	Terrain terra;
+	terra.testRegion(tr, 0, 0, -1, 1);
+	Log::log( tr.getInfo(0, 0, 0) );
+	
+	Timer t;
+	for(int i = 0; i<1; i++) {
+		LevelSave ls;
+		ls.saveTileRegion(fileHandler, tr, 1312+12, 112+11, 12344+1);
+	}
+	t.debugElapsedTimeMS();
 }
 
 Tests::~Tests(){}

@@ -82,11 +82,6 @@ void TileMapScreen::tick()
                 doUpdMapVisible = true;
             }
 
-            //Constantly update the entire screen if zoom is large enough (not as much work)
-            if( camZoom>=1.5 ) {
-                regTexUpdates->placeEntireScreen();
-            }
-
             // Calculate screen width and screen height
             regTexUpdates->setScreenInfo();
         }

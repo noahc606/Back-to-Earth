@@ -14,8 +14,8 @@ void DataStream::info(std::stringstream& ss, int& tabs)
 {
     DebugScreen::newGroup(ss, tabs, "DataStream");
         DebugScreen::indentLine(ss, tabs);
-        ss << "seek(byte, bit)=(" << std::hex << getSeekBytePos() << ", " << (int)getSeekBitOffset() << "); ";
-        ss << "bytecell = " << std::setw(2) << std::hex << (int)peekByteCell() << "; ";
+        ss << "seek(byte, bit)=(" << getSeekBytePos() << ", " << (int)getSeekBitOffset() << "); ";
+        ss << "bytecell = " << std::setfill('0') << std::setw(2) << std::hex << (int)peekByteCell() << "; ";
         DebugScreen::newLine(ss);
         DebugScreen::indentLine(ss, tabs);
         std::queue<bool> bitcacheCopy = bitcache;
@@ -24,7 +24,19 @@ void DataStream::info(std::stringstream& ss, int& tabs)
             ss << bitcacheCopy.front() << " ";
             bitcacheCopy.pop();
         }
-        ss << "}";
+        ss << "};";
+		DebugScreen::newLine(ss);
+		DebugScreen::indentLine(ss, tabs);
+		
+		ss << "bytestream={";
+		for(int i = 0; i<bytestream.size(); i++) {
+			ss << std::setfill('0') << std::setw(2) << std::hex << (int)peekByteCell();
+			seekByteDelta(1);
+		}
+		ss << "};";
+		
+		seekByte(0);
+		
         DebugScreen::newLine(ss);
     DebugScreen::endGroup(tabs);
 }
@@ -75,6 +87,9 @@ uint64_t DataStream::peekXBits(uint8_t numBits)
         res = res << 1;               //Leftshift
         res += peekBit();       //Add this bit to the end
     }
+	
+	//Return to 'oldBitSeekPos' position in data stream
+	seekBit(oldBitSeekPos);
 
     //Return result
     return res;
@@ -107,9 +122,10 @@ void DataStream::seekBitDelta(uint64_t bitsDelta)
 
 void DataStream::putXBits(uint64_t data, uint8_t numBits)
 {
+	uint64_t one = 0b1;
     for( uint8_t i = numBits; i>0; i-- ) {
-        bitcache.push( data&(0b1<<(i-1)) );
-    }
+        bitcache.push( data&(one<<(i-1)) );
+	}
 
     popWriteBytes();
 }
@@ -137,13 +153,36 @@ void DataStream::put5Bits(uint64_t data) { putXBits(data, 5); }
 void DataStream::putByte(uint64_t byte) { putXBits(byte, 8); }
 void DataStream::put64Bits(uint64_t data) { putXBits(data, 64); }
 
+void DataStream::dumpBytestream(FileHandler* fh, uint64_t bytePos)
+{
+	if( bytePos>fh->getFileLength() ) {
+		std::stringstream ss;
+		ss << "Byte dump position (" << bytePos << ") cannot be larger than the file length (" << fh->getFileLength() << ")";
+		Log::warn(__PRETTY_FUNCTION__, ss.str());
+		return;
+	}
+	
+	fh->seekTo(bytePos);
+	for( int i = 0; i<bytestream.size(); i++ ) {
+		fh->writeByte( bytestream.at(i) );
+	}
+	
+	clear();
+}
+
 void DataStream::dumpBytestream(FileHandler* fh)
 {
-    for( int i = 0; i<bytestream.size(); i++ ) {
-        fh->writeByte( bytestream.at(i) );
-    }
+	fh->seekToEnd();
+	uint64_t bytePos = fh->tellPos();
+	dumpBytestream(fh, bytePos);
+}
 
-    bytestream.clear();
+void DataStream::clear()
+{
+	bytestream.clear();
+	bitcache.empty();
+	seekBitOffset = 0;
+	seekBytePos = 0;
 }
 
 /**

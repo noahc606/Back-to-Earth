@@ -89,7 +89,6 @@ protected:
 
 private:
     ControlBinding cbSpecialInput;
-
     int guiActionID = -1;
 
     /**/

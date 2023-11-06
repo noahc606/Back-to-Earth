@@ -30,6 +30,7 @@ public:
     bool usingBTECursor();
     //Get Resources
     std::string getVideoDriversDesc();
+    std::string getSystemRamDesc();
     std::string getResourcePath();
     std::string getDevicePlatform();
     int getFilesystemType();

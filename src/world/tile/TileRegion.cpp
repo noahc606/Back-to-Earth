@@ -1,4 +1,5 @@
 #include "TileRegion.h"
+#include <iomanip>
 #include <iostream>
 #include <math.h>
 #include <stdlib.h>
@@ -37,8 +38,9 @@ void TileRegion::putPaletteInfo(std::stringstream& ss, int& tabs, bool natural)
 {
 	t_palette::iterator pitr = palette.begin();
 	for( ; pitr!=palette.end(); pitr++ ) {
-		ss << pitr->second.getVal();
-			ss << " ";
+		ss << "(" << pitr->first << ", ";
+		ss << std::setfill('0') << std::setw(16) << std::hex << pitr->second.getVal() << std::dec << ")";
+		ss << " ";
 	}
 }
 
@@ -48,7 +50,7 @@ void TileRegion::putInfo(std::stringstream& ss, int& tabs, int subX, int subY, i
     ss << "RegTex(State, Priority)=(" << regTexState << ", " << regTexPriority << "); ";
     DebugScreen::newLine(ss);
     DebugScreen::indentLine(ss, tabs);
-    ss << "palette.size()=" << (int)palette.size() << "; ";
+    ss << "palette.size()=" << (int)palette.size() << ", " << "natural=" << getPaletteSizeNatural() << ", artificial=" << getPaletteSizeArtificial() << "; ";
 	ss << "paletteSizeBucket=" << getPaletteSizeBucket() << "; ";
 	ss << "palette={ ";
 	putPaletteInfo(ss, tabs, true);
@@ -78,7 +80,7 @@ uint16_t TileRegion::getPaletteSize() { return palette.size(); }
 /**
  *	Return the # of map elements whose keys >=0 (includes 0!).
  */
-uint16_t TileRegion::getPaletteSizePositive()
+uint16_t TileRegion::getPaletteSizeNatural()
 {
 	if( palette.size()!=0 ) {
 		return palette.rbegin()->first+1;
@@ -89,10 +91,10 @@ uint16_t TileRegion::getPaletteSizePositive()
 /**
  *	Return the # of map elements whose keys <=0 (includes 0!).
  */
-uint16_t TileRegion::getPaletteSizeNegative()
+uint16_t TileRegion::getPaletteSizeArtificial()
 {
 	if( palette.size()!=0 ) {
-		return palette.rend()->first+1;
+		return -palette.begin()->first+1;
 	} else {
 		return 0;
 	}
@@ -107,6 +109,12 @@ int TileRegion::getPaletteSizeBucket(int size)
         res++;
     }
     return res;
+}
+
+
+int TileRegion::getArtificialPaletteSizeBucket()
+{
+	return getPaletteSizeBucket( getPaletteSizeArtificial() );
 }
 int TileRegion::getPaletteSizeBucket(){ return getPaletteSizeBucket( getPaletteSize() ); }
 
@@ -136,7 +144,7 @@ TileType TileRegion::getTile( int x, int y, int z )
 	} else {
 		std::stringstream ss;
 		ss << "Tile key '" << key << "' does not exist in palette ";
-		ss << "(min=" << getPaletteSizeNegative() << ", max=" << getPaletteSizePositive() << ")";
+		ss << "(min=" << getPaletteSizeArtificial() << ", max=" << getPaletteSizeNatural() << ")";
 		Log::warn(__PRETTY_FUNCTION__, ss.str(), "returning default tile");
 		return TileType();
 	}
@@ -147,24 +155,31 @@ TileType TileRegion::getTile( int x, int y, int z )
 int TileRegion::getRegTexState() { return regTexState; }
 int TileRegion::getRegTexPriority() { return regTexPriority; }
 
+bool TileRegion::assertDefaultTileExists(t_palette& pal)
+{
+	if( pal.find(0)==pal.end() ) {
+		Log::warn(__PRETTY_FUNCTION__, "Could not find default palette element", "stopping");
+		return false;
+	}
+	
+	return true;
+}
 
 int16_t TileRegion::addToPalette( TileType tile, t_palette& pal, bool natural)
 {	
 	//Preliminary checking
-	if( pal.find(0)==pal.end() ) {
-		Log::warn(__PRETTY_FUNCTION__, "Could not find default palette element", "stopping");
-		return 0;
-	}
+	assertDefaultTileExists(pal);
+	
 	//Already created default tile
 	if( tile.getVal()==0 ) {
 		return 0;
 	}
 			
 	//Iterate through elements, starting at 0 (natural -> [0, +#] & !natural -> [0, -#]
-	t_palette::iterator pitr = pal.find(0);
 	int palSize = 0;
 	if(natural) {
-		palSize = getPaletteSizePositive();
+		t_palette::iterator pitr = pal.find(0);
+		palSize = getPaletteSizeNatural();
 		for( ; pitr!=pal.end(); pitr++ ) {
 			if( tile==pitr->second ) {
 				//Return location of already existing element
@@ -172,7 +187,8 @@ int16_t TileRegion::addToPalette( TileType tile, t_palette& pal, bool natural)
 			}
 		}
 	} else {
-		palSize = -getPaletteSizeNegative();
+		palSize = -getPaletteSizeArtificial();
+		t_palette::iterator pitr = pal.find(0);
 		for( ; pitr!=pal.begin(); pitr-- ) {
 			if( tile==pitr->second ) {
 				//Return location of already existing element
@@ -194,13 +210,13 @@ int16_t TileRegion::addToPalette(TileType tile) { return addToPalette(tile, pale
     Ignores checking the entire palette for copies of a tiletype.
 */
 int16_t TileRegion::addToPaletteFast(TileType tile, bool natural)
-{
+{	
 	if(natural) {
-		palette.insert( std::make_pair(getPaletteSizePositive(), tile) );
-		return getPaletteSizePositive();
+		palette.insert( std::make_pair(getPaletteSizeNatural(), tile) );
+		return getPaletteSizeNatural();
 	} else {
-		palette.insert( std::make_pair(-getPaletteSizeNegative(), tile) );
-		return -getPaletteSizeNegative();
+		palette.insert( std::make_pair(-getPaletteSizeArtificial(), tile) );
+		return -getPaletteSizeArtificial();
 	}
 }
 
@@ -270,6 +286,42 @@ void TileRegion::compress()
     palette = paletteNew;
 }
 
+void TileRegion::dumpPaletteData(DataStream& ds, uint8_t dataBitsPerTile)
+{
+	//Preliminary checking
+	assertDefaultTileExists(palette);
+	
+	switch(dataBitsPerTile) {
+		case 0b1111: return;
+	}
+	
+	int chunksLeft = std::pow(2, dataBitsPerTile);
+	t_palette::iterator pitr = palette.begin();
+	while( pitr->first<0 ) {
+		ds.put64Bits( pitr->second.getVal() );
+		pitr++;
+		chunksLeft--;
+	}
+	
+	while(chunksLeft>0) {
+		chunksLeft--;
+		ds.put64Bits(0);
+	}
+}
+
+void TileRegion::dumpTileData(DataStream& ds, uint8_t dataBitsPerTile)
+{
+	
+	
+	for( uint8_t sx = 0; sx<32; sx++ ) {
+		for( uint8_t sy = 0; sy<32; sy++ ) {
+			for( uint8_t sz = 0; sz<32; sz++ ) {
+				ds.putXBits( getTileKey(sx, sy, sz), dataBitsPerTile );
+			}
+		}
+	}
+}
+
 /**
     Saves this region to disk.
 
@@ -297,9 +349,7 @@ void TileRegion::save(SDLHandler* sh, FileHandler* fh, std::string saveGameName,
     }
 
     //Level saving logic
-    LevelSave ls;
-    ls.init(fh);
-    //ls.trSave(formattedPath, rX, rY, rZ, &palette, tiles);
+	//ADD
 }
 
 void TileRegion::save(SDLHandler* sh, FileHandler* fh, std::string saveGameName, long rX, long rY, long rZ)

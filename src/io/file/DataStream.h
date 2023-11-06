@@ -19,7 +19,6 @@ public:
     uint8_t getSeekBitOffset();
     uint8_t peekByteCell();
     uint8_t peekHexDigitCell();
-    uint8_t peekByte();
     uint64_t peekXBits(uint8_t numBits);
     bool peekBit();
 
@@ -37,7 +36,9 @@ public:
     void put5Bits(uint64_t data);
     void putByte(uint64_t byte);
     void put64Bits(uint64_t byte);
+    void dumpBytestream(FileHandler* fh, uint64_t bytePos);
     void dumpBytestream(FileHandler* fh);
+	void clear();
     void close();
     /**/
 
@@ -49,7 +50,6 @@ private:
 
     std::queue<bool> bitcache;          //Hold bits that we will add to collection later (we only hold a collection of whole bytes at any given time)
     std::vector<uint8_t> bytestream;    //Hold collection of bytes (uint8_t's)
-
     uint8_t seekBitOffset = 0;
     uint64_t seekBytePos = 0;
 };

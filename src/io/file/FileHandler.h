@@ -38,11 +38,16 @@ public:
     bool fileExists(std::string path);
 	//Read file types
 	uint8_t readByte();
+	uint8_t readByteStay();
 	Settings::t_kvMap readTxtFileKVs(FilePath fp);
+	bool checkMagicNumber(uint64_t mnPart1, uint64_t mnPart2);
 	//Seek thru files
-	long tellPos();					//Get current byte position
-	long seekTo(long byte);			//Seek to specified byte
-	long seekThru(long bytesDelta);	//Seek forward the specified number of bytes
+	long tellPos();						//Get current byte position
+	long getFileLength();				//Get current file length
+	int seek(long byte, int seekType);	//Seek with options
+	int seekTo(long byte);				//Seek to specified byte
+	int seekToEnd();					//Seek to end of file
+	int seekThru(long bytesDelta);		//Seek forward the specified number of bytes
 
     /* Settings */
     int saveSettings(int index);
