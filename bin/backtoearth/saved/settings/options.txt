@@ -1,0 +1,7 @@
+bteCursor=true
+debugEnabled=true
+debugHacks=joseph is lame
+debugHardTesting=false
+debugTesting=false
+fullscreen=false
+maxFPS=none
