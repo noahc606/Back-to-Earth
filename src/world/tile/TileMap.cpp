@@ -158,7 +158,7 @@ int TileMap::loadRegion(FileHandler* fileHandler, int64_t rX, int64_t rY, int64_
 		tr.setRegTexState(tr.FINISHED_GENERATING);
 		
 		//Place artificial tiles
-		tr.load(fileHandler, "world1", rX, rY, rZ);
+		//tr.load(fileHandler, "world1", rX, rY, rZ);
 		
 		regionMap.insert( std::make_pair(std::make_tuple(rX, rY, rZ), tr) );
         return 0;

@@ -1,6 +1,6 @@
 bteCursor=true
-debugEnabled=true
-debugHacks=joseph is lame
+debugEnabled=false
+debugHacks=typeincorrectpassword
 debugHardTesting=false
 debugTesting=false
 fullscreen=false
