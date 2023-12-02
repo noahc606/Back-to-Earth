@@ -2,7 +2,6 @@
 .clang-format
 .clangd
 BTE-nightly.project
-BTE.project
 compile_commands.json
 nch_*
 /bin/src
