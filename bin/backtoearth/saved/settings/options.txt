@@ -1,5 +1,5 @@
 bteCursor=true
-debugEnabled=true
+debugEnabled=false
 debugHacks=typeincorrectpassword
 debugHardTesting=false
 debugTesting=false
