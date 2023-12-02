@@ -183,7 +183,7 @@ void AudioLoader::addMixChunks()
     missingChunk = addMixChunk(missing, "missing");
 
     addMixChunk(TITLE_impact, "title/impact");
-    addMixChunk(TITLE_beam, "title/beam", "mp3");
+    addMixChunk(TITLE_beam, "title/beam");
 	
 	addMixChunk(MUSIC_blender_engine, "music/blender_engine", "mp3");
 	addMixChunk(MUSIC_cyber_city, "music/cyber_city", "mp3");

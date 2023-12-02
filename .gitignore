@@ -1,6 +1,8 @@
 .cache
 .clang-format
 .clangd
+BTE.mk
+BTE.project
 BTE-nightly.project
 compile_commands.json
 nch_*
