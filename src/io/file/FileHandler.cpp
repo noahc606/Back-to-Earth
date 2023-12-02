@@ -551,7 +551,7 @@ int FileHandler::createDir(std::string path)
 
     // Make the directory...
     // ...for Windows
-    #if defined(WIN32)
+    #if ( defined(_WIN32) || defined(WIN32) )
         FilePath fp(path, SDLHandler::WINDOWS);
         if(mkdir(fp.get().c_str())==0) {
             Log::trbshoot(__PRETTY_FUNCTION__, "Successfully created new directory." );
