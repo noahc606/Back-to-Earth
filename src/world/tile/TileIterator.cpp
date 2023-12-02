@@ -258,40 +258,40 @@ TileType TileIterator::peekTrackedTile(int offsetX, int offsetY, int offsetZ)
 
 TileRegion* TileIterator::peekRegion() { return nearbyTileRegions[1][1][1]; }
 
-long TileIterator::getItrIndex() { return itrIndex; }
-long TileIterator::getItrLength() { return itrLength; }
+int64_t TileIterator::getItrIndex() { return itrIndex; }
+int64_t TileIterator::getItrLength() { return itrLength; }
 
 //Get interator (Pos)ition, (Sub)position, or (Reg)ion coordinate.
-long TileIterator::getItrPos(int c) { return itrReg[c]*32+itrSub[c]; }
-long TileIterator::gip(int c) { return getItrPos(c); }
-long TileIterator::getItrSub(int c) { return itrSub[c]; }
-long TileIterator::gis(int c) { return getItrSub(c); }
-long TileIterator::getItrReg(int c) { return itrReg[c]; }
-long TileIterator::gir(int c) { return getItrReg(c); }
+int64_t TileIterator::getItrPos(int c) { return itrReg[c]*32+itrSub[c]; }
+int64_t TileIterator::gip(int c) { return getItrPos(c); }
+int64_t TileIterator::getItrSub(int c) { return itrSub[c]; }
+int64_t TileIterator::gis(int c) { return getItrSub(c); }
+int64_t TileIterator::getItrReg(int c) { return itrReg[c]; }
+int64_t TileIterator::gir(int c) { return getItrReg(c); }
 
 //Get beginning (Pos)ition, (Sub)position, or (Reg)ion coordinate.
-long TileIterator::getBegSub(int c) { return begSub[c]; }
-long TileIterator::gbs(int c) { return getBegSub(c); }
-long TileIterator::getBegPos(int c) { return begPos[c]; }
-long TileIterator::gbp(int c) { return getBegPos(c); }
-long TileIterator::getBegReg(int c) { return begReg[c]; }
-long TileIterator::gbr(int c) { return getBegReg(c); }
+int64_t TileIterator::getBegSub(int c) { return begSub[c]; }
+int64_t TileIterator::gbs(int c) { return getBegSub(c); }
+int64_t TileIterator::getBegPos(int c) { return begPos[c]; }
+int64_t TileIterator::gbp(int c) { return getBegPos(c); }
+int64_t TileIterator::getBegReg(int c) { return begReg[c]; }
+int64_t TileIterator::gbr(int c) { return getBegReg(c); }
 
 //Get ending (Pos)ition, (Sub)position, or (Reg)ion coordinate.
-long TileIterator::getEndSub(int c) { return endSub[c]; }
-long TileIterator::ges(int c) { return getEndSub(c); }
-long TileIterator::getEndPos(int c) { return endPos[c]; }
-long TileIterator::gep(int c) { return getEndPos(c); }
-long TileIterator::getEndReg(int c) { return endReg[c]; }
-long TileIterator::ger(int c) { return getEndReg(c); }
+int64_t TileIterator::getEndSub(int c) { return endSub[c]; }
+int64_t TileIterator::ges(int c) { return getEndSub(c); }
+int64_t TileIterator::getEndPos(int c) { return endPos[c]; }
+int64_t TileIterator::gep(int c) { return getEndPos(c); }
+int64_t TileIterator::getEndReg(int c) { return endReg[c]; }
+int64_t TileIterator::ger(int c) { return getEndReg(c); }
 
 //Get tracker (Pos)ition, (Sub)position, or (Reg)ion coordinate.
-long TileIterator::getTrackerSub(int c) { return trackerSub[c]; }
-long TileIterator::gts(int c) { return getTrackerSub(c); }
-long TileIterator::getTrackerPos(int c) { return itrReg[c]*32+trackerSub[c]; }
-long TileIterator::gtp(int c) { return getTrackerPos(c); }
-long TileIterator::getTrackerReg(int c) { return itrReg[c]; }
-long TileIterator::gtr(int c) { return getTrackerReg(c); }
+int64_t TileIterator::getTrackerSub(int c) { return trackerSub[c]; }
+int64_t TileIterator::gts(int c) { return getTrackerSub(c); }
+int64_t TileIterator::getTrackerPos(int c) { return itrReg[c]*32+trackerSub[c]; }
+int64_t TileIterator::gtp(int c) { return getTrackerPos(c); }
+int64_t TileIterator::getTrackerReg(int c) { return itrReg[c]; }
+int64_t TileIterator::gtr(int c) { return getTrackerReg(c); }
 
 bool TileIterator::atEnd() { return itrIndex>=itrLength-1; }
 bool TileIterator::atBeginning() { return itrIndex<=0; }
