@@ -301,7 +301,7 @@ bool TileIterator::invalidBounds() { return boundsInvalid; }
 /**
     Returns 0 if all regions selected are loaded. If not, return -1.
 */
-int TileIterator::setBounds( long x1, long y1, long z1, long x2, long y2, long z2 )
+int TileIterator::setBounds( int64_t x1, int64_t y1, int64_t z1, int64_t x2, int64_t y2, int64_t z2 )
 {
     //Get begPos and endPos
     //Make sure x1,y1,&z1 are less than x2,y2,&z2 respectively
@@ -329,7 +329,7 @@ int TileIterator::setBounds( long x1, long y1, long z1, long x2, long y2, long z
     return testSelectionLoaded();
 }
 
-int TileIterator::setBoundsByRXYZ( long rX1, long rY1, long rZ1, long rX2, long rY2, long rZ2 )
+int TileIterator::setBoundsByRXYZ( int64_t rX1, int64_t rY1, int64_t rZ1, int64_t rX2, int64_t rY2, int64_t rZ2 )
 {
     //Get begReg and endReg
     begReg[0] = rX1; endReg[0] = rX2;
@@ -355,7 +355,7 @@ int TileIterator::setBoundsByRXYZ( long rX1, long rY1, long rZ1, long rX2, long 
     return testSelectionLoaded();
 }
 
-int TileIterator::setBoundsByRXYZ(long rX, long rY, long rZ)
+int TileIterator::setBoundsByRXYZ(int64_t rX, int64_t rY, int64_t rZ)
 {
     return setBoundsByRXYZ(rX, rY, rZ, rX, rY, rZ);
 }
@@ -377,7 +377,7 @@ void TileIterator::setTrackerMode(int mode)
     }
 }
 
-void TileIterator::setTrackerSub(int sx, int sy, int sz)
+void TileIterator::setTrackerSub(int64_t sx, int64_t sy, int64_t sz)
 {
     trackerSub[0] = sx;
     trackerSub[1] = sy;

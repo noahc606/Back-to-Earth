@@ -31,15 +31,9 @@ void Tests::init(SDLHandler* sh, FileHandler* fh, Controls* ctrls)
 	//Build tile region
 	TileRegion tr;
 	Terrain terra;
-	terra.testRegion(tr, 0, 0, -1, 1);
-	Log::log( tr.getInfo(0, 0, 0) );
+	terra.testRegion(tr, 0, 0, -2, 1);
 	
-	Timer t;
-	for(int i = 0; i<1; i++) {
-		LevelSave ls;
-		ls.saveTileRegion(fileHandler, tr, 1312+12, 112+11, 12344+1);
-	}
-	t.debugElapsedTimeMS();
+	tr.save(fileHandler, "world1", 0, 0, -2);
 }
 
 Tests::~Tests(){}
@@ -75,9 +69,9 @@ void Tests::tick()
 
 /**/
 
-void Tests::info(std::stringstream& ss, int& tabs)
+void Tests::putInfo(std::stringstream& ss, int& tabs)
 {
-
+	ss << "Test...\n";
 }
 
 /*

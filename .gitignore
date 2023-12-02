@@ -7,3 +7,4 @@ compile_commands.json
 nch_*
 /bin/src
 /bin/backtoearth/dump
+/bin/backtoearth/saved/screenshots

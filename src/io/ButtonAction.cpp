@@ -11,8 +11,7 @@ ButtonAction::ButtonAction(SDLHandler* sh, GUIHandler* gh, FileHandler* fh, Cont
     switch( gh->getGUIActionID() )
     {
         /** Back-to buttons */
-        case GUIHandler::btn_back_to_OPTIONS:
-        {
+        case GUIHandler::btn_back_to_OPTIONS: {
             int objIDs[] = {
                 GUIHandler::ID::cbx_GRAPHICS_SETTINGS_bteCursor,
                 GUIHandler::ID::cbx_GRAPHICS_SETTINGS_fullscreen,
@@ -42,7 +41,7 @@ ButtonAction::ButtonAction(SDLHandler* sh, GUIHandler* gh, FileHandler* fh, Cont
             gh->setGUIs(GUIHandler::GUIs::OPTIONS);
         } break;
 
-        case GUIHandler::btn_back_to_MAIN:{ gh->setGUIs(GUIHandler::GUIs::MAIN); }break;
+        case GUIHandler::btn_back_to_MAIN:{ gh->setGUIs(GUIHandler::GUIs::MAIN); } break;
 
         case GUIHandler::btn_OPTIONS_back:{
 
@@ -75,7 +74,7 @@ ButtonAction::ButtonAction(SDLHandler* sh, GUIHandler* gh, FileHandler* fh, Cont
         default: {
             std::stringstream ss;
             ss << "Clicked button with unset action ID: " << gh->getGUIActionID();
-            Log::warn(__PRETTY_FUNCTION__, ss.str(), "deleting button");
+            Log::trbshoot(__PRETTY_FUNCTION__, ss.str(), "deleting button");
         } break;
     }
 }

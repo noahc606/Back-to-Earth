@@ -328,6 +328,10 @@ void Texture::rect(int x, int y, int w, int h, uint8_t r, uint8_t g, uint8_t b)
 {
     rect(x, y, w, h, r, g, b, 255);
 }
+void Texture::rect(int x, int y, int w, int h, Color& c)
+{
+	rect(x, y, w, h, c.r, c.g, c.b, c.a);
+}
 
 void Texture::pixel(int x, int y, uint8_t r, uint8_t g, uint8_t b, uint8_t a, SDL_BlendMode bm)
 {

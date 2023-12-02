@@ -1,7 +1,7 @@
 #pragma once
 #include "DataStream.h"
-#include "Defs.h"
 #include "FileHandler.h"
+#include "TileMap.h"
 #include "TileRegion.h"
 #include "TileType.h"
 #include <string>
@@ -10,12 +10,14 @@ class LevelSave
 {
 public:
     /**/
-    LevelSave();
+    LevelSave(FileHandler* fh, std::string dir);
+    LevelSave(FileHandler* fh);
 	/**/
 	/**/
 	//Save and load
-	void saveTileRegion(FileHandler* fh, TileRegion& tr, Defs::t_ll rX, Defs::t_ll rY, Defs::t_ll rZ);
-	bool loadTileRegion(FileHandler* fh, TileRegion& tr, Defs::t_ll rX, Defs::t_ll rY, Defs::t_ll rZ);
+	void saveTileRegion(TileRegion& tr, int64_t rX, int64_t rY, int64_t rZ);
+	void saveTileRegion(TileMap* tm, int64_t rX, int64_t rY, int64_t rZ);
+	bool loadTileRegion(TileRegion& tr, int64_t rX, int64_t rY, int64_t rZ);
 	/**/
 
 protected:
@@ -24,22 +26,24 @@ private:
 	/**/
 	uint64_t magicNumberP1 = 0xaf0e66d7af0e66d7;
 	uint64_t magicNumberP2 = 0xce529030ce529030;
+	FileHandler* fileHandler = nullptr;
+	std::string directory = "";
     /**/
 	//Get file path information
-	std::string getLsrFilePathFromRxyz(Defs::t_ll rX, Defs::t_ll rY, Defs::t_ll rZ);
+	std::string getLsrFilePathFromRxyz(int64_t rX, int64_t rY, int64_t rZ);
 	//Get Header Entry information
-	uint32_t getHeaderEntryDelta(Defs::t_ll rX, Defs::t_ll rY, Defs::t_ll rZ);
-	uint32_t getHeaderEntryData1(FileHandler* fh);
-	uint8_t getHeaderEntryData2(FileHandler* fh);
-	uint8_t getHeaderEntryData3(FileHandler* fh);
+	uint32_t getHeaderEntryDelta(int64_t rX, int64_t rY, int64_t rZ);
+	uint32_t getHeaderEntryData1();
+	uint8_t getHeaderEntryData2();
+	uint8_t getHeaderEntryData3();
 	//Get Save Section information
 	uint32_t getSaveSectionSizeBytes(uint8_t bitsize);
-	uint32_t getNewAllocationPos(FileHandler* fh, uint8_t bitsize);
+	uint32_t getNewAllocationPos(uint8_t bitsize);
 	/**/
 	//Build base components
-	void buildPrefixAndHeader(FileHandler* fh);
-	void buildHeaderEntry(FileHandler* fh, Defs::t_ll rX, Defs::t_ll rY, Defs::t_ll rZ, uint32_t loc, uint8_t bpt, uint8_t pop);
-	void savePrelims(FileHandler* fh, TileRegion& tr, Defs::t_ll rX, Defs::t_ll rY, Defs::t_ll rZ);
+	void buildPrefixAndHeader();
+	void buildHeaderEntry(int64_t rX, int64_t rY, int64_t rZ, uint32_t loc, uint8_t bpt, uint8_t pop);
+	void savePrelims(TileRegion& tr, int64_t rX, int64_t rY, int64_t rZ);
 	//Clear un-needed data
-	void clearHeaderEntryPlusSaveSection(FileHandler* fh, Defs::t_ll rX, Defs::t_ll rY, Defs::t_ll rZ);
+	void clearHeaderEntryPlusSaveSection(int64_t rX, int64_t rY, int64_t rZ);
 };

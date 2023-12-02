@@ -10,6 +10,7 @@ Settings::Settings()
 {
     t_kvMap* s = &(defaultSettings[controls]);
 
+	/* Debugging, UI. */
     kv(s, "FUNC_8", SDLK_F8);
     kv(s, "FUNC_9", SDLK_F9);
     kv(s, "FUNC_SCREENSHOT", SDLK_F10);
@@ -17,6 +18,8 @@ Settings::Settings()
     kv(s, "FUNC_DEBUG", SDLK_F12);
     kv(s, "INGAME_PAUSE", SDLK_ESCAPE);
     kv(s, "MAP_USE_ZOOM", SDLK_LCTRL);
+	kv(s, "NAV_NEXT_UI", SDLK_TAB);
+	kv(s, "INTERACT_UI", SDLK_RETURN);
 
     /** Player */
     //Movement
@@ -38,7 +41,7 @@ Settings::Settings()
     kv(s, "PLAYER_SELECT", "MOUSE_LEFT");
     kv(s, "PLAYER_VIEW", SDLK_v);
 
-
+	//Hardcoded controls
     kv(s, "HARDCODE_LEFT_CLICK", "MOUSE_LEFT");
     kv(s, "HARDCODE_MIDDLE_CLICK", "MOUSE_MIDDLE");
     kv(s, "HARDCODE_RIGHT_CLICK", "MOUSE_RIGHT");

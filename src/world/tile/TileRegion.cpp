@@ -16,21 +16,8 @@
 */
 TileRegion::TileRegion()
 {
-    //Create 'empty' tile (0). Every tile palette should have this element as key '0'.
-    TileType space;
-    space.init();
-    space.setVisionBlocking(false);
-	int spaceID = 0;
-	palette.insert( std::make_pair(spaceID, space) );
-
-    //Fill region with empty tile
-    for( int x = 0; x<32; x++ ) {
-        for(int y = 0; y<32; y++ ) {
-            for(int z = 0; z<32; z++ ) {
-                tiles[x][y][z] = spaceID;
-            }
-        }
-    }
+	resetPalette();
+	resetTiles();
 }
 
 TileRegion::~TileRegion(){}
@@ -47,26 +34,31 @@ void TileRegion::putPaletteInfo(std::stringstream& ss, int& tabs, bool natural)
 
 void TileRegion::putInfo(std::stringstream& ss, int& tabs, int subX, int subY, int subZ)
 {
-    DebugScreen::indentLine(ss, tabs);
-    ss << "RegTex(State, Priority)=(" << regTexState << ", " << regTexPriority << "); ";
-    DebugScreen::newLine(ss);
-    DebugScreen::indentLine(ss, tabs);
-    ss << "palette.size()=" << (int)palette.size() << ", " << "natural=" << getPaletteSizeNatural() << ", artificial=" << getPaletteSizeArtificial() << "; ";
-	ss << "paletteSizeBucket=" << getPaletteSizeBucket() << "; ";
+	DebugScreen::indentLine(ss, tabs);
+	ss << "RegTex(State, Priority)=(" << regTexState << ", " << regTexPriority << "); ";
+	DebugScreen::newLine(ss);
+	DebugScreen::indentLine(ss, tabs);
+	ss << "palette.size()=" << (int)palette.size() << ", " << "natural=" << getPaletteSizeNatural() << ", artificial=" << getArtificialPaletteSize() << "; ";
+	ss << "paletteSizeBucket=" << getArtificialPaletteSizeBucket() << "; ";
 	ss << "palette={ ";
 	putPaletteInfo(ss, tabs, true);
 	ss << "}; ";
-    DebugScreen::newLine(ss);
+	DebugScreen::newLine(ss);
 
-    TileType tt = getTile(subX, subY, subZ);
-    if( tt.isNull() ) {
-        DebugScreen::newGroup(ss, tabs, "Selected TileType: null");
-        tt.info(ss, tabs);
-    } else {
-        DebugScreen::newGroup(ss, tabs, "Selected TileType");
-        tt.info(ss, tabs);
-    }
-    DebugScreen::endGroup(tabs);
+	TileType tt = getTile(subX, subY, subZ);
+	if( tt.isNull() || (subX<=-1||subY<=-1||subZ<=-1) ) {
+		DebugScreen::newGroup(ss, tabs, "Selected TileType: null");
+		tt.putInfo(ss, tabs);
+	} else {
+		DebugScreen::newGroup(ss, tabs, "Selected TileType");
+		tt.putInfo(ss, tabs);
+	}
+	DebugScreen::endGroup(tabs);
+}
+
+void TileRegion::putInfo(std::stringstream& ss, int& tabs)
+{
+	putInfo(ss, tabs, -1, -1, -1);
 }
 
 std::string TileRegion::getInfo(int subX, int subY, int subZ)
@@ -90,34 +82,41 @@ uint16_t TileRegion::getPaletteSizeNatural()
 	}
 }
 /**
- *	Return the # of map elements whose keys <=0 (includes 0!).
+ *	Return the # of map elements whose keys<0 (doesn't include 0!).
  */
-uint16_t TileRegion::getPaletteSizeArtificial()
+uint16_t TileRegion::getArtificialPaletteSize()
 {
 	if( palette.size()!=0 ) {
-		return -palette.begin()->first+1;
+		return -palette.begin()->first;
 	} else {
 		return 0;
 	}
 }
+
+/**
+ * size=0 -> return -1
+ * size=1 -> return 0
+ * size=2 -> return 1
+ * size=3-4 -> return 2
+ * size=5-8 -> return 3
+ * ...
+ */
 int TileRegion::getPaletteSizeBucket(int size)
 {
 	if(size==0) return -1;
 	
-    int res = 0;
-    while(size!=1) {
-        size = std::ceil( ((double)size)/2.0 );
-        res++;
-    }
-    return res;
+	int res = 0;
+	while(size!=1) {
+		size = std::ceil( ((double)size)/2.0 );
+		res++;
+	}
+	return res;
 }
-
 
 int TileRegion::getArtificialPaletteSizeBucket()
 {
-	return getPaletteSizeBucket( getPaletteSizeArtificial() );
+	return getPaletteSizeBucket( getArtificialPaletteSize() );
 }
-int TileRegion::getPaletteSizeBucket(){ return getPaletteSizeBucket( getPaletteSize() ); }
 
 TileType TileRegion::getPaletteElement(int16_t key)
 {
@@ -131,7 +130,7 @@ TileType TileRegion::getPaletteElement(int16_t key)
 
 int16_t TileRegion::getTileKey( int x, int y, int z )
 {
-    //Negative key indicates artificial tile. Positive index indicates natural tile. 0 always = space = 0x0000000000000000.
+	//Negative key indicates artificial tile. Positive index indicates natural tile. 0 always = space = 0x0000000000000000.
 	int16_t palKey = tiles[x][y][z];
 	return palKey;
 }
@@ -145,7 +144,7 @@ TileType TileRegion::getTile( int x, int y, int z )
 	} else {
 		std::stringstream ss;
 		ss << "Tile key '" << key << "' does not exist in palette ";
-		ss << "(min=" << getPaletteSizeArtificial() << ", max=" << getPaletteSizeNatural() << ")";
+		ss << "(min=" << -getArtificialPaletteSize() << ", max=" << getPaletteSizeNatural()-1 << ")";
 		Log::warn(__PRETTY_FUNCTION__, ss.str(), "returning default tile");
 		return TileType();
 	}
@@ -188,7 +187,7 @@ int16_t TileRegion::addToPalette( TileType tile, t_palette& pal, bool natural)
 			}
 		}
 	} else {
-		palSize = -getPaletteSizeArtificial();
+		palSize = -getArtificialPaletteSize()-1;
 		t_palette::iterator pitr = pal.find(0);
 		for( ; pitr!=pal.begin(); pitr-- ) {
 			if( tile==pitr->second ) {
@@ -208,83 +207,121 @@ int16_t TileRegion::addToPalette(TileType tile) { return addToPalette(tile, pale
 
 
 /**
-    Ignores checking the entire palette for copies of a tiletype.
+	Ignores checking the entire palette for copies of a tiletype.
 */
 int16_t TileRegion::addToPaletteFast(TileType tile, bool natural)
-{	
+{
 	if(natural) {
 		palette.insert( std::make_pair(getPaletteSizeNatural(), tile) );
 		return getPaletteSizeNatural();
 	} else {
-		palette.insert( std::make_pair(-getPaletteSizeArtificial(), tile) );
-		return -getPaletteSizeArtificial();
+		palette.insert( std::make_pair(-getArtificialPaletteSize()-1, tile) );
+		return -getArtificialPaletteSize()-1;
 	}
 }
 
 int16_t TileRegion::addToPaletteFast(TileType tile) { return addToPaletteFast(tile, false); }
 
 /**
-    General-purpose setTile function.
-    Performance:
-        -This is expensive when used in multidimensional loops - use setTiles() to fill any rectangular-prism-area with a single type of tile.
-        -Use setTile(int, int, int, int) whenever you want to place tiles directly from the palette (for example, during region generation).
+	General-purpose setTile function.
+	Performance:
+		-This is expensive when used in multidimensional loops - use setTiles() to fill any rectangular-prism-area with a single type of tile.
+		-Use setTile(int, int, int, int) whenever you want to place tiles directly from the palette (for example, during region generation).
 */
 void TileRegion::setTile( int x, int y, int z, TileType tile ) { tiles[x][y][z] = addToPalette(tile); }
 
 /**
-    A faster setTile function that copies a tile from the palette directly and places it somewhere.
-    Cannot be used to generate a new tile (again, only tiles from the palette can be used).
+	A faster setTile function that copies a tile from the palette directly and places it somewhere.
+	Cannot be used to generate a new tile (again, only tiles from the palette can be used).
 */
 void TileRegion::setTile( int x, int y, int z, int16_t paletteIndex )
 {
-    tiles[x][y][z] = paletteIndex;
+	tiles[x][y][z] = paletteIndex;
 }
 
 void TileRegion::setTiles( int x1, int y1, int z1, int x2, int y2, int z2, TileType tile )
 {
-    setTiles( addToPalette(tile), x1, y1, z1, x2, y2, z2 );
+	setTiles( addToPalette(tile), x1, y1, z1, x2, y2, z2 );
 }
 
 void TileRegion::setTiles( int x1, int y1, int z1, int x2, int y2, int z2, int16_t paletteIndex )
 {
-    for( int x = x1; x<x2; x++ ) {
-        for( int y = y1; y<y2; y++ ) {
-            for( int z = z1; z<z2; z++ ) {
-                tiles[x][y][z] = paletteIndex;
-            }
-        }
-    }
+	for( int x = x1; x<x2; x++ ) {
+		for( int y = y1; y<y2; y++ ) {
+			for( int z = z1; z<z2; z++ ) {
+				tiles[x][y][z] = paletteIndex;
+			}
+		}
+	}
+}
+
+void TileRegion::resetPalette()
+{
+	//Clear palette.
+	palette.clear();
+	
+	//Create 'empty' tile (0). Every tile palette should have this element as key '0'.
+	TileType space;
+	space.init();
+	space.setVisionBlocking(false);
+	
+	//Insert into palette map with key 0
+	palette.insert( std::make_pair(0, space) );
+}
+
+void TileRegion::resetArtificialPalette()
+{
+	if( !assertDefaultTileExists(palette) ) {
+		return;
+	}
+	
+	t_palette::iterator pitr = palette.find(0);
+	while( palette.begin()!=pitr ) {
+		palette.erase( palette.begin() );
+	}
+}
+
+void TileRegion::resetTiles()
+{
+	//Fill region with empty tile
+	for( int x = 0; x<32; x++ ) {
+		for(int y = 0; y<32; y++ ) {
+			for(int z = 0; z<32; z++ ) {
+				tiles[x][y][z] = 0;
+			}
+		}
+	}
 }
 
 void TileRegion::setRegTexState(int p_rts)
 {
-    regTexState = p_rts;
+	regTexState = p_rts;
 }
 
 void TileRegion::resetRegTexState() { regTexState = 0; }
 void TileRegion::setRegTexPriority(int p_rtp) { regTexPriority = p_rtp; }
 
 /**
-    Compresses the tile palette. Rarely, there could be unused or repeated tiles in a palette - this function takes care of that.
-    This is a relatively expensive function since it needs to "rebuild" the entire palette from scratch - just don't use it *too* often.
-    Automatically called when:
-        -A 'hard save' occurs (when this region is unloaded - NOT when this region is auto-saved)
-        -a TileRegion with palette size>60000 (theoretical max 65535) is detected - very rare circumstance.
+	Compresses the tile palette. Rarely, there could be unused or repeated tiles in a palette - this function takes care of that.
+	This is a relatively expensive function since it needs to "rebuild" the entire palette from scratch - just don't use it *too* often.
+	Automatically called when:
+		-A 'hard save' occurs (when this region is unloaded - NOT when this region is auto-saved)
+		-a TileRegion with palette size>60000 (theoretical max 65535) is detected - very rare circumstance.
 */
 void TileRegion::compress()
 {
-    //Build new tile palette.
-    t_palette paletteNew;
-    for( int x = 0; x<32; x++ ) {
-        for( int y = 0; y<32; y++ ) {
-            for( int z = 0; z<32; z++ ) {
-                addToPalette( getTile(x, y, z), paletteNew );
-            }
-        }
-    }
+	//Build new tile palette.
+	t_palette paletteNew;
+	for( int x = 0; x<32; x++ ) {
+		for( int y = 0; y<32; y++ ) {
+			for( int z = 0; z<32; z++ ) {
+				addToPalette( getTile(x, y, z), paletteNew );
+			}
+		}
+	}
 
-    //Replace old palette with new palette
-    palette = paletteNew;
+	//Replace old palette with new palette
+	palette = paletteNew;
 }
 
 void TileRegion::dumpPaletteData(DataStream& ds, uint8_t dataBitsPerTile)
@@ -292,68 +329,73 @@ void TileRegion::dumpPaletteData(DataStream& ds, uint8_t dataBitsPerTile)
 	//Preliminary checking
 	assertDefaultTileExists(palette);
 	
-	switch(dataBitsPerTile) {
-		case 0b1111: return;
+	if(dataBitsPerTile>=0b1111) {
+		return;
 	}
 	
-	int chunksLeft = std::pow(2, dataBitsPerTile);
-	t_palette::iterator pitr = palette.begin();
-	while( pitr->first<0 ) {
+	int chunksLeft = std::pow(2, dataBitsPerTile)-1;
+	t_palette::iterator pitr = palette.find(0);
+	ds.put64Bits(0);
+	
+	while( pitr!=palette.begin() ) {
+		pitr--;
+		chunksLeft--;
 		ds.put64Bits( pitr->second.getVal() );
-		pitr++;
-		chunksLeft--;
 	}
 	
-	while(chunksLeft>0) {
+	while(chunksLeft) {
 		chunksLeft--;
-		ds.put64Bits(0);
+		ds.put64Bits(0xffffffffffffffff);
 	}
 }
 
 void TileRegion::dumpTileData(DataStream& ds, uint8_t dataBitsPerTile)
 {
-	
-	
 	for( uint8_t sx = 0; sx<32; sx++ ) {
 		for( uint8_t sy = 0; sy<32; sy++ ) {
 			for( uint8_t sz = 0; sz<32; sz++ ) {
-				ds.putXBits( getTileKey(sx, sy, sz), dataBitsPerTile );
+				int16_t key = -getTileKey(sx, sy, sz);
+				if(key>0) {
+					ds.putXBits( key, dataBitsPerTile );
+				} else {
+					ds.putXBits( 0, dataBitsPerTile );
+				}
 			}
 		}
 	}
 }
 
 /**
-    Saves this region to disk.
+	Saves this region to disk.
 
-    Automatically called whenever:
-        -This region needs to be unloaded (compress==true). More expensive option
-        -This region is auto-saved (compress==false). Less expensive option
+	Automatically called whenever:
+		-This region needs to be unloaded (compress==true). More expensive option
+		-This region is auto-saved (compress==false). Less expensive option
 */
-void TileRegion::save(SDLHandler* sh, FileHandler* fh, std::string saveGameName, long rX, long rY, long rZ, bool p_compress)
+void TileRegion::save(FileHandler* fh, std::string saveGameName, long rX, long rY, long rZ, bool p_compress)
 {
-    //Make sure folder which contains the region files themselves exists
-    std::string regFilesPath = "saved/games/"+saveGameName+"/tilemap/default/";
-    fh->createBTEDir(regFilesPath);
+	//Make sure folder which contains the region files themselves exists
+	std::string regFilesDir = "saved/games/"+saveGameName+"/tilemap/default";
+	fh->createBTEDir(regFilesDir);
 
-    //Find the name of the file that should contain this region after it is saved
-    std::stringstream filename;
-    filename << regFilesPath << "/" << rX << "," << rY << "," << rZ;
+	//Compression
+	if( p_compress ) {
+		Timer t1;
+		compress();
+	}
 
-    //Find path of the appropriate file to edit
-    FilePath formattedPath(filename.str(), "bte_tr", sh->getFilesystemType());
-
-    //Compression
-    if( p_compress ) {
-        Timer t1;
-        compress();
-    }
-
-    //Level saving logic
-	//ADD
+	//Level saving logic
+	LevelSave ls(fh, regFilesDir);
+	ls.saveTileRegion(*this, rX, rY, rZ);
 }
 
-void TileRegion::save(SDLHandler* sh, FileHandler* fh, std::string saveGameName, long rX, long rY, long rZ)
+void TileRegion::save(FileHandler* fh, std::string saveGameName, long rX, long rY, long rZ)
 {
-    save(sh, fh, saveGameName, rX, rY, rZ, false);
+	save(fh, saveGameName, rX, rY, rZ, false);
+}
+
+void TileRegion::load(FileHandler* fh, std::string saveGameName, long rX, long rY, long rZ)
+{
+	LevelSave ls(fh, "saved/games/"+saveGameName+"/tilemap/default");
+	ls.loadTileRegion(*this, rX, rY, rZ);
 }

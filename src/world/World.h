@@ -3,15 +3,15 @@
 #include "Canvas.h"
 #include "GUIHandler.h"
 #include "LevelSave.h"
+#include "Loggable.h"
 #include "Player.h"
 #include "Texture.h"
 #include "TileMap.h"
 #include "TileMapScreen.h"
 
-class World : public BTEObject
+class World : public BTEObject, public Loggable
 {
 public:
-    typedef TileMap::t_ll t_ll;
     /**/
 	World();
     virtual ~World();
@@ -19,25 +19,26 @@ public:
     /**/
     void draw();
     void tick(bool paused, GUIHandler& guiHandler);
-    /**/
-    void info(std::stringstream& ss, int& tabs);
+    void putInfo(std::stringstream& ss, int& tabs);
+	/**/
+	Player* getLocalPlayer();
 protected:
 
 private:
     GUIHandler* guiHandler;
     Texture defaultTile;
 
-
     int counter = 0;
 
     double prevZoom = -1;
-    Player player; bool playerCharMenuOpen = false;
+    Player localPlayer;
+	bool lpMenuState = false;
+	bool lpMenuStateLast = false;
     double mouseX = 0; double mouseY = 0;
-    t_ll mouseXLL = 0; t_ll mouseYLL = 0; t_ll mouseZLL = 0;
+    int64_t mouseXLL = 0; int64_t mouseYLL = 0; int64_t mouseZLL = 0; int64_t mouseCLL = 0;
 
     TileMap tileMap;
     TileMapScreen tileMapScreen;
-    LevelSave lesa;
 
     Canvas csTileMap;
     Canvas csATileMap;
@@ -47,5 +48,5 @@ private:
     double performanceCounter = 0;
 
     void updateMouseAndCamInfo();
-    void playerInteractions(GUIHandler& guiHandler);
+    void playerInteractions(GUIHandler& guiHandler, bool paused);
 };

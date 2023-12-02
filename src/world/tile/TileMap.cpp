@@ -19,17 +19,8 @@ void TileMap::destroy()
     stopAllUpdates();
 }
 
-void TileMap::info(std::stringstream& ss, int& tabs, t_ll p_mouseX, t_ll p_mouseY, t_ll p_selZ)
+void TileMap::putInfo(std::stringstream& ss, int& tabs)
 {
-    //Info
-    t_ll selX = p_mouseX; t_ll selY = p_mouseY; t_ll selZ = p_selZ;
-
-    long rX = selX; long rY = selY; long rZ = selZ;
-    TileMap::getRegRXYZ(rX, rY, rZ);
-
-    long sx = selX; long sy = selY; long sz = selZ;
-    TileMap::getRegSubPos(sx, sy, sz);
-
     //regionMap size
     DebugScreen::indentLine(ss, tabs);
     ss << "regionMap size=" << regionMap.size() << "; ";
@@ -62,7 +53,7 @@ TileMap::t_updatesMap* TileMap::getUpdatesMap() { return &updatesMap; }
     This function will work fine in small loops but keep in mind getRegSubPos() is somewhat expensive. For large or even 3D loops (like in TileMapScreen::draw()) use a TileIterator.
 
 */
-TileType TileMap::getTile(t_ll x, t_ll y, t_ll z)
+TileType TileMap::getTile(int64_t x, int64_t y, int64_t z)
 {
     TileRegion* tr = getRegByXYZ(x, y, z);
     getRegSubPos(x, y, z);
@@ -74,13 +65,13 @@ TileType TileMap::getTile(t_ll x, t_ll y, t_ll z)
     return TileType();
 }
 
-TileRegion* TileMap::getRegByXYZ(t_ll x, t_ll y, t_ll z)
+TileRegion* TileMap::getRegByXYZ(int64_t x, int64_t y, int64_t z)
 {
     getRegRXYZ(x, y, z);
     return getRegByRXYZ(x, y, z);
 }
 
-TileRegion* TileMap::getRegByRXYZ(long rX, long rY, long rZ)
+TileRegion* TileMap::getRegByRXYZ(int64_t rX, int64_t rY, int64_t rZ)
 {
     t_regionMap::iterator itr = regionMap.find( std::make_tuple(rX, rY, rZ) );
     if ( itr!=regionMap.end() )
@@ -88,7 +79,7 @@ TileRegion* TileMap::getRegByRXYZ(long rX, long rY, long rZ)
     return nullptr;
 }
 
-TileMap::t_updates* TileMap::getRTUsByRXYz(long rX, long rY, long z)
+TileMap::t_updates* TileMap::getRTUsByRXYz(int64_t rX, int64_t rY, int64_t z)
 {
     t_updatesMap::iterator itr = updatesMap.find( std::make_tuple(rX, rY, z) );
     if( itr!=updatesMap.end() )
@@ -97,29 +88,26 @@ TileMap::t_updates* TileMap::getRTUsByRXYz(long rX, long rY, long z)
 }
 
 
-long TileMap::getRegSubPos(t_ll c) { c %= 32; if( c<0 ) c+=32; return c; }
-void TileMap::getRegSubPos(t_ll& x, t_ll& y, t_ll& z) { x = getRegSubPos(x); y = getRegSubPos(y); z = getRegSubPos(z); }
-void TileMap::getRegSubPos(long& x, long& y, long& z) { x = getRegSubPos(x); y = getRegSubPos(y); z = getRegSubPos(z); }
+int64_t TileMap::getRegSubPos(int64_t c) { c %= 32; if( c<0 ) c+=32; return c; }
+void TileMap::getRegSubPos(int64_t& x, int64_t& y, int64_t& z) { x = getRegSubPos(x); y = getRegSubPos(y); z = getRegSubPos(z); }
 
-long TileMap::getRegRXYZ(t_ll c) { c = floor(c/32.0); return c; }
-void TileMap::getRegRXYZ(t_ll& x, t_ll& y, t_ll& z) { x = getRegRXYZ(x); y = getRegRXYZ(y); z = getRegRXYZ(z); }
-void TileMap::getRegRXYZ(long& x, long& y, long& z) { x = getRegRXYZ(x); y = getRegRXYZ(y); z = getRegRXYZ(z); }
+int64_t TileMap::getRegRXYZ(int64_t c) { c = floor(c/32.0); return c; }
+void TileMap::getRegRXYZ(int64_t& x, int64_t& y, int64_t& z) { x = getRegRXYZ(x); y = getRegRXYZ(y); z = getRegRXYZ(z); }
 
-long TileMap::convRxyToLSRxy(t_ll rxOrY) { rxOrY = floor(rxOrY/16.0); return rxOrY; }
-long TileMap::convRzToLSRz(t_ll rz) { rz = floor(rz/4.0); return rz; }
-void TileMap::convRxyzToLSRxyz(t_ll& rx, t_ll& ry, t_ll& rz) { rx = convRxyToLSRxy(rx); ry = convRxyToLSRxy(ry); rz = convRzToLSRz(rz); }
-void TileMap::convRxyzToLSRxyz(long& rx, long& ry, long& rz) { rx = convRxyToLSRxy(rx); ry = convRxyToLSRxy(ry); rz = convRzToLSRz(rz); }
+int64_t TileMap::convRxyToLSRxy(int64_t rxOrY) { rxOrY = floor(rxOrY/16.0); return rxOrY; }
+int64_t TileMap::convRzToLSRz(int64_t rz) { rz = floor(rz/4.0); return rz; }
+void TileMap::convRxyzToLSRxyz(int64_t& rx, int64_t& ry, int64_t& rz) { rx = convRxyToLSRxy(rx); ry = convRxyToLSRxy(ry); rz = convRzToLSRz(rz); }
 
 bool TileMap::collides( Box3D& b )
 {
     TileIterator ti(this);
 
-    t_ll xf = b.c1.x.floor();
-    t_ll yf = b.c1.y.floor();
-    t_ll zf = b.c1.z.floor();
-    t_ll xc = b.c2.x.ceil();
-    t_ll yc = b.c2.y.ceil();
-    t_ll zc = b.c2.z.ceil();
+    uint64_t xf = b.c1.x.floor();
+    uint64_t yf = b.c1.y.floor();
+    uint64_t zf = b.c1.z.floor();
+    uint64_t xc = b.c2.x.ceil();
+    uint64_t yc = b.c2.y.ceil();
+    uint64_t zc = b.c2.z.ceil();
 
     ti.setBounds( xf, yf, zf, xc, yc, zc );
     ti.setTrackerMode( ti.SINGLE );
@@ -132,7 +120,7 @@ bool TileMap::collides( Box3D& b )
 
                     TileType tt = tr->getTile(x, y, z);
                     std::stringstream ss; int tabs = 0;
-                    tt.info(ss, tabs);
+                    tt.putInfo(ss, tabs);
                     std::cout << "Intersecting TileType @ (" << x << ", " << y << ", " << z << "):" << ss.str();
 
                 }
@@ -145,7 +133,7 @@ bool TileMap::collides( Box3D& b )
     return true;
 }
 
-int TileMap::setTile(t_ll x, t_ll y, t_ll z, TileType tt)
+int TileMap::setTile(int64_t x, int64_t y, int64_t z, TileType tt)
 {
     TileRegion* tr = getRegByXYZ(x, y, z);
     getRegSubPos(x, y, z);
@@ -156,49 +144,67 @@ int TileMap::setTile(t_ll x, t_ll y, t_ll z, TileType tt)
     return -1;
 }
 
-int TileMap::loadRegion(long rX, long rY, long rZ)
+int TileMap::loadRegion(FileHandler* fileHandler, int64_t rX, int64_t rY, int64_t rZ)
 {
     t_regionMap::iterator itr = regionMap.find( std::make_tuple(rX, rY, rZ) );
+	//If no region was found, continue.
     if( itr==regionMap.end() ) {
         Terrain terra;
         TileRegion tr;
-        tr.setRegTexState(tr.GENERATING);
-        terra.populateRegion(tr, rX, rY, rZ);
-        tr.setRegTexState(tr.FINISHED_GENERATING);
-        regionMap.insert( std::make_pair(std::make_tuple(rX, rY, rZ), tr) );
+
+		//Generate terrain
+		tr.setRegTexState(tr.GENERATING);
+		terra.populateRegion(tr, rX, rY, rZ);
+		tr.setRegTexState(tr.FINISHED_GENERATING);
+		
+		//Place artificial tiles
+		tr.load(fileHandler, "world1", rX, rY, rZ);
+		
+		regionMap.insert( std::make_pair(std::make_tuple(rX, rY, rZ), tr) );
         return 0;
     }
     return -1;
 }
 
-int TileMap::saveRegion(FileHandler* fileHandler, std::string dimPath, long rX, long rY, long rZ)
+int TileMap::forceLoadRegion(FileHandler* fileHandler, int64_t rX, int64_t rY, int64_t rZ)
 {
-    t_regionMap::iterator itr = regionMap.find( std::make_tuple(rX, rY, rZ) );
-    if( itr!=regionMap.end() ) {
-        TileRegion tr = itr->second;
-
-        if( rX==0 && rY==1 && rZ==0 ) {
-            tr.save(sdlHandler, fileHandler, dimPath, rX, rY, rZ, false);
-        }
-
-
-        return 0;
-    }
-    return -1;
+	std::stringstream ss;
+	ss << "Forceloading region (" << rX << ", " << rY << ", " << rZ << ")";
+	Log::log(ss.str());
+	
+	loadRegion(fileHandler, rX, rY, rZ);
+	TileRegion* tr = getRegByRXYZ(rX, rY, rZ);
+	if( tr!=nullptr ) {
+		tr->load(fileHandler, "world1", rX, rY, rZ);
+		return 1;
+	}
+	return -1;
 }
 
-int TileMap::unloadRegion(FileHandler* fileHandler, std::string dimPath, long rX, long rY, long rZ)
+int TileMap::saveRegion(FileHandler* fileHandler, std::string saveGameName, int64_t rX, int64_t rY, int64_t rZ)
+{
+	TileRegion* tr = getRegByRXYZ(rX, rY, rZ);
+	if(tr!=nullptr) {
+		std::stringstream ss;
+		ss << "Saving region (" << rX << ", " << rY << ", " << rZ << ") in save '" << saveGameName << "'";
+		Log::debug(ss.str());
+		tr->save(fileHandler, saveGameName, rX, rY, rZ, false);
+		return 0;
+	}
+	return -1;
+}
+
+int TileMap::unloadRegion(FileHandler* fileHandler, std::string saveGameName, int64_t rX, int64_t rY, int64_t rZ)
 {
     t_regionMap::iterator itr = regionMap.find( std::make_tuple(rX, rY, rZ) );
     if( itr!=regionMap.end() ) {
-        saveRegion(fileHandler, dimPath, rX, rY, rZ);
         regionMap.erase(itr);
         return 0;
     }
     return -1;
 }
 
-int TileMap::addTileUpdate(t_ll x, t_ll y, t_ll z)
+int TileMap::addTileUpdate(int64_t x, int64_t y, int64_t z)
 {
     int rX = getRegRXYZ(x);
     int rY = getRegRXYZ(y);
@@ -221,7 +227,7 @@ int TileMap::addTileUpdate(t_ll x, t_ll y, t_ll z)
     }
 }
 
-int TileMap::addTileUpdates(t_ll x0, t_ll y0, t_ll z0, t_ll x1, t_ll y1, t_ll z1)
+int TileMap::addTileUpdates(int64_t x0, int64_t y0, int64_t z0, int64_t x1, int64_t y1, int64_t z1)
 {
     int result = 0;
     for( int ix = x0; ix<=x1; ix++ ) {
@@ -238,14 +244,12 @@ int TileMap::addTileUpdates(t_ll x0, t_ll y0, t_ll z0, t_ll x1, t_ll y1, t_ll z1
 /**
     Create a 3x3 of tile updates at the specified position
 */
-int TileMap::addTileUpdates(t_ll x, t_ll y, t_ll z)
+int TileMap::addTileUpdates(int64_t x, int64_t y, int64_t z)
 {
     return addTileUpdates(x-1, y-1, z, x+1, y+1, z);
 }
 
-
-
-int TileMap::addRegionUpdate(long rX, long rY, t_ll layer)
+int TileMap::addRegionUpdate(int64_t rX, int64_t rY, int64_t layer)
 {
     t_updatesMap::iterator itr = updatesMap.find( std::make_tuple(rX, rY, layer) );
 
@@ -271,7 +275,7 @@ int TileMap::addRegionUpdate(long rX, long rY, t_ll layer)
     }
 }
 
-int TileMap::stopRegionUpdate(long rX, long rY, t_ll layer)
+int TileMap::stopRegionUpdate(int64_t rX, int64_t rY, int64_t layer)
 {
     t_updatesMap::iterator itr = updatesMap.find( std::make_tuple(rX, rY, layer) );
     if( itr!=updatesMap.end() ) {

@@ -54,22 +54,24 @@ void GUIBuilder::buildMainControls(GUIHandler& gh, FileHandler& fh)
     settings = fh.getSettings();
 
 
-    //Vector of pairs: 1st object = string name, 2nd object = string value
-    std::vector<std::pair<std::string, std::string>> ctrls;
-    ctrls.push_back( std::make_pair("Pause Game", "INGAME_PAUSE") );
-    ctrls.push_back( std::make_pair("Modify Map Zoom", "MAP_USE_ZOOM") );
-    ctrls.push_back( std::make_pair("Character Menu", "PLAYER_INVENTORY") );
-    ctrls.push_back( std::make_pair("Move North", "PLAYER_MOVE_NORTH") );
-    ctrls.push_back( std::make_pair("Move East", "PLAYER_MOVE_EAST") );
-    ctrls.push_back( std::make_pair("Move South", "PLAYER_MOVE_SOUTH") );
-    ctrls.push_back( std::make_pair("Move West", "PLAYER_MOVE_WEST") );
-    ctrls.push_back( std::make_pair("Move Up", "PLAYER_MOVE_UP") );
-    ctrls.push_back( std::make_pair("Move Down", "PLAYER_MOVE_DOWN") );
-    ctrls.push_back( std::make_pair("Crouch", "PLAYER_CROUCH") );
-    ctrls.push_back( std::make_pair("Sprint", "PLAYER_SPRINT") );
-    ctrls.push_back( std::make_pair("Jump", "PLAYER_JUMP") );
-    //Add objects from the list above to the window
-    for(unsigned int i = 0; i<ctrls.size(); i++) {
+	//Vector of pairs: 1st object = string name, 2nd object = string value
+	std::vector<std::pair<std::string, std::string>> ctrls;
+	ctrls.push_back( std::make_pair("Navigate to Next UI Element", "NAV_NEXT_UI") );
+	ctrls.push_back( std::make_pair("Interact With UI Element (click, toggle, etc)", "INTERACT_UI") );
+	ctrls.push_back( std::make_pair("Pause Game", "INGAME_PAUSE") );
+	ctrls.push_back( std::make_pair("Modify Map Zoom", "MAP_USE_ZOOM") );
+	ctrls.push_back( std::make_pair("Character Menu", "PLAYER_INVENTORY") );
+	ctrls.push_back( std::make_pair("Move North", "PLAYER_MOVE_NORTH") );
+	ctrls.push_back( std::make_pair("Move East", "PLAYER_MOVE_EAST") );
+	ctrls.push_back( std::make_pair("Move South", "PLAYER_MOVE_SOUTH") );
+	ctrls.push_back( std::make_pair("Move West", "PLAYER_MOVE_WEST") );
+	ctrls.push_back( std::make_pair("Move Up", "PLAYER_MOVE_UP") );
+	ctrls.push_back( std::make_pair("Move Down", "PLAYER_MOVE_DOWN") );
+	ctrls.push_back( std::make_pair("Crouch", "PLAYER_CROUCH") );
+	ctrls.push_back( std::make_pair("Sprint", "PLAYER_SPRINT") );
+	ctrls.push_back( std::make_pair("Jump", "PLAYER_JUMP") );
+	//Add objects from the list above to the window
+	for(unsigned int i = 0; i<ctrls.size(); i++) {
         std::pair<std::string, std::string> elem = ctrls.at(i);
         std::string name = elem.first;
         std::string stng = elem.second;
@@ -103,6 +105,16 @@ void GUIBuilder::buildMainGraphics(GUIHandler& gh, FileHandler& fh)
     gh.addGUI(new Button( w, GUIAlignable::CENTER_H, 730, width, "Back", gh.btn_back_to_OPTIONS ));
 }
 
+void GUIBuilder::buildWorldPause(GUIHandler& gh)
+{
+	gh.removeGUI(gh.win_OPTIONS);
+
+	gh.addGUI(new Window( GUIAlignable::CENTER_H, GUIAlignable::CENTER_V, 600, 500, "Paused", "", gh.win_PAUSED ));
+	gh.addGUI(new Button( gh.getWindow(gh.win_PAUSED), GUIAlignable::CENTER_H, GUIAlignable::CENTER_V, 300, "Back to Game", gh.btn_PAUSED_back ));
+	gh.addGUI(new Button( gh.getWindow(gh.win_PAUSED), GUIAlignable::CENTER_H, GUIAlignable::CENTER_V, 300, "Options", gh.btn_PAUSED_options ));
+	gh.addGUI(new Button( gh.getWindow(gh.win_PAUSED), GUIAlignable::CENTER_H, GUIAlignable::CENTER_V, 300, "Save & Exit", gh.btn_PAUSED_exit ));
+}
+
 void GUIBuilder::buildCharacterMenu(GUIHandler& gh)
 {
     if( gh.getGUI(BTEObject::GUI_window, gh.win_CHARACTER)==nullptr ) {
@@ -134,14 +146,14 @@ void GUIBuilder::buildCharacterMenu(GUIHandler& gh)
 
         wd->setPanelColor('s', Color(0, 0, 200, 240) );
         wd->setPanelColor('d', Color(150, 105, 55, 240) );
-        wd->setPanelColor('c', Color(255, 255, 255, 240) );
-        wd->setPanelColor('x', Color(0, 100, 0, 240) );
+        wd->setPanelColor('c', Color(0, 255, 0, 240) );
+        wd->setPanelColor('x', Color(0, 0, 0, 240) );
         wd->setPanelColor('e', Color(100, 0, 0, 240) );
         wd->setPanelColor('b', Color(130, 210, 180, 240) );
 
         gh.addGUI(new Window( GUIAlignable::CENTER_H, GUIAlignable::CENTER_V, wd, gh.win_CHARACTER ));
         gh.addGUI(new Tooltip( gh.getWindow(gh.win_CHARACTER), 30, 30, "Character Tabs", gh.ttp_CHARACTER_tabs_desc ) );
-        gh.addGUI(new RadioButton( gh.getWindow(gh.win_CHARACTER), 30, 60, "Inventory", true, gh.rbtn_CHARACTER_inventory, gh.rbtn_CHARACTER_tabs_1a, gh.rbtn_CHARACTER_tabs_1b ) );
+        gh.addGUI(new RadioButton( gh.getWindow(gh.win_CHARACTER), 30, 60, "Backpack", true, gh.rbtn_CHARACTER_inventory, gh.rbtn_CHARACTER_tabs_1a, gh.rbtn_CHARACTER_tabs_1b ) );
         gh.addGUI(new RadioButton( gh.getWindow(gh.win_CHARACTER), 30, 100, "Engineering", gh.rbtn_CHARACTER_engineering, gh.rbtn_CHARACTER_tabs_1a, gh.rbtn_CHARACTER_tabs_1b ) );
     }
 }

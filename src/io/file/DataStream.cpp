@@ -10,21 +10,21 @@ DataStream::DataStream()
 
 DataStream::~DataStream(){}
 
-void DataStream::info(std::stringstream& ss, int& tabs)
+void DataStream::putInfo(std::stringstream& ss, int& tabs)
 {
-    DebugScreen::newGroup(ss, tabs, "DataStream");
-        DebugScreen::indentLine(ss, tabs);
-        ss << "seek(byte, bit)=(" << getSeekBytePos() << ", " << (int)getSeekBitOffset() << "); ";
-        ss << "bytecell = " << std::setfill('0') << std::setw(2) << std::hex << (int)peekByteCell() << "; ";
-        DebugScreen::newLine(ss);
-        DebugScreen::indentLine(ss, tabs);
-        std::queue<bool> bitcacheCopy = bitcache;
-        ss << "bitcache = { ";
-        while( !bitcacheCopy.empty() ) {
-            ss << bitcacheCopy.front() << " ";
-            bitcacheCopy.pop();
-        }
-        ss << "};";
+	DebugScreen::newGroup(ss, tabs, "DataStream");
+		DebugScreen::indentLine(ss, tabs);
+		ss << "seek(byte, bit)=(" << getSeekBytePos() << ", " << (int)getSeekBitOffset() << "); ";
+		ss << "bytecell = " << std::setfill('0') << std::setw(2) << std::hex << (int)peekByteCell() << "; ";
+		DebugScreen::newLine(ss);
+		DebugScreen::indentLine(ss, tabs);
+		std::queue<bool> bitcacheCopy = bitcache;
+		ss << "bitcache = { ";
+		while( !bitcacheCopy.empty() ) {
+			ss << bitcacheCopy.front() << " ";
+			bitcacheCopy.pop();
+		}
+		ss << "};";
 		DebugScreen::newLine(ss);
 		DebugScreen::indentLine(ss, tabs);
 		
@@ -37,17 +37,9 @@ void DataStream::info(std::stringstream& ss, int& tabs)
 		
 		seekByte(0);
 		
-        DebugScreen::newLine(ss);
-    DebugScreen::endGroup(tabs);
+		DebugScreen::newLine(ss);
+	DebugScreen::endGroup(tabs);
 }
-
-void DataStream::logInfo()
-{
-    std::stringstream ss; int tabs = 0;
-    info(ss, tabs);
-    std::cout << ss.str() << "\n";
-}
-
 
 uint64_t DataStream::getSeekBytePos() { return seekBytePos; }
 uint64_t DataStream::getSeekBitPos() { return getSeekBytePos()*8+seekBitOffset; }

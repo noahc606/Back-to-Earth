@@ -15,7 +15,7 @@ RegTexUpdates::RegTexUpdates(SDLHandler* sdlHandler, Camera* camera, TileMap* ti
 
 RegTexUpdates::~RegTexUpdates(){}
 
-std::tuple<Defs::t_ll, Defs::t_ll, TileType> RegTexUpdates::topTrackedTile(TileIterator& ti)
+std::tuple<int64_t, int64_t, TileType> RegTexUpdates::topTrackedTile(TileIterator& ti)
 {
     int height = 0;
 
@@ -104,7 +104,7 @@ void RegTexUpdates::updateScaling(int ts, int bs)
     blitScale = bs;
 }
 
-void RegTexUpdates::draw(Defs::t_ll camRX, Defs::t_ll camRY, Defs::t_ll camRZ, int loadRadiusH)
+void RegTexUpdates::draw(int64_t camRX, int64_t camRY, int64_t camRZ, int loadRadiusH)
 {
     // Set canvas texture radius to screen radius
     if( csTileMap==nullptr ) return;
@@ -125,7 +125,7 @@ void RegTexUpdates::draw(Defs::t_ll camRX, Defs::t_ll camRY, Defs::t_ll camRZ, i
 /**
     Debugging tool: useful for seeing where regions of interest are on the current screen.
 */
-void RegTexUpdates::colorFillRegionArea(Defs::t_ll rX, Defs::t_ll rY, uint8_t r, uint8_t g, uint8_t b)
+void RegTexUpdates::colorFillRegionArea(int64_t rX, int64_t rY, uint8_t r, uint8_t g, uint8_t b)
 {
     /** Get 'tex' located at this region from csTileMap */
     Texture* tex = csTileMap->getTex(rX, rY);
@@ -140,7 +140,7 @@ void RegTexUpdates::colorFillRegionArea(Defs::t_ll rX, Defs::t_ll rY, uint8_t r,
 /**
     Blacks out regions that can't be seen anymore
 */
-void RegTexUpdates::blackOutRegionArea(Defs::t_ll rX, Defs::t_ll rY) { colorFillRegionArea(rX, rY, 0, 0, 0); }
+void RegTexUpdates::blackOutRegionArea(int64_t rX, int64_t rY) { colorFillRegionArea(rX, rY, 0, 0, 0); }
 
 void RegTexUpdates::placeEntireScreen()
 {
@@ -159,7 +159,7 @@ void RegTexUpdates::placeEntireScreen()
     );
 }
 
-void RegTexUpdates::processRegions(Defs::t_ll camRX, Defs::t_ll camRY, Defs::t_ll camRZ, int loadRadiusH)
+void RegTexUpdates::processRegions(int64_t camRX, int64_t camRY, int64_t camRZ, int loadRadiusH)
 {
     if( csTileMap==nullptr || camera==nullptr || tileMap==nullptr || tileMap->getRegionMap()==nullptr ) return;
 
@@ -188,7 +188,7 @@ void RegTexUpdates::processRegions(Defs::t_ll camRX, Defs::t_ll camRY, Defs::t_l
 
 }
 
-void RegTexUpdates::processRegions2(Defs::t_ll camRX, Defs::t_ll camRY, Defs::t_ll camRZ, int loadRadiusH)
+void RegTexUpdates::processRegions2(int64_t camRX, int64_t camRY, int64_t camRZ, int loadRadiusH)
 {
     if( csTileMap==nullptr || camera==nullptr || tileMap==nullptr || tileMap->getRegionMap()==nullptr ) return;
 
@@ -199,7 +199,7 @@ void RegTexUpdates::processRegions2(Defs::t_ll camRX, Defs::t_ll camRY, Defs::t_
 
 }
 
-void RegTexUpdates::processRegionLayer(TileIterator& ti, Defs::t_ll rX, Defs::t_ll rY, Defs::t_ll camRZ, Defs::t_ll camLayer)
+void RegTexUpdates::processRegionLayer(TileIterator& ti, int64_t rX, int64_t rY, int64_t camRZ, int64_t camLayer)
 {
     int numUpdates = 0;
     int sz = TileMap::getRegSubPos(camLayer);
@@ -243,7 +243,7 @@ void RegTexUpdates::processTileArea(TileIterator& ti, Texture* tex)
 
     //Get data of the top tile from the camera
     auto tttData = topTrackedTile(ti);              //Pair of a t_ll object and a TileType object
-    TileMap::t_ll dZ = std::get<0>(tttData);        //Relative height of top tile ( topmost==0, one below==-1, etc. )
+    int64_t dZ = std::get<0>(tttData);        //Relative height of top tile ( topmost==0, one below==-1, etc. )
     TileType topTileFromCam = std::get<2>(tttData); //TileType of top tile from camera
 
     //Get the destination of texture blit on the canvas region

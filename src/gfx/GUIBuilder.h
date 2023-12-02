@@ -12,6 +12,7 @@ public:
     void buildMainControls(GUIHandler& gh, FileHandler& fh);
     void buildMainGraphics(GUIHandler& gh, FileHandler& fh);
 
+	void buildWorldPause(GUIHandler& gh);
     void buildCharacterMenu(GUIHandler& gh);
 
 protected:

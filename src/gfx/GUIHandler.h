@@ -2,9 +2,10 @@
 #include <vector>
 #include "BTEObject.h"
 #include "GUI.h"
+#include "Loggable.h"
 #include "Window.h"
 
-class GUIHandler : public BTEObject
+class GUIHandler : public BTEObject, public Loggable
 {
 public:
     GUIHandler();
@@ -16,7 +17,7 @@ public:
     void onWindowUpdate();
     void passSpecialInput(ControlBinding& cbsi);
     /**/
-    void info(std::stringstream& ss, int& tabs);
+    void putInfo(std::stringstream& ss, int& tabs);
     int getGUIActionID();
     Window* getWindow(int id);
     GUI* getGUI(int type, int id);

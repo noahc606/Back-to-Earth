@@ -6,11 +6,13 @@
 #include "CollidingVolume.h"
 #include "ColorPalette.h"
 #include "GUIHandler.h"
+#include "Loggable.h"
+#include "PlayerMenu.h"
 #include "SpriteSheet.h"
 #include "Texture.h"
 
 
-class Player : public BTEObject
+class Player : public BTEObject, public Loggable
 {
 public:
 	/**/
@@ -20,18 +22,21 @@ public:
 	void destroy();
 	/**/
 	void draw(Canvas* csEntities);
+	void drawCharInMenu();
+	void drawHUD();
 	void tick();
+	void putInfo(std::stringstream& ss, int& tabs);
 	/**/
-	void info(std::stringstream& ss, int& tabs);
 	int getAction();
 	Box3D getBounds();
 	std::tuple<double, double, double> getPos();
 	std::tuple<double, double, double> getVelComponents();
 	double getVel();
 	Camera* getCamera();
-	bool isCharMenuOpen();
+	PlayerMenu* getMenu();
 	/**/
 	void setPos(double, double, double);
+	void setMenuState(int newMenuState);
 
 	enum Action {
 		NONE,
@@ -66,22 +71,36 @@ private:
 	};
 
 	void updateFacingDirection();
+	void buildPlayerTex(Texture& tex, int camDirection);
 
+	//Player palettes, textures, spritesheets
 	ColorPalette playerPal;
-	Texture playerTex;
+	Texture playerTex;		//Render this in world
+	Texture playerTexAlt;	//Render this in character menu
+	Texture hud;			//Main screen HUD.
 	SpriteSheet spsh;
+	
+	//Player animation
 	int anTimer = 0;
 	int anStandFrame = 0;
 	int anWalkFrameX = 0; int anWalkState = 0;
 	int anWalkShirtFrame = 0; int anWalkShirtState = 0;
 	int anBlinkTimer = 0;
 
+	//Physical properties
 	double walkSpeed = 0.0;
 	char facing = NORTH;
-
+	int flip = 0; int rotation = 0;
+	double defense = 0; double maxDefense = 100;
+	double health = 100; double maxHealth = 100;
+	double nutrition = 100; double maxNutrition = 100;
+	double water = 100; double maxWater = 100;
+	double oxygen = 100; double maxOxygen = 100;
+	
+	
 	bool godMode = true;
 	bool ghost = true;
-	bool charMenuOpen = false;
+	PlayerMenu menu;
 	bool controllable = false;
 
 	Camera camera;

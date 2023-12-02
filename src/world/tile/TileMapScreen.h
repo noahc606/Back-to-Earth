@@ -16,23 +16,21 @@
 class TileMapScreen : public BTEObject
 {
 public:
-    /**/
-    void init( SDLHandler* sdlHandler, FileHandler* fileHandler, Controls* ctrls, Player* player, TileMap* tileMap, Canvas* csTileMap );
-    virtual ~TileMapScreen();
-    void destroy();
-
-    /**/
-    void tick();
-    void draw();
-
-    /**/
-    void info(std::stringstream& ss, int& tabs, TileMap::t_ll mouseX, TileMap::t_ll mouseY, TileMap::t_ll mouseZ);
-
     /* Variables */
     static const int regionSize = 32;                   //Size of region in tiles
     static const int tileSize = 32;                     //Size of a tile in pixels
     static const int regSize = regionSize*tileSize;     //Size of region in pixels. Doesn't matter what camera zoom is.
-
+    /**/
+    void init( SDLHandler* sdlHandler, FileHandler* fileHandler, Controls* ctrls, Player* player, TileMap* tileMap, Canvas* csTileMap );
+    virtual ~TileMapScreen();
+    void destroy();
+    /**/
+    void tick();
+    void draw();
+    void putInfo(std::stringstream& ss, int& tabs, int64_t mouseX, int64_t mouseY, int64_t mouseZ, bool mouseExists);
+    void putInfo(std::stringstream& ss, int& tabs, int64_t mouseX, int64_t mouseY, int64_t mouseZ);
+    void putInfo(std::stringstream& ss, int& tabs);
+    /**/
 private:
     void updateMapVisible();
     void updateRegTicked(int rX, int rY, int rZ);

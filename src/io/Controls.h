@@ -39,7 +39,7 @@ public:
     void reloadBindings(Settings* settings);
     /* Manually reset press, release, or the mouse wheel immediately after it happens (it will stop on its own after 100ms anyway) */
     void stop(std::string action, std::string id, std::string methodName);
-    void stopPress(std::string methodName, std::string id);
+    void stopPress(std::string id, std::string methodname);
     void stopRelease(std::string methodName, std::string id);
     void resetWheel(std::string methodName);
     void resetSpecialInput(std::string methodName);

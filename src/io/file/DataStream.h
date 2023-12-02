@@ -3,8 +3,9 @@
 #include <queue>
 #include <sstream>
 #include "FileHandler.h"
+#include "Loggable.h"
 
-class DataStream
+class DataStream: public Loggable
 {
 public:
 
@@ -12,8 +13,7 @@ public:
     DataStream();
     virtual ~DataStream();
     /**/
-    void info(std::stringstream& ss, int& tabs);
-    void logInfo();
+    void putInfo(std::stringstream& ss, int& tabs);
     uint64_t getSeekBytePos();
     uint64_t getSeekBitPos();
     uint8_t getSeekBitOffset();

@@ -1,14 +1,14 @@
 #pragma once
 #include <vector>
 #include "BTEObject.h"
-#include "DebugObject.h"
+#include "Loggable.h"
 #include "SpriteSheet.h"
 #include "STexture.h"
 #include "TTexture.h"
 #include "Texture.h"
 #include "TileRegion.h"
 
-class Tests : public BTEObject, public DebugObject
+class Tests : public BTEObject, public Loggable
 {
 public:
     /**/
@@ -19,8 +19,8 @@ public:
     void thing1();
     void draw();
     void tick();
+    void putInfo(std::stringstream& ss, int& tabs);
     /**/
-    void info(std::stringstream& ss, int& tabs);
 
 protected:
 
@@ -35,8 +35,6 @@ private:
     STexture stex;
     TTexture ttex;
     SpriteSheet spsh;
-
-    Window* win;
 
     int counter = 0;
 };

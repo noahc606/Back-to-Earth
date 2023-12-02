@@ -38,7 +38,7 @@ void GUIHandler::draw()
         }
     }
 
-    //Draw window components (we do it after windows since wc's go on top of windows)
+    //Draw window components (we do it after windows since window components go on top of windows)
     for( GUI* gui : guis ) {
         if( gui->isWindowComponent() && gui->exists() ) {
             gui->draw();
@@ -149,12 +149,17 @@ void GUIHandler::tick()
                 int idMax = rbtn->getMaxGroupMemberID();
 
                 for( GUI* potentialRBtn : guis ) {
+					//Look through every radioButton
                     if( potentialRBtn->getType()==BTEObject::GUI_radiobutton ) {
                         int thisID = potentialRBtn->getID();
-
+						
                         if( thisID>=idMin && thisID<=idMax && thisID!=rbtn->getID() ) {
+							//Deselect all radio buttons that are in this group, except the one that was just clicked.
                             ((RadioButton*)potentialRBtn)->deselect();
-                        }
+                        } else {
+							//SET gui action ID to the ID of the radio button that was just clicked
+							guiActionID = thisID;
+						}
                     }
                 }
             }
@@ -226,7 +231,7 @@ void GUIHandler::onWindowUpdate()
 
 void GUIHandler::passSpecialInput(ControlBinding& passedCB) { cbSpecialInput += passedCB; }
 
-void GUIHandler::info(std::stringstream& ss, int& tabs)
+void GUIHandler::putInfo(std::stringstream& ss, int& tabs)
 {
     DebugScreen::indentLine(ss, tabs);
     ss << "guis.size()=" << guis.size() << ";";
@@ -316,15 +321,13 @@ void GUIHandler::setGUIs(int guis)
 
         /** Pause/Unpause in World */
         case PAUSE: {
-            removeGUI(win_OPTIONS);
-
-            addGUI(new Window( GUIAlignable::CENTER_H, GUIAlignable::CENTER_V, 600, 500, "Paused", "", win_PAUSED ));
-            addGUI(new Button( getWindow(win_PAUSED), GUIAlignable::CENTER_H, GUIAlignable::CENTER_V, 300, "Back to Game", btn_PAUSED_back ));
-            addGUI(new Button( getWindow(win_PAUSED), GUIAlignable::CENTER_H, GUIAlignable::CENTER_V, 300, "Options", btn_PAUSED_options ));
-            addGUI(new Button( getWindow(win_PAUSED), GUIAlignable::CENTER_H, GUIAlignable::CENTER_V, 300, "Save & Exit", btn_PAUSED_exit ));
+			gb.buildWorldPause(*this);
         } break;
         case UNPAUSE: {
             removeGUI(win_PAUSED);
+			removeGUI(win_OPTIONS);
+			removeGUI(win_CONTROLS);
+			removeGUI(win_GRAPHICS_SETTINGS);
         } break;
 
         /** Active World UIs */
@@ -423,4 +426,3 @@ void GUIHandler::removeGUIByIndex(int index)
     //Call texture destructor
     gui->destroy();
 }
-

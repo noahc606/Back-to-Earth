@@ -7,7 +7,6 @@ class CollidingVolume
 {
 public:
     /**/
-    typedef Defs::t_ll t_ll;
     /**/
     CollidingVolume();
     virtual ~CollidingVolume();

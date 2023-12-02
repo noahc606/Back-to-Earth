@@ -131,7 +131,7 @@ int FileHandler::openFile(std::string path, int openType, bool binary)
         std::string action = "open";
         if(fExists) { action = "create"; }
         Log::warn("Failed to "+action+" file '"+mpath+"' for "+getFileOpenTypeStr(openType), __PRETTY_FUNCTION__);
-        return FileStates::FAILED_ACCESS;
+		return FileStates::FAILED_ACCESS;
     //If file was successfully created
     } else {
         if(fExists) {
@@ -498,12 +498,13 @@ std::string FileHandler::getModifiedPath(FilePath fp)
 }
 std::string FileHandler::getFileOpenTypeStr(int fot)
 {
-    switch(fot) {
-    case FileOpenTypes::WRITE:  return "writing";
-    case FileOpenTypes::APPEND: return "appending";
-    case FileOpenTypes::READ:   return "reading";
-    }
-    return "unknown";
+	switch(fot) {
+	case FileOpenTypes::WRITE:  return "writing";
+	case FileOpenTypes::APPEND: return "appending";
+	case FileOpenTypes::READ:   return "reading";
+	case FileOpenTypes::UPDATE: return "updating";
+	}
+	return "unknown";
 }
 
 /**

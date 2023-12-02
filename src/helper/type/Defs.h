@@ -7,7 +7,6 @@
 class Defs
 {
 public:
-    typedef long long t_ll;
     typedef std::map<int, std::vector<SDL_Texture*>> t_textureAtlasesMap;
     typedef std::map<int, Mix_Chunk*> t_audioChunkMap;
 

@@ -1,7 +1,6 @@
 #pragma once
 #include <sstream>
 #include "Canvas.h"
-#include "Defs.h"
 #include "TileIterator.h"
 #include "TileMap.h"
 
@@ -11,7 +10,7 @@ public:
     RegTexUpdates(SDLHandler* sdlHandler, Camera* camera, TileMap* tileMap, Canvas* csTileMap);
     virtual ~RegTexUpdates();
 
-    static std::tuple<Defs::t_ll, Defs::t_ll, TileType> topTrackedTile(TileIterator& ti);
+    static std::tuple<int64_t, int64_t, TileType> topTrackedTile(TileIterator& ti);
     void info(std::stringstream& ss, int& tabs);
     int getScreenSemiWidth();
     int getScreenSemiHeight();
@@ -22,14 +21,14 @@ public:
     void setScreenInfo();
     void updateScaling(int ts, int bs);
     void updateTimeAvg(int drawsThisSecond);
-    void draw(Defs::t_ll camRX, Defs::t_ll camRY, Defs::t_ll camRZ, int loadRadiusH);
-    void colorFillRegionArea(Defs::t_ll rX, Defs::t_ll rY, uint8_t r, uint8_t g, uint8_t b);
-    void blackOutRegionArea(Defs::t_ll rX, Defs::t_ll rY);
+    void draw(int64_t camRX, int64_t camRY, int64_t camRZ, int loadRadiusH);
+    void colorFillRegionArea(int64_t rX, int64_t rY, uint8_t r, uint8_t g, uint8_t b);
+    void blackOutRegionArea(int64_t rX, int64_t rY);
 
     void placeEntireScreen();
-    void processRegions(Defs::t_ll camRX, Defs::t_ll camRY, Defs::t_ll camRZ, int loadRadiusH);
-    void processRegions2(Defs::t_ll camRX, Defs::t_ll camRY, Defs::t_ll camRZ, int loadRadiusH);
-    void processRegionLayer(TileIterator& ti, Defs::t_ll rX, Defs::t_ll rY, Defs::t_ll camRZ, Defs::t_ll camLayer);
+    void processRegions(int64_t camRX, int64_t camRY, int64_t camRZ, int loadRadiusH);
+    void processRegions2(int64_t camRX, int64_t camRY, int64_t camRZ, int loadRadiusH);
+    void processRegionLayer(TileIterator& ti, int64_t rX, int64_t rY, int64_t camRZ, int64_t camLayer);
     void processTileArea(TileIterator& ti, Texture* tex);
 
 protected:

@@ -6,72 +6,70 @@
 #include "Box3D.h"
 #include "BTEObject.h"
 #include "FileHandler.h"
+#include "Loggable.h"
 #include "Player.h"
 #include "Texture.h"
 #include "TileRegion.h"
 
-class TileMap : public BTEObject
+class TileMap : public BTEObject, public Loggable
 {
 public:
-    /**/
-    typedef long long                       t_ll;
-    typedef int                             t_regState;
-    typedef std::tuple<char, char>          t_charP;
-    typedef std::tuple<long, long>          t_v2d;
-    typedef std::tuple<long, long, long>    t_v3d;
-    typedef std::set<std::pair<int, int>>   t_updates;
+	/**/
+	typedef int										t_regState;
+	typedef std::tuple<char, char>					t_charP;
+	typedef std::tuple<int64_t, int64_t>			t_v2d;
+	typedef std::tuple<int64_t, int64_t, int64_t>	t_v3d;
+	typedef std::set<std::pair<int, int>>			t_updates;
+	typedef std::map<t_v3d, TileRegion>				t_regionMap;
+	typedef std::map<t_v3d, t_updates>				t_updatesMap;
+	/**/
+	void destroy();
+	/**/
+	void putInfo(std::stringstream& ss, int& tabs);
+	/**/
+	t_regionMap* getRegionMap();
+	t_updatesMap* getUpdatesMap();
 
-    typedef std::map<t_v3d, TileRegion>     t_regionMap;
-    typedef std::map<t_v3d, t_updates>      t_updatesMap;
-    /**/
-    void destroy();
-    /**/
-    void info(std::stringstream& ss, int& tabs, t_ll mouseX, t_ll mouseY, t_ll selZ);
-    t_regionMap* getRegionMap();
-    t_updatesMap* getUpdatesMap();
-
-    TileType getTile(t_ll x, t_ll y, t_ll z);
-    TileRegion* getRegByXYZ (t_ll x, t_ll y, t_ll z);
-    TileRegion* getRegByRXYZ(long rX, long rY, long rZ);
-    t_updates* getRTUsByRXYz(long rX, long rY, long z);
+	TileType getTile(int64_t x, int64_t y, int64_t z);
+	TileRegion* getRegByXYZ (int64_t x, int64_t y, int64_t z);
+	TileRegion* getRegByRXYZ(int64_t rX, int64_t rY, int64_t rZ);
+	t_updates* getRTUsByRXYz(int64_t rX, int64_t rY, int64_t z);
 
 	//Get position within region based on xyz
-    static long getRegSubPos(t_ll c);
-    static void getRegSubPos(t_ll& x, t_ll& y, t_ll& z);
-    static void getRegSubPos(long& x, long& y, long& z);
-    //Get region coordinates based on xyz
-	static long getRegRXYZ  (t_ll c);
-    static void getRegRXYZ  (t_ll& x, t_ll& y, t_ll& z);
-    static void getRegRXYZ  (long& x, long& y, long& z);
-    //Get save-region coordinates based on xyz.
-	static long convRxyToLSRxy (t_ll rxOrRy);
-	static long convRzToLSRz (t_ll rz);
-	static void convRxyzToLSRxyz (t_ll& rx, t_ll& ry, t_ll& rz);
-	static void convRxyzToLSRxyz (long& rx, long& ry, long& rz);
-    
-    bool collides( Box3D &b );
+	static int64_t getRegSubPos(int64_t c);
+	static void getRegSubPos(int64_t& x, int64_t& y, int64_t& z);
+	//Get region coordinates based on xyz
+	static int64_t getRegRXYZ  (int64_t c);
+	static void getRegRXYZ  (int64_t& x, int64_t& y, int64_t& z);
+	//Get save-region coordinates based on xyz.
+	static int64_t convRxyToLSRxy (int64_t rxOrRy);
+	static int64_t convRzToLSRz (int64_t rz);
+	static void convRxyzToLSRxyz (int64_t& rx, int64_t& ry, int64_t& rz);
+	
+	bool collides( Box3D &b );
 
-    /** TileMap manipulation */
-    //Set tile
-    int setTile(t_ll x, t_ll y, t_ll z, TileType tt);
-    //Load regions
-    int loadRegion(long rX, long rY, long rZ);
-    int saveRegion(FileHandler* fileHandler, std::string dimPath, long rX, long rY, long rZ);
-    int unloadRegion(FileHandler* fileHandler, std::string dimPath, long rX, long rY, long rZ);
-    //Add/Remove updates
-    int addTileUpdate(t_ll x, t_ll y, t_ll layer);
-    int addTileUpdates(t_ll x, t_ll y, t_ll layer);
-    int addTileUpdates(t_ll x0, t_ll y0, t_ll layer0, t_ll x1, t_ll y1, t_ll layer1);
-    int addRegionUpdate(long rX, long rY, t_ll layer);
-    int stopRegionUpdate(long rX, long rY, t_ll layer);
-    int stopAllUpdates();
+	/** TileMap manipulation */
+	//Set tile
+	int setTile(int64_t x, int64_t y, int64_t z, TileType tt);
+	//Load regions
+	int loadRegion(FileHandler* fileHandler, int64_t rX, int64_t rY, int64_t rZ);
+	int forceLoadRegion(FileHandler* fileHandler, int64_t rX, int64_t rY, int64_t rZ);
+	int saveRegion(FileHandler* fileHandler, std::string saveGameName, int64_t rX, int64_t rY, int64_t rZ);
+	int unloadRegion(FileHandler* fileHandler, std::string saveGameName, int64_t rX, int64_t rY, int64_t rZ);
+	//Add/Remove updates
+	int addTileUpdate(int64_t x, int64_t y, int64_t layer);
+	int addTileUpdates(int64_t x, int64_t y, int64_t layer);
+	int addTileUpdates(int64_t x0, int64_t y0, int64_t layer0, int64_t x1, int64_t y1, int64_t layer1);
+	int addRegionUpdate(int64_t rX, int64_t rY, int64_t layer);
+	int stopRegionUpdate(int64_t rX, int64_t rY, int64_t layer);
+	int stopAllUpdates();
 
 protected:
 
 private:
-    //Maps
-    t_regionMap regionMap;
-    t_updatesMap updatesMap;
+	//Maps
+	t_regionMap regionMap;
+	t_updatesMap updatesMap;
 
-    std::vector<Player>* players;
+	std::vector<Player>* players;
 };

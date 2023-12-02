@@ -78,14 +78,28 @@ void BTE::draw()
 		} break;
 
 		case GameState::WORLD: {
-			if( world!=nullptr ) {
-				world->draw();
-			}
+			if( world==nullptr ) break;
+			
+			world->draw();
 		} break;
 	}
 
 	//GUI handler and debug screen exists for all gamestates
 	guiHandler.draw();
+	
+	if(world!=nullptr) {
+		Player* localPlayer = world->getLocalPlayer();
+		if( localPlayer!=nullptr ) {
+			//Draw player within menu if player's menu is open
+			if( localPlayer->getMenu()->getState()>0 ) {
+				localPlayer->drawCharInMenu();
+			}
+			
+			//Draw specific menu elements
+			localPlayer->getMenu()->draw();
+		}
+	}
+	
 	debugScreen.draw();
 
 	if( sdlHandler->usingBTECursor() ) {
@@ -115,9 +129,80 @@ void BTE::tick()
 		sdlHandler->toggleBTECursor();
 	}
 
+	/** GUIHandler/DebugScreen */
+	if( guiHandler.exists() ) {
+		/** GUI handler */
+		//Tick
+		guiHandler.tick();
+
+		//GUI Button Action
+		
+		int gaid = guiHandler.getGUIActionID();
+		if( gaid>-1 ) {
+			ButtonAction ba(sdlHandler, &guiHandler, fileHandler, controls);
+			//Game state switching through buttons
+			switch( gaid ) {
+				/** Main Menu */
+				case GUIHandler::btn_MAIN_play: {
+					setGameState(GameState::WORLD);
+				} break;
+				case GUIHandler::btn_MAIN_exit: {
+					setGameState(GameState::EXIT);
+				} break;
+
+				/** Options menu buttons */
+				case GUIHandler::btn_OPTIONS_back: {
+					if( gamestate==GameState::WORLD ) {
+						guiHandler.setGUIs(GUIHandler::GUIs::PAUSE);
+					} else {
+						guiHandler.setGUIs(GUIHandler::GUIs::MAIN);
+					}
+				} break;
+
+				/** Pause Menu */
+				case GUIHandler::btn_PAUSED_back: {
+					paused = false;
+					guiHandler.setGUIs(GUIHandler::GUIs::UNPAUSE);
+				} break;
+				case GUIHandler::btn_PAUSED_exit: {
+					setGameState(GameState::MAIN_MENU);
+					paused = false;
+				} break;
+				
+				/* Player Menu */
+				case GUIHandler::rbtn_CHARACTER_inventory:
+				case GUIHandler::rbtn_CHARACTER_engineering:
+				{
+					Player* lp = world->getLocalPlayer();
+					if( lp!=nullptr ) {
+						PlayerMenu* lpMenu = lp->getMenu();
+						if( lpMenu!=nullptr ) {
+							lpMenu->setState( gaid-(GUIHandler::rbtn_CHARACTER_engineering)+2 );
+						}
+					}
+				} break;
+			}
+
+			//Reset gui action
+			guiHandler.resetGUIAction(__PRETTY_FUNCTION__);
+		}
+
+		/** Debug screen */
+		// Set debug screen to be invisible if it is disabled
+		if( settings->get(Settings::options, "debugEnabled")!="true" ) {
+			debugScreen.setVisible(false);
+		} else {
+			//Tick
+			debugScreen.tick();
+			// Update the string as long as it is supposed to be visible
+			if(debugScreen.getVisible()) {
+				debugScreen.debugSetString(getInfo());
+			}
+		}
+	}
+
 	/** Gamestate specific objects */
 	switch(gamestate) {
-
 		case TESTING:
 		case TEXTURES: {
 			if( tests!=nullptr ) {
@@ -143,64 +228,6 @@ void BTE::tick()
 				world->tick(paused, guiHandler);
 			}
 		} break;
-	}
-
-	/** GUIHandler/DebugScreen */
-	if( guiHandler.exists() ) {
-		/** GUI handler */
-		//Tick
-		guiHandler.tick();
-
-		//GUI Button Action
-		if( guiHandler.getGUIActionID()>-1 ) {
-			ButtonAction ba(sdlHandler, &guiHandler, fileHandler, controls);
-			//Game state switching through buttons
-
-			switch( guiHandler.getGUIActionID() ) {
-				/** Main Menu */
-				case GUIHandler::btn_MAIN_play: {
-					setGameState(GameState::WORLD);
-				} break;
-				case GUIHandler::btn_MAIN_exit:
-					setGameState(GameState::EXIT);
-				break;
-
-				/** Options menu buttons */
-				case GUIHandler::btn_OPTIONS_back:
-					if( gamestate==GameState::WORLD ) {
-						guiHandler.setGUIs(GUIHandler::GUIs::PAUSE);
-					} else {
-						guiHandler.setGUIs(GUIHandler::GUIs::MAIN);
-					}
-				break;
-
-				/** Pause Menu */
-				case GUIHandler::btn_PAUSED_back:
-					paused = false;
-					guiHandler.setGUIs(GUIHandler::GUIs::UNPAUSE);
-				break;
-				case GUIHandler::btn_PAUSED_exit:
-					setGameState(GameState::MAIN_MENU);
-					paused = false;
-				break;
-			}
-
-			//Reset gui action
-			guiHandler.resetGUIAction(__PRETTY_FUNCTION__);
-		}
-
-		/** Debug screen */
-		// Set debug screen to be invisible if it is disabled
-		if( settings->get(Settings::options, "debugEnabled")!="true" ) {
-			debugScreen.setVisible(false);
-		} else {
-			//Tick
-			debugScreen.tick();
-			// Update the string as long as it is supposed to be visible
-			if(debugScreen.getVisible()) {
-				debugScreen.debugSetString(getInfo());
-			}
-		}
 	}
 
 	/** Commands */
@@ -268,18 +295,18 @@ std::string BTE::getInfo()
 	//[BTE]
 	DebugScreen::newGroup(ss, tabs, "BTE");
 		DebugScreen::newGroup(ss, tabs, "BTE::guiHandler");
-			guiHandler.info(ss, tabs);
+			guiHandler.putInfo(ss, tabs);
 		DebugScreen::endGroup(tabs);
 
 		if( world!=nullptr ) {
 			DebugScreen::newGroup(ss, tabs, "BTE::world");
-				world->info(ss, tabs);
+				world->putInfo(ss, tabs);
 			DebugScreen::endGroup(tabs);
 		}
 
 		if( tests!=nullptr ) {
 			DebugScreen::newGroup(ss, tabs, "BTE::tests");
-				tests->info(ss, tabs);
+				tests->putInfo(ss, tabs);
 			DebugScreen::endGroup(tabs);
 		}
 

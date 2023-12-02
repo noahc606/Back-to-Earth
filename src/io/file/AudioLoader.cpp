@@ -192,17 +192,17 @@ void AudioLoader::addMixChunks()
 	addMixChunk(MUSIC_mercury, "music/mercury", "mp3");
 	addMixChunk(MUSIC_space_travel, "music/space_travel", "mp3");
 
-    addMixChunk(WORLD_WATER_flowing_heavy, "world/water/flowing_heavy");
-    addMixChunk(WORLD_WATER_flowing_normal, "world/water/flowing_normal");
-    addMixChunk(WORLD_WATER_splash, "world/water/splash");
-    addMixChunk(WORLD_WATER_submerge, "world/water/submerge");
-    addMixChunk(WORLD_WATER_swimming, "world/water/swimming");
-    addMixChunk(WORLD_WATER_underwater, "world/water/underwater");
-    addMixChunk(WORLD_WATER_underwater_deep, "world/water/underwater_deep");
+    //addMixChunk(WORLD_WATER_flowing_heavy, "world/water/flowing_heavy");
+    //addMixChunk(WORLD_WATER_flowing_normal, "world/water/flowing_normal");
+    //addMixChunk(WORLD_WATER_splash, "world/water/splash");
+    //addMixChunk(WORLD_WATER_submerge, "world/water/submerge");
+    //addMixChunk(WORLD_WATER_swimming, "world/water/swimming");
+    //addMixChunk(WORLD_WATER_underwater, "world/water/underwater");
+    //addMixChunk(WORLD_WATER_underwater_deep, "world/water/underwater_deep");
 
-    addMixChunk(WORLD_WEATHER_rain_outside_heavy, "world/weather/rain_outside_heavy");
-    addMixChunk(WORLD_WEATHER_rain_roof_generic, "world/weather/rain_roof_generic");
-    addMixChunk(WORLD_WEATHER_rain_roof_metal, "world/weather/rain_roof_metal");
+    //addMixChunk(WORLD_WEATHER_rain_outside_heavy, "world/weather/rain_outside_heavy");
+    //addMixChunk(WORLD_WEATHER_rain_roof_generic, "world/weather/rain_roof_generic");
+    //addMixChunk(WORLD_WEATHER_rain_roof_metal, "world/weather/rain_roof_metal");
 }
 
 Mix_Chunk* AudioLoader::addMixChunk(int index, std::string path, std::string extension)
