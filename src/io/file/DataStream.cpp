@@ -172,7 +172,10 @@ void DataStream::dumpBytestream(FileHandler* fh)
 void DataStream::clear()
 {
 	bytestream.clear();
-	bitcache.empty();
+	bool res = bitcache.empty();
+	if(res==true) {
+		Log::warn(__PRETTY_FUNCTION__, "Bitcache already empty");
+	}
 	seekBitOffset = 0;
 	seekBytePos = 0;
 }

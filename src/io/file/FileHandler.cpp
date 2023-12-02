@@ -313,6 +313,16 @@ Settings::t_kvMap FileHandler::readTxtFileKVs(FilePath fp)
             foundNewLine = true;
             foundEqualSign = false;
 
+			//In Windows (and others?), end of line is "\r\n". It is "\n" in unix.
+			//Thus, we need to remove any \r's (char 13) from currentValue before using it.
+			std::string temp = currentValue;
+			currentValue = "";
+			for( int i = 0; i<temp.size(); i++ ) {
+				if( temp[i]!=13 ) {
+					currentValue += temp[i];
+				}
+			}
+
             //Add currentKey and currentValue as pairs to the vector
             contents.insert( std::make_pair(currentKey, currentValue) );
 
