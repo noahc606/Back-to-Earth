@@ -39,18 +39,6 @@ public:
 		MUSIC_mercury,
 		MUSIC_space_travel,
 
-        WORLD_WATER_flowing_heavy,
-        WORLD_WATER_flowing_normal,
-        WORLD_WATER_splash,
-        WORLD_WATER_submerge,
-        WORLD_WATER_swimming,
-        WORLD_WATER_underwater,
-        WORLD_WATER_underwater_deep,
-
-        WORLD_WEATHER_rain_outside_heavy,
-        WORLD_WEATHER_rain_roof_generic,
-        WORLD_WEATHER_rain_roof_metal,
-
         LAST_INDEX, //Keep this last
     };
 
