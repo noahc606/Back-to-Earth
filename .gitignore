@@ -3,6 +3,7 @@
 .clangd
 BTE.mk
 BTE.project
+BTE.txt
 BTE-nightly.project
 compile_commands.json
 nch_*
