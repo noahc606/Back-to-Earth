@@ -38,6 +38,7 @@ private:
     void updateMapMoved();
     void updateMapIdle();
     void updateMapAutosave();
+	void unloadMap();
 
     Camera* cam = nullptr;                              //Area of the world shown on screen. Also tracks size of each tile (zoom factor).
     TileMap* tileMap = nullptr;

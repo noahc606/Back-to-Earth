@@ -28,12 +28,23 @@ void Tests::init(SDLHandler* sh, FileHandler* fh, Controls* ctrls)
     fileHandler = fh;
     controls = ctrls;
 	
-	//Build tile region
-	TileRegion tr;
+	//Build test tile regions
 	Terrain terra;
-	terra.testRegion(tr, 0, 0, -2, 1);
 	
-	tr.save(fileHandler, "world1", 0, 0, -2);
+	TileRegion tr1; terra.testRegion(tr1, 0, 0, -2, false);
+	
+	LevelSave ls(fh);
+	
+	std::cout << "Starting...\n";
+	ls.saveTileRegion(tr1, 0, 0, -2);
+	
+	//tr1.printInfoTileIndices();
+	
+	std::cout << "Finished.\n";
+	
+	//for( int i = 0; i<100; i++) {
+		//tr.save(fileHandler, "world1", 0, 0, -2);
+	//}
 }
 
 Tests::~Tests(){}

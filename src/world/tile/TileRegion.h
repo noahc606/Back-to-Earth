@@ -19,6 +19,7 @@ public:
 	void putInfo(std::stringstream& ss, int& tabs);
 	void putInfo(std::stringstream& ss, int& tabs, int subX, int subY, int subZ);
     std::string getInfo(int subX, int subY, int subZ);
+	void printInfoTileIndices();
 	/**/
     //Get palette info
 	uint16_t getPaletteSize();

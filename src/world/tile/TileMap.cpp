@@ -158,7 +158,7 @@ int TileMap::loadRegion(FileHandler* fileHandler, int64_t rX, int64_t rY, int64_
 		tr.setRegTexState(tr.FINISHED_GENERATING);
 		
 		//Place artificial tiles
-		//tr.load(fileHandler, "world1", rX, rY, rZ);
+		tr.load(fileHandler, "world1", rX, rY, rZ);
 		
 		regionMap.insert( std::make_pair(std::make_tuple(rX, rY, rZ), tr) );
         return 0;
@@ -166,6 +166,9 @@ int TileMap::loadRegion(FileHandler* fileHandler, int64_t rX, int64_t rY, int64_
     return -1;
 }
 
+/**
+ * 	Used for debug purposes. Loads the region specified by rX, rY, and rZ, except it loads the artificial tiles (from file) no matter what.
+ */
 int TileMap::forceLoadRegion(FileHandler* fileHandler, int64_t rX, int64_t rY, int64_t rZ)
 {
 	std::stringstream ss;
@@ -184,10 +187,21 @@ int TileMap::forceLoadRegion(FileHandler* fileHandler, int64_t rX, int64_t rY, i
 int TileMap::saveRegion(FileHandler* fileHandler, std::string saveGameName, int64_t rX, int64_t rY, int64_t rZ)
 {
 	TileRegion* tr = getRegByRXYZ(rX, rY, rZ);
+	
+	bool stop = false;
+	if( rX==0 && rY==0 && rZ==-2 ) {
+		stop = false;
+	}
+	
+	if(stop) {
+		return -2;
+	}
+	
 	if(tr!=nullptr) {
 		std::stringstream ss;
 		ss << "Saving region (" << rX << ", " << rY << ", " << rZ << ") in save '" << saveGameName << "'";
 		Log::debug(ss.str());
+		
 		tr->save(fileHandler, saveGameName, rX, rY, rZ, false);
 		return 0;
 	}

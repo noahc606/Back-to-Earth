@@ -182,8 +182,9 @@ void AudioLoader::addMixChunks()
 
     missingChunk = addMixChunk(missing, "missing");
 
-    addMixChunk(TITLE_impact, "title/impact");
     addMixChunk(TITLE_beam, "title/beam");
+    addMixChunk(TITLE_button, "title/button");
+    addMixChunk(TITLE_impact, "title/impact");
 	
 	addMixChunk(MUSIC_blender_engine, "music/blender_engine", "mp3");
 	addMixChunk(MUSIC_cyber_city, "music/cyber_city", "mp3");
@@ -191,6 +192,8 @@ void AudioLoader::addMixChunks()
 	addMixChunk(MUSIC_kalliope, "music/kalliope", "mp3");
 	addMixChunk(MUSIC_mercury, "music/mercury", "mp3");
 	addMixChunk(MUSIC_space_travel, "music/space_travel", "mp3");
+	
+	addMixChunk(WORLD_heartbeat, "world/heartbeat");
 
     //addMixChunk(WORLD_WATER_flowing_heavy, "world/water/flowing_heavy");
     //addMixChunk(WORLD_WATER_flowing_normal, "world/water/flowing_normal");

@@ -24,8 +24,7 @@ void LevelSave::saveTileRegion(TileRegion& tr, int64_t rX, int64_t rY, int64_t r
 {
 	//If file exists, check prefix. If the file doesn't exist or it has a bad prefix, (re)build the prefix and header.
 	savePrelims(tr, rX, rY, rZ);
-	fileHandler->saveCloseFile();
-	return;
+	
 	
 	//Create DataStream
 	DataStream ds;
@@ -69,7 +68,7 @@ void LevelSave::saveTileRegion(TileRegion& tr, int64_t rX, int64_t rY, int64_t r
 	ds.put64Bits(0xeeeeeeeeeeeeeeee);
 	//Tile data
 	tr.dumpTileData(ds, dataBitsPerTile);
-		
+	
 	//Dump bytes from datastream to file, @ 'dataLocation'.
 	ds.dumpBytestream(fileHandler, dataLocation);
 
@@ -373,11 +372,12 @@ void LevelSave::savePrelims(TileRegion& tr, int64_t rX, int64_t rY, int64_t rZ)
 void LevelSave::clearHeaderEntryPlusSaveSection(int64_t rX, int64_t rY, int64_t rZ)
 {
 	//Get location of old data, if it exists. If it doesn't exist (pop!=0b1010), stop function after clearing header entry's 'pop' section.
-	fileHandler->seekTo(16+getHeaderEntryDelta(rX, rY, rZ) );
+	fileHandler->seekTo(16+getHeaderEntryDelta(rX, rY, rZ));
+	
 	uint32_t loc = getHeaderEntryData1();
 	uint32_t bpt = getHeaderEntryData2();
 	uint8_t pop = getHeaderEntryData3();
-		
+	
 	//Clear old header entry (put 40 1's in the header entry).
 	//Then, add in everything except for the 'pop' data object (which will be 0x0).
 	DataStream ds;

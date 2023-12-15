@@ -17,9 +17,11 @@ void TileMapScreen::init( SDLHandler* sh, FileHandler* fh, Controls* ctrls, Play
 {
 	//Set SDLHandler, FileHandler, controls
 	BTEObject::init(sh, fh, ctrls);
+	
 	//Set TileMap and TileMap's Canvas
 	tileMap = p_tm;
 	csTileMap = p_ctm;
+	
 	//If player is not null
 	if( p_pl!=nullptr ) {
 		//Set Camera, RegTexUpdates objects
@@ -32,8 +34,34 @@ void TileMapScreen::init( SDLHandler* sh, FileHandler* fh, Controls* ctrls, Play
 
 void TileMapScreen::destroy()
 {
-	// Get rid of RegTexUpdates object when this is destroyed
 	Log::log("Destroying tileMapScreen...");
+	
+	//Build a list of all tile region locations
+	std::vector<std::tuple<uint64_t, uint64_t, uint64_t>> regs;
+	TileMap::t_regionMap::iterator itrRM;
+	
+	if( tileMap==nullptr || tileMap->getRegionMap()==nullptr ) {
+		return;
+	}
+	for( itrRM = tileMap->getRegionMap()->begin(); itrRM!=tileMap->getRegionMap()->end(); itrRM++ ) {
+		int rX = std::get<0>(itrRM->first);
+		int rY = std::get<1>(itrRM->first);
+		int rZ = std::get<2>(itrRM->first);
+		regs.push_back( std::make_tuple(rX, rY, rZ) );
+	}
+	
+	//Remove and unload all known tile regions
+	for( int i = 0; i<regs.size(); i++ ) {
+		auto thisReg = regs.at(i);
+		uint64_t rX = std::get<0>(thisReg);
+		uint64_t rY = std::get<1>(thisReg);
+		uint64_t rZ = std::get<2>(thisReg);
+		
+		tileMap->saveRegion(fileHandler, "world1", rX, rY, rZ);
+		tileMap->unloadRegion(fileHandler, currentDimPath, rX, rY, rZ);
+	}
+	
+	// Get rid of RegTexUpdates object when this is destroyed
 	delete regTexUpdates;
 }
 
@@ -237,7 +265,7 @@ void TileMapScreen::putInfo(std::stringstream& ss, int& tabs)
 
 void TileMapScreen::updateMapVisible()
 {
-	/** Regions that are on screen should update */
+	/** Go through regions that are on screen and mark that they should update */
 	int outlineH = loadRadiusH+1;
 
 	for( int dRX = -outlineH; dRX<=outlineH; dRX++) {
@@ -267,12 +295,8 @@ void TileMapScreen::updateRegTicked(int rX, int rY, int rZ)
 		//Timer for debugging
 		Timer rlt;
 
-		//If region has not been loaded yet, load the region.
-		int lr = -1;
-		lr = tileMap->loadRegion(fileHandler, rX, rY, rZ);
-
-		//If region load was successful
-		if( lr==0 ) {
+		//If new region load was successful (regions already loaded are not == 0)
+		if( tileMap->loadRegion(fileHandler, rX, rY, rZ)==0 ) {
 			//Increment loadCount
 			loadCount++;
 			//Set debug info
@@ -335,7 +359,7 @@ void TileMapScreen::updateMapMoved()
 
 			for( int rZ = camRZ-outlineV; rZ<=camRZ+outlineV; rZ += dRZ ) {
 				//Unload regions
-				//tileMap->saveRegion(fileHandler, "world1", rX, rY, rZ);
+				tileMap->saveRegion(fileHandler, "world1", rX, rY, rZ);
 				tileMap->unloadRegion(fileHandler, currentDimPath, rX, rY, rZ);
 			}
 		}

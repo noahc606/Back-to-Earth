@@ -69,6 +69,24 @@ std::string TileRegion::getInfo(int subX, int subY, int subZ)
 	return ss.str();
 }
 
+void TileRegion::printInfoTileIndices()
+{
+	std::stringstream ss;
+	for( int z = 0; z<32; z++ ) {
+		ss << "Z Layer " << z << ":\n";
+		for( int y = 0; y<32; y++ ) {
+			ss << "y=" << y << ": { ";
+			for( int x = 0; x<32; x++ ) {
+				ss << tiles[x][y][z] << " ";
+			}
+			ss << "} ";
+		}
+		ss << "\n\n";
+	}
+	
+	Log::log(ss.str());
+}
+
 uint16_t TileRegion::getPaletteSize() { return palette.size(); }
 /**
  *	Return the # of map elements whose keys >=0 (includes 0!).
@@ -356,7 +374,7 @@ void TileRegion::dumpTileData(DataStream& ds, uint8_t dataBitsPerTile)
 			for( uint8_t sz = 0; sz<32; sz++ ) {
 				int16_t key = -getTileKey(sx, sy, sz);
 				if(key>0) {
-					ds.putXBits( key, dataBitsPerTile );
+					ds.putXBits( key, dataBitsPerTile ); 
 				} else {
 					ds.putXBits( 0, dataBitsPerTile );
 				}
@@ -376,7 +394,7 @@ void TileRegion::save(FileHandler* fh, std::string saveGameName, long rX, long r
 {
 	//Make sure folder which contains the region files themselves exists
 	std::string regFilesDir = "saved/games/"+saveGameName+"/tilemap/default";
-	fh->createBTEDir(regFilesDir);
+	//fh->createBTEDir(regFilesDir); //this is STUPID
 
 	//Compression
 	if( p_compress ) {

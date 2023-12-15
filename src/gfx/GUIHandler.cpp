@@ -135,7 +135,7 @@ void GUIHandler::tick()
                 guiActionID = btn->getID();
                 removeGUI( btn->getID() );
 				AudioLoader* al = sdlHandler->getAudioLoader();
-				al->play(AudioLoader::TITLE_beam, 0.15);
+				al->play(AudioLoader::TITLE_button, 0.15);
             }
         }
         //If gui is a radiobutton

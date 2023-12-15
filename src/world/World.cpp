@@ -47,15 +47,11 @@ void World::init(SDLHandler* sh, GUIHandler* gh, FileHandler* fh, Controls* ctrl
 
 World::~World()
 {
-	/*
-	player.destroy();
-	tileMap.destroy();
-	tileMapScreen.destroy();
-
-
-
-	defaultTile.destroy();
-	*/
+	//player.destroy();
+	//tileMap.destroy();
+	//tileMapScreen.destroy();
+	
+	//defaultTile.destroy();
 
 	csTileMap.destroy();
 	csInteractions.destroy();

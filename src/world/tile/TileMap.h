@@ -69,6 +69,7 @@ protected:
 private:
 	//Maps
 	t_regionMap regionMap;
+	
 	t_updatesMap updatesMap;
 
 	std::vector<Player>* players;

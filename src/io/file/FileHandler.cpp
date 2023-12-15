@@ -364,6 +364,7 @@ bool FileHandler::checkMagicNumber(uint64_t mnPart1, uint64_t mnPart2)
 	//Compare the next 16 bytes (128) bits, between the FileHandler's bytes and the DataStream's bytes.
 	bool success = true;
 	for( int i = 0; i<16; i++ ) {
+		//std::cout << (int)readByteStay() << ", " << (int)ds.peekByteCell() << "\n";
 		if( getFileLength()==0 || readByteStay()!=ds.peekByteCell() ) {
 			success = false;
 			break;
@@ -397,6 +398,10 @@ long FileHandler::getFileLength()
 
 int FileHandler::seek(long byte, int seekType)
 {
+	if( file==nullptr ) {
+		Log::error(__PRETTY_FUNCTION__, "File is nullptr");
+	}
+
 	if( fseek(file, byte, seekType)!=0 ) {
 		std::stringstream logres;
 		switch(seekType) {

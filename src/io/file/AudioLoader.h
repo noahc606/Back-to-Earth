@@ -29,8 +29,9 @@ public:
     enum Chunks {
         missing,    //Always keep missing first
 
-        TITLE_impact,
 		TITLE_beam,
+		TITLE_button,
+        TITLE_impact,
 		
 		MUSIC_blender_engine,
 		MUSIC_cyber_city,
@@ -38,6 +39,8 @@ public:
 		MUSIC_kalliope,
 		MUSIC_mercury,
 		MUSIC_space_travel,
+		
+		WORLD_heartbeat,
 
         LAST_INDEX, //Keep this last
     };

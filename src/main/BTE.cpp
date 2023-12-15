@@ -363,7 +363,7 @@ void BTE::setGameState(int p_gamestate)
 			guiHandler.setGUIs(GUIHandler::GUIs::WORLD);
 			AudioLoader* al = sdlHandler->getAudioLoader();
 			al->stopPlayingMusic();
-			al->playOnce(AudioLoader::MUSIC_kalliope);
+			//al->playOnce(AudioLoader::MUSIC_kalliope);
 			load(world);
 		} break;
 
