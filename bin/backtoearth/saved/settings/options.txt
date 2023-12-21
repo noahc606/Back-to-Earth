@@ -5,4 +5,4 @@ debugHardTesting=false
 debugTesting=false
 fullscreen=false
 logging=false
-maxFps=120
+maxFps=Vsync
