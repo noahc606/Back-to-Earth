@@ -13,8 +13,9 @@ public:
     MainLoop();
     virtual ~MainLoop();
     /**/
-    static int getCurrentTPS(); static int getCurrentFPS();
-    static double getCurrentMSPT(); static double getCurrentMSPF();
+    static int getCurrentTPS(); static int getCurrentFPS();			//Get current ticks per second / frames per second.
+    static double getCurrentMSPT(); static double getCurrentMSPF();	//Get current milliseconds per tick / milliseconds per frame.
+    static int getCurrentPTPS(); static int getCurrentPFPS();		//Get current potential TPS / potential FPS. Refers to what they would theoretically be if there were no cap.
     static uint64_t getFrames();
     static char* getSystemTime();
     static std::string getSystemTimeFilename();
@@ -22,6 +23,7 @@ public:
     static bool isInitialized();
     /**/
     static void setMaxFPS(int maxFPS);
+    static void setMaxFPS(std::string settingValue);
     static void quit();
 
 private:
@@ -30,10 +32,10 @@ private:
     static bool initialized;
 
     /* Helper classes */
-    SDLHandler sdlHandler;
-    FileHandler fileHandler;
-    Controls controls;
-    BTE bte;
+    static SDLHandler sdlHandler;
+    static FileHandler fileHandler;
+    static Controls controls;
+    static BTE bte;
 
     /* Frames and ticks */
     static double maxFPS;
@@ -44,8 +46,8 @@ private:
     static double msptThisSec; static double mspfThisSec;
     static uint64_t nextSecond;
 
-    void gameLoop();    //Main game loop (draw and tick)
-    void trackEvents(); //Track SDL_Events to handle keyboard/mouse input, program exit requests, etc.
-    void tick();        //Update game objects at 60 times a second.
-    void draw();        //Draw game objects at 120 times a second.
+    static void gameLoop();    //Main game loop (draw and tick)
+    static void trackEvents(); //Track SDL_Events to handle keyboard/mouse input, program exit requests, etc.
+    static void tick();        //Update game objects at 60 times a second.
+    static void draw();        //Draw game objects at 120 times a second.
 };

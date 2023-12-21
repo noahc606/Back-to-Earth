@@ -46,6 +46,32 @@ SDL_PixelFormat* SDLHandler::getPixelFormat() { return windowPixelFormat; }
 SDL_Renderer* SDLHandler::getRenderer() { return windowRenderer; }
 
 bool SDLHandler::isFullScreen() { return fullscreen; }
+int SDLHandler::getDisplayRefreshRate()
+{
+	int thisDisplayId = 0;
+	int numDisplayModes = SDL_GetNumDisplayModes(thisDisplayId);
+	SDL_DisplayMode thisDisplayMode;
+	int fallback = 60;
+	
+	if( numDisplayModes<1 ) {
+		Log::error(__PRETTY_FUNCTION__, "SDL_GetNumDisplayModes() failed: ", SDL_GetError());
+		return fallback;
+	}
+	
+	for( int i = 0; i<numDisplayModes; i++ ) {
+		if( SDL_GetDisplayMode(thisDisplayId, i, &thisDisplayMode)!=0 ) {
+			Log::error(__PRETTY_FUNCTION__, "SDL_GetDisplayMode() failed: ", SDL_GetError());
+			return fallback;
+		}
+	}
+	
+	int res = thisDisplayMode.refresh_rate;
+	if( res!=0 ) {
+		return res;
+	} else {
+		return fallback;
+	}
+}
 int SDLHandler::getWidth() { return width; }
 int SDLHandler::getHeight() { return height; }
 bool SDLHandler::usingBTECursor() { return bteCursor; }
@@ -68,18 +94,24 @@ void SDLHandler::toggleFullScreen()
 
     if( fullscreen ) {
         fullscreen = false;
-
+	
         if ( SDL_SetWindowFullscreen(window, SDL_WINDOW_RESIZABLE | SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN)!=0 ) {
-            SDL_SetWindowPosition(window, maxWidth/2, maxHeight/2 );
-            SDL_SetWindowSize(window, SDL_WINDOWPOS_UNDEFINED_DISPLAY(lastDisplayID), SDL_WINDOWPOS_UNDEFINED_DISPLAY(lastDisplayID));
             Log::error(__PRETTY_FUNCTION__, "Failed to turn fullscreen off", SDL_GetError());
-        }
+			SDL_SetWindowPosition(window, maxWidth/2, maxHeight/2 );
+			SDL_SetWindowSize(window, SDL_WINDOWPOS_UNDEFINED_DISPLAY(lastDisplayID), SDL_WINDOWPOS_UNDEFINED_DISPLAY(lastDisplayID));
+        } else {
+			SDL_SetWindowPosition(window, maxWidth/4, maxHeight/4 );
+			SDL_SetWindowSize(window, maxWidth/2, maxHeight/2);
+		}
+		
+		SDL_SetWindowResizable(window, SDL_TRUE);
     } else {
         fullscreen = true;
 
         if( SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN_DESKTOP | SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN)!=0 ) {
             Log::error(__PRETTY_FUNCTION__, "Failed to turn fullscreen on", SDL_GetError());
         }
+		SDL_SetWindowResizable(window, SDL_FALSE);
     }
 
     lastDisplayID = SDL_GetWindowDisplayIndex(window);

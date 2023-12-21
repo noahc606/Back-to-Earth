@@ -28,23 +28,36 @@ void Tests::init(SDLHandler* sh, FileHandler* fh, Controls* ctrls)
     fileHandler = fh;
     controls = ctrls;
 	
+	int rX = 4;
+	int rY = 0;
+	int rZ = -3;
+	
 	//Build test tile regions
 	Terrain terra;
-	
-	TileRegion tr1; terra.testRegion(tr1, 0, 0, -2, false);
+	TileRegion tr1; terra.testRegion(tr1, rX, rY, rZ, true);
 	
 	LevelSave ls(fh);
 	
 	std::cout << "Starting...\n";
-	ls.saveTileRegion(tr1, 0, 0, -2);
+	//ls.saveTileRegion(tr1, rX, rY, rZ);
 	
-	//tr1.printInfoTileIndices();
+	for( int i = 0; i<32; i++ ) {
+		TileType tt; tt.setRGB(i*8, 50, i*8); tt.setTextureXY(i, 0);
+		tr1.setTile(i, i, i, tt);
+	}
+	
+	tr1.logInfo();
+	
+	//ls.saveTileRegion(tr1, rX, rY, rZ);
+	
+	ls.buildLevelDebugTex(sdlHandler, tex, rX, rY, rZ);
+	
+	lvlImgSrc.x = 0;
+	lvlImgSrc.y = 0;
+	lvlImgSrc.w = 32;
+	lvlImgSrc.h = 128;
 	
 	std::cout << "Finished.\n";
-	
-	//for( int i = 0; i<100; i++) {
-		//tr.save(fileHandler, "world1", 0, 0, -2);
-	//}
 }
 
 Tests::~Tests(){}
@@ -54,8 +67,35 @@ Tests::~Tests(){}
 void Tests::draw()
 {
     counter++;
+	
+	SDL_Rect dst;
+	dst.w = 32*6;
+	dst.h = dst.w*4;
+	dst.x = sdlHandler->getWidth()/2-dst.w/2;
+	dst.y = sdlHandler->getHeight()/2-dst.h/2;
+	
+	tex.draw(&lvlImgSrc, &dst);
+	
+	int mw = controls->getMouseWheel();
+	if( mw!=0 ) {
+		
+		if(mw<0) {
+			lvlImgSrc.y += 32;
+		}
+		if (mw>0) {
+			lvlImgSrc.y -= 32;
+		}
+		
+		if(lvlImgSrc.y<0) {
+			lvlImgSrc.y = 0;
+		}
+		
+		controls->resetWheel(__PRETTY_FUNCTION__);
+	}
 
     //sdlHandler->renderCopy(3, &dst, &dst);
+
+	
 
     for(int i = 0; i<10; i++) {
         //stex.lock(rx*32, ry*32, 32, 32);
@@ -75,7 +115,7 @@ void Tests::draw()
 
 void Tests::tick()
 {
-	std::cout << "test";
+
 }
 
 /**/

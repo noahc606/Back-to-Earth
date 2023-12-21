@@ -23,16 +23,17 @@ public:
     int getActionID();
     int getInputType();
     bool isEntered();
+	bool hasInvalidInput();
     /**/
     void resetActionID(std::string methodName);
     void resetEnteredData();
     void setEntered(bool entered);
     void setString(std::string s);
+	bool validateString();
     void setControlBinding(ControlBinding& cb);
     void setInsertionPoint(int ip);
     void deselect();
     /**/
-    bool entered = false;
 
     enum Actions {
         NONE = -1,
@@ -43,6 +44,7 @@ public:
     enum InputType {
         LOCKED = -1,
         FREE_TEXT = 0,
+		FREE_NUMBERS_BASIC,
         CONTROL_BINDINGS,
     };
 
@@ -51,6 +53,11 @@ protected:
 private:
     int inputType = NONE;
     int actionID = 0;
+    bool entered = false;
+	bool invalidInput = false;
+	
+	Texture texInvalidInput;
+	
     ControlBinding setCB;
 
 };

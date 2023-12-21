@@ -171,11 +171,13 @@ void DataStream::dumpBytestream(FileHandler* fh)
 
 void DataStream::clear()
 {
+	bool redundant = (bytestream.size()==0 && bitcache.size()==0);
 	bytestream.clear();
-	bool res = bitcache.empty();
-	if(res==true) {
-		Log::warn(__PRETTY_FUNCTION__, "Bitcache already empty");
+	bitcache.empty();
+	if(redundant) {
+		Log::warn(__PRETTY_FUNCTION__, "Tried to clear DataStream which was already empty");
 	}
+	
 	seekBitOffset = 0;
 	seekBytePos = 0;
 }

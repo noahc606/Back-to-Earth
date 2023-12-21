@@ -17,9 +17,12 @@ WindowComponent::WindowComponent(Window* p_parentWindow, int p_x, int p_y, int p
     tY = p_y/2*2;
 
     //Take in p_w
-    width = (p_width/64*64);
+	if( p_width>64 ) {
+		width = (p_width/64*64);
+	}
     if(p_width<8) width = 8;
 
+	width = p_width;
     height = 16;
 
     windowComponent = true;

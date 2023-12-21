@@ -24,34 +24,36 @@ void Button::init(SDLHandler* sh, Controls* ctrls)
 {
     GUI::init(sh, ctrls);
 
-    int texW = width/2+6;
+    int texW = width/2;
     int texH = height; //button height hardcoded
 
     //Build button textures
     TextureBuilder tb(sdlHandler);
 
-    if( getType()==GUI_textbox ) {
-        tb.init(TextureBuilder::BTN_Tex, texBtn, texW, texH,  82,  0);
-        tb.init(TextureBuilder::BTN_Tex, texBtnHovering, texW, texH, 123,  0);
-        if( ((TextBox*)this)->getInputType()==TextBox::CONTROL_BINDINGS ) {
-            tb.init(TextureBuilder::BTN_Tex, texTbxSelected, texW, texH,  123, 17);
-        } else {
-            tb.init(TextureBuilder::BTN_Tex, texTbxSelected, texW, texH,  41, 17);
-        }
-        tb.init(TextureBuilder::BTN_Tex, texBtnSelected, texW, texH,  0, 17);   //This component is unused in a textbox
-        tb.init(TextureBuilder::BTN_ShineTex, btnShineTex0);
-        tb.init(TextureBuilder::BTN_ShineTex, btnShineTex1);
-    } else {
-        tb.init(TextureBuilder::BTN_Tex, texBtn, texW, texH,  0,  0);
-        tb.init(TextureBuilder::BTN_Tex, texBtnHovering, texW, texH, 41,  0);
-        tb.init(TextureBuilder::BTN_Tex, texTbxSelected, texW, texH,  0, 17);   //This component is unused in a non-textbox
-        tb.init(TextureBuilder::BTN_Tex, texBtnSelected, texW, texH,  0, 34);
-        tb.init(TextureBuilder::BTN_ShineTex, btnShineTex0);
-        tb.init(TextureBuilder::BTN_ShineTex, btnShineTex1);
-    }
+	switch( getType() ) {
+		case GUI_textbox: {
+			tb.buildButton(texBtn, 82, 0, texW);
+			tb.buildButton(texBtnHovering, 123, 0, texW);
+			if( ((TextBox*)this)->getInputType()==TextBox::CONTROL_BINDINGS ) {
+				tb.buildButton(texTbxSelected, 123, 17, texW);
+			} else {
+				tb.buildButton(texTbxSelected, 41, 17, texW);
+			}
+			
+			tb.buildButton(texBtnSelected, 0, 17, texW);
+		} break;
+		default: {
+			tb.buildButton(texBtn, 0, 0, texW);
+			tb.buildButton(texBtnHovering, 41, 0, texW);
+			tb.buildButton(texTbxSelected, 0, 17, texW);	//This component is unused in a non-textbox
+			tb.buildButton(texBtnSelected, 0, 34, texW);
+		} break;
+	}
+	
+	tb.buildButtonShine(btnShineTex0);
+	tb.buildButtonShine(btnShineTex1);
 
-
-    //Build Tex
+    //Build text
     btnText.init(sdlHandler);
     btnText.setString(btnString);
 
@@ -76,13 +78,19 @@ void Button::draw()
 {
     //If hovering, draw texture 1
     if(hovering) {
-        if( getType()==GUI_button || getType()==GUI_textbox ) {
+        if( getType()==GUI_button ||
+			getType()==GUI_textbox ||
+			getType()==GUI_slider
+		) {
             texBtnHovering.draw();
         }
     } else {
     //If not hovering, draw texture 2
-        if( getType()==GUI_button || getType()==GUI_textbox ) {
-            texBtn.draw();
+        if( getType()==GUI_button ||
+			getType()==GUI_textbox ||
+			getType()==GUI_slider
+		) {
+			texBtn.draw();
         }
     }
 
@@ -92,6 +100,7 @@ void Button::draw()
             case GUI_textbox: {
                 texTbxSelected.draw();
             } break;
+			case GUI_slider: break;
             default: {
                 texBtnSelected.draw();
             } break;
@@ -116,7 +125,7 @@ void Button::tick()
 
     //If mouse hovering
     if(
-        mX>sX+1 && mX<=sX+1+width+12
+        mX>sX+1 && mX<=sX+1+width
      && mY>sY+1 && mY<=sY+1+32
      ) {
         if(!hovering) shineAnimation = 1;
@@ -160,7 +169,7 @@ void Button::tick()
         //If mouse is left clicked
         if( controls->isPressed("HARDCODE_LEFT_CLICK") ) {
             //If this is not a radio button
-            if(selected && getType()!=GUI_radiobutton ) {
+            if(selected && getType()!=GUI_radiobutton) {
                 //Stop pressing and end selection
                 controls->stopPress("HARDCODE_LEFT_CLICK", __PRETTY_FUNCTION__);
                 selected = false;
@@ -196,11 +205,12 @@ void Button::onWindowUpdate()
         txtX = sX+(12+width-txtW)/2;
     }
     int txtY = sY+5*2;
-    btnText.setPos( txtX, txtY );
+    btnText.setPos( txtX, txtY+1 );
 }
 
 /**/
 
+bool Button::isHovering() { return hovering; }
 bool Button::isSelected() { return selected; }
 std::string Button::getString() { return btnText.getString(); }
 

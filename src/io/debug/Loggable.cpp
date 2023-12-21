@@ -24,6 +24,7 @@ void Loggable::logInfo()
 	std::vector<std::string> lines;
 	size_t pos = 0;
 	std::string token;
+	
 	while ( (pos = s.find("\n"))!=std::string::npos ) {
 		token = s.substr(0, pos);
 		lines.push_back(token);
@@ -32,7 +33,7 @@ void Loggable::logInfo()
 	lines.push_back(token);
 	
 	//Log each individual line of the string.
-	for(int i = 0; i<lines.size(); i++) {
+	for(int i = 0; i<lines.size()-1; i++) {
 		Log::log(lines[i]);
 	}
 }

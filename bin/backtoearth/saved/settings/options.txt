@@ -4,4 +4,5 @@ debugHacks=typeincorrectpassword
 debugHardTesting=false
 debugTesting=false
 fullscreen=false
-maxFPS=none
+logging=false
+maxFps=120

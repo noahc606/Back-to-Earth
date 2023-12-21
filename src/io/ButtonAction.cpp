@@ -3,6 +3,7 @@
 #include "FileHandler.h"
 #include "Log.h"
 #include "MainLoop.h"
+#include "TextBox.h"
 
 ButtonAction::ButtonAction(SDLHandler* sh, GUIHandler* gh, FileHandler* fh, Controls* ctrls)
 {
@@ -13,18 +14,23 @@ ButtonAction::ButtonAction(SDLHandler* sh, GUIHandler* gh, FileHandler* fh, Cont
         /** Back-to buttons */
         case GUIHandler::btn_back_to_OPTIONS: {
             int objIDs[] = {
+				GUIHandler::ID::tbx_GRAPHICS_SETTINGS_maxFps,
                 GUIHandler::ID::cbx_GRAPHICS_SETTINGS_bteCursor,
                 GUIHandler::ID::cbx_GRAPHICS_SETTINGS_fullscreen,
             };
             std::vector<std::string> objKeys = {
+				"maxFps",
                 "bteCursor",
                 "fullscreen",
             };
 
             for(unsigned int i = 0; i<objKeys.size(); i++) {
-
+				
+				GUI* possibleTBX = gh->getGUI(BTEObject::GUI_textbox, objIDs[i]);
                 GUI* possibleCBX = gh->getGUI(BTEObject::GUI_checkbox, objIDs[i]);
-                if( possibleCBX!=nullptr && possibleCBX->getType()==BTEObject::Type::GUI_checkbox ) {
+				
+				
+                if( possibleCBX!=nullptr ) {
                     int cbxState = ((CheckBox*)possibleCBX)->getState();
                     std::string value = "null";
                     switch( cbxState ) {
@@ -33,10 +39,19 @@ ButtonAction::ButtonAction(SDLHandler* sh, GUIHandler* gh, FileHandler* fh, Cont
                     }
                     stgs->kv(Settings::TextFiles::options, objKeys[i], value);
                 }
+				
+				if( possibleTBX!=nullptr ) {
+					std::string tbxVal = ((TextBox*)possibleTBX)->getString();
+					
+					stgs->kv(Settings::TextFiles::options, objKeys[i], tbxVal);
+				}
             }
 
             fh->saveSettings(Settings::TextFiles::options);
             ctrls->reloadBindings(fh->getSettings());
+			
+			std::string maxFps = stgs->get(Settings::TextFiles::options, "maxFps");
+			MainLoop::setMaxFPS(maxFps);
 
             gh->setGUIs(GUIHandler::GUIs::OPTIONS);
         } break;

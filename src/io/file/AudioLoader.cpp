@@ -186,6 +186,7 @@ void AudioLoader::addMixChunks()
     addMixChunk(TITLE_button, "title/button");
     addMixChunk(TITLE_impact, "title/impact");
 	
+	addMixChunk(MUSIC_alien_ruins, "music/alien_ruins", "mp3");
 	addMixChunk(MUSIC_blender_engine, "music/blender_engine", "mp3");
 	addMixChunk(MUSIC_cyber_city, "music/cyber_city", "mp3");
 	addMixChunk(MUSIC_entering_orbit, "music/entering_orbit", "mp3");

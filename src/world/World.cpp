@@ -42,7 +42,7 @@ void World::init(SDLHandler* sh, GUIHandler* gh, FileHandler* fh, Controls* ctrl
 
 	//Build textures
 	TextureBuilder tb(sdlHandler);
-	tb.init(tb.TILE_default, defaultTile);
+	tb.buildDefaultTile(defaultTile);
 }
 
 World::~World()

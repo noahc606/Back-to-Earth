@@ -1,11 +1,15 @@
 #include "LevelSave.h"
 #include <math.h>
 #include <cmath>
+#include <iomanip>
 #include <iostream>
 #include <set>
 #include <sstream>
+#include "DebugScreen.h"
 #include "TileMap.h"
 #include "Log.h"
+
+const uint8_t LevelSave::popMask = 0b1010;
 
 LevelSave::LevelSave(FileHandler* fh, std::string dir)
 {
@@ -20,26 +24,84 @@ LevelSave::LevelSave(FileHandler* fh, std::string dir)
 LevelSave::LevelSave(FileHandler* fh):
 LevelSave::LevelSave(fh, ""){}
 
+void LevelSave::putInfo(std::stringstream& ss, int& tabs, int64_t rX, int64_t rY, int64_t rZ)
+{
+	std::string lsrFp = getLsrFilePathFromRxyz(rX, rY, rZ);
+	fileHandler->openFile(lsrFp, FileHandler::UPDATE, true);
+	fileHandler->seekTo(0);
+	//Get information
+	bool cmn = fileHandler->checkMagicNumber(magicNumberP1, magicNumberP2);
+	
+	//Present information
+	DebugScreen::newGroup(ss, tabs, "LevelSave"); {
+		DebugScreen::newGroup(ss, tabs, "Header"); {
+			
+			DebugScreen::indentLine(ss, tabs); {
+				ss << "Filepath: " << lsrFp << ";";
+			} DebugScreen::newLine(ss);
+			DebugScreen::indentLine(ss, tabs); {
+				ss << "Magic Number: " << cmn << ";";
+			} DebugScreen::newLine(ss);
+			
+			
+		} DebugScreen::endGroup(tabs);
+		DebugScreen::newGroup(ss, tabs, "Entries"); {
+			for( int srx = 0; srx<1; srx++ ) {
+				for( int sry = 0; sry<1; sry++ ) {
+					for( int srz = 0; srz<4; srz++ ) {
+						fileHandler->seekTo(16);
+						fileHandler->seekThru( getHeaderEntryDelta(srx, sry, srz) );
+						
+						uint32_t d1 = getHeaderEntryData1();
+						uint8_t d2 = getHeaderEntryData2();
+						uint8_t d3 = getHeaderEntryData3();
+						//if( d3==popMask ) {
+							//DebugScreen::indentLine(ss, tabs);
+							//ss << "loc=" << std::setfill('0') << std::setw(8) << std::hex << d1 << ", ";
+							//ss << "bpt=" << std::setfill('0') << std::setw(2) << std::hex << d2 << ", ";
+							//ss << "pop=" << std::setfill('0') << std::setw(2) << std::hex << d3 << "; ";
+							//DebugScreen::newLine(ss);
+						//}
+					}
+				}
+			}
+		
+			DebugScreen::indentLine(ss, tabs);
+			ss << " ";
+			DebugScreen::newLine(ss);
+		} DebugScreen::endGroup(tabs);
+		DebugScreen::newGroup(ss, tabs, "Body"); {
+			
+		} DebugScreen::endGroup(tabs);
+	} DebugScreen::endGroup(tabs);
+}
+
+void LevelSave::putInfo(std::stringstream& ss, int& tabs)
+{
+	putInfo(ss, tabs, 0, 0, -1);
+}
+
 void LevelSave::saveTileRegion(TileRegion& tr, int64_t rX, int64_t rY, int64_t rZ)
 {
 	//If file exists, check prefix. If the file doesn't exist or it has a bad prefix, (re)build the prefix and header.
 	savePrelims(tr, rX, rY, rZ);
-	
 	
 	//Create DataStream
 	DataStream ds;
 	
 	//Clear old data that was being pointed to by the header - we will replace it with all 0's.
 	//Also, we will make the old header entry as being unpopulated.
-	clearHeaderEntryPlusSaveSection(rX, rY, rZ);
-
+	//If there is an unpopulated header entry, don't try to replace with all 0's
+	bool chepss = clearHeaderEntryPlusSaveSection(rX, rY, rZ);
+	
 	//Create Header Entry with 40 bits of data, which holds the bits of 'dataLocation', 'dataBitsPerTile', and 'dataPopulated', in that order
 	//The first 32bits of this data (dataLocation) represents the location (in bytes) within the file for the save data.
 	//The next 4 bits (dataBitsPerTile) represents a hex number. This hex number points to the size of the save data (bits per tile).
 	//The last 4 bits (dataPopulated) represents if this data is a real pointer. If so, these bits will be 0b1010 = 0xA. If not, it will be something else (most likely 0b1111).
 	uint8_t dataBitsPerTile = tr.getPaletteSizeBucket( tr.getArtificialPaletteSize()+1 );
-	uint32_t dataLocation = getNewAllocationPos(dataBitsPerTile);
-	uint8_t dataPopulated = 0b1010;
+	uint32_t dataLocation = getNewAllocationPos(dataBitsPerTile, rX, rY, rZ);
+	
+	uint8_t dataPopulated = popMask;
 	switch(dataBitsPerTile) {
 		//If region is all empty space + naturally generated tiles (dataBitsPerTile is 0, meaning no artificial tiles)
 		case 0: {
@@ -52,7 +114,7 @@ void LevelSave::saveTileRegion(TileRegion& tr, int64_t rX, int64_t rY, int64_t r
 	
 	//Put in the 40-bit header entry somewhere in the header, depending on rX, rY, rZ.
 	buildHeaderEntry(rX, rY, rZ, dataLocation, dataBitsPerTile, dataPopulated);
-
+	
 	//Save tile palette data and tile index data of this specific region. Will be written @ 'dataLocation' position in the file
 	//Total of 32*32*32=1024 tiles. Each tile = 'dataBitsPerTile' bits. Two hex chars = 1 byte.
 	fileHandler->seekTo(dataLocation);
@@ -113,7 +175,7 @@ bool LevelSave::loadTileRegion(TileRegion& tr, int64_t rX, int64_t rY, int64_t r
 	uint8_t dataPopulated = getHeaderEntryData3();
 	
 	/* Do not continue under certain conditions */
-	if( dataPopulated!=0b1010 ) {
+	if( dataPopulated!=popMask ) {
 		fileHandler->saveCloseFile();
 		return false;
 	}
@@ -177,6 +239,146 @@ bool LevelSave::loadTileRegion(TileRegion& tr, int64_t rX, int64_t rY, int64_t r
 	return true;
 }
 
+void LevelSave::buildLevelDebugTex(SDLHandler* sh, Texture& tex, int64_t rX, int64_t rY, int64_t rZ)
+{
+	//Variables
+	int texW = 32; int texH = 2048;//65536/8;
+	
+	//Setup texture that is entirely gray
+	tex.init(sh, texW, texH);
+	tex.lock();
+	tex.setColorMod(50, 50, 50);
+	tex.fill();
+	
+	//Get filename and open file
+	std::string lsrFp = getLsrFilePathFromRxyz(rX, rY, rZ);
+	fileHandler->openFile(lsrFp, FileHandler::READ);
+
+	//Color part of texture that represents file data: White
+	uint32_t fl = fileHandler->getFileLength();
+	for( int i = 0; i<fl; i++ ) {
+		int px1 = xFromIndex(i*2, texW);
+		int py1 = yFromIndex(i*2, texW);
+		int px2 = xFromIndex(i*2+1, texW);
+		int py2 = yFromIndex(i*2+1, texW);
+		
+		tex.pixel(px1, py1, 255, 255, 255);
+		tex.pixel(px2, py2, 255, 255, 255);
+	}
+	
+	
+	//Color part of texture representing 1byte after end of file: Orange
+	tex.pixel( xFromIndex(fl*2, texW), yFromIndex(fl*2, texW), 255, 100, 0);
+	
+	//Color magic number: Grayscale - darker = lower value & lighter = higher value
+	fileHandler->seekTo(0);
+	for( int i = 0; i<16; i++ ) {
+		uint8_t byte = fileHandler->readByte();
+		DataStream ds;
+		ds.putByte(byte);
+
+		uint8_t v1 = ds.peekXBits(4)*16;
+		tex.pixel(i*2, 0, v1, v1, v1);
+		
+		ds.seekBitDelta(4);
+		uint8_t v2 = ds.peekXBits(4)*16;
+		tex.pixel(i*2+1, 0, v2, v2, v2);
+	}
+	
+	/*
+	 * 	Color header and body
+	 * 	
+	 * 	Green areas - Populated region pointers, within header
+	 * 	Red areas - Unpopulated region pointers, within header
+	 * 	Orange-Yellow area (single line) - Region Palette marker, within body
+	 * 	Yellow area (single line) - Region Indices marker, within body
+	 * 	Blue pixels - Region Data, within body
+	 */
+	 
+	fileHandler->seekTo( getHeaderStartPos() );
+	for( int i = 0; i<16*16*4; i++ ) {
+		uint32_t d1 = getHeaderEntryData1();
+		uint8_t d2 = getHeaderEntryData2();
+		uint8_t d3 = getHeaderEntryData3();
+		
+		//Draw header pixels
+		//If this is a populated region...
+		if( d3==popMask ) {
+			for( int j = 0; j<10; j++ ) {
+				bool odd = j%2;
+				if( odd ) {
+					fileHandler->seekThru(1);
+				}
+				
+				int px = xFromIndex(getHeaderStartPos()*2+i*10+j, texW);
+				int py = yFromIndex(getHeaderStartPos()*2+i*10+j, texW);
+				tex.pixel(px, py, 0, fileHandler->readHexStay(odd)*16, 0);
+			}
+			fileHandler->seekThru(-5);
+			
+			//Draw region body pixels
+			uint32_t oldPos = fileHandler->tellPos();
+			fileHandler->seekTo(d1);
+			
+			for( int j = 0; j<getSaveSectionSizeBytes(d2); j++ ) {
+				uint32_t separator1 = 16;
+				uint32_t palette = 64*std::pow(2, d2)/8;
+				uint32_t separator2 = 16;
+				uint32_t tiles = d2*32*32*32/8;
+				
+				for( int k = 0; k<2; k++ ) {
+					int px = xFromIndex(d1*2+j*2+k, texW);
+					int py = yFromIndex(d1*2+j*2+k, texW);
+					
+					uint8_t hex = fileHandler->readHexStay(k);
+					
+					if( j<separator1 ) {
+						tex.pixel(px, py, 255, 100, 0);
+					} else if( j<separator1+palette ) {
+						tex.pixel(px, py, 80, 0, hex*16);
+					} else if (j<separator1+palette+separator2 ) {
+						tex.pixel(px, py, 255, 170, 0);
+					} else if (j<separator1+palette+separator2+tiles ) {
+						tex.pixel(px, py, 0, 80, hex*16);
+					} else {
+						tex.pixel(px, py, 255, 0, 0);
+					}
+				}
+				
+				fileHandler->seekThru(1);
+			}
+			
+			fileHandler->seekTo(oldPos);
+		//If no header entry exists...
+		} else if( d1==0xffffffff && d2==0xf && d3==0xf ) {
+			for( int j = 0; j<10; j++ ) {
+				int px = xFromIndex(i*10+j, texW);
+				int py = yFromIndex(i*10+j, texW)+1;
+				tex.pixel(px, py, 200+(i%2)*55, 0, 0);
+			}
+		//If header entry is "corrupted"
+		} else {
+			for( int j = 0; j<10; j++ ) {
+				int px = xFromIndex(i*10+j, texW);
+				int py = yFromIndex(i*10+j, texW)+1;
+				tex.pixel(px, py, 80, j*8, j*8);
+			}
+		}
+		
+		fileHandler->seekThru(5);
+	}
+	
+	// Color current region pointer within header: Magenta
+	int i = getHeaderEntryDelta(rX, rY, rZ)*2;
+	for( int j = 0; j<10; j++ ) {
+		int px = xFromIndex(getHeaderStartPos()*2+i+j, texW);
+		int py = yFromIndex(getHeaderStartPos()*2+i+j, texW);
+		tex.pixel(px, py, 255, 0, 255);
+	}
+
+	fileHandler->saveCloseFile();
+}
+
 std::string LevelSave::getLsrFilePathFromRxyz(int64_t rX, int64_t rY, int64_t rZ)
 {
 	//LSR = (32*16)x(32*16)x(32*4)=512x512x128 (LARGE save region). Determines which file the data is placed in.
@@ -211,7 +413,11 @@ uint32_t LevelSave::getHeaderEntryDelta(int64_t rX, int64_t rY, int64_t rZ)
 	return 	(5*16*4)*modRX+
 			(5*4)*modRY+
 			(5*1)*modRZ;
-} 
+}
+
+uint32_t LevelSave::getHeaderStartPos() { return 16; }
+uint32_t LevelSave::getRegDataStartPos() { return getHeaderStartPos()+16*320; }
+
 uint32_t LevelSave::getHeaderEntryData1()
 {
 	DataStream ds;
@@ -245,16 +451,16 @@ uint8_t LevelSave::getHeaderEntryData3()
 
 uint32_t LevelSave::getSaveSectionSizeBytes(uint8_t bitsize)
 {
-	uint32_t tiles = bitsize*32*32*32/8;
 	uint32_t separator1 = 16;
-	uint32_t palette = 64*std::pow(2, bitsize)/8;
+	uint32_t tiles = bitsize*32*32*32/8;
 	uint32_t separator2 = 16;
+	uint32_t palette = 64*std::pow(2, bitsize)/8;
 	
 	return tiles+separator1+palette+separator2;
 }
-uint32_t LevelSave::getNewAllocationPos(uint8_t bitsize)
+uint32_t LevelSave::getNewAllocationPos(uint8_t bitsize, int64_t rX, int64_t rY, int64_t rZ)
 {
-	fileHandler->seekTo(16);
+	fileHandler->seekTo( getHeaderStartPos() );
 	
 	int nhe = 16*16*4;  // (n)umber of (h)eader (e)ntries
 	int she = 5;        // (s)ize of 1 (h)eader (e)ntry (in bytes)
@@ -270,7 +476,7 @@ uint32_t LevelSave::getNewAllocationPos(uint8_t bitsize)
 		uint8_t bpt = getHeaderEntryData2();
 		uint8_t pop = getHeaderEntryData3();
 		
-		if(pop==0b1010) {
+		if(pop==popMask) {
 			usedDataAreas.insert( std::make_pair(loc, getSaveSectionSizeBytes(bpt)) );
 		}
 		
@@ -293,18 +499,20 @@ uint32_t LevelSave::getNewAllocationPos(uint8_t bitsize)
 		udaEntryLast = udaEntry;
 		udaEntry++;
 	}
-
+	
 	/* Find the first available location where there is a chunk of free data with the appropriate size, based on getSaveSectionSizeBytes(bitsize). */
 	//Special case: If usedDataAreas is empty, return the first available section right after the header.
 	if( usedDataAreas.size()==0 ) {
 		return (16+16*16*4*5);
 	}
+	
 	//Look through free data areas
 	auto fdaEntry = freeDataAreas.begin();
 	while( fdaEntry!=freeDataAreas.end() ) {
 		if( fdaEntry->second<=getSaveSectionSizeBytes(bitsize) ) {
 			return fdaEntry->first;
 		}
+		fdaEntry++;
 	}
 	
 	//If no available location was found, get the end of the file.
@@ -333,7 +541,7 @@ void LevelSave::buildPrefixAndHeader()
 void LevelSave::buildHeaderEntry(int64_t rX, int64_t rY, int64_t rZ, uint32_t loc, uint8_t bpt, uint8_t pop)
 {
 	DataStream ds;
-	fileHandler->seekTo(8*2);
+	fileHandler->seekTo( getHeaderStartPos() );
 	fileHandler->seekThru( getHeaderEntryDelta(rX, rY, rZ) );
 	ds.putXBits(loc, 32);
 	ds.putXBits(bpt, 4);
@@ -369,10 +577,10 @@ void LevelSave::savePrelims(TileRegion& tr, int64_t rX, int64_t rY, int64_t rZ)
 	fileHandler->seekTo(0);
 }
 
-void LevelSave::clearHeaderEntryPlusSaveSection(int64_t rX, int64_t rY, int64_t rZ)
+bool LevelSave::clearHeaderEntryPlusSaveSection(int64_t rX, int64_t rY, int64_t rZ)
 {
 	//Get location of old data, if it exists. If it doesn't exist (pop!=0b1010), stop function after clearing header entry's 'pop' section.
-	fileHandler->seekTo(16+getHeaderEntryDelta(rX, rY, rZ));
+	fileHandler->seekTo(getHeaderStartPos()+getHeaderEntryDelta(rX, rY, rZ));
 	
 	uint32_t loc = getHeaderEntryData1();
 	uint32_t bpt = getHeaderEntryData2();
@@ -382,15 +590,15 @@ void LevelSave::clearHeaderEntryPlusSaveSection(int64_t rX, int64_t rY, int64_t 
 	//Then, add in everything except for the 'pop' data object (which will be 0x0).
 	DataStream ds;
 	ds.putXBits( (uint64_t)-1, 40 );
-	ds.dumpBytestream(fileHandler, 16+getHeaderEntryDelta(rX, rY, rZ));
+	ds.dumpBytestream(fileHandler, getHeaderStartPos()+getHeaderEntryDelta(rX, rY, rZ));
 	ds.putXBits(loc, 32);
 	ds.putXBits(bpt, 4);
 	ds.putXBits(0b0, 4);
-	ds.dumpBytestream(fileHandler, 16+getHeaderEntryDelta(rX, rY, rZ));
+	ds.dumpBytestream(fileHandler, getHeaderStartPos()+getHeaderEntryDelta(rX, rY, rZ));
 	
 	//If the data doesn't exist, stop function here.
-	if( pop!=0b1010 ) {
-		return;
+	if( pop!=popMask ) {
+		return false;
 	}
 	
 	//Clear old data (put 0's throughout the entire save section).
@@ -398,4 +606,16 @@ void LevelSave::clearHeaderEntryPlusSaveSection(int64_t rX, int64_t rY, int64_t 
 		ds.putByte(0b0);
 	}
 	ds.dumpBytestream(fileHandler, loc);
+	
+	return true;
+}
+
+int LevelSave::xFromIndex(int index, int w)
+{
+	return index%w;
+}
+
+int LevelSave::yFromIndex(int index, int w)
+{
+	return index/w;
 }

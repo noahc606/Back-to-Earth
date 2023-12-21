@@ -33,6 +33,7 @@ public:
 		TITLE_button,
         TITLE_impact,
 		
+		MUSIC_alien_ruins,
 		MUSIC_blender_engine,
 		MUSIC_cyber_city,
 		MUSIC_entering_orbit,

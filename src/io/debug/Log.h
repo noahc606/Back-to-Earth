@@ -41,6 +41,7 @@ protected:
 private:
 
 	static FileHandler* fileHandler;
+	static bool logToFile;
 	static bool fhInit;
 	static bool logDestroyed;
 };

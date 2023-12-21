@@ -11,17 +11,17 @@ class TileRegion : public Loggable
 public:
     typedef std::map<int16_t, TileType> t_palette;
 
-    /**/
+    /* Init */
     TileRegion();
     virtual ~TileRegion();
-    /**/
+    /* Info */
+	/* Getters */
+    //Get TileRegion info
     void putPaletteInfo(std::stringstream& ss, int& tabs, bool natural);
 	void putInfo(std::stringstream& ss, int& tabs);
 	void putInfo(std::stringstream& ss, int& tabs, int subX, int subY, int subZ);
     std::string getInfo(int subX, int subY, int subZ);
 	void printInfoTileIndices();
-	/**/
-    //Get palette info
 	uint16_t getPaletteSize();
 	uint16_t getPaletteSizeNatural();
 	uint16_t getArtificialPaletteSize();
@@ -32,10 +32,11 @@ public:
 	int16_t getTileKey(int x, int y, int z);
 	TileType getTile(int x, int y, int z);
 	//Get Region info
+	bool beenModifiedSinceLoad();
 	int getRegTexState();
 	int getRegTexPriority();
 	
-	/**/
+	/* Mutators */
 	//Check palette
 	bool assertDefaultTileExists(t_palette& pal);
 	//Add to palette
@@ -82,6 +83,7 @@ protected:
 private:
     t_palette palette;
     int16_t tiles[32][32][32];
+	bool modifiedSinceLoad = false;
 
     int regTexState = UNGENERATED;
     int regTexPriority = -1;

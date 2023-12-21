@@ -56,6 +56,10 @@ public:
             cbx_CONTROLS_set_defaults,
 
             win_GRAPHICS_SETTINGS = 400,
+			ttp_GRAPHICS_SETTINGS_maxFps,
+			sdr_GRAPHICS_SETTINGS_maxFps,
+			tbx_GRAPHICS_SETTINGS_maxFps,
+			
             cbx_GRAPHICS_SETTINGS_bteCursor,
             cbx_GRAPHICS_SETTINGS_fullscreen,
 

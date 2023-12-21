@@ -25,6 +25,7 @@ public:
     SDL_Renderer* getRenderer();
     //Get window properties
     bool isFullScreen();
+	int getDisplayRefreshRate();
     int getWidth();
     int getHeight();
     bool usingBTECursor();

@@ -24,14 +24,13 @@ std::string FilePath::getConvertedPath(std::string path, int fsType)
     std::string res = path;
 
     if(fsType==SDLHandler::WINDOWS) {
-        //Convert any type of slash to backslash ('\\')
+		//Convert any type of slash to backslash ('\\')
         for( unsigned int i = 0; i<res.size(); i++ ) {
             if( res[i]=='\\' || res[i]=='/' ) {
                 res[i] = '\\';
             }
         }
-    } else
-    if(fsType==SDLHandler::LINUX) {
+    } else if(fsType==SDLHandler::LINUX) {
         //Convert any type of slash to frontslash ('/')
         for( unsigned int i = 0; i<res.size(); i++ ) {
             if( res[i]=='\\' || res[i]=='/' ) {

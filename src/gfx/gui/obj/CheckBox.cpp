@@ -43,12 +43,12 @@ void CheckBox::init(SDLHandler* sh, Controls* ctrls)
 	btnText.setString(btnString);
 
 	if(btnString!="") {
-		width = btnText.getWidth()/2+2*24;
+		width = btnText.getWidth()/2+49;
 	} else {
 		if(!largerButton) {
-			width = 10;
+			width = 20;
 		} else {
-			width = 16;
+			width = 32;
 		}
 	}
 
@@ -78,15 +78,15 @@ void CheckBox::buildTexes()
 	//Build 'texBtnHovering' (Hover outline overlay)
 	texBtnHovering.clear();
 	if(!largerButton) {
-		texBtnHovering.setTexDimensions(width/2+5, 16);
+		texBtnHovering.setTexDimensions(width/2, 16);
 		texBtnHovering.setDrawScale(2);
 		texBtnHovering.setColorMod(53, 221, 213);
 		//Button selection overlay left part
 		texBtnHovering.lock(0, 0, 3, 16); texBtnHovering.blit(TextureLoader::GUI_button, 41, 34);
 		//Button selection overlay center part
-		texBtnHovering.lock(3, 0, (width)/2-6+5, 16); texBtnHovering.blit(TextureLoader::GUI_button, 45, 34, 32, 16);
+		texBtnHovering.lock(3, 0, (width)/2-6, 16); texBtnHovering.blit(TextureLoader::GUI_button, 45, 34, 32, 16);
 		//Button selection overlay right part
-		texBtnHovering.lock((width)/2-3+5, 0, 3, 16); texBtnHovering.blit(TextureLoader::GUI_button, 78, 34);
+		texBtnHovering.lock((width)/2-3, 0, 3, 16); texBtnHovering.blit(TextureLoader::GUI_button, 78, 34);
 	}
 }
 

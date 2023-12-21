@@ -188,24 +188,15 @@ int TileMap::saveRegion(FileHandler* fileHandler, std::string saveGameName, int6
 {
 	TileRegion* tr = getRegByRXYZ(rX, rY, rZ);
 	
-	bool stop = false;
-	if( rX==0 && rY==0 && rZ==-2 ) {
-		stop = false;
-	}
+	if( tr==nullptr ) 					{ return -99; }
+	if( !tr->beenModifiedSinceLoad() ) 	{ return -1; }
 	
-	if(stop) {
-		return -2;
-	}
+	std::stringstream ss;
+	ss << "Saving region (" << rX << ", " << rY << ", " << rZ << ") in save '" << saveGameName << "'";
+	Log::debug(ss.str());
 	
-	if(tr!=nullptr) {
-		std::stringstream ss;
-		ss << "Saving region (" << rX << ", " << rY << ", " << rZ << ") in save '" << saveGameName << "'";
-		Log::debug(ss.str());
-		
-		tr->save(fileHandler, saveGameName, rX, rY, rZ, false);
-		return 0;
-	}
-	return -1;
+	tr->save(fileHandler, saveGameName, rX, rY, rZ, false);
+	return 0;
 }
 
 int TileMap::unloadRegion(FileHandler* fileHandler, std::string saveGameName, int64_t rX, int64_t rY, int64_t rZ)

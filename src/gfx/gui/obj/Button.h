@@ -17,6 +17,7 @@ public:
     void tick();
     void onWindowUpdate();
     /**/
+    bool isHovering();
     bool isSelected();
     std::string getString();
     /**/

@@ -31,6 +31,7 @@ private:
     /* Testing */
 
     Texture tex;
+	SDL_Rect lvlImgSrc;
 
     STexture stex;
     TTexture ttex;

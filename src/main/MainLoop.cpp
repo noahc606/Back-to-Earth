@@ -9,6 +9,11 @@
 bool MainLoop::running = true;
 bool MainLoop::initialized = false;
 
+SDLHandler MainLoop::sdlHandler;
+FileHandler MainLoop::fileHandler;
+Controls MainLoop::controls;
+BTE MainLoop::bte;
+
 double MainLoop::maxFPS = 120.0;
 double MainLoop::msPerTick = 1000.0 / 60.0; double MainLoop::msPerFrame = 1000.0/maxFPS;
 uint64_t MainLoop::ticks = 0; uint64_t MainLoop::frames = 0;
@@ -21,57 +26,69 @@ uint64_t MainLoop::nextSecond = 0;
 
 MainLoop::MainLoop()
 {
-    setMaxFPS(maxFPS);
-    //Create Back to Earth subsystems
-    Log::trbshoot(__PRETTY_FUNCTION__, "Creating BTE subsystems");
-    //SDL (pre-init): file handler and controls.
-    sdlHandler.preinit();
-    fileHandler.init( sdlHandler.getResourcePath(), sdlHandler.getFilesystemType() );
+	//Create Back to Earth subsystems
+	Log::trbshoot(__PRETTY_FUNCTION__, "Creating BTE subsystems");
+	
+	//SDL (pre-init): file handler and controls.
+	sdlHandler.preinit();
+	fileHandler.init( sdlHandler.getResourcePath(), sdlHandler.getFilesystemType() );
 	Log::initAll( sdlHandler.getResourcePath(), sdlHandler.getFilesystemType() );
-    controls.init( fileHandler.getSettings() );
-    //BTE (pre-init): Managing settings
-    bte.preinit( &sdlHandler, &fileHandler, &controls );
-    //SDL & BTE: init if hard testing is disabled
-    if( !bte.isHardTesting() ) {
-        //SDL (init): window and asset loading
-        sdlHandler.init();
-        //BTE (init): GUI and Debug
-        bte.init();
-    }
+	controls.init( fileHandler.getSettings() );
+	
+	//BTE (pre-init): Managing settings
+	bte.preinit( &sdlHandler, &fileHandler, &controls );
+	
+	//SDL & BTE (init): init if hard testing is disabled
+	if( !bte.isHardTesting() ) {
+		//SDL (init): window and asset loading
+		sdlHandler.init();
+		//BTE (init): GUI, Game Objects
+		bte.init();
+	}
 
-    //Start gameLoop
-    initialized = true;
-    if(!bte.isHardTesting()) {
-        Log::log("Running "+Main::VERSION+"...");
-        while(running) gameLoop();
-    }
+	//Start gameLoop
+	initialized = true;
+	if(!bte.isHardTesting()) {
+		Log::log("Running "+Main::VERSION+"...");
+		while(running) gameLoop();
+	}
 }
 
 MainLoop::~MainLoop()
 {
-    if(!bte.isHardTesting()) {
-        sdlHandler.getTextureLoader()->destroy();
-        Log::log("Exiting "+Main::VERSION+"...");
-    } else {
-        Log::log("Finished hard testing "+Main::VERSION+"...");
-        Log::log("To enable the BTE window, make sure you have \"debugHardTesting=false\" in 'backtoearth/saved/settings/options.txt'!");
-    }
+	if(!bte.isHardTesting()) {
+		sdlHandler.getTextureLoader()->destroy();
+		Log::log("Exiting "+Main::VERSION+"...");
+	} else {
+		Log::log("Finished hard testing "+Main::VERSION+"...");
+		Log::log("To enable the BTE window, make sure you have \"debugHardTesting=false\" in 'backtoearth/saved/settings/options.txt'!");
+	}
 	
 	Log::destroyAll();
 }
 
+//void MainLoop::init();
+//void MainLoop::destroy();
+
 int MainLoop::getCurrentTPS() { return currentTPS; }
 double MainLoop::getCurrentMSPT() { return currentMSPT; }
+int MainLoop::getCurrentPTPS() { return (int)(1000.0/currentMSPT); }
 int MainLoop::getCurrentFPS() { return currentFPS; }
 double MainLoop::getCurrentMSPF() { return currentMSPF; }
+int MainLoop::getCurrentPFPS() { return (int)(1000.0/currentMSPF); }
 uint64_t MainLoop::getFrames() { return frames; }
 char* MainLoop::getSystemTime() { time_t now = time(0); return ctime(&now); }
+
+/**
+ * 	Generate a filename based on system time. This is used for automatically generated files (e.g., screenshots).
+ * 	The filename appears as follows: "YYYY-MM-DD_hh.mm.ss"
+ */
 std::string MainLoop::getSystemTimeFilename()
 {	
 	//Time objects
 	 time_t t = time(0);   // get time now
-     struct tm* now = localtime(&t);
-    
+	 struct tm* now = localtime(&t);
+	
 	//Build char array
 	char buffer [100];
 	strftime (buffer, 80,"%Y-%m-%d_%H.%M.%S", now);
@@ -87,12 +104,25 @@ uint64_t MainLoop::getNextSecond() { return nextSecond; }
 
 bool MainLoop::isInitialized() { return initialized; }
 
-void MainLoop::setMaxFPS(int maxFPS) {
+void MainLoop::setMaxFPS(int maxFPS)
+{
     std::stringstream ss; ss << "Setting max FPS to '" << maxFPS << "'...";
-    Log::log(ss.str());
+    Log::debug(ss.str());
 
     MainLoop::maxFPS = maxFPS;
     MainLoop::msPerFrame = 1000.0/MainLoop::maxFPS;
+}
+void MainLoop::setMaxFPS(std::string settingVal)
+{
+	int mfVal = 100;
+	try {
+		mfVal = std::stoi(settingVal);
+	} catch(...) {
+		if( settingVal=="Vsync" ) {
+			mfVal = sdlHandler.getDisplayRefreshRate();
+		}
+	}
+	MainLoop::setMaxFPS( mfVal );
 }
 
 void MainLoop::quit() { running = false; }

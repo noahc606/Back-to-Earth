@@ -44,6 +44,9 @@ void TileRegion::putInfo(std::stringstream& ss, int& tabs, int subX, int subY, i
 	putPaletteInfo(ss, tabs, true);
 	ss << "}; ";
 	DebugScreen::newLine(ss);
+	DebugScreen::indentLine(ss, tabs);
+	ss << "modifiedSinceLoad=" << modifiedSinceLoad << ";";
+	DebugScreen::newLine(ss);
 
 	TileType tt = getTile(subX, subY, subZ);
 	if( tt.isNull() || (subX<=-1||subY<=-1||subZ<=-1) ) {
@@ -170,6 +173,12 @@ TileType TileRegion::getTile( int x, int y, int z )
 	return palette[ getTileKey(x, y, z) ];
 }
 
+/**
+ * 	Returns whether this region has been modified since being loaded.
+ * 	The placement of "natural" tiles (key>=0: aren't saved to file) do not count as modification.
+ * 	The placement of artificial tiles sets modifiedSinceLoad to be true.
+ */
+bool TileRegion::beenModifiedSinceLoad() { return modifiedSinceLoad; }
 int TileRegion::getRegTexState() { return regTexState; }
 int TileRegion::getRegTexPriority() { return regTexPriority; }
 
@@ -184,7 +193,7 @@ bool TileRegion::assertDefaultTileExists(t_palette& pal)
 }
 
 int16_t TileRegion::addToPalette( TileType tile, t_palette& pal, bool natural)
-{	
+{
 	//Preliminary checking
 	assertDefaultTileExists(pal);
 	
@@ -192,7 +201,12 @@ int16_t TileRegion::addToPalette( TileType tile, t_palette& pal, bool natural)
 	if( tile.getVal()==0 ) {
 		return 0;
 	}
-			
+	
+	//Mark this region as being modified IF natural==false.
+	if(!natural) {
+		modifiedSinceLoad = true;
+	}
+	
 	//Iterate through elements, starting at 0 (natural -> [0, +#] & !natural -> [0, -#]
 	int palSize = 0;
 	if(natural) {

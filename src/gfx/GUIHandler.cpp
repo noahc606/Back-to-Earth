@@ -7,6 +7,7 @@
 #include "Log.h"
 #include "MainLoop.h"
 #include "RadioButton.h"
+#include "Slider.h"
 #include "TextBox.h"
 #include "Tooltip.h"
 #include "WindowData.h"
@@ -69,9 +70,11 @@ void GUIHandler::tick()
         for( GUI* gui : guis ) {
             //If we find a textbox
             if( gui->getType()==BTEObject::GUI_textbox ) {
-                //Deselect it
+                //Deselect it if user is not hovering over it
                 TextBox* tbx = ((TextBox*)gui);
-                tbx->deselect();
+				if( !tbx->isHovering() ) {
+					tbx->deselect();
+				}
             }
         }
     }
@@ -80,105 +83,113 @@ void GUIHandler::tick()
     //Iterate through all guis
     for( GUI* gui : guis ) {
 
-        //If gui is a textbox
-        if( gui->getType()==BTEObject::GUI_textbox ) {
-            //cast gui to textbox
-            TextBox* tbx = ((TextBox*)gui);
-            //If text box selected
-            if( tbx->isSelected() ) {
-                if( cbSpecialInput.getType()!=ControlBinding::NOTHING ) {
-                    tbx->passSpecialInput(cbSpecialInput);
-                }
-            }
-            //If pressing enter in textbox
-            if( tbx->isEntered() ) {
-                Commands::executeCMD(tbx->getString());
-                tbx->setEntered(false);
-                tbx->setString("");
-            }
-            int a = tbx->getActionID();
-            if( a!=TextBox::Actions::NONE ) {
+		switch( gui->getType() ) {
+		
+		case BTEObject::GUI_textbox: {
+			//cast gui to textbox
+			TextBox* tbx = ((TextBox*)gui);
+			//If text box selected
+			if( tbx->isSelected() ) {
+				if( cbSpecialInput.getType()!=ControlBinding::NOTHING ) {
+					tbx->passSpecialInput(cbSpecialInput);
+				}
+			}
+			//If pressing enter in textbox
+			if( tbx->isEntered() ) {
+				Commands::executeCMD(tbx->getString());
+				tbx->setEntered(false);
+				tbx->setString("");
+			}
+			int a = tbx->getActionID();
+			if( a!=TextBox::Actions::NONE ) {
 
-                if(tbx->getID()==ID::tbx_DEBUG ) {
-                    if( a==TextBox::Actions::UP_ARROW ) {
-                        std::string s = Commands::cycleCMDs(-1);
-                        if( s!="" ) {
-                            tbx->setString(s);
-                            tbx->setInsertionPoint(s.size());
-                        }
-                    }
-                    if( a==TextBox::Actions::DOWN_ARROW ) {
-                        std::string s = Commands::cycleCMDs(1);
-                        if( s!="" ) {
-                            tbx->setString(s);
-                            tbx->setInsertionPoint(s.size());
-                        }
-                    }
-                    if( a==SDLK_ESCAPE ) {
-                        tbx->setString("");
-                        tbx->setInsertionPoint(0);
-                        tbx->deselect();
-                        Commands::cycleCMDs(1000000);
-                    }
+				if(tbx->getID()==ID::tbx_DEBUG ) {
+					if( a==TextBox::Actions::UP_ARROW ) {
+						std::string s = Commands::cycleCMDs(-1);
+						if( s!="" ) {
+							tbx->setString(s);
+							tbx->setInsertionPoint(s.size());
+						}
+					}
+					if( a==TextBox::Actions::DOWN_ARROW ) {
+						std::string s = Commands::cycleCMDs(1);
+						if( s!="" ) {
+							tbx->setString(s);
+							tbx->setInsertionPoint(s.size());
+						}
+					}
+					if( a==SDLK_ESCAPE ) {
+						tbx->setString("");
+						tbx->setInsertionPoint(0);
+						tbx->deselect();
+						Commands::cycleCMDs(1000000);
+					}
 
-                }
+				}
 
-                tbx->resetActionID(__PRETTY_FUNCTION__);
-            }
-        }
-        //If gui is a button
-        if( gui->getType()==BTEObject::GUI_button ) {
-            //cast gui to button
-            Button* btn = ((Button*)gui);
-            //If button selected (not clicked)
-            if( btn->isSelected() ) {
-                guiActionID = btn->getID();
-                removeGUI( btn->getID() );
+				tbx->resetActionID(__PRETTY_FUNCTION__);
+			}
+		} break;
+		
+		case BTEObject::GUI_button: {
+			//cast gui to button
+			Button* btn = ((Button*)gui);
+			//If button selected (not clicked)
+			if( btn->isSelected() ) {
+				guiActionID = btn->getID();
+				removeGUI( btn->getID() );
 				AudioLoader* al = sdlHandler->getAudioLoader();
 				al->play(AudioLoader::TITLE_button, 0.15);
-            }
-        }
-        //If gui is a radiobutton
-        if( gui->getType()==BTEObject::GUI_radiobutton ) {
-            //cast gui to radiobutton
-            RadioButton* rbtn = ((RadioButton*)gui);
-            //If radiobutton clicked
-            if( rbtn->justClicked() && rbtn->isSelected() ) {
-                rbtn->unclick();
-                int idMin = rbtn->getMinGroupMemberID();
-                int idMax = rbtn->getMaxGroupMemberID();
+			}
+		} break;
+		
+		case BTEObject::GUI_radiobutton: {
+			//cast gui to radiobutton
+			RadioButton* rbtn = ((RadioButton*)gui);
+			//If radiobutton clicked
+			if( rbtn->justClicked() && rbtn->isSelected() ) {
+				rbtn->unclick();
+				int idMin = rbtn->getMinGroupMemberID();
+				int idMax = rbtn->getMaxGroupMemberID();
 
-                for( GUI* potentialRBtn : guis ) {
+				for( GUI* potentialRBtn : guis ) {
 					//Look through every radioButton
-                    if( potentialRBtn->getType()==BTEObject::GUI_radiobutton ) {
-                        int thisID = potentialRBtn->getID();
+					if( potentialRBtn->getType()==BTEObject::GUI_radiobutton ) {
+						int thisID = potentialRBtn->getID();
 						
-                        if( thisID>=idMin && thisID<=idMax && thisID!=rbtn->getID() ) {
+						if( thisID>=idMin && thisID<=idMax && thisID!=rbtn->getID() ) {
 							//Deselect all radio buttons that are in this group, except the one that was just clicked.
-                            ((RadioButton*)potentialRBtn)->deselect();
-                        } else {
+							((RadioButton*)potentialRBtn)->deselect();
+						} else {
 							//SET gui action ID to the ID of the radio button that was just clicked
 							guiActionID = thisID;
 						}
-                    }
-                }
-            }
-        }
-        //If gui is a checkbox
-        if( gui->getType()==BTEObject::GUI_checkbox ) {
-            CheckBox* cbx = ((CheckBox*)gui);
+					}
+				}
+			}
+		} break;
+	
+		case BTEObject::GUI_checkbox: {
+			CheckBox* cbx = ((CheckBox*)gui);
 
-            //If that checkbox is clicked and needs to reset something
-            if( cbx->justClicked() ) {
-                //Unclick
-                cbx->unclick();
-                //If this is a reset checkbox
-                if( cbx->getState()==CheckBox::RESET ) {
-                    //Reset all GUIs with the same extraID as this checkBox
-                    resetGUIs(cbx->getExtraID());
-                }
-            }
-        }
+			//If that checkbox is clicked and needs to reset something
+			if( cbx->justClicked() ) {
+				//Unclick
+				cbx->unclick();
+				//If this is a reset checkbox
+				if( cbx->getState()==CheckBox::RESET ) {
+					//Reset all GUIs with the same extraID as this checkBox
+					resetGUIs(cbx->getExtraID());
+				}
+			}
+		} break;
+		
+		case BTEObject::GUI_slider: {
+			Slider* sdr = ((Slider*)gui);
+			sdr->syncWithTextboxes(this);
+		} break;
+		
+		}
 
         //Tick gui
         gui->tick();

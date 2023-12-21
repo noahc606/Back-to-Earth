@@ -39,6 +39,9 @@ public:
 	//Read file types
 	uint8_t readByte();
 	uint8_t readByteStay();
+	uint8_t readHexStay(bool half);
+	uint8_t readHex1Stay();
+	uint8_t readHex2Stay();
 	Settings::t_kvMap readTxtFileKVs(FilePath fp);
 	bool checkMagicNumber(uint64_t mnPart1, uint64_t mnPart2);
 	//Seek thru files
@@ -74,6 +77,20 @@ public:
     };
 
 private:
+    /* Resource path */
+    std::string resourcePath;
+    int filesystemType;
+
+    /* File */
+    FILE* file = nullptr;
+
+    /* Settings handler and files that hold settings */
+    Settings settings;
+    FilePath* files[Settings::LAST_INDEX];
+
+	static bool attemptedUpdate;
+
+	bool updateBTE();
 
     /* Create new folder ("unsafe" version of createBteDir()) */
     int createDir(std::string path);
@@ -81,15 +98,4 @@ private:
     /* Load and save settings */
     void unloadSettings();
     void loadSettings();
-
-    /* Resource path */
-    std::string resourcePath;
-    int filesystemType;
-
-    /* file stream types */
-    FILE* file = nullptr;
-
-    /* Settings handler and files that hold settings */
-    Settings settings;
-    FilePath* files[Settings::LAST_INDEX];
 };

@@ -57,6 +57,7 @@ void TileMapScreen::destroy()
 		uint64_t rY = std::get<1>(thisReg);
 		uint64_t rZ = std::get<2>(thisReg);
 		
+		TileRegion* tr = tileMap->getRegByRXYZ(rX, rY, rZ);
 		tileMap->saveRegion(fileHandler, "world1", rX, rY, rZ);
 		tileMap->unloadRegion(fileHandler, currentDimPath, rX, rY, rZ);
 	}

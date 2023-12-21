@@ -16,6 +16,8 @@
 #include "SDLHandler.h"
 #include "Timer.h"
 
+bool FileHandler::attemptedUpdate = false;
+
 FileHandler::FileHandler(){}
 FileHandler::~FileHandler(){}
 
@@ -267,6 +269,28 @@ uint8_t FileHandler::readByteStay()
 }
 
 /**
+ * 	Return either the first or second half of readByteStay() (4 bits in total, same as a hex digit)
+ * 	If half==true, return the second half.
+ */
+uint8_t FileHandler::readHexStay(bool half)
+{
+	DataStream ds;
+	ds.putByte( readByteStay() );
+	if(half) { ds.seekBitDelta(4); }
+	return ds.peekXBits(4);
+}
+
+/**
+ * 	Return the first 4 bits (first half) of readByteStay()
+ */
+uint8_t FileHandler::readHex1Stay() { return readHexStay(false); }
+
+/**
+ * 	Return the last 4 bits (second half) of readByteStay()
+ */
+uint8_t FileHandler::readHex2Stay() { return readHexStay(true); }
+
+/**
     t_kvSet: A vector of key-value pairs (both elements of the pair are strings)
     Get contents of a .txt file line by line. Returns empty vector if file loading failed.
     Escape sequences before a newline char or an equals sign char causes those characters to be read in normally.
@@ -380,10 +404,7 @@ bool FileHandler::checkMagicNumber(uint64_t mnPart1, uint64_t mnPart2)
 	return success;
 }
 
-long FileHandler::tellPos()
-{
-	return ftell(file);
-}
+long FileHandler::tellPos() { return ftell(file); }
 
 long FileHandler::getFileLength()
 {
@@ -449,8 +470,7 @@ int FileHandler::saveSettings(int index)
         std::stringstream ss;
         ss << "Successfully saved file with index '" << index << "'.";
         Log::trbshoot(__PRETTY_FUNCTION__, ss.str());
-    } else
-    if( success==-1000 ) {
+    } else if( success==-1000 ) {
         std::stringstream ss;
         ss << "Index '" << index << "' doesn't exist.";
         Log::error(__PRETTY_FUNCTION__, ss.str());
@@ -520,6 +540,19 @@ std::string FileHandler::getFileOpenTypeStr(int fot)
 	case FileOpenTypes::UPDATE: return "updating";
 	}
 	return "unknown";
+}
+
+
+/**
+ * 	Update the Back to Earth executable file, and download the newest Back to Earth assets from github.io/noahc606/bte/latest.
+ * 	Unimplemented because it is low priority (and will be for some time)
+ */
+bool FileHandler::updateBTE()
+{
+	std::string exePath = SDL_GetBasePath();
+	FilePath fp(exePath, filesystemType);
+	
+	return false;
 }
 
 /**

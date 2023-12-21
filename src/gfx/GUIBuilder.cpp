@@ -4,6 +4,7 @@
 #include "CheckBox.h"
 #include "GUIAlignable.h"
 #include "RadioButton.h"
+#include "Slider.h"
 #include "TextBox.h"
 #include "Tooltip.h"
 #include "Window.h"
@@ -19,7 +20,7 @@ void GUIBuilder::buildTitleScreen(GUIHandler& gh)
     gh.removeAllUserGUIs();
     gh.addGUI(new Window(gh.win_MAIN));
     gh.addGUI(new Tooltip(gh.getWindow(gh.win_MAIN), GUIAlignable::CENTER_H, GUIAlignable::CENTER_V, "Back to Earth", gh.ttp_MAIN_title ));
-    gh.addGUI(new Button( gh.getWindow(gh.win_MAIN), GUIAlignable::CENTER_H, GUIAlignable::CENTER_V, 450, "Play", gh.btn_MAIN_play ));
+    gh.addGUI(new Button( gh.getWindow(gh.win_MAIN), GUIAlignable::CENTER_H, GUIAlignable::CENTER_V, 450, "Play Campaign", gh.btn_MAIN_play ));
     gh.addGUI(new Button( gh.getWindow(gh.win_MAIN), GUIAlignable::CENTER_H, GUIAlignable::CENTER_V, 450, "Options", gh.btn_MAIN_options ));
     gh.addGUI(new Button( gh.getWindow(gh.win_MAIN), GUIAlignable::CENTER_H, GUIAlignable::CENTER_V, 450, "Exit", gh.btn_MAIN_exit ));
 }
@@ -81,7 +82,7 @@ void GUIBuilder::buildMainControls(GUIHandler& gh, FileHandler& fh)
         gh.addGUI(new Tooltip(w, 30, 92+i*32, name+": ", gh.ttp_CONTROLS_keybind), ctrlIndex);
 
         //Add input box for setting a new control binding in the middle of the row
-        GUI* tb = gh.addGUI(new TextBox (w, 528, 82+i*32, 200, gh.tbx_CONTROLS_set_keybind), ctrlIndex);
+        GUI* tb = gh.addGUI(new TextBox (w, 536, 82+i*32, 200, gh.tbx_CONTROLS_set_keybind), ctrlIndex);
         ControlBinding newCB(getCtrl(stng));
         ((TextBox*)tb)->setControlBinding(newCB);
 
@@ -94,15 +95,22 @@ void GUIBuilder::buildMainControls(GUIHandler& gh, FileHandler& fh)
 
 void GUIBuilder::buildMainGraphics(GUIHandler& gh, FileHandler& fh)
 {
-    gh.removeGUI(gh.win_OPTIONS);
+	gh.removeGUI(gh.win_OPTIONS);
 
-    int width = 300;
-    Window* w = (Window*)gh.addGUI(new Window( GUIAlignable::CENTER_H, GUIAlignable::CENTER_V, 800, 800, "Graphics Settings", "", gh.win_GRAPHICS_SETTINGS ));
-    Settings* stngs = fh.getSettings();
+	int width = 300;
+	Window* w = (Window*)gh.addGUI(new Window( GUIAlignable::CENTER_H, GUIAlignable::CENTER_V, 800, 800, "Graphics Settings", "", gh.win_GRAPHICS_SETTINGS ));
+	Settings* settings = fh.getSettings();
+		
+	//Max FPS
+	gh.addGUI(new Tooltip( w, 30, 92, "Maximum FPS:", gh.ttp_GRAPHICS_SETTINGS_maxFps));
+	gh.addGUI( new Slider( w, 406, 82, 0, 320, settings->get(Settings::TextFiles::options, "maxFps") , gh.sdr_GRAPHICS_SETTINGS_maxFps ) );
+	gh.addGUI(new TextBox(w, 664, 82, 72, gh.tbx_GRAPHICS_SETTINGS_maxFps ) );
+	gh.addGUI(new CheckBox(w, 738, 82, "", CheckBox::RESET, true, gh.cbx_CONTROLS_set_defaults), 123456);
 
-    gh.addGUI(new CheckBox( w, 40, 120, "Use Different Cursor", stngs->get(Settings::TextFiles::options, "bteCursor"), gh.cbx_GRAPHICS_SETTINGS_bteCursor ));
-    gh.addGUI(new CheckBox( w, 40, 160, "Force Fullscreen on Startup", stngs->get(Settings::TextFiles::options, "fullscreen"), gh.cbx_GRAPHICS_SETTINGS_fullscreen ));
-    gh.addGUI(new Button( w, GUIAlignable::CENTER_H, 730, width, "Back", gh.btn_back_to_OPTIONS ));
+	
+	gh.addGUI(new CheckBox( w, 26, 92+32*1, "Use Different Cursor", settings->get(Settings::TextFiles::options, "bteCursor"), gh.cbx_GRAPHICS_SETTINGS_bteCursor ));
+	gh.addGUI(new CheckBox( w, 26, 92+32*2, "Force Fullscreen on Startup", settings->get(Settings::TextFiles::options, "fullscreen"), gh.cbx_GRAPHICS_SETTINGS_fullscreen ));
+	gh.addGUI(new Button( w, GUIAlignable::CENTER_H, 730, width, "Back", gh.btn_back_to_OPTIONS ));
 }
 
 void GUIBuilder::buildWorldPause(GUIHandler& gh)

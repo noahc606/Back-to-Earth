@@ -24,6 +24,8 @@ void BTE::preinit(SDLHandler* sh, FileHandler* fh, Controls* ctrls)
 	if( settings->get(Settings::options, "fullscreen")=="true" ) {
 		sdlHandler->toggleFullScreen();
 	}
+	
+	MainLoop::setMaxFPS( settings->get(Settings::options, "maxFps") );
 
 	if( settings->get(Settings::options, "bteCursor")=="true" ) {
 		sdlHandler->toggleBTECursor();
@@ -41,12 +43,11 @@ void BTE::preinit(SDLHandler* sh, FileHandler* fh, Controls* ctrls)
 	if( alwaysTest || settings->get(Settings::options, "debugHardTesting")=="true" ) {
 		hardTesting = true;
 	}
-	if( testing||hardTesting ) {
-		setGameState(GameState::TESTING);
-	}
 }
 void BTE::init()
 {
+	Commands::cKV("size", 64);
+	
 	//GUIHandler
 	guiHandler.init(sdlHandler, fileHandler, controls, testing);
 
@@ -55,6 +56,8 @@ void BTE::init()
 
 	if( !(testing||hardTesting) ) {
 		setGameState(GameState::MAIN_MENU);
+	} else {
+		setGameState(GameState::TESTING);
 	}
 }
 
@@ -266,6 +269,7 @@ std::string BTE::getInfo()
 		DebugScreen::indentLine(ss, tabs);
 		ss << "FPS=" << MainLoop::getCurrentFPS() << ", TPS=" << MainLoop::getCurrentTPS() << "; ";
 		ss << "(mspf, mspt)=(" << MainLoop::getCurrentMSPF() << ", " << MainLoop::getCurrentMSPT() << "); ";
+		ss << "(pFPS, pTPS)=(" << MainLoop::getCurrentPFPS() << ", " << MainLoop::getCurrentPTPS() << "); ";
 		DebugScreen::newLine(ss);
 	DebugScreen::endGroup(tabs);
 
@@ -363,7 +367,7 @@ void BTE::setGameState(int p_gamestate)
 			guiHandler.setGUIs(GUIHandler::GUIs::WORLD);
 			AudioLoader* al = sdlHandler->getAudioLoader();
 			al->stopPlayingMusic();
-			//al->playOnce(AudioLoader::MUSIC_kalliope);
+			al->playOnce(AudioLoader::MUSIC_alien_ruins);
 			load(world);
 		} break;
 
