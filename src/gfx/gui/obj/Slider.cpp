@@ -1,4 +1,5 @@
 #include "Slider.h"
+#include <cmath>
 #include "TextBox.h"
 #include "TextureBuilder.h"
 #include "GUIHandler.h"

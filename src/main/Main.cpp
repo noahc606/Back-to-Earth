@@ -1,6 +1,7 @@
 #include "Main.h"
 #include <iostream>
 #include <SDL2/SDL.h>
+#include <time.h>
 #include "MainLoop.h"
 
 //Constants
