@@ -6,6 +6,7 @@
 #include "BTEObject.h"
 #include "Canvas.h"
 #include "Defs.h"
+#include "Planet.h"
 #include "Player.h"
 #include "RegTexUpdates.h"
 #include "TileIterator.h"
@@ -32,24 +33,29 @@ public:
     void putInfo(std::stringstream& ss, int& tabs);
     /**/
 private:
-    void updateMapVisible();
-    void updateRegTicked(int rX, int rY, int rZ);
-    void updateMapTicked();
-    void updateMapMoved();
-    void updateMapIdle();
-    void updateMapAutosave();
+	void updateMapVisible();
+	void updateRegTicked(int rX, int rY, int rZ);
+	void updateMapTicked();
+	void updateMapMoved();
+	void updateMapIdle();
+	void updateMapAutosave();
 	void unloadMap();
 
-    Camera* cam = nullptr;                              //Area of the world shown on screen. Also tracks size of each tile (zoom factor).
-    TileMap* tileMap = nullptr;
-    Canvas* csTileMap = nullptr;
-    RegTexUpdates* regTexUpdates = nullptr;
+	Planet* planet = nullptr;
+	Camera* cam = nullptr;								//Area of the world shown on screen. Also tracks size of each tile (zoom factor).
+	TileMap* tileMap = nullptr;
+	Canvas* csTileMap = nullptr;
+	RegTexUpdates* regTexUpdates = nullptr;
 
-    int camRX = 0; int camRY = 0; int camRZ = 0;        //Coordinates of region which the center of the screen occupies. e.g. As player moves regionSize tiles to the right, cameraRX increases by 1.
-    int camL = 0;
+	int camRX = 0; int camRY = 0; int camRZ = 0;	//Coordinates of region which the center of the screen occupies. e.g. As player moves regionSize tiles to the right, cameraRX increases by 1.
+	int camL = 0;
 
-    double camZoom = 2;                                 //Zoom factor. Determines how many onscreen pixels take up 1px of a single onscreen 32x32px tile
-                                                        //e.g. mapZoom of 2 = each tile will be 64x64pixels on the screen.
+	/*
+	 * Zoom factor. Determines how many onscreen pixels take up 1px of a single onscreen 32x32px tile
+	 * e.g. mapZoom of 2 = each tile will be 64x64pixels on the screen.
+	 */
+	double camZoom = 2;
+	int daySegment = -1;	//Whenever this changes, we need to update all tiles on screen to reflect different sky colors
 
     /* Map update distance + counts */
     int umiTicks = 0;

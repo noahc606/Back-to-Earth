@@ -17,7 +17,13 @@ TileIterator::TileIterator(TileMap* p_tileMap)
 
 TileIterator::~TileIterator(){}
 
-
+Planet* TileIterator::getPlanet()
+{
+	if( tileMap!=nullptr ) {
+		return tileMap->getPlanet();
+	}
+	return nullptr;
+}
 
 /**
     Advances iterator by 1 tile.

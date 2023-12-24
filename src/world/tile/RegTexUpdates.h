@@ -10,7 +10,8 @@ public:
     RegTexUpdates(SDLHandler* sdlHandler, Camera* camera, TileMap* tileMap, Canvas* csTileMap);
     virtual ~RegTexUpdates();
 
-    static std::tuple<int64_t, int64_t, TileType> topTrackedTile(TileIterator& ti);
+    static std::tuple<int64_t, TileType> camTrackedTile(TileIterator& ti, int camDirection);
+    static std::tuple<int64_t, TileType> topTrackedTile(TileIterator& ti);
     void info(std::stringstream& ss, int& tabs);
     int getScreenSemiWidth();
     int getScreenSemiHeight();

@@ -24,6 +24,13 @@ double MainLoop::msThisTick = 0; double MainLoop::msThisFrame = 0;
 double MainLoop::msptThisSec = 0; double MainLoop::mspfThisSec = 0;
 uint64_t MainLoop::nextSecond = 0;
 
+/**
+ * 	Create Back to Earth subsystems:
+ * 	- SDLHandler: Init SDL subsystems, TextureLoader + AudioLoader.
+ * 	- FileHandler: File/directory operations, hold saved settings
+ * 	- Controls: Access keybinds and mouse settings from fileHandler.getSettings().
+ * 	- BTE: GUIHandler, Tests, DebugScreen, World
+ */
 MainLoop::MainLoop()
 {
 	//Create Back to Earth subsystems
@@ -54,6 +61,9 @@ MainLoop::MainLoop()
 	}
 }
 
+/**
+ *	Cleanup Back to Earth subsystems
+ */
 MainLoop::~MainLoop()
 {
 	if(!bte.isHardTesting()) {

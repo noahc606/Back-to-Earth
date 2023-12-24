@@ -226,9 +226,7 @@ bool LevelSave::loadTileRegion(TileRegion& tr, int64_t rX, int64_t rY, int64_t r
 					ss << " @ (sx, sy, sz)=(" << sx << ", " << sy << ", " << sz;
 					ss << "), bytepos=" << tileDS.getSeekBytePos();
 					ss << ". Should be within [" << -aps << ", 0]";
-					Log::warn(__PRETTY_FUNCTION__, ss.str(), "stopping load");
-					fileHandler->saveCloseFile();
-					return false;
+					Log::warn(__PRETTY_FUNCTION__, ss.str(), "stopping tile placement");
 				}
 				tileDS.seekBitDelta(dataBitsPerTile);
 			}

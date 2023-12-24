@@ -7,6 +7,7 @@
 #include "BTEObject.h"
 #include "FileHandler.h"
 #include "Loggable.h"
+#include "Planet.h"
 #include "Player.h"
 #include "Texture.h"
 #include "TileRegion.h"
@@ -23,12 +24,14 @@ public:
 	typedef std::map<t_v3d, TileRegion>				t_regionMap;
 	typedef std::map<t_v3d, t_updates>				t_updatesMap;
 	/**/
+	void init(SDLHandler* sh, FileHandler* fh, Planet* pt);
 	void destroy();
 	/**/
 	void putInfo(std::stringstream& ss, int& tabs);
 	/**/
 	t_regionMap* getRegionMap();
 	t_updatesMap* getUpdatesMap();
+	Planet* getPlanet();
 
 	TileType getTile(int64_t x, int64_t y, int64_t z);
 	TileRegion* getRegByXYZ (int64_t x, int64_t y, int64_t z);
@@ -69,8 +72,9 @@ protected:
 private:
 	//Maps
 	t_regionMap regionMap;
-	
 	t_updatesMap updatesMap;
 
+	//World objects
+	Planet* planet = nullptr;
 	std::vector<Player>* players;
 };

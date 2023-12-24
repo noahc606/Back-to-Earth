@@ -43,6 +43,10 @@ void BTE::preinit(SDLHandler* sh, FileHandler* fh, Controls* ctrls)
 	if( alwaysTest || settings->get(Settings::options, "debugHardTesting")=="true" ) {
 		hardTesting = true;
 	}
+	
+	if( hardTesting ) {
+		setGameState(GameState::TESTING);
+	}
 }
 void BTE::init()
 {
@@ -54,7 +58,7 @@ void BTE::init()
 	//Init debugScreen
 	debugScreen.init(sdlHandler, &guiHandler, controls);
 
-	if( !(testing||hardTesting) ) {
+	if( !(testing) ) {
 		setGameState(GameState::MAIN_MENU);
 	} else {
 		setGameState(GameState::TESTING);
@@ -367,7 +371,7 @@ void BTE::setGameState(int p_gamestate)
 			guiHandler.setGUIs(GUIHandler::GUIs::WORLD);
 			AudioLoader* al = sdlHandler->getAudioLoader();
 			al->stopPlayingMusic();
-			al->playOnce(AudioLoader::MUSIC_alien_ruins);
+			al->playOnce(AudioLoader::MUSIC_kc_nuclear_winter);
 			load(world);
 		} break;
 

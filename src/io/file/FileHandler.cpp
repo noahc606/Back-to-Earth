@@ -375,6 +375,10 @@ Settings::t_kvMap FileHandler::readTxtFileKVs(FilePath fp)
     return contents;
 }
 
+Settings::t_kvMap FileHandler::readTxtFileKVs(std::string path)
+{
+	return readTxtFileKVs( FilePath(path, filesystemType) );
+}
 
 bool FileHandler::checkMagicNumber(uint64_t mnPart1, uint64_t mnPart2)
 {
@@ -443,30 +447,37 @@ int FileHandler::seekTo(long byte)
 int FileHandler::seekToEnd() { return seek(0, SEEK_END); }
 int FileHandler::seekThru(long bytesDelta) { return seek(bytesDelta, SEEK_CUR); }
 
+int FileHandler::saveSettings(Settings::t_kvMap kvMap, std::string path)
+{
+	cEditFile( path );
+	
+	if( kvMap.size()!=0 ) {
+		for(auto kvp : kvMap) {
+			write(kvp.first);
+			write("=");
+			write(kvp.second);
+			write("\n");
+		}
+		return 0;
+	}
+
+	saveCloseFile();
+	return 1;
+}
+
 int FileHandler::saveSettings(int index)
 {
     int success = -1;
 
     if( index>=0 && index<Settings::LAST_INDEX ) {
-        cEditFile( (*files[index]).get() );
-
-        auto kvMap = settings.getKvMap(index);
-        if( kvMap.size()!=0 ) {
-            for(auto kvp : kvMap) {
-                write(kvp.first);
-                write("=");
-                write(kvp.second);
-                write("\n");
-            }
-            success = 1;
-        }
-
-        saveCloseFile();
+		auto kvMap = settings.getKvMap(index);
+		std::string path = (*files[index]).get();
+		success = saveSettings(kvMap, path);
     } else {
         success = -1000;
     }
 
-    if( success==1 ) {
+    if( success==0 ) {
         std::stringstream ss;
         ss << "Successfully saved file with index '" << index << "'.";
         Log::trbshoot(__PRETTY_FUNCTION__, ss.str());
@@ -486,7 +497,7 @@ int FileHandler::saveSettings()
 {
     int fails = 0;
     for(int i = 0; i<Settings::LAST_INDEX; i++) {
-        if( saveSettings(i)!=1 ) {
+        if( saveSettings(i)!=0 ) {
             fails++;
         }
     }

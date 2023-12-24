@@ -43,6 +43,7 @@ public:
 	uint8_t readHex1Stay();
 	uint8_t readHex2Stay();
 	Settings::t_kvMap readTxtFileKVs(FilePath fp);
+	Settings::t_kvMap readTxtFileKVs(std::string path);
 	bool checkMagicNumber(uint64_t mnPart1, uint64_t mnPart2);
 	//Seek thru files
 	long tellPos();						//Get current byte position
@@ -53,6 +54,7 @@ public:
 	int seekThru(long bytesDelta);		//Seek forward the specified number of bytes
 
     /* Settings */
+    int saveSettings(Settings::t_kvMap kvMap, std::string path);
     int saveSettings(int index);
     int saveSettings();
     void reloadSettings();

@@ -12,14 +12,31 @@ void World::init(SDLHandler* sh, GUIHandler* gh, FileHandler* fh, Controls* ctrl
 	if( exists() ) return;
 	BTEObject::init(sh, fh, ctrls);
 	guiHandler = gh;
-
-	Commands::cKV("x1", -16);
-	Commands::cKV("y1", -16);
+	
+	worldDataPath = "saved/games/world1/data.txt";
+	if (!fh->fileExists(worldDataPath) ) {
+		fh->cEditFile(worldDataPath);
+		fh->saveCloseFile();
+	}
+	
+	//Build default world settings
+	Settings::t_kvMap dwd;	//DWD = default world data
+	Settings::kv(&dwd, "playerX", "nan");
+	Settings::kv(&dwd, "playerY", "nan");
+	Settings::kv(&dwd, "playerZ", "nan");
+	Settings::kv(&dwd, "planetRotation", 1000);
+	
+	//Build loaded world settings
+	worldData = fileHandler->readTxtFileKVs(worldDataPath);
+	fh->getSettings()->load(&dwd, worldData);
+	
+	//Init planet
+	planet.init();
 
 	//Init player, tileMap, tileMapScreen.
 	localPlayer.init(sh, guiHandler, ctrls);
 	localPlayer.setPos(0, 0, -32);
-	tileMap.init(sdlHandler, fileHandler);
+	tileMap.init(sdlHandler, fileHandler, &planet);
 	tileMapScreen.init(sdlHandler, fileHandler, controls, &localPlayer, &tileMap, &csTileMap);
 
 	//Init csTileMap
@@ -56,6 +73,8 @@ World::~World()
 	csTileMap.destroy();
 	csInteractions.destroy();
 	csEntities.destroy();
+	
+	//fh->saveCloseFile();
 }
 
 void World::draw()
@@ -87,6 +106,13 @@ void World::tick(bool paused, GUIHandler& guiHandler)
 	/** Tick world objects if not paused */
 	if( !paused ) {
 		/** World objects */
+		planet.tick();
+		
+		//int x = localPlayer.getBounds().c1.x;
+		
+		Box3D b3d = *localPlayer.getBounds();
+		//tileMap.collides( b3d );
+		
 		localPlayer.tick();
 		localPlayer.getMenu()->tick();
 		tileMapScreen.tick();
@@ -120,8 +146,11 @@ void World::putInfo(std::stringstream& ss, int& tabs)
 	DebugScreen::indentLine(ss, tabs);
 	ss << "World tick=" << performanceCounter << "ms; ";
 	DebugScreen::newLine(ss);
-
-
+	
+	DebugScreen::newGroup(ss, tabs, "World::planet");
+		planet.putInfo(ss, tabs);
+	DebugScreen::endGroup(tabs);
+	
 	//Player
 	DebugScreen::newGroup(ss, tabs, "World::player");
 	localPlayer.putInfo(ss, tabs);
@@ -139,10 +168,8 @@ void World::putInfo(std::stringstream& ss, int& tabs)
 	DebugScreen::endGroup(tabs);
 }
 
-Player* World::getLocalPlayer()
-{
-	return &localPlayer;
-}
+Planet* World::getPlanet() { return &planet; }
+Player* World::getLocalPlayer() { return &localPlayer; }
 
 void World::updateMouseAndCamInfo()
 {

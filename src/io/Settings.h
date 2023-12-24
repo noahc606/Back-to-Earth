@@ -14,7 +14,8 @@ public:
     Settings();
 
     bool unload(int index);
-    bool load(int index, t_kvMap kvMap);
+    void load(t_kvMap* kvMapNew, t_kvMap kvMapOld);
+    void load(int index, t_kvMap kvMap);
 
     std::string get(int kvMapIndex, std::string key);
     t_kvMap getDefaultSettings(int kvMapIndex);
@@ -41,6 +42,7 @@ public:
     };
 
 private:
+    void loadMap(t_kvMap* kvMapNew, t_kvMap kvMapOld);
     void loadMap(int index, t_kvMap kvMap);
 
     bool logging = false;

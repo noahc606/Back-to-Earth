@@ -111,6 +111,11 @@ void TileMapScreen::tick()
 				camZoom = cam->getZoom();
 				doUpdMapVisible = true;
 			}
+			
+			if( daySegment!=tileMap->getPlanet()->getPartOfDay(24) ) {
+				daySegment = tileMap->getPlanet()->getPartOfDay(24);
+				doUpdMapVisible = true;
+			}
 
 			// Calculate screen width and screen height
 			regTexUpdates->setScreenInfo();

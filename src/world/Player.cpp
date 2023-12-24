@@ -316,6 +316,17 @@ void Player::putInfo(std::stringstream& ss, int& tabs)
 }
 
 int Player::getAction() { return action; }
+Box3D* Player::getBounds()
+{
+	bounds.c1.x = x-0.3;
+	bounds.c1.y = y-0.3;
+	bounds.c1.z = z-2;
+	bounds.c2.x = x+0.3;
+	bounds.c2.y = y+0.3;
+	bounds.c2.z = z;
+	
+	return &bounds;
+}
 std::tuple<double, double, double> Player::getPos() { return std::make_tuple(x, y, z); }
 std::tuple<double, double, double> Player::getVelComponents() { return std::make_tuple(vx, vy, vz); }
 double Player::getVel() { return sqrt( vx*vx + vy*vy + vz*vz ); }

@@ -173,7 +173,7 @@ void DataStream::clear()
 {
 	bool redundant = (bytestream.size()==0 && bitcache.size()==0);
 	bytestream.clear();
-	bitcache.empty();
+	bool ignoredReturnValueLol = bitcache.empty();
 	if(redundant) {
 		Log::warn(__PRETTY_FUNCTION__, "Tried to clear DataStream which was already empty");
 	}

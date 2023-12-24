@@ -5,10 +5,10 @@
 #include <sstream>
 
 Real::Real() { *this = 0; }
-Real::Real(Real::t_ll integer) { *this = integer; }
+Real::Real(int64_t integer) { *this = integer; }
 Real::Real(int integer) { *this = integer; }
 Real::Real(double number) { *this = number; }
-Real::Real(Real::t_ll integer, double decimal)
+Real::Real(int64_t integer, double decimal)
 {
     Real::integer = integer;
     Real::decimal = decimal;
@@ -16,7 +16,7 @@ Real::Real(Real::t_ll integer, double decimal)
 
 bool Real::isInteger() const { return decimal==0.0; }
 
-Real::t_ll Real::getInteger() const { return integer; }
+int64_t Real::getInteger() const { return integer; }
 double Real::getDecimal() const { return decimal; }
 std::string Real::getString() const
 {
@@ -39,7 +39,7 @@ Real& Real::abs()
     return *this;
 }
 
-Real::t_ll Real::floor()
+int64_t Real::floor()
 {
     if( decimal>0.0 ) {
         if(integer>=0) {
@@ -50,7 +50,7 @@ Real::t_ll Real::floor()
     return integer;
 }
 
-Real::t_ll Real::ceil()
+int64_t Real::ceil()
 {
     if( decimal>0.0 ) {
         if(integer>=0) {
@@ -81,9 +81,9 @@ Real Real::operator- ( const Real& other )
 
 Real Real::operator+ ( const Real& other )
 {
-    t_ll r1Int = (*this).getInteger();
+    int64_t r1Int = (*this).getInteger();
     double r1Dec = (*this).getDecimal();
-    t_ll r2Int = other.getInteger();
+    int64_t r2Int = other.getInteger();
     double r2Dec = other.getDecimal();
 
     Real result;
@@ -151,7 +151,7 @@ void Real::operator=(const Real& other)
     decimal = other.getDecimal();
     integer = other.getInteger();
 }
-void Real::operator=(const t_ll& other)
+void Real::operator=(const int64_t& other)
 {
     integer = other;
     decimal = 0.0;

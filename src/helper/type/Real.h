@@ -4,23 +4,21 @@
 class Real
 {
 public:
-    typedef long long t_ll;
-
     Real();
-    Real(t_ll integer);
+    Real(int64_t integer);
     Real(int integer);
     Real(double number);
-    Real(t_ll integer, double decimal);
+    Real(int64_t integer, double decimal);
 
     bool isInteger() const;
 
-    t_ll getInteger() const;
+    int64_t getInteger() const;
     double getDecimal() const;
     std::string getString() const;
 
     Real& abs();
-    t_ll floor();
-    t_ll ceil();
+    int64_t floor();
+    int64_t ceil();
 
     Real operator+ (int other);
     Real operator- (int other);
@@ -29,7 +27,7 @@ public:
     Real operator+ ( const Real& other );
 
     void operator= ( const Real& other );
-    void operator= ( const t_ll& other );
+    void operator= ( const int64_t& other );
     void operator= ( const int& other );
     void operator= ( const double& other );
 
@@ -39,7 +37,7 @@ public:
     bool operator> ( Real& other );
     bool operator<=( Real& other );
 
-    t_ll integer = 0;
+    int64_t integer = 0;
     double decimal = 0.0;
 protected:
 

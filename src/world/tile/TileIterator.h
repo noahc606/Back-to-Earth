@@ -13,6 +13,7 @@ public:
     TileIterator(TileMap* tileMap);
     virtual ~TileIterator();
 
+	Planet* getPlanet();
 
     TileType nextTile();
     TileType prevTile();

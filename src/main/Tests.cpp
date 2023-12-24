@@ -24,40 +24,26 @@
 Tests::Tests(){}
 void Tests::init(SDLHandler* sh, FileHandler* fh, Controls* ctrls)
 {
-    sdlHandler = sh;
-    fileHandler = fh;
-    controls = ctrls;
-	
-	int rX = 4;
-	int rY = 0;
-	int rZ = -3;
+	sdlHandler = sh;
+	fileHandler = fh;
+	controls = ctrls;
 	
 	//Build test tile regions
-	Terrain terra;
-	TileRegion tr1; terra.testRegion(tr1, rX, rY, rZ, true);
-	
-	LevelSave ls(fh);
-	
 	std::cout << "Starting...\n";
-	//ls.saveTileRegion(tr1, rX, rY, rZ);
 	
-	for( int i = 0; i<32; i++ ) {
-		TileType tt; tt.setRGB(i*8, 50, i*8); tt.setTextureXY(i, 0);
-		tr1.setTile(i, i, i, tt);
-	}
+	Color c1(100, 30, 0);
+	Color c2(0, 200, 255);
 	
-	tr1.logInfo();
+	std::cout << c1.getInterpolColor(c2, 0.9).getInfo();
 	
-	//ls.saveTileRegion(tr1, rX, rY, rZ);
+	//std::cout << "HSV=(" << std::get<0>(c.toHSV()) << ", " << std::get<1>(c.toHSV()) << ", " << std::get<2>(c.toHSV()) << ")\n";
 	
-	ls.buildLevelDebugTex(sdlHandler, tex, rX, rY, rZ);
-	
+	std::cout << "Finished.\n";
+
 	lvlImgSrc.x = 0;
 	lvlImgSrc.y = 0;
 	lvlImgSrc.w = 32;
 	lvlImgSrc.h = 128;
-	
-	std::cout << "Finished.\n";
 }
 
 Tests::~Tests(){}

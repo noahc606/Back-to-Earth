@@ -7,6 +7,13 @@
 #include "TileIterator.h"
 #include "TileType.h"
 
+void TileMap::init(SDLHandler* sh, FileHandler* fh, Planet* pt)
+{
+	sdlHandler = sh;
+	fileHandler = fh;
+	planet = pt;
+}
+
 void TileMap::destroy()
 {
     Log::trbshoot(__PRETTY_FUNCTION__, "Deleting TileMap.");
@@ -48,6 +55,7 @@ void TileMap::putInfo(std::stringstream& ss, int& tabs)
 
 TileMap::t_regionMap* TileMap::getRegionMap() { return &regionMap; }
 TileMap::t_updatesMap* TileMap::getUpdatesMap() { return &updatesMap; }
+Planet* TileMap::getPlanet() { return planet; }
 
 /*
     This function will work fine in small loops but keep in mind getRegSubPos() is somewhat expensive. For large or even 3D loops (like in TileMapScreen::draw()) use a TileIterator.
@@ -102,12 +110,12 @@ bool TileMap::collides( Box3D& b )
 {
     TileIterator ti(this);
 
-    uint64_t xf = b.c1.x.floor();
-    uint64_t yf = b.c1.y.floor();
-    uint64_t zf = b.c1.z.floor();
-    uint64_t xc = b.c2.x.ceil();
-    uint64_t yc = b.c2.y.ceil();
-    uint64_t zc = b.c2.z.ceil();
+    int64_t xf = std::floor(b.c1.x);
+    int64_t yf = std::floor(b.c1.y);
+    int64_t zf = std::floor(b.c1.z);
+    int64_t xc = std::ceil(b.c2.x);
+    int64_t yc = std::ceil(b.c2.y);
+    int64_t zc = std::ceil(b.c2.z);
 
     ti.setBounds( xf, yf, zf, xc, yc, zc );
     ti.setTrackerMode( ti.SINGLE );
@@ -118,11 +126,13 @@ bool TileMap::collides( Box3D& b )
             for(long y = ti.getBegSub(1); y<=ti.getEndSub(1); y++ ) {
                 for(long z = ti.getBegSub(2); y<=ti.getEndSub(2); z++ ) {
 
-                    TileType tt = tr->getTile(x, y, z);
-                    std::stringstream ss; int tabs = 0;
-                    tt.putInfo(ss, tabs);
-                    std::cout << "Intersecting TileType @ (" << x << ", " << y << ", " << z << "):" << ss.str();
-
+					TileType tt = tr->getTile(x, y, z);
+					
+					if ( tt.isSolid() ) {
+						std::stringstream ss; int tabs = 0;
+						tt.putInfo(ss, tabs);
+						std::cout << "Intersecting TileType @ (" << x << ", " << y << ", " << z << "):" << ss.str();
+					}
                 }
             }
         }

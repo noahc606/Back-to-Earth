@@ -1,4 +1,6 @@
 #include "Color.h"
+#include <algorithm>
+#include "DebugScreen.h"
 
 Color::Color():
 Color::Color(255, 255, 255){}
@@ -20,6 +22,13 @@ Color::Color(uint8_t p_r, uint8_t p_g, uint8_t p_b, uint8_t p_a)
 }
 
 Color::~Color(){}
+
+void Color::putInfo(std::stringstream& ss, int& tabs)
+{
+	DebugScreen::indentLine(ss, tabs);
+	ss << "Color(rgba)=(" << (int)r << ", " << (int)g << ", " << (int)b << ", " << (int)a << ")";
+	DebugScreen::newLine(ss);
+}
 
 uint32_t Color::getRGBA(uint8_t p_r, uint8_t p_g, uint8_t p_b, uint8_t p_a)
 {
@@ -45,14 +54,83 @@ uint32_t Color::getA(uint32_t p_rgba) { return p_rgba&0xFF; }
 uint32_t Color::getA() { return a; }
 
 /**
+ * H = [0-360)
+ * S = [0-100]
+ * V = [0-100]
+ * 
+ * 255 0 100
+ * 
+ * -100/255
+ */
+std::tuple<double, double, double> Color::toHSV()
+{
+	double rp = ((double)r)/255.0;
+	double gp = ((double)g)/255.0;
+	double bp = ((double)b)/255.0;
+	double cmax = std::max(rp, std::max(gp, bp));
+	double delta = cmax-std::min(rp, std::min(gp, bp));
+	
+	//Hue
+	double h;
+	if(cmax==rp) {
+		h = 60.0*((gp-bp)/delta+0.0);
+	} else if(cmax==gp) {
+		h = 60.0*((bp-rp)/delta+2.0);
+	} else {
+		h = 60.0*((rp-gp)/delta+4.0);
+	}
+	if( h<0.0 ) {
+		h += 360.0;
+	}
+	
+	//Saturation
+	double s;
+	if(cmax==0) {
+		s = 0;
+		//H is Nan when max is zero
+	} else {
+		s = 100.0*delta/cmax;
+	}
+	
+	//Value
+	double v = 100.0*cmax;
+	
+	return std::make_tuple(h, s, v);
+}
+
+/*
+ * Return a new color that is the weighted average between two colors. weight' is a value from 0.0 to 1.0.
+ * 
+ * A weight close to 0.0 would return a color "closer to" this object.
+ * A weight close to 1.0 would return a color "closer to" the specified color (within the parameters).
+ */ 
+Color Color::getInterpolColor(uint8_t p_r, uint8_t p_g, uint8_t p_b, double weight)
+{
+	uint8_t r1 = r; uint8_t g1 = g; uint8_t b1 = b;
+	uint8_t r2 = p_r; uint8_t g2 = p_g; uint8_t b2 = p_b;
+	
+	double dR = ((double)(r1-r2))*weight;
+	double dG = ((double)(g1-g2))*weight;
+	double dB = ((double)(b1-b2))*weight;
+	
+	Color res;
+	
+	return Color(r1-dR, g1-dG, b1-dB);
+}
+Color Color::getInterpolColor(Color& c, double weight)
+{
+	return getInterpolColor(c.r, c.g, c.b, weight);
+}
+
+/**
     Additive color blending.
     Destination color (current) is mixed with source color (parameters).
 */
 void Color::add(uint8_t sr, uint8_t sg, uint8_t sb, uint8_t sa)
 {
-    r = sr*sa+r;
-    g = sg*sa+g;
-    b = sb*sa+b;
+	r = sr*sa+r;
+	g = sg*sa+g;
+	b = sb*sa+b;
 }
 void Color::add(Color& c) { add(c.r, c.g, c.b, c.a); }
 

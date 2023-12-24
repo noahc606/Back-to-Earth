@@ -28,7 +28,7 @@ public:
 	void putInfo(std::stringstream& ss, int& tabs);
 	/**/
 	int getAction();
-	Box3D getBounds();
+	Box3D* getBounds();
 	std::tuple<double, double, double> getPos();
 	std::tuple<double, double, double> getVelComponents();
 	double getVel();
@@ -96,7 +96,6 @@ private:
 	double nutrition = 100; double maxNutrition = 100;
 	double water = 100; double maxWater = 100;
 	double oxygen = 100; double maxOxygen = 100;
-	
 	
 	bool godMode = true;
 	bool ghost = true;

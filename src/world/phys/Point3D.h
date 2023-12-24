@@ -5,11 +5,11 @@ class Point3D
 {
 public:
     Point3D( );
-    Point3D( Real x, Real y, Real z );
+    Point3D( double x, double y, double z );
 
-    Real x = Real();
-    Real y = Real();
-    Real z = Real();
+    double x;
+    double y;
+    double z;
 protected:
 
 private:

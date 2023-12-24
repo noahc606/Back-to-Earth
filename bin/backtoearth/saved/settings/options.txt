@@ -1,8 +1,0 @@
-bteCursor=true
-debugEnabled=true
-debugHacks=typeincorrectpassword
-debugHardTesting=false
-debugTesting=false
-fullscreen=false
-logging=false
-maxFps=Vsync

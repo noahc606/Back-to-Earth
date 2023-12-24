@@ -3,7 +3,7 @@
 
 Point3D::Point3D(){}
 
-Point3D::Point3D( Real x, Real y, Real z )
+Point3D::Point3D( double x, double y, double z )
 {
     Point3D::x = x;
     Point3D::y = y;

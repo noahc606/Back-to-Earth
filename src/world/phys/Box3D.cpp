@@ -3,7 +3,7 @@
 Box3D::Box3D() : Box3D(0, 0, 0, 0, 0, 0)
 {}
 
-Box3D::Box3D(Real x1, Real y1, Real z1, Real x2, Real y2, Real z2)
+Box3D::Box3D(double x1, double y1, double z1, double x2, double y2, double z2)
 {
     c1.x = x1;
     c1.y = y1;
