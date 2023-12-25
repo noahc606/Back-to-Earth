@@ -7,7 +7,6 @@
 #include "ColorPalette.h"
 #include "GUIHandler.h"
 #include "Loggable.h"
-#include "PlayerMenu.h"
 #include "SpriteSheet.h"
 #include "Texture.h"
 
@@ -33,7 +32,6 @@ public:
 	std::tuple<double, double, double> getVelComponents();
 	double getVel();
 	Camera* getCamera();
-	PlayerMenu* getMenu();
 	/**/
 	void setPos(double, double, double);
 	void setMenuState(int newMenuState);
@@ -99,7 +97,6 @@ private:
 	
 	bool godMode = true;
 	bool ghost = true;
-	PlayerMenu menu;
 	bool controllable = false;
 
 	Camera camera;

@@ -47,9 +47,8 @@ int Commands::executeCMD(std::string cmd)
         //Track entering quoted text
         if( !withinQuotes && cmd[i]=='\"' && !withinEsc ) {
             withinQuotes = true;
-        } else
-        //Track if exiting quoted text
-        if( withinQuotes && cmd[i]=='\"' && !withinEsc ) {
+		//Track if exiting quoted text
+        } else if( withinQuotes && cmd[i]=='\"' && !withinEsc ) {
             withinQuotes = false;
         }
 

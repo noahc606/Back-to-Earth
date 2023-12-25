@@ -16,13 +16,7 @@ RegTexUpdates::RegTexUpdates(SDLHandler* sdlHandler, Camera* camera, TileMap* ti
 
 RegTexUpdates::~RegTexUpdates(){}
 
-/*
- * 
- *	6 possible values for direction: [012345] = [WENSUD]
- * 	West/East 	= -X/+X
- * 	North/South = -Y/+Y
- * 	Up/Down 	= -Z/+Z
- */
+
 std::tuple<int64_t, TileType> RegTexUpdates::camTrackedTile(TileIterator& ti, int camDirection)
 {
 	int sign = 1;

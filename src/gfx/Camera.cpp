@@ -28,6 +28,7 @@ void Camera::tick()
     }
 
     if( !focused ) {
+
         //Control zoom
         if( controls->isHeld("MAP_USE_ZOOM") ) {
             int mw = controls->getMouseWheel();

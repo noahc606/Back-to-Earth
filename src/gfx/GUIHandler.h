@@ -20,6 +20,7 @@ public:
     void putInfo(std::stringstream& ss, int& tabs);
     int getGUIActionID();
     Window* getWindow(int id);
+    GUI* getGUI(int type, int id, int extraId);
     GUI* getGUI(int type, int id);
     /**/
     void resetGUIAction(std::string methodName);
@@ -75,6 +76,10 @@ public:
             rbtn_CHARACTER_tabs_1b,
 
             ttp_CHARACTER_tabs_desc,
+		
+		ttp_CHARACTER_item = 3000,
+		btn_CHARACTER_item = 3100,
+		tbx_CHARACTER_item = 3200,
     };
 
     enum GUIs {

@@ -63,6 +63,7 @@ private:
     World* world = nullptr;
     bool paused = false;
     std::string lastBTECursorState = "false";
+	bool playedImpact = false;
 
     /* Debugging, testing */
     DebugScreen debugScreen;

@@ -9,6 +9,7 @@ class TextBox : public Button
 {
 public:
     /**/
+    TextBox(Window* parentWindow, int x, int y, int width, int inputType, int id);
     TextBox(Window* parentWindow, int x, int y, int width, int id);
     TextBox(int x, int y, int width, int id);
     void init(SDLHandler* sh, FileHandler* fh, Controls* ctrls);
@@ -45,6 +46,7 @@ public:
         LOCKED = -1,
         FREE_TEXT = 0,
 		FREE_NUMBERS_BASIC,
+		FREE_NUMBERS_INTEGERS,
         CONTROL_BINDINGS,
     };
 

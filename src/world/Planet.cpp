@@ -1,5 +1,6 @@
 #include "Planet.h"
 #include "DebugScreen.h"
+#include "Log.h"
 
 /**
  * https://en.wikipedia.org/wiki/Peirce_quincuncial_projection
@@ -11,12 +12,16 @@
  * Note: Nearly all references of NORTH/EAST/SOUTH/WEST in other areas of Back to Earth merely mean up/left/down/right in the rectangular sense, across the XY plane.
  */ 
 
-
 void Planet::init()
 {
 	initialized = true;
-	
+		
+	std::srand(1234567);
+	id = rand();
 
+	std::stringstream ss;
+	ss << "Initialized planet id " << id << "...";
+	Log::log(ss.str());
 }
 
 void Planet::putInfo(std::stringstream& ss, int& tabs)
@@ -76,6 +81,7 @@ void Planet::tick()
 	//skyColor.interpolateBetween()
 }
 
+int Planet::getRotationRaw() { return rotation; }
 double Planet::getTime() { return time; }
 double Planet::getPartOfDayAccurate(double segments) { return time*segments; }
 int Planet::getPartOfDay(int segments)

@@ -17,8 +17,6 @@ void Player::init(SDLHandler* sh, GUIHandler* guih, Controls* ctrls)
 	controls = ctrls;
 	camera.init(ctrls);
 
-	menu.init(sdlHandler, guiHandler, ctrls);
-
 	/** Build player spritesheet */
 	playerPal.init(playerPal.DEFAULT_PLAYER);
 
@@ -212,7 +210,7 @@ void Player::tick()
 	*/
 
 	//Set walk speed from velocity
-	walkSpeed = std::abs((double)sqrt(vx*vx+vy*vy));
+	walkSpeed = std::abs((double)sqrt(vx*vx+vy*vy))/2.0;
 	//Set player facing direction (NESW)
 	updateFacingDirection();
 
@@ -331,20 +329,12 @@ std::tuple<double, double, double> Player::getPos() { return std::make_tuple(x, 
 std::tuple<double, double, double> Player::getVelComponents() { return std::make_tuple(vx, vy, vz); }
 double Player::getVel() { return sqrt( vx*vx + vy*vy + vz*vz ); }
 Camera* Player::getCamera() { return &camera; }
-PlayerMenu* Player::getMenu() {
-	return &menu;
-}
 
 void Player::setPos(double x, double y, double z)
 {
 	Player::x = x;
 	Player::y = y;
 	Player::z = z;
-}
-
-void Player::setMenuState(int newMenuState)
-{
-	menu.setState(newMenuState);
 }
 
 void Player::updateFacingDirection()

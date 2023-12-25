@@ -1,5 +1,6 @@
 #include "World.h"
 #include <math.h>
+#include <time.h>
 #include "TextureBuilder.h"
 #include "Log.h"
 #include "MainLoop.h"
@@ -36,6 +37,9 @@ void World::init(SDLHandler* sh, GUIHandler* gh, FileHandler* fh, Controls* ctrl
 	//Init player, tileMap, tileMapScreen.
 	localPlayer.init(sh, guiHandler, ctrls);
 	localPlayer.setPos(0, 0, -32);
+	
+	localPlayerMenu.init(sdlHandler, guiHandler, ctrls, &localPlayer);
+	
 	tileMap.init(sdlHandler, fileHandler, &planet);
 	tileMapScreen.init(sdlHandler, fileHandler, controls, &localPlayer, &tileMap, &csTileMap);
 
@@ -108,13 +112,15 @@ void World::tick(bool paused, GUIHandler& guiHandler)
 		/** World objects */
 		planet.tick();
 		
-		//int x = localPlayer.getBounds().c1.x;
-		
-		Box3D b3d = *localPlayer.getBounds();
-		//tileMap.collides( b3d );
+		int prr = planet.getRotationRaw();
+		if( prr==10 || prr==60*60*10 || prr==60*60*20 ) {
+			AudioLoader* al = sdlHandler->getAudioLoader();
+			srand(time(NULL));
+			al->playOnce(AudioLoader::MUSIC_kc_50_million_year_trip+(rand()%7));
+		}
 		
 		localPlayer.tick();
-		localPlayer.getMenu()->tick();
+		localPlayerMenu.tick();
 		tileMapScreen.tick();
 	} else {
 		//Force-disable character menu when paused
@@ -170,6 +176,7 @@ void World::putInfo(std::stringstream& ss, int& tabs)
 
 Planet* World::getPlanet() { return &planet; }
 Player* World::getLocalPlayer() { return &localPlayer; }
+PlayerMenu* World::getLocalPlayerMenu() { return &localPlayerMenu; }
 
 void World::updateMouseAndCamInfo()
 {
@@ -216,31 +223,53 @@ void World::playerInteractions(GUIHandler& guiHandler, bool paused)
 	
 	if( lpMenuStateLast!=lpMenuState ) {
 		lpMenuStateLast = lpMenuState;
-		localPlayer.setMenuState(lpMenuState);
+		setLocalPlayerMenuState(lpMenuState);
 		
 		if( lpMenuState ) {
-			localPlayer.setMenuState(1);
+			setLocalPlayerMenuState(1);
 		} else {
-			localPlayer.setMenuState(0);
+			setLocalPlayerMenuState(0);
 		}
 	}
 
 	if( !lpMenuState ) {
+		
+		uint64_t val = tileMap.getTile(mouseXLL, mouseYLL, mouseCLL).getVal();
+		
+		bool audio = false;
+		AudioLoader* al = sdlHandler->getAudioLoader();
+		if(al!=nullptr) {
+			audio = true;
+		}
+		
+		bool touchingSolid = val!=0x0 && val!=0x8000000000000000;
+		
 		switch( localPlayer.getAction() )
 		{
 			case Player::Action::GM_Destroy_Tile: {
-				if( tileMap.getTile(mouseXLL, mouseYLL, mouseCLL).getVal()!=0x0 ) {
+				if( touchingSolid ) {
 					TileType tt;
 					tt.init();
 					tt.setTechnical(true);
 					tileMap.setTile(mouseXLL, mouseYLL, mouseCLL, tt);
+					
+					if( rand()%5==0 ) {
+						//al->play( AudioLoader::WORLD_plasma_cannon );
+					}
 				}
 				tileMap.addTileUpdates(mouseXLL, mouseYLL, mouseCLL);
 			}; break;
 			case Player::Action::GM_Place_Tile: {
 				
+				if( !touchingSolid ) {
+					if( rand()%5==0 ) {
+						//al->play( AudioLoader::WORLD_implosion );
+					}
+				}
+				
+				
 				TileIterator ti(&tileMap);
-				int squareSize = 1;
+				int squareSize = 0;
 				ti.setBounds(
 					mouseXLL-squareSize,
 					mouseYLL-squareSize,
@@ -271,7 +300,8 @@ void World::playerInteractions(GUIHandler& guiHandler, bool paused)
 										tt.setRGB( std::abs(tileX)%64*4, std::abs(tileY)%64*4, std::abs(tileZ)%64*4 );
 									}
 									tt.setSolid(true);
-									tt.setTextureXY(0, 2);
+									tt.setTextureXY( localPlayerMenu.getSandboxTexX(), localPlayerMenu.getSandboxTexY() );
+									tt.setRGB( localPlayerMenu.getSandboxTexRed(), localPlayerMenu.getSandboxTexGreen(), localPlayerMenu.getSandboxTexBlue() );
 									tt.setVisionBlocking(true);
 
 									tr->setTile( sx, sy, sz, tt );
@@ -294,4 +324,9 @@ void World::playerInteractions(GUIHandler& guiHandler, bool paused)
 			}; break;
 		}
 	}
+}
+
+void World::setLocalPlayerMenuState(int newMenuState)
+{
+	localPlayerMenu.setState(newMenuState);
 }

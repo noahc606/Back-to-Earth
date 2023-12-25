@@ -132,7 +132,7 @@ void AudioLoader::play(int index, int channel, int loops, int ticks, float volum
 		
 		Mix_Music* pChunk = getMixMusicChunk(index);
 		int currentVol = Mix_VolumeMusic(-1);
-		int newVol = (int)((float)(MIX_MAX_VOLUME)*volume); 
+		int newVol = (int)((float)(MIX_MAX_VOLUME)*volume/9); 
 		Mix_VolumeMusic(newVol);
 		
 		int res = Mix_PlayMusic(pChunk, loops);

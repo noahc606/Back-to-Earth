@@ -84,7 +84,37 @@ ButtonAction::ButtonAction(SDLHandler* sh, GUIHandler* gh, FileHandler* fh, Cont
         } break;
 
         /** Graphics settings buttons */
-
+		
+		/** World buttons */
+		case GUIHandler::btn_CHARACTER_item: {
+			
+			std::vector<std::string> strs;
+			for( int i = 0; i<4; i++ ) {
+				GUI* gui = gh->getGUI( BTEObject::GUI_textbox, GUIHandler::tbx_CHARACTER_item, 1000+i );
+				if( gui!=nullptr ) {
+					TextBox* tbx = (TextBox*)gui;
+					strs.push_back( tbx->getString() );
+				}
+			}
+			
+			int x = 0;
+			int y = 0;
+			int z = 0;
+			try {
+				x = std::stoi(strs[0]);
+				y = std::stoi(strs[1]);
+				z = std::stoi(strs[2]);
+				//int planetId = std::stoi(strs[3]);
+			} catch(...) {
+				
+			}
+			
+			std::stringstream ss;
+			ss << "tele " << x << " " << y << " " << z;
+			std::cout << ss.str();
+			Commands::executeCMD(ss.str());
+		} break;
+		
         /** Default */
         default: {
             std::stringstream ss;

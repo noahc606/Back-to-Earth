@@ -261,15 +261,29 @@ Window* GUIHandler::getWindow(int id)
     return nullptr;
 }
 
+
+GUI* GUIHandler::getGUI(int type, int id, int extraId)
+{
+	for( int i = 0; i<(int)guis.size(); i++ ) {
+		GUI* gui = guis[i];
+		if( gui->getType()==type ) {
+			if( gui->getID()==id && gui->getExtraID()==extraId ) {
+				return guis[i];
+			}
+		}
+	}
+	
+	return nullptr;
+}
 GUI* GUIHandler::getGUI(int type, int id)
 {
-    for( int i = 0; i<(int)guis.size(); i++ ) {
-        if( (guis[i])->getType()==type ) {
-            if( (guis[i])->getID()==id ) {
-                return guis[i];
-            }
-        }
-    }
+	for( int i = 0; i<(int)guis.size(); i++ ) {
+		if( (guis[i])->getType()==type ) {
+			if( (guis[i])->getID()==id ) {
+				return guis[i];
+			}
+		}
+	}
 
     return nullptr;
 }

@@ -6,6 +6,7 @@
 #include "Loggable.h"
 #include "Planet.h"
 #include "Player.h"
+#include "PlayerMenu.h"
 #include "Texture.h"
 #include "TileMap.h"
 #include "TileMapScreen.h"
@@ -24,6 +25,7 @@ public:
     void putInfo(std::stringstream& ss, int& tabs);
 	Planet* getPlanet();
 	Player* getLocalPlayer();
+	PlayerMenu* getLocalPlayerMenu();
 protected:
 
 private:
@@ -34,6 +36,8 @@ private:
 	
 	double prevZoom = -1;
 	Player localPlayer;
+	PlayerMenu localPlayerMenu;
+	
 	bool lpMenuState = false;
 	bool lpMenuStateLast = false;
 	double mouseX = 0; double mouseY = 0;
@@ -56,4 +60,5 @@ private:
 	
 	void updateMouseAndCamInfo();
 	void playerInteractions(GUIHandler& guiHandler, bool paused);
+	void setLocalPlayerMenuState(int newMenuState);
 };

@@ -82,7 +82,7 @@ void GUIBuilder::buildMainControls(GUIHandler& gh, FileHandler& fh)
         gh.addGUI(new Tooltip(w, 30, 92+i*32, name+": ", gh.ttp_CONTROLS_keybind), ctrlIndex);
 
         //Add input box for setting a new control binding in the middle of the row
-        GUI* tb = gh.addGUI(new TextBox (w, 536, 82+i*32, 200, gh.tbx_CONTROLS_set_keybind), ctrlIndex);
+        GUI* tb = gh.addGUI(new TextBox(w, 536, 82+i*32, 200, gh.tbx_CONTROLS_set_keybind), ctrlIndex);
         ControlBinding newCB(getCtrl(stng));
         ((TextBox*)tb)->setControlBinding(newCB);
 
@@ -160,7 +160,7 @@ void GUIBuilder::buildCharacterMenu(GUIHandler& gh)
         wd->setPanelColor('b', Color(130, 210, 180, 240) );
 
         gh.addGUI(new Window( GUIAlignable::CENTER_H, GUIAlignable::CENTER_V, wd, gh.win_CHARACTER ));
-        gh.addGUI(new Tooltip( gh.getWindow(gh.win_CHARACTER), 30, 30, "Character Tabs", gh.ttp_CHARACTER_tabs_desc ) );
+        gh.addGUI(new Tooltip( gh.getWindow(gh.win_CHARACTER), 30, 30, "Sandbox Mode", gh.ttp_CHARACTER_tabs_desc ) );
         gh.addGUI(new RadioButton( gh.getWindow(gh.win_CHARACTER), 30, 60, "Backpack", true, gh.rbtn_CHARACTER_inventory, gh.rbtn_CHARACTER_tabs_1a, gh.rbtn_CHARACTER_tabs_1b ) );
         gh.addGUI(new RadioButton( gh.getWindow(gh.win_CHARACTER), 30, 100, "Engineering", gh.rbtn_CHARACTER_engineering, gh.rbtn_CHARACTER_tabs_1a, gh.rbtn_CHARACTER_tabs_1b ) );
     }

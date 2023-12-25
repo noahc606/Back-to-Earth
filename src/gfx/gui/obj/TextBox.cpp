@@ -4,11 +4,15 @@
 #include "TextureBuilder.h"
 #include "Log.h"
 
-TextBox::TextBox(Window* p_parentWindow, int p_x, int p_y, int p_width, int p_id)
+TextBox::TextBox(Window* p_parentWindow, int p_x, int p_y, int p_width, int p_inputType, int p_id)
 : Button::Button(p_parentWindow, p_x, p_y, p_width, "", p_id)
 {
-    setSubType(BTEObject::Type::GUI_textbox);
+	inputType = p_inputType;
+	setSubType(BTEObject::Type::GUI_textbox);
 }
+
+TextBox::TextBox(Window* p_parentWindow, int p_x, int p_y, int p_width, int p_id)
+: TextBox::TextBox(p_parentWindow, p_x, p_y, p_width, FREE_TEXT, p_id){}
 
 TextBox::TextBox(int p_x, int p_y, int p_width, int p_id)
 : TextBox::TextBox(nullptr, p_x, p_y, p_width, p_id ){}
@@ -22,9 +26,6 @@ void TextBox::init(SDLHandler* sh, FileHandler* fh, Controls* ctrls)
 		} break;
 		case GUIHandler::tbx_GRAPHICS_SETTINGS_maxFps: {
 			inputType = FREE_NUMBERS_BASIC;
-		} break;
-		default: {
-			inputType = FREE_TEXT;
 		} break;
 	}
 	
@@ -105,7 +106,7 @@ void TextBox::passFreeTextInput(std::string s, int type)
 			} break;
 			
 			case SDLK_RETURN: {
-				if( getInputType()==GUIHandler::tbx_DEBUG ) {
+				if( getID()==GUIHandler::tbx_DEBUG ) {
 					entered = true;
 					return;
 				}
@@ -139,7 +140,7 @@ void TextBox::passFreeTextInput(std::string s, int type)
 	}
 	
 	//Invalidate input where non-numbers (not in 0-9) are entered in a numbers-only textbox
-	if( inputType==FREE_NUMBERS_BASIC ) {
+	if( inputType==FREE_NUMBERS_BASIC || inputType==FREE_NUMBERS_INTEGERS ) {
 		if(!validateString()) {
 			invalidInput = true;
 		}
@@ -151,6 +152,7 @@ void TextBox::passSpecialInput(ControlBinding& cb)
     switch( inputType ) {
         case FREE_TEXT:
         case FREE_NUMBERS_BASIC:
+		case FREE_NUMBERS_INTEGERS:
 		{
             if(cb.getType()==cb.KEYBOARD_ACTION) {
                 std::stringstream ss; ss << cb.keyboardAction;
@@ -210,25 +212,28 @@ void TextBox::resetEnteredData()
 void TextBox::setEntered(bool p_entered) { entered = p_entered; }
 void TextBox::setString(std::string s)
 {
-    if( inputType==FREE_TEXT || inputType==FREE_NUMBERS_BASIC ) {
-        int i = btnText.getInsertionPoint();
-        Button::setString(s);
-        if( i>=(int)btnText.getString().size() ) {
-            i = btnText.getString().size();
-        }
-        btnText.setInsertionPoint(i);
-    }
+	if( inputType==FREE_TEXT || inputType==FREE_NUMBERS_BASIC || inputType==FREE_NUMBERS_INTEGERS ) {
+		int i = btnText.getInsertionPoint();
+		Button::setString(s);
+		if( i>=(int)btnText.getString().size() ) {
+			i = btnText.getString().size();
+		}
+		btnText.setInsertionPoint(i);
+	}
 }
 bool TextBox::validateString()
 {
 	bool res = true;
+	bool allIntegers = inputType==FREE_NUMBERS_INTEGERS;
+	
 	//Remove all numbers from btnText if this textbox should only be for non-negative integers
-	if( inputType==FREE_NUMBERS_BASIC ) {
+	
+	if( inputType==FREE_NUMBERS_BASIC || allIntegers ) {
 		std::string old = btnText.getString();
 		std::stringstream noNumsStream;
 		
 		for( int i = 0; i<old.size(); i++ ) {
-			if( old[i]>='0' && old[i]<='9' ) {
+			if( (old[i]>='0' && old[i]<='9') || (allIntegers && old[i]=='-') ) {
 				noNumsStream << old[i];
 			} else {
 				res = false;
@@ -239,6 +244,8 @@ bool TextBox::validateString()
 		btnText.setString(noNums);
 		btnText.setInsertionPoint(noNums.size());
 	}
+	
+	
 	
 	return res;
 }

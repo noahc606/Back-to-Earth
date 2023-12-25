@@ -96,14 +96,15 @@ void BTE::draw()
 	
 	if(world!=nullptr) {
 		Player* localPlayer = world->getLocalPlayer();
+		PlayerMenu* localPlayerMenu = world->getLocalPlayerMenu();
 		if( localPlayer!=nullptr ) {
 			//Draw player within menu if player's menu is open
-			if( localPlayer->getMenu()->getState()>0 ) {
+			if( localPlayerMenu->getState()>0 ) {
 				localPlayer->drawCharInMenu();
 			}
 			
 			//Draw specific menu elements
-			localPlayer->getMenu()->draw();
+			localPlayerMenu->draw();
 		}
 	}
 	
@@ -180,12 +181,9 @@ void BTE::tick()
 				case GUIHandler::rbtn_CHARACTER_inventory:
 				case GUIHandler::rbtn_CHARACTER_engineering:
 				{
-					Player* lp = world->getLocalPlayer();
-					if( lp!=nullptr ) {
-						PlayerMenu* lpMenu = lp->getMenu();
-						if( lpMenu!=nullptr ) {
-							lpMenu->setState( gaid-(GUIHandler::rbtn_CHARACTER_engineering)+2 );
-						}
+					PlayerMenu* lpm = world->getLocalPlayerMenu();
+					if( lpm!=nullptr ) {
+						lpm->setState( gaid-(GUIHandler::rbtn_CHARACTER_engineering)+2 );
 					}
 				} break;
 			}
@@ -365,13 +363,18 @@ void BTE::setGameState(int p_gamestate)
 			AudioLoader* al = sdlHandler->getAudioLoader();
 			al->stopPlayingMusic();
 			al->playMusicTitleTheme();
-			al->play(AudioLoader::TITLE_impact);
+			
+			if( !playedImpact ) {
+				al->play(AudioLoader::TITLE_impact);
+				playedImpact = true;
+			}
+
+			
 		} break;
 		case WORLD: {
 			guiHandler.setGUIs(GUIHandler::GUIs::WORLD);
 			AudioLoader* al = sdlHandler->getAudioLoader();
 			al->stopPlayingMusic();
-			al->playOnce(AudioLoader::MUSIC_kc_nuclear_winter);
 			load(world);
 		} break;
 

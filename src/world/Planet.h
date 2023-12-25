@@ -8,6 +8,7 @@ public:
 	void tick();
 	
 	void putInfo(std::stringstream& ss, int& tabs);
+	int getRotationRaw();
 	double getTime();
 	double getPartOfDayAccurate(double segments);
 	int getPartOfDay(int segments);
@@ -27,4 +28,6 @@ private:
 	
 	int rotation = 0;							//Ranges from 0 to (rotationPeriod-1), representing current the rotation of the planet
 	int rotationPeriod = (int)(60.0*60.0*32.4);	//Length of time, in ticks, that it takes for the planet to complete one rotation
+	
+	uint64_t id;
 };
