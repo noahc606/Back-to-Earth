@@ -1,4 +1,5 @@
 #include "TileMap.h"
+#include <cmath>
 #include <math.h>
 #include <sstream>
 #include "DebugScreen.h"
