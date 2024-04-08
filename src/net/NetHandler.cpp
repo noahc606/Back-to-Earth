@@ -18,6 +18,7 @@ void NetHandler::destroy()
     Takes in a 'url' (to a web resource) and an easy curl handle ('eHandle'), then populates 'str' with the HTML of that website.
     This is most useful for sites where the entire page is just raw text.
 */
+
 CURLcode NetHandler::cURLAsString(std::string* str, std::string url)
 {
     //URL
@@ -44,6 +45,7 @@ CURLcode NetHandler::cURLAsString(std::string* str, std::string url)
     
     Note: More likely than not you want to include "https://" at the beginning of the 'url'.
 */
+
 CURLcode NetHandler::cURLIntoFile(std::string out, std::string url)
 {
     //Create file and error buffer

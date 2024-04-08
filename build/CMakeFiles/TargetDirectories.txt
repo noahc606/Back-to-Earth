@@ -1,3 +1,0 @@
-/home/nch/Technical/Git/Back-to-Earth/BTE/build/CMakeFiles/Back-to-Earth-unix.dir
-/home/nch/Technical/Git/Back-to-Earth/BTE/build/CMakeFiles/edit_cache.dir
-/home/nch/Technical/Git/Back-to-Earth/BTE/build/CMakeFiles/rebuild_cache.dir
