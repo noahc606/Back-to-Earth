@@ -7,7 +7,12 @@
 
 cmake_minimum_required(VERSION 3.5)
 
-set(PROJ_OUT "Back-to-Earth")
+if (WIN32)
+    set(PROJ_OUT "Back-to-Earth-windows")
+endif (WIN32)
+if (UNIX)
+    set(PROJ_OUT "Back-to-Earth-unix")
+endif (UNIX)
 
 # Project
 project(${PROJ_OUT} VERSION 0.1.1.0 LANGUAGES C CXX)
