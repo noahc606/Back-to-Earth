@@ -1,2 +1,2 @@
-include/** linguist-vendored
+lib/** linguist-vendored
 build/** linguist-vendored
