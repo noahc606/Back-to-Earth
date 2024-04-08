@@ -7,8 +7,6 @@ Go into the /bin folder and run the appropriate executable file. You should see 
 # Building
 Right now building only works on Linux. I recently added two new libraries (cURL and SDL_net). I still need to update the cross-platform Makefile.
 
-For cross-platform building, you can use GNU Make, although it is slower than CMake. After installing GNU Make for Windows or Linux, it's as simple as running 'make' in the terminal while in the repo's root folder. This will try to rebuild the program from source and give you a working executable on any platform where C/C++ & SDL works (Windows, macOS, Linux, and theoretically iOS and Android). However, keep in mind that I have only tested this application on Windows and Linux.
-
 # Credits
 <br>
 Libraries used:<br>
