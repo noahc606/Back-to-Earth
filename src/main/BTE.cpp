@@ -152,7 +152,7 @@ void BTE::tick()
 			switch( gaid ) {
 				/** Main Menu */
 				case GUIHandler::btn_MAIN_play: {
-					setGameState(GameState::SELECT_CAMPAIGN);
+					setGameState(GameState::WORLD);
 				} break;
 				case GUIHandler::btn_MAIN_exit: {
 					setGameState(GameState::EXIT);
