@@ -3,8 +3,9 @@
 #include "Camera.h"
 #include "Texture.h"
 #include "BTEObject.h"
+#include "Loggable.h"
 
-class Canvas : public BTEObject
+class Canvas : public BTEObject, public Loggable
 {
 public:
     typedef long long t_ll;
@@ -18,7 +19,6 @@ public:
     /**/
     //Load / unload textures from map given the location of a 1024x1024 region.
     int loadTex(long rX, long rY);
-
     void realloc(long x, long y, int maxRegions);
     void realloc(long x, long y);
     void reallocSingle(long x, long y);
@@ -28,7 +28,8 @@ public:
     std::tuple<double, double> getMouseXY();
 
     //Get info about the Canvas.
-    void info(std::stringstream& ss, int& tabs);
+    void putInfo(std::stringstream& ss, int& tabs);
+    Camera* getCamera();
     //Get sub position, or position of a region given t_ll (long long) coordinates.
     void getSubPos(t_ll& x, t_ll& y, t_ll& z);
     t_ll getSubPos(t_ll c);
@@ -89,7 +90,7 @@ private:
 
 
     //Camera object
-    Camera* camera; double zoom = 0;
+    Camera* camera = nullptr; double zoom = 0;
     long camRX = 0; long camRY = 0;
 
     //Mouse info

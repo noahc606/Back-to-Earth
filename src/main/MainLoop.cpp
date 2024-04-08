@@ -116,11 +116,11 @@ bool MainLoop::isInitialized() { return initialized; }
 
 void MainLoop::setMaxFPS(int maxFPS)
 {
-    std::stringstream ss; ss << "Setting max FPS to '" << maxFPS << "'...";
-    Log::debug(ss.str());
-
-    MainLoop::maxFPS = maxFPS;
-    MainLoop::msPerFrame = 1000.0/MainLoop::maxFPS;
+	std::stringstream ss; ss << "Setting max FPS to '" << maxFPS << "'...";
+	Log::debug(ss.str());
+	
+	MainLoop::maxFPS = maxFPS;
+	MainLoop::msPerFrame = 1000.0/MainLoop::maxFPS;
 }
 void MainLoop::setMaxFPS(std::string settingVal)
 {

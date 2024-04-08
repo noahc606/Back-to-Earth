@@ -81,7 +81,7 @@ public:
 private:
     /* Resource path */
     std::string resourcePath;
-    int filesystemType;
+    int filesystemType = -1;
 
     /* File */
     FILE* file = nullptr;

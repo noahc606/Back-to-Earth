@@ -8,14 +8,17 @@
 #include <fcntl.h>
 #include <set>
 #include <sstream>
+#include <SDL2/SDL_net.h>
 #include "Color.h"
 #include "DataStream.h"
+#include "Grid.h"
 #include "Log.h"
 #include "MainLoop.h"
+#include "NetHandler.h"
 #include "Noise.h"
 #include "Terrain.h"
 #include "Real.h"
-#include "Text.h"
+#include "TextOld.h"
 #include "TileMap.h"
 #include "TileMapScreen.h"
 #include "Timer.h"
@@ -27,31 +30,35 @@ void Tests::init(SDLHandler* sh, FileHandler* fh, Controls* ctrls)
 	sdlHandler = sh;
 	fileHandler = fh;
 	controls = ctrls;
-	
-	//Build test tile regions
-	std::cout << "Starting...\n";
-	
-	Color c1(100, 30, 0);
-	Color c2(0, 200, 255);
-	
-	std::cout << c1.getInterpolColor(c2, 0.9).getInfo();
-	
-	//std::cout << "HSV=(" << std::get<0>(c.toHSV()) << ", " << std::get<1>(c.toHSV()) << ", " << std::get<2>(c.toHSV()) << ")\n";
-	
-	std::cout << "Finished.\n";
 
-	lvlImgSrc.x = 0;
-	lvlImgSrc.y = 0;
-	lvlImgSrc.w = 32;
-	lvlImgSrc.h = 128;
+    Color c;
+    c.setFromHSV(1234, 50, 50);
+
+    /*
+    GridIterator gi;
+
+    int** grid = (int**)malloc(32 * sizeof(*grid));
+    for (int i = 0; i<32; i++) {
+        grid[i] = (int*)malloc(32 * sizeof(*grid[i]));
+    }
+
+    for(int i = 0; i<32; i++) {
+        for(int j = 0; j<32; j++) {
+           grid[i][j] = 0;
+        }
+    }*/
+
+    //gi.floodfill(grid, 32, 32, 4, 4, 3);
+
 }
 
 Tests::~Tests(){}
 
 /**/
 
-void Tests::draw()
+void drawlevel()
 {
+    /*
     counter++;
 	
 	SDL_Rect dst;
@@ -80,7 +87,7 @@ void Tests::draw()
 	}
 
     //sdlHandler->renderCopy(3, &dst, &dst);
-
+    */
 	
 
     for(int i = 0; i<10; i++) {
@@ -99,9 +106,17 @@ void Tests::draw()
     test123.draw();*/
 }
 
+void Tests::draw()
+{
+    //Text txt;
+    //txt.init(sdlHandler);
+    //txt.setString("The quick brown fox jumps over the lazy dog.");
+    //Texture* tex = txt.getTexture();
+}
+
 void Tests::tick()
 {
-
+	
 }
 
 /**/

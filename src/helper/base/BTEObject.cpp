@@ -47,7 +47,7 @@ void BTEObject::setSubType(int p_subtype)
             case Type::GUI_textbox:
             case Type::GUI_checkbox:
             case Type::GUI_slider:
-            {
+            case Type::GUI_colorselect: {
                 type = p_subtype;
                 return;
             } break;

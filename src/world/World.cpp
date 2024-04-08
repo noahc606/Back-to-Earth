@@ -14,6 +14,9 @@ void World::init(SDLHandler* sh, GUIHandler* gh, FileHandler* fh, Controls* ctrl
 	BTEObject::init(sh, fh, ctrls);
 	guiHandler = gh;
 	
+	fileHandler->createBTEDir("saved/games/world1");
+	fileHandler->createBTEDir("saved/games/world1/tilemap/default");
+	
 	worldDataPath = "saved/games/world1/data.txt";
 	if (!fh->fileExists(worldDataPath) ) {
 		fh->cEditFile(worldDataPath);
@@ -31,36 +34,45 @@ void World::init(SDLHandler* sh, GUIHandler* gh, FileHandler* fh, Controls* ctrl
 	worldData = fileHandler->readTxtFileKVs(worldDataPath);
 	fh->getSettings()->load(&dwd, worldData);
 	
-	//Init planet
+	/* INIT 1: Planet */
+	//Planet
 	planet.init();
 
-	//Init player, tileMap, tileMapScreen.
+
+	/* INIT 2: Player */
+	//Player
 	localPlayer.init(sh, guiHandler, ctrls);
 	localPlayer.setPos(0, 0, -32);
-	
+	//Player menu
 	localPlayerMenu.init(sdlHandler, guiHandler, ctrls, &localPlayer);
 	
-	tileMap.init(sdlHandler, fileHandler, &planet);
-	tileMapScreen.init(sdlHandler, fileHandler, controls, &localPlayer, &tileMap, &csTileMap);
 
-	//Init csTileMap
+	/* INIT 3: Tile Map */
+	//TileMap's canvas.
 	csTileMap.init(sdlHandler, controls, localPlayer.getCamera());
+	csTileMap.setMaximumFPS(20);
 	csTileMap.setTexUsingDynamicLOD(true);
 	csTileMap.setTexAllocCount(1);
 	csTileMap.setTexAllocRadiusX(1);
 	csTileMap.setTexAllocRadiusY(1);
+	//TileMap, tileMapScreen
+	tileMap.init(sdlHandler, fileHandler, &planet);
+	tileMapScreen.init(sdlHandler, fileHandler, &tileMap, &csTileMap);
 
-	//Init csInteractions
+
+	/* INIT 4: Misc. canvases */
+	//Interactions canvas
 	csInteractions.init(sdlHandler, controls, localPlayer.getCamera());
 	csInteractions.setMaximumFPS(20);
 	csInteractions.setTexAllocRadiusX(1);
 	csInteractions.setTexAllocRadiusY(1);
-
-	//Init csEntities
+	//Entities canvas.
 	csEntities.init(sdlHandler, controls, localPlayer.getCamera());
 	csEntities.setTexAllocRadiusX(1);
 	csEntities.setTexAllocRadiusY(1);
 
+
+	/* INIT 5: Miscellaneous */
 	//Build textures
 	TextureBuilder tb(sdlHandler);
 	tb.buildDefaultTile(defaultTile);
@@ -68,22 +80,14 @@ void World::init(SDLHandler* sh, GUIHandler* gh, FileHandler* fh, Controls* ctrl
 
 World::~World()
 {
-	//player.destroy();
-	//tileMap.destroy();
-	//tileMapScreen.destroy();
-	
-	//defaultTile.destroy();
-
 	csTileMap.destroy();
 	csInteractions.destroy();
 	csEntities.destroy();
-	
-	//fh->saveCloseFile();
 }
 
-void World::draw()
+void World::draw(bool debugOn)
 {
-	/** Tile Canvas */
+	/** Tile Canvas (csTileMap) */
 	tileMapScreen.draw();
 
 	/** Entity Canvas */
@@ -91,13 +95,30 @@ void World::draw()
 	localPlayer.draw(&csEntities);
 	csEntities.draw();
 
-
 	/** Interactions Canvas */
 	csInteractions.clearCanvas();
+
+	if(debugOn) {
+		tileMapScreen.drawDebugOverlay(&csInteractions);
+	}
+
 	csInteractions.setSourceTex(TextureLoader::GUI_player_interactions, 0, 0);
-	csInteractions.rcopyNI( 32*mouseXLL, 32*mouseYLL, 32, 32 );
-	csInteractions.draw();
 	
+	
+	switch( localPlayer.getCamera()->getAxis() ) {
+		case Camera::X: {
+			csInteractions.rcopyNI( 32*mouseYL, 32*mouseZL, 32, 32 );
+		} break;
+		case Camera::Y: {
+			csInteractions.rcopyNI( 32*mouseXL, 32*mouseZL, 32, 32 );
+		} break;
+		case Camera::Z: {
+			csInteractions.rcopyNI( 32*mouseXL, 32*mouseYL, 32, 32 );
+		} break;
+	}
+	
+	csInteractions.draw();
+
 	/** HUDs */
 	localPlayer.drawHUD();
 }
@@ -121,6 +142,7 @@ void World::tick(bool paused, GUIHandler& guiHandler)
 		
 		localPlayer.tick();
 		localPlayerMenu.tick();
+
 		tileMapScreen.tick();
 	} else {
 		//Force-disable character menu when paused
@@ -145,17 +167,20 @@ void World::putInfo(std::stringstream& ss, int& tabs)
 
 	//Mouse Info
 	DebugScreen::indentLine(ss, tabs);
-	ss << "Mouse(XYZ)=(" << mouseXLL << ", " << mouseYLL << ", " << mouseZLL << "); ";
-	ss << "Mouse(xy)=(" << mouseX << ", " << mouseY << "); ";
+	ss << "Mouse(XYZ)=(" << mouseXL << ", " << mouseYL << ", " << mouseZL << "); ";
+	ss << "Mouse(xyz)=(" << mouseX << ", " << mouseY << ", " << mouseZ << "); ";
 
 	DebugScreen::newLine(ss);
 	DebugScreen::indentLine(ss, tabs);
 	ss << "World tick=" << performanceCounter << "ms; ";
 	DebugScreen::newLine(ss);
 	
-	DebugScreen::newGroup(ss, tabs, "World::planet");
-		planet.putInfo(ss, tabs);
-	DebugScreen::endGroup(tabs);
+	if(!true) {
+		DebugScreen::newGroup(ss, tabs, "World::planet");
+			planet.putInfo(ss, tabs);
+		DebugScreen::endGroup(tabs);
+	}
+
 	
 	//Player
 	DebugScreen::newGroup(ss, tabs, "World::player");
@@ -170,7 +195,7 @@ void World::putInfo(std::stringstream& ss, int& tabs)
 
 	//TileMapScreen
 	DebugScreen::newGroup(ss, tabs, "World::tileMapScreen");
-	tileMapScreen.putInfo(ss, tabs, mouseXLL, mouseYLL, mouseZLL);
+	tileMapScreen.putInfo(ss, tabs, mouseXL, mouseYL, mouseZL);
 	DebugScreen::endGroup(tabs);
 }
 
@@ -180,23 +205,61 @@ PlayerMenu* World::getLocalPlayerMenu() { return &localPlayerMenu; }
 
 void World::updateMouseAndCamInfo()
 {
-	//Get mouseX and mouseY both in double and in long long (t_ll) form.
-	mouseX = std::get<0>(csInteractions.getMouseXY());
-	mouseXLL = (int64_t)floor(mouseX);
-	mouseY = std::get<1>(csInteractions.getMouseXY());
-	mouseYLL = (int64_t)floor(mouseY);
+	//Get screen mouseX and screen mouseY both in double and in long long (int64_t) form.
+	double mouseSX = std::get<0>(csInteractions.getMouseXY());
+	int64_t mouseSXL = (int64_t)floor(mouseSX);
+	double mouseSY = std::get<1>(csInteractions.getMouseXY());
+	int64_t mouseSYL = (int64_t)floor(mouseSY);
 
-	//Get Z region of camera
-	long cRZ = TileMap::getRegRXYZ(localPlayer.getCamera()->getLayer());
-
-	//Get mouseZLL - the position of the topmost visible tile when looking down from (mouseXLL, mouseYLL, camera layer).
-	TileIterator ti(&tileMap);
-	ti.setBoundsByRXYZ( TileMap::getRegRXYZ(mouseXLL), TileMap::getRegRXYZ(mouseYLL), cRZ);
-	ti.setTrackerSub( TileMap::getRegSubPos(mouseXLL), TileMap::getRegSubPos(mouseYLL), TileMap::getRegSubPos(localPlayer.getCamera()->getLayer()) );
-	mouseZLL = localPlayer.getCamera()->getLayer() +( std::get<0>(RegTexUpdates::topTrackedTile(ti)) );
+	//Get X, Y, and Z region of camera
+	int64_t mouseSRX = TileMap::getRegRXYZ(mouseSXL);
+	int64_t mouseSRY = TileMap::getRegRXYZ(mouseSYL);
+	int64_t cSL = localPlayer.getCamera()->getLayer();
+	int64_t cSRZ = TileMap::getRegRXYZ(cSL);
 	
+	
+	//Get mouseZLL - the position of the top visible tile in view of the camera.
+	//At the last line of each case block: Get distance of the closest solid tile "underneath" the mouse.
+	TileIterator ti(&tileMap);
+	switch( localPlayer.getCamera()->getAxis() ) {
+		case Camera::X: {
+			mouseY = mouseSX;
+			mouseYL = mouseSXL;
+			mouseZ = mouseSY;
+			mouseZL = mouseSYL;
+			
+			ti.setBoundsByRXYZ( cSRZ, mouseSRX, mouseSRY );
+			ti.setTrackerSub( TileMap::getRegSubPos(cSL), TileMap::getRegSubPos(mouseSXL), TileMap::getRegSubPos(mouseSYL) );
+			
+			mouseXL = cSL+( std::get<0>(RegTexUpdater::camTrackedTile(ti, localPlayer.getCamera()->getDirection()) ) );
+		} break;
+		case Camera::Y: {
+			mouseX = mouseSX;
+			mouseXL = mouseSXL;
+			mouseZ = mouseSY;
+			mouseZL = mouseSYL;
+			
+			ti.setBoundsByRXYZ( cSRZ, mouseSRY, mouseSRX );
+			ti.setTrackerSub( TileMap::getRegSubPos(cSL), TileMap::getRegSubPos(mouseSYL), TileMap::getRegSubPos(mouseSXL) );
+			
+			mouseYL = cSL+( std::get<0>(RegTexUpdater::camTrackedTile(ti, localPlayer.getCamera()->getDirection()) ) );
+		} break;
+		case Camera::Z: {
+			mouseX = mouseSX;
+			mouseXL = mouseSXL;
+			mouseY = mouseSY;
+			mouseYL = mouseSYL;
+			
+			ti.setBoundsByRXYZ( TileMap::getRegRXYZ(mouseSXL), TileMap::getRegRXYZ(mouseSYL), cSRZ);
+			ti.setTrackerSub( TileMap::getRegSubPos(mouseSXL), TileMap::getRegSubPos(mouseSYL), TileMap::getRegSubPos(cSL) );
+			
+			mouseZL = cSL+( std::get<0>(RegTexUpdater::camTrackedTile(ti, localPlayer.getCamera()->getDirection()) ) );
+		} break;
+	}
+	
+
 	//Get mouseCLL - position of camera layer.
-	mouseCLL = localPlayer.getCamera()->getLayer();
+	//mouseCL = localPlayer.getCamera()->getLayer();
 }
 
 void World::playerInteractions(GUIHandler& guiHandler, bool paused)
@@ -233,8 +296,7 @@ void World::playerInteractions(GUIHandler& guiHandler, bool paused)
 	}
 
 	if( !lpMenuState ) {
-		
-		uint64_t val = tileMap.getTile(mouseXLL, mouseYLL, mouseCLL).getVal();
+		uint64_t val = tileMap.getTile(mouseXL, mouseYL, mouseZL).getVal();
 		
 		bool audio = false;
 		AudioLoader* al = sdlHandler->getAudioLoader();
@@ -247,82 +309,79 @@ void World::playerInteractions(GUIHandler& guiHandler, bool paused)
 		switch( localPlayer.getAction() )
 		{
 			case Player::Action::GM_Destroy_Tile: {
-				if( touchingSolid ) {
-					TileType tt;
-					tt.init();
-					tt.setTechnical(true);
-					tileMap.setTile(mouseXLL, mouseYLL, mouseCLL, tt);
-					
-					if( rand()%5==0 ) {
-						//al->play( AudioLoader::WORLD_plasma_cannon );
-					}
-				}
-				tileMap.addTileUpdates(mouseXLL, mouseYLL, mouseCLL);
+				playerDestroyTile(touchingSolid);
 			}; break;
 			case Player::Action::GM_Place_Tile: {
-				
-				if( !touchingSolid ) {
-					if( rand()%5==0 ) {
-						//al->play( AudioLoader::WORLD_implosion );
-					}
-				}
-				
-				
-				TileIterator ti(&tileMap);
-				int squareSize = 0;
-				ti.setBounds(
-					mouseXLL-squareSize,
-					mouseYLL-squareSize,
-					localPlayer.getCamera()->getLayer(),
-					mouseXLL+squareSize,
-					mouseYLL+squareSize,
-					localPlayer.getCamera()->getLayer()
-				);
-
-				while( !ti.invalidIndex() ) {
-					TileRegion* tr = ti.peekRegion();
-					if( tr!=nullptr ) {
-						for( int sx = ti.gbs(0); sx<=ti.ges(0); sx++ ) {
-							for( int sy = ti.gbs(1); sy<=ti.ges(1); sy++ ) {
-								for( int sz = ti.gbs(2); sz<=ti.ges(2); sz++ ) {
-
-									int64_t tileX = ti.getItrReg(0)+sx;
-									int64_t tileY = ti.getItrReg(1)+sy;
-									int64_t tileZ = ti.getItrReg(2)+sz;
-
-									TileType tt;
-									tt.init();
-									if( std::abs(tileX+tileY)%3==0 ) {
-										tt.setRGB(200, 100, 100);
-									} else if ( std::abs(tileX+tileY)%3==1 ) {
-										tt.setRGB(20, 255, 255);
-									} else {
-										tt.setRGB( std::abs(tileX)%64*4, std::abs(tileY)%64*4, std::abs(tileZ)%64*4 );
-									}
-									tt.setSolid(true);
-									tt.setTextureXY( localPlayerMenu.getSandboxTexX(), localPlayerMenu.getSandboxTexY() );
-									tt.setRGB( localPlayerMenu.getSandboxTexRed(), localPlayerMenu.getSandboxTexGreen(), localPlayerMenu.getSandboxTexBlue() );
-									tt.setVisionBlocking(true);
-
-									tr->setTile( sx, sy, sz, tt );
-								}
-							}
-						}
-					}
-
-					ti.nextRegion();
-				}
-
-
-				tileMap.addTileUpdates(
-					mouseXLL-squareSize-1,
-					mouseYLL-squareSize-1,
-					localPlayer.getCamera()->getLayer(),
-					mouseXLL+squareSize+1,
-					mouseYLL+squareSize+1,
-					localPlayer.getCamera()->getLayer() );
+				playerPlaceTile();
 			}; break;
 		}
+	}
+}
+
+void World::playerPlaceTile()
+{
+	TileIterator ti(&tileMap);
+	int squareSize = 0;
+	ti.setBounds( mouseXL, mouseYL, localPlayer.getCamera()->getLayer(), mouseXL, mouseYL, localPlayer.getCamera()->getLayer() );
+
+	while( !ti.invalidIndex() ) {
+		TileRegion* tr = ti.peekRegion();
+		if( tr!=nullptr ) {
+			for( int sx = ti.gbs(0); sx<=ti.ges(0); sx++ ) {
+				for( int sy = ti.gbs(1); sy<=ti.ges(1); sy++ ) {
+					for( int sz = ti.gbs(2); sz<=ti.ges(2); sz++ ) {
+
+						int64_t tileX = ti.getItrReg(0)+sx;
+						int64_t tileY = ti.getItrReg(1)+sy;
+						int64_t tileZ = ti.getItrReg(2)+sz;
+
+						TileType tt;
+						tt.init();
+						if( std::abs(tileX+tileY)%3==0 ) {
+							tt.setRGB(200, 100, 100);
+						} else if ( std::abs(tileX+tileY)%3==1 ) {
+							tt.setRGB(20, 255, 255);
+						} else {
+							tt.setRGB( std::abs(tileX)%64*4, std::abs(tileY)%64*4, std::abs(tileZ)%64*4 );
+						}
+						tt.setSolid(true);
+						tt.setTextureXY( localPlayerMenu.getSandboxTexX(), localPlayerMenu.getSandboxTexY() );
+						tt.setRGB( localPlayerMenu.getSandboxTexRed(), localPlayerMenu.getSandboxTexGreen(), localPlayerMenu.getSandboxTexBlue() );
+						tt.setVisionBlocking(true);
+
+						tr->setTile( sx, sy, sz, tt );
+					}
+				}
+			}
+		}
+
+		ti.nextRegion();
+	}
+	
+	switch(localPlayer.getCamera()->getAxis()) {
+		case Camera::X: { tileMapScreen.getUpdater()->addTileUpdates(mouseYL, mouseZL); } break;
+		case Camera::Y: { tileMapScreen.getUpdater()->addTileUpdates(mouseXL, mouseZL); } break;
+		case Camera::Z: { tileMapScreen.getUpdater()->addTileUpdates(mouseXL, mouseYL); } break;
+	}
+}
+
+void World::playerDestroyTile(bool touchingSolid)
+{
+	if( touchingSolid ) {
+		TileType tt;
+		tt.init();
+		tt.setTechnical(true);
+		tileMap.setTile(mouseXL, mouseYL, localPlayer.getCamera()->getLayer(), tt);
+		
+		if( rand()%5==0 ) {
+			//al->play( AudioLoader::WORLD_plasma_cannon );
+		}
+	}
+	
+	switch(localPlayer.getCamera()->getAxis()) {
+		case Camera::X: { tileMapScreen.getUpdater()->addTileUpdates(mouseYL, mouseZL); } break;
+		case Camera::Y: { tileMapScreen.getUpdater()->addTileUpdates(mouseXL, mouseZL); } break;
+		case Camera::Z: { tileMapScreen.getUpdater()->addTileUpdates(mouseXL, mouseYL); } break;
 	}
 }
 

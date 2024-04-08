@@ -1,5 +1,4 @@
 #include "TileMap.h"
-#include <cmath>
 #include <math.h>
 #include <sstream>
 #include "DebugScreen.h"
@@ -23,8 +22,6 @@ void TileMap::destroy()
     for( t_regionMap::iterator itr = regionMap.begin(); itr!=regionMap.end(); itr = regionMap.begin() ) {
         regionMap.erase(itr);
     }
-
-    stopAllUpdates();
 }
 
 void TileMap::putInfo(std::stringstream& ss, int& tabs)
@@ -43,19 +40,9 @@ void TileMap::putInfo(std::stringstream& ss, int& tabs)
     //DebugScreen::indentLine(ss, tabs);
     //ss << "# of regStates!=-1=" << regStateMap.size() << "; ";
     //DebugScreen::newLine(ss);
-
-    DebugScreen::indentLine(ss, tabs);
-    ss << "updatesMap size (regions)=" << updatesMap.size() << "; ";
-    int updateCount = 0;
-    for( t_updatesMap::iterator itrUM = updatesMap.begin(); itrUM!= updatesMap.end(); itrUM++ ) {
-        updateCount += itrUM->second.size();
-    }
-    ss << "updatesMap size (tiles)=" << updateCount << "; ";
-    DebugScreen::newLine(ss);
 }
 
 TileMap::t_regionMap* TileMap::getRegionMap() { return &regionMap; }
-TileMap::t_updatesMap* TileMap::getUpdatesMap() { return &updatesMap; }
 Planet* TileMap::getPlanet() { return planet; }
 
 /*
@@ -87,15 +74,6 @@ TileRegion* TileMap::getRegByRXYZ(int64_t rX, int64_t rY, int64_t rZ)
         return &itr->second;
     return nullptr;
 }
-
-TileMap::t_updates* TileMap::getRTUsByRXYz(int64_t rX, int64_t rY, int64_t z)
-{
-    t_updatesMap::iterator itr = updatesMap.find( std::make_tuple(rX, rY, z) );
-    if( itr!=updatesMap.end() )
-        return &(itr->second);
-    return nullptr;
-}
-
 
 int64_t TileMap::getRegSubPos(int64_t c) { c %= 32; if( c<0 ) c+=32; return c; }
 void TileMap::getRegSubPos(int64_t& x, int64_t& y, int64_t& z) { x = getRegSubPos(x); y = getRegSubPos(y); z = getRegSubPos(z); }
@@ -146,23 +124,23 @@ bool TileMap::collides( Box3D& b )
 
 int TileMap::setTile(int64_t x, int64_t y, int64_t z, TileType tt)
 {
-    TileRegion* tr = getRegByXYZ(x, y, z);
-    getRegSubPos(x, y, z);
-    if( tr!=nullptr ) {
-        tr->setTile(x, y, z, tt);
-        return 0;
-    }
-    return -1;
+	TileRegion* tr = getRegByXYZ(x, y, z);
+	getRegSubPos(x, y, z);
+	if( tr!=nullptr ) {
+		tr->setTile(x, y, z, tt);
+		return 0;
+	}
+	return -1;
 }
 
 int TileMap::loadRegion(FileHandler* fileHandler, int64_t rX, int64_t rY, int64_t rZ)
 {
-    t_regionMap::iterator itr = regionMap.find( std::make_tuple(rX, rY, rZ) );
+	t_regionMap::iterator itr = regionMap.find( std::make_tuple(rX, rY, rZ) );
 	//If no region was found, continue.
-    if( itr==regionMap.end() ) {
-        Terrain terra;
-        TileRegion tr;
-
+	if( itr==regionMap.end() ) {
+		Terrain terra;
+		TileRegion tr;
+		
 		//Generate terrain
 		tr.setRegTexState(tr.GENERATING);
 		terra.populateRegion(tr, rX, rY, rZ);
@@ -172,9 +150,9 @@ int TileMap::loadRegion(FileHandler* fileHandler, int64_t rX, int64_t rY, int64_
 		tr.load(fileHandler, "world1", rX, rY, rZ);
 		
 		regionMap.insert( std::make_pair(std::make_tuple(rX, rY, rZ), tr) );
-        return 0;
-    }
-    return -1;
+		return 0;
+	}
+	return -1;
 }
 
 /**
@@ -212,103 +190,10 @@ int TileMap::saveRegion(FileHandler* fileHandler, std::string saveGameName, int6
 
 int TileMap::unloadRegion(FileHandler* fileHandler, std::string saveGameName, int64_t rX, int64_t rY, int64_t rZ)
 {
-    t_regionMap::iterator itr = regionMap.find( std::make_tuple(rX, rY, rZ) );
-    if( itr!=regionMap.end() ) {
-        regionMap.erase(itr);
-        return 0;
-    }
-    return -1;
-}
-
-int TileMap::addTileUpdate(int64_t x, int64_t y, int64_t z)
-{
-    int rX = getRegRXYZ(x);
-    int rY = getRegRXYZ(y);
-
-    int sx = getRegSubPos(x);
-    int sy = getRegSubPos(y);
-
-    t_updatesMap::iterator itr = updatesMap.find( std::make_tuple(rX, rY, z) );
-    if( itr!=updatesMap.end() ) {
-        //Add the update inside of an existing update region
-        t_updates* upd = &(itr->second);
-        upd->insert( std::make_pair(sx, sy) );
-        return 0;
-    } else {
-        //Add the update region with the update.
-        t_updates upd;
-        upd.insert( std::make_pair(sx, sy) );
-        updatesMap.insert( std::make_pair(std::make_tuple(rX, rY, z), upd ) );
-        return 1;
-    }
-}
-
-int TileMap::addTileUpdates(int64_t x0, int64_t y0, int64_t z0, int64_t x1, int64_t y1, int64_t z1)
-{
-    int result = 0;
-    for( int ix = x0; ix<=x1; ix++ ) {
-        for( int iy = y0; iy<=y1; iy++ ) {
-            for( int iz = z0; iz<=z1; iz++ ) {
-                result += addTileUpdate(ix, iy, iz);
-            }
-        }
-    }
-
-    return result;
-}
-
-/**
-    Create a 3x3 of tile updates at the specified position
-*/
-int TileMap::addTileUpdates(int64_t x, int64_t y, int64_t z)
-{
-    return addTileUpdates(x-1, y-1, z, x+1, y+1, z);
-}
-
-int TileMap::addRegionUpdate(int64_t rX, int64_t rY, int64_t layer)
-{
-    t_updatesMap::iterator itr = updatesMap.find( std::make_tuple(rX, rY, layer) );
-
-    if( itr!=updatesMap.end() ) {
-        //Add the updates inside of an existing map element of 'updatesMap'.
-        t_updates* upd = &(itr->second);
-        for( int sx = 0; sx<32; sx++ ) {
-            for( int sy = 0; sy<32; sy++ ) {
-                upd->insert( std::make_pair(sx, sy) );
-            }
-        }
-        return 0;
-    } else {
-        //Add a new map element with the updates.
-        t_updates upd;
-        for( int sx = 0; sx<32; sx++ ) {
-            for( int sy = 0; sy<32; sy++ ) {
-                upd.insert( std::make_pair(sx, sy) );
-            }
-        }
-        updatesMap.insert( std::make_pair(std::make_tuple(rX, rY, layer), upd ) );
-        return 1;
-    }
-}
-
-int TileMap::stopRegionUpdate(int64_t rX, int64_t rY, int64_t layer)
-{
-    t_updatesMap::iterator itr = updatesMap.find( std::make_tuple(rX, rY, layer) );
-    if( itr!=updatesMap.end() ) {
-        updatesMap.erase(itr);
-        return 0;
-    }
-    return -1;
-}
-
-int TileMap::stopAllUpdates()
-{
-    int count = 0;
-    //Delete elements in updatesMap
-    for( t_updatesMap::iterator itr = updatesMap.begin(); itr!=updatesMap.end(); itr = updatesMap.begin() ) {
-        updatesMap.erase(itr);
-        count++;
-    }
-
-    return count;
+	t_regionMap::iterator itr = regionMap.find( std::make_tuple(rX, rY, rZ) );
+	if( itr!=regionMap.end() ) {
+		regionMap.erase(itr);
+		return 0;
+	}
+	return -1;
 }

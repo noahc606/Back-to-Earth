@@ -34,52 +34,77 @@ public:
     void removeAllUserGUIs();
     /**/
     enum ID {
+        /* UIs with specific functions */
         null = -1,
-
         tbx_DEBUG = 0,
+        win_COLORSELECTOR = 1,
+            sdr_COLORSELECTOR_set_hue,
 
-        win_MAIN = 100,
+        /* Titlescreen */
+        win_MAIN,
         ttp_MAIN_title,
         btn_MAIN_play,
         btn_MAIN_options,
         btn_MAIN_exit,
         btn_back_to_MAIN,
 
-        win_OPTIONS = 200,
+        /* Select Campaign */
+        win_SELECT_CAMPAIGN,
+
+        /* Main Options */
+        win_OPTIONS,
         btn_OPTIONS_controls,
         btn_OPTIONS_graphics_settings,
+		btn_OPTIONS_character_settings,
+		btn_OPTIONS_debug_settings,
         btn_OPTIONS_back,
         btn_back_to_OPTIONS,
 
-            win_CONTROLS = 300,
+            // Main Options -> Controls
+            win_CONTROLS,
             ttp_CONTROLS_keybind,
             tbx_CONTROLS_set_keybind,
             cbx_CONTROLS_set_defaults,
 
-            win_GRAPHICS_SETTINGS = 400,
+            // Main Options -> Graphics Settings
+            win_GRAPHICS_SETTINGS,
 			ttp_GRAPHICS_SETTINGS_maxFps,
 			sdr_GRAPHICS_SETTINGS_maxFps,
 			tbx_GRAPHICS_SETTINGS_maxFps,
-			
             cbx_GRAPHICS_SETTINGS_bteCursor,
             cbx_GRAPHICS_SETTINGS_fullscreen,
+			
+            // Main Options -> Character Settings
+			win_CHARACTER_SETTINGS,
+			ttp_CHARACTER_SETTINGS_tooltip,
+			csr_CHARACTER_SETTINGS_set_val,
+			tbx_CHARACTER_SETTINGS_set_val,
 
-        win_PAUSED = 1000,
+            // Main Options -> Debug Settings
+            win_DEBUG_SETTINGS,
+
+        /* Pause Screen */
+        win_PAUSED,
         btn_PAUSED_back,
         btn_PAUSED_options,
         btn_PAUSED_exit,
 
-        win_CHARACTER = 2000,
+        /* Character */
+        win_CHARACTER,
+
+            // Character -> Inventory
             rbtn_CHARACTER_tabs_1a,
                 rbtn_CHARACTER_inventory,
                 rbtn_CHARACTER_engineering,
             rbtn_CHARACTER_tabs_1b,
 
+            // Character -> Inventory -> tab tooltip descriptions
             ttp_CHARACTER_tabs_desc,
-		
-		ttp_CHARACTER_item = 3000,
-		btn_CHARACTER_item = 3100,
-		tbx_CHARACTER_item = 3200,
+
+            // Character -> Inventory -> item tooltip, button, textboxes
+            ttp_CHARACTER_item,
+            btn_CHARACTER_item,
+    		tbx_CHARACTER_item,
     };
 
     enum GUIs {
@@ -87,6 +112,9 @@ public:
         OPTIONS,
             CONTROLS,
             GRAPHICS,
+			CHARACTER,
+
+        SELECT_CAMPAIGN,
 
         PAUSE, UNPAUSE,
         WORLD,

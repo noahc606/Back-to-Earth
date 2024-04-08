@@ -8,75 +8,102 @@
 
 Settings::Settings()
 {
-    t_kvMap* s = &(defaultSettings[controls]);
-
+	t_kvMap* s = &(defaultSettings[controls]);
+	
+	
 	/* Debugging, UI. */
-    kv(s, "FUNC_8", SDLK_F8);
-    kv(s, "FUNC_9", SDLK_F9);
-    kv(s, "FUNC_SCREENSHOT", SDLK_F10);
-    kv(s, "FUNC_FULLSCREEN", SDLK_F11);
-    kv(s, "FUNC_DEBUG", SDLK_F12);
-    kv(s, "INGAME_PAUSE", SDLK_ESCAPE);
-    kv(s, "MAP_USE_ZOOM", SDLK_LCTRL);
-	kv(s, "NAV_NEXT_UI", SDLK_TAB);
-	kv(s, "INTERACT_UI", SDLK_RETURN);
+	{
+		kv(s, "FUNC_8", SDLK_F8);
+		kv(s, "FUNC_9", SDLK_F9);
+		kv(s, "FUNC_SCREENSHOT", SDLK_F10);
+		kv(s, "FUNC_FULLSCREEN", SDLK_F11);
+		kv(s, "FUNC_DEBUG", SDLK_F12);
+		kv(s, "INGAME_PAUSE", SDLK_ESCAPE);
+		kv(s, "MAP_USE_ZOOM", SDLK_LCTRL);
+		kv(s, "MAP_CHANGE_DIR", SDLK_TAB);
+		kv(s, "NAV_NEXT_UI", SDLK_TAB);
+		kv(s, "INTERACT_UI", SDLK_RETURN);
+	}
+	
+	/** Player */
+	{
+		//Movement
+		kv(s, "PLAYER_MOVE_NORTH", SDLK_w);
+		kv(s, "PLAYER_MOVE_SOUTH", SDLK_s);
+		kv(s, "PLAYER_MOVE_WEST", SDLK_a);
+		kv(s, "PLAYER_MOVE_EAST", SDLK_d);
+		kv(s, "PLAYER_MOVE_UP", SDLK_UP);
+		kv(s, "PLAYER_MOVE_DOWN", SDLK_DOWN);
+		kv(s, "PLAYER_MOVE_VERTICAL", SDLK_SPACE);
 
-    /** Player */
-    //Movement
-    kv(s, "PLAYER_MOVE_NORTH", SDLK_w);
-    kv(s, "PLAYER_MOVE_SOUTH", SDLK_s);
-    kv(s, "PLAYER_MOVE_WEST", SDLK_a);
-    kv(s, "PLAYER_MOVE_EAST", SDLK_d);
-    kv(s, "PLAYER_MOVE_UP", SDLK_UP);
-    kv(s, "PLAYER_MOVE_DOWN", SDLK_DOWN);
-    kv(s, "PLAYER_MOVE_VERTICAL", SDLK_SPACE);
+		//Advanced Movement
+		kv(s, "PLAYER_JUMP", SDLK_SPACE);
+		kv(s, "PLAYER_SPRINT", SDLK_x);
+		kv(s, "PLAYER_CROUCH", SDLK_c);
 
-    //Advanced Movement
-    kv(s, "PLAYER_JUMP", SDLK_SPACE);
-    kv(s, "PLAYER_SPRINT", SDLK_x);
-    kv(s, "PLAYER_CROUCH", SDLK_c);
+		//Player Interactions
+		kv(s, "PLAYER_INVENTORY", SDLK_LSHIFT);
+		kv(s, "PLAYER_SELECT", "MOUSE_LEFT");
+		kv(s, "PLAYER_VIEW", SDLK_v);
 
-    //Player Interactions
-    kv(s, "PLAYER_INVENTORY", SDLK_LSHIFT);
-    kv(s, "PLAYER_SELECT", "MOUSE_LEFT");
-    kv(s, "PLAYER_VIEW", SDLK_v);
-
-	//Hardcoded controls
-    kv(s, "HARDCODE_LEFT_CLICK", "MOUSE_LEFT");
-    kv(s, "HARDCODE_MIDDLE_CLICK", "MOUSE_MIDDLE");
-    kv(s, "HARDCODE_RIGHT_CLICK", "MOUSE_RIGHT");
+		//Hardcoded controls
+		kv(s, "HARDCODE_LEFT_CLICK", "MOUSE_LEFT");
+		kv(s, "HARDCODE_MIDDLE_CLICK", "MOUSE_MIDDLE");
+		kv(s, "HARDCODE_RIGHT_CLICK", "MOUSE_RIGHT");
+	}
 
     /** Number keys */
-    kv(s, "DEBUG_1", SDLK_1);
-    kv(s, "DEBUG_2", SDLK_2);
-    kv(s, "DEBUG_3", SDLK_3);
-    kv(s, "DEBUG_4", SDLK_4);
-    kv(s, "DEBUG_5", SDLK_5);
-    kv(s, "DEBUG_6", SDLK_6);
-    kv(s, "DEBUG_7", SDLK_7);
-    kv(s, "DEBUG_8", SDLK_8);
-    kv(s, "DEBUG_9", SDLK_9);
-    kv(s, "DEBUG_0", SDLK_0);
-    kv(s, "TEST1234", SDLK_BACKSPACE);
+	{
+		kv(s, "DEBUG_1", SDLK_1);
+		kv(s, "DEBUG_2", SDLK_2);
+		kv(s, "DEBUG_3", SDLK_3);
+		kv(s, "DEBUG_4", SDLK_4);
+		kv(s, "DEBUG_5", SDLK_5);
+		kv(s, "DEBUG_6", SDLK_6);
+		kv(s, "DEBUG_7", SDLK_7);
+		kv(s, "DEBUG_8", SDLK_8);
+		kv(s, "DEBUG_9", SDLK_9);
+		kv(s, "DEBUG_0", SDLK_0);
+		kv(s, "TEST1234", SDLK_BACKSPACE);
+	}
+	
+	/** Character settings */
+	{
+		ColorPalette pal;
+		pal.init( ColorPalette::DEFAULT_PLAYER );
+		s = &(defaultSettings[character]);
+		kv(s, "hair", pal.get("hair").toString() );
+		kv(s, "skin", pal.get("skin").toString() );
+		kv(s, "eyes", pal.get("eyes").toString() );
+		kv(s, "mouth", pal.get("mouth").toString() );
+		kv(s, "shirt", pal.get("shirt").toString() );
+		kv(s, "leggings", pal.get("leggings").toString() );
+		kv(s, "shoes", pal.get("shoes").toString() );
+	}
+	
+	/** Miscellaneous settings */
+	{
+		s = &(defaultSettings[games]);
+		kv(s, "needTutorial", "true");
 
-    s = &(defaultSettings[games]);
-    kv(s, "needTutorial", "true");
+		s = &(defaultSettings[options]);
+		kv(s, "fullscreen", "false");
+		kv(s, "maxFps", "Vsync");
+		kv(s, "bteCursor", "true");
+		kv(s, "debugEnabled", "false");
+		kv(s, "debugHacks", "typeincorrectpassword");
+		kv(s, "debugTesting", "false");
+		kv(s, "debugHardTesting", "false");
+		kv(s, "logging", "false");
 
-    s = &(defaultSettings[options]);
-    kv(s, "fullscreen", "false");
-    kv(s, "maxFps", "Vsync");
-    kv(s, "bteCursor", "true");
-    kv(s, "debugEnabled", "false");
-    kv(s, "debugHacks", "typeincorrectpassword");
-    kv(s, "debugTesting", "false");
-    kv(s, "debugHardTesting", "false");
-	kv(s, "logging", "false");
+		s = &(defaultSettings[version]);
+		kv(s, "version", Main::VERSION);
 
-    s = &(defaultSettings[version]);
-    kv(s, "version", Main::VERSION);
+		s = &(defaultSettings[session]);
+		kv(s, "date", MainLoop::getSystemTime() );
+	}
 
-    s = &(defaultSettings[session]);
-    kv(s, "date", MainLoop::getSystemTime() );
+
 }
 
 bool Settings::unload(int index)

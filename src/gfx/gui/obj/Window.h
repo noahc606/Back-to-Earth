@@ -1,6 +1,6 @@
 #pragma once
 #include "GUIAlignable.h"
-#include "Text.h"
+#include "TextOld.h"
 #include "Texture.h"
 #include "WindowData.h"
 
@@ -25,10 +25,9 @@ protected:
 
 private:
     Texture windowTex;
-    Text upperPanelText;
-    Text lowerPanelText;
+    TextOld upperPanelText;
+    TextOld lowerPanelText;
     WindowData* winData = nullptr;
 
-    bool bkgd = false;
     static int bkgdScroll;
 };

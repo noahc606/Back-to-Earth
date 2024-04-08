@@ -164,13 +164,13 @@ TileType TileRegion::getTile( int x, int y, int z )
 		return pitr->second;
 	} else {
 		std::stringstream ss;
-		ss << "Tile key '" << key << "' does not exist in palette ";
+		ss << "Tile key '" << key << "' @ (" << x << ", " << y << ", " << z << ") does not exist in palette ";
 		ss << "(min=" << -getArtificialPaletteSize() << ", max=" << getPaletteSizeNatural()-1 << ")";
 		Log::warn(__PRETTY_FUNCTION__, ss.str(), "returning default tile");
 		return TileType();
 	}
 	
-	return palette[ getTileKey(x, y, z) ];
+	return palette[ key ];
 }
 
 /**

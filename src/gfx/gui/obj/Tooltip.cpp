@@ -14,7 +14,7 @@ void Tooltip::init(SDLHandler* sh)
 {
     BTEObject::init(sh, nullptr, nullptr);
 
-    Text t; t.init(sh);
+    TextOld t; t.init(sh);
     t.setString(text);
     width = t.getWidth()/2;
 
@@ -28,7 +28,7 @@ void Tooltip::destroy()
 
 void Tooltip::draw()
 {
-    Text::draw(sdlHandler, text, sX, sY, 2);
+    TextOld::draw(sdlHandler, text, sX, sY, 2);
 }
 
 void Tooltip::tick()

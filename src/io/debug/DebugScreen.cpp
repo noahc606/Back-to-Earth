@@ -1,7 +1,7 @@
 #include "DebugScreen.h"
 #include <sstream>
 #include "MainLoop.h"
-#include "Text.h"
+#include "TextOld.h"
 #include "TextBox.h"
 #include "TextureLoader.h"
 
@@ -49,11 +49,11 @@ void DebugScreen::draw()
 
         std::stringstream txt;
         txt << "Dimensions:\n" << texW << "x" << texH;
-        Text::draw(sdlHandler, txt.str(), dr.x, dr.h, 2, fg, bg, TextureLoader::GUI_FONT_robot);
+        TextOld::draw(sdlHandler, txt.str(), dr.x, dr.h, 2, fg, bg, TextureLoader::GUI_FONT_robot);
     }
 
     if(visible) {
-        Text::draw(sdlHandler, debugString, 2, 2, 2, fg, bg, TextureLoader::GUI_FONT_robot);
+        TextOld::draw(sdlHandler, debugString, 2, 2, 2, fg, bg, TextureLoader::GUI_FONT_robot);
     }
 }
 

@@ -2,6 +2,7 @@
 #include <set>
 #include "CheckBox.h"
 #include "Color.h"
+#include "ColorSelector.h"
 #include "GUIAligner.h"
 #include "GUIBuilder.h"
 #include "Log.h"
@@ -32,20 +33,33 @@ GUIHandler::~GUIHandler()
 
 void GUIHandler::draw()
 {
-    //Draw windows
+    //Iterate through GUIs
     for( GUI* gui : guis ) {
+
+        //If we find a window...
         if( gui->getType()==BTEObject::GUI_window && gui->exists() ) {
-            gui->draw();
+            //First, draw the window.
+            Window* win = (Window*)gui;
+            win->draw();
+        
+            //Second, draw all child GUIs who have this window as a parent
+            for( GUI* cgui : guis ) {
+                if( cgui->isWindowComponent() && cgui->exists() ) {
+                    WindowComponent* wc = (WindowComponent*)cgui;
+                    if(wc->getParentWindow()==win) {
+                        wc->draw();
+                    }
+                }
+            }
         }
     }
 
-    //Draw window components (we do it after windows since window components go on top of windows)
+    //Iterate through special GUIs (to draw them on top)
     for( GUI* gui : guis ) {
-        if( gui->isWindowComponent() && gui->exists() ) {
+        if( gui->getID()==tbx_DEBUG && gui->exists() ) {
             gui->draw();
         }
     }
-
 }
 
 void GUIHandler::tick()
@@ -188,6 +202,16 @@ void GUIHandler::tick()
 			Slider* sdr = ((Slider*)gui);
 			sdr->syncWithTextboxes(this);
 		} break;
+
+        case BTEObject::GUI_colorselect: {
+            ColorSelector* csr = ((ColorSelector*)gui);
+            if(csr->justClicked()) {
+                csr->unclick();
+
+                GUIBuilder gb;
+                gb.buildColorSelector(*this);
+            }
+        } break;
 		
 		}
 
@@ -342,6 +366,14 @@ void GUIHandler::setGUIs(int guis)
         } break;
         case GRAPHICS: {
             gb.buildMainGraphics(*this, *fileHandler);
+        } break;
+		case CHARACTER: {
+			gb.buildMainCharacter(*this, *fileHandler);
+		} break;
+
+        /** Campaign Creation/Selection UIs */
+        case SELECT_CAMPAIGN: {
+            gb.buildSelectCampaign(*this, *fileHandler);
         } break;
 
         /** Pause/Unpause in World */

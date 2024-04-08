@@ -22,7 +22,10 @@ DEPS_WIN := $(patsubst %.o,%.d,$(OBJS_WIN))
 ## Flags
 FLAGS_INC := -I$(DIR_LIBSDL2_SDL)/include/SDL2 -I$(DIR_LIBSDL2_SDL)/include -I$(DIR_LIBSDL2_IMG)/include -I$(DIR_LIBSDL2_MIX)/include -I$(DIR_LIBSDL2_TTF)/include
 FLAGS_LIB := -L$(DIR_LIBSDL2_SDL)/lib -L$(DIR_LIBSDL2_IMG)/lib -L$(DIR_LIBSDL2_MIX)/lib -L$(DIR_LIBSDL2_TTF)/lib
-FLAGS_CPP := $(addprefix -I,$(DIR_SRCS)) -MMD -MP -std=c++11
+
+# -o at the end???? may cause problems
+FLAGS_CPP := $(addprefix -I,$(DIR_SRCS)) -MMD -MP -std=c++11 -o
+
 FLAGS_LD = -lSDL2 -lSDL2_image -lSDL2_mixer -lSDL2_ttf
 
 ## Miscellaneous

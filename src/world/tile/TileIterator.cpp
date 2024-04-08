@@ -209,11 +209,11 @@ TileType TileIterator::peekTile(int offsetX, int offsetY, int offsetZ)
     int regOffset[3] = {0, 0, 0};
 
     for( int i = 0; i<3; i++ ) {
-        if( posInReg[i]<begSub[i] ) {
+        if( posInReg[i]<0 ) {
             posInReg[i] += 32;
             regOffset[i]--;
         } else
-        if( posInReg[i]>endSub[i] ) {
+        if( posInReg[i]>31 ) {
             posInReg[i] -= 32;
             regOffset[i]++;
         }
@@ -242,11 +242,11 @@ TileType TileIterator::peekTrackedTile(int offsetX, int offsetY, int offsetZ)
     int regOffset[3] = {0, 0, 0};
 
     for( int i = 0; i<3; i++ ) {
-        if( posInReg[i]<begSub[i] ) {
+        if( posInReg[i]<0 ) {
             posInReg[i] += 32;
             regOffset[i]--;
         } else
-        if( posInReg[i]>endSub[i] ) {
+        if( posInReg[i]>31 ) {
             posInReg[i] -= 32;
             regOffset[i]++;
         }

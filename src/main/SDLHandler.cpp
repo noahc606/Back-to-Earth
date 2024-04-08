@@ -1,6 +1,7 @@
 #include "SDLHandler.h"
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_mixer.h>
+#include <SDL2/SDL_net.h>
 #include "Log.h"
 #include "Main.h"
 
@@ -18,12 +19,15 @@ void SDLHandler::init()
     /* Init SDL Video and assets */
     //Create window and renderer
     createWindowAndRenderer();
+	
     //Store information about video drivers
     setVideoDriversDesc();
-    //Create asset loaders
+    
+	//Create asset loaders
     textureLoader.init(windowRenderer, windowPixelFormat, resourcePath);
     audioLoader.init(resourcePath);
-    //Set window icon
+    
+	//Set window icon
     SDL_SetWindowIcon(window, textureLoader.getSurface(TextureLoader::icon));
 }
 SDLHandler::~SDLHandler()
@@ -32,6 +36,13 @@ SDLHandler::~SDLHandler()
     SDL_DestroyWindow(window);
     SDL_DestroyRenderer(windowRenderer);
     SDL_FreeFormat(windowPixelFormat);
+	
+	//Quit
+	IMG_Quit();
+	Mix_Quit();
+	SDLNet_Quit();
+	
+	SDL_Quit();
 }
 
 void SDLHandler::trackEvents(SDL_Event e)
@@ -119,15 +130,15 @@ void SDLHandler::toggleFullScreen()
 
 void SDLHandler::toggleBTECursor()
 {
-    Log::trbshoot(__PRETTY_FUNCTION__, "Toggling BTE cursor");
-
-    if( bteCursor ) {
-        SDL_ShowCursor(SDL_ENABLE);
-        bteCursor = false;
-    } else {
-        SDL_ShowCursor(SDL_DISABLE);
-        bteCursor = true;
-    }
+	Log::trbshoot(__PRETTY_FUNCTION__, "Toggling BTE cursor");
+	
+	if(bteCursor) {
+		SDL_ShowCursor(SDL_ENABLE);
+		bteCursor = false;
+	} else {
+		SDL_ShowCursor(SDL_DISABLE);
+		bteCursor = true;
+	}
 }
 
 void SDLHandler::renderCopy(int id, SDL_Rect* src, SDL_Rect* dst)
@@ -166,16 +177,23 @@ void SDLHandler::createSubsystems()
     if( SDL_Init(flags)!=0 ) {
         Log::error( __PRETTY_FUNCTION__, "Failed to SDL_Init()!", SDL_GetError() );
     }
+	
     //Init SDL_img
     flags = IMG_INIT_PNG;
     if( (IMG_Init(flags)&flags)!=flags ) {
         Log::error( __PRETTY_FUNCTION__, "Failed to IMG_Init()!", IMG_GetError() );
     }
+	
     //Init SDL_mixer
     flags = MIX_INIT_MP3;
     if( (Mix_Init(flags)&flags)!=flags ) {
         Log::error( __PRETTY_FUNCTION__, "Failed to Mix_Init()!", Mix_GetError() );
     }
+	
+	//Init SDL_net
+	if( SDLNet_Init()==-1 ) {
+		Log::error( __PRETTY_FUNCTION__, "Failed to SDLNet_Init()!", SDLNet_GetError() );
+	}
 
     //Find game controllers/joysticks
     if( SDL_NumJoysticks()>=1 ) {
@@ -204,7 +222,7 @@ void SDLHandler::createSubsystems()
 
     /* Get resource path of application */
     //If this function somehow fails, the application should not continue running.
-    const char* path = SDL_GetBasePath();
+    char* path = SDL_GetBasePath();
     if( path==NULL ) {
         Log::error(__PRETTY_FUNCTION__, "Failed to get resource path", "SDL_GetBasePath()==NULL");
         Log::throwException();
@@ -212,7 +230,7 @@ void SDLHandler::createSubsystems()
         resourcePath = (std::string)path+"backtoearth/";
         Log::trbshoot(__PRETTY_FUNCTION__, "Got path as: "+resourcePath);
     }
-    delete path;
+    SDL_free(path);
 
     /* Get OS of this device and set filesystem type */
     const char* platform = SDL_GetPlatform();
@@ -225,21 +243,21 @@ void SDLHandler::createSubsystems()
     }
     validateDevicePlatform();
 
-    /* Get display information */
-    SDL_DisplayMode dm;
-    if( SDL_GetCurrentDisplayMode(0, &dm)!=0 ) {
-        std::stringstream ss;
-        ss << "Failed to get screen resolution, defaulting to " << maxWidth << "x" << maxHeight;
-        Log::error(__PRETTY_FUNCTION__, ss.str(), SDL_GetError());
-    } else {
-        maxWidth = dm.w;
-        maxHeight = dm.h;
-
-        //print out screen resolution
-        std::stringstream ss;
-        ss << "Got screen size as: " << maxWidth << "x" << maxHeight << ".";
-        Log::trbshoot(__PRETTY_FUNCTION__, ss.str());
-    }
+	/* Get display information */
+	SDL_DisplayMode dm;
+	if( SDL_GetCurrentDisplayMode(0, &dm)!=0 ) {
+		std::stringstream ss;
+		ss << "Failed to get screen resolution, defaulting to " << maxWidth << "x" << maxHeight;
+		Log::error(__PRETTY_FUNCTION__, ss.str(), SDL_GetError());
+	} else {
+		maxWidth = dm.w;
+		maxHeight = dm.h;
+		
+		//print out screen resolution
+		std::stringstream ss;
+		ss << "Got screen size as: " << maxWidth << "x" << maxHeight << ".";
+		Log::trbshoot(__PRETTY_FUNCTION__, ss.str());
+	}
 }
 
 void SDLHandler::createWindowAndRenderer()

@@ -1,6 +1,6 @@
 #include "TextBox.h"
 #include <sstream>
-#include "Text.h"
+#include "TextOld.h"
 #include "TextureBuilder.h"
 #include "Log.h"
 

@@ -27,18 +27,27 @@ void Canvas::destroy()
 
 void Canvas::tick()
 {
-    long crx = TileMap::getRegRXYZ( camera->getX() );
-    long cry = TileMap::getRegRXYZ( camera->getY() );
-
-    //if( crx!=camRX || cry!=camRY ) {
-        //std::cout << "realloc\n";
+	int64_t crx = 0;
+	int64_t cry = 0;
+	
+	switch(camera->getAxis()) {
+		case Camera::X: {
+			crx = TileMap::getRegRXYZ( camera->getY() );
+			cry = TileMap::getRegRXYZ( camera->getZ() );
+		} break;
+		case Camera::Y: {
+			crx = TileMap::getRegRXYZ( camera->getX() );
+			cry = TileMap::getRegRXYZ( camera->getZ() );
+		} break;
+		case Camera::Z: {
+			crx = TileMap::getRegRXYZ( camera->getX() );
+			cry = TileMap::getRegRXYZ( camera->getY() );
+		} break;
+	}
 
     //Loads textures (which will initially be empty) one at a time per tick.
     //Unloads all textures that are too far away.
-
-        realloc( TileMap::getRegRXYZ (camera->getX() ), TileMap::getRegRXYZ(camera->getY() ) );
-        camRX = crx;
-        camRY = cry;
+	realloc( crx, cry );
     //}
 
 
@@ -95,7 +104,17 @@ void Canvas::tick()
         //Translate tex according to the world region's physical location
         tex->translate( tX*((double)defaultTexSize)*zoom, tY*((double)defaultTexSize)*zoom );
         //Translate tex according to location of the camera
-        tex->translate( -camera->getX()*tileScale, -camera->getY()*tileScale );
+		switch(camera->getAxis()) {
+			case Camera::X: {
+				tex->translate( -camera->getY()*tileScale, -camera->getZ()*tileScale );
+			} break;
+			case Camera::Y: {
+				tex->translate( -camera->getX()*tileScale, -camera->getZ()*tileScale );
+			} break;
+			case Camera::Z: {
+				tex->translate( -camera->getX()*tileScale, -camera->getY()*tileScale );
+			} break;
+		}
         //Translate tex so that the center of the screen corresponds to (0, 0) if camera(x, y) = (0, 0).
         tex->translate( sdlHandler->getWidth()/2, sdlHandler->getHeight()/2 );
 
@@ -105,43 +124,61 @@ void Canvas::tick()
         double ts = 32*mapZoom;
 
         //Find where the mouse is pointing to in the world
-        mouseX = ( (controls->getMouseX()-sdlHandler->getWidth()/2 )/(double)ts )/cf +camera->getX();
-        mouseY = ( (controls->getMouseY()-sdlHandler->getHeight()/2 )/(double)ts )/cf +camera->getY();
+		
+		mouseX = ((controls->getMouseX()-sdlHandler->getWidth()/2.0 )/(double)ts)/cf;
+		mouseY = ((controls->getMouseY()-sdlHandler->getHeight()/2.0 )/(double)ts)/cf;
+		
+		switch(camera->getAxis()) {
+			case Camera::X: {
+				mouseX += camera->getY();
+				mouseY += camera->getZ();
+			} break;
+			case Camera::Y: {
+				mouseX += camera->getX();
+				mouseY += camera->getZ();
+			} break;
+			case Camera::Z: {
+				mouseX += camera->getX();
+				mouseY += camera->getY();
+			} break;
+		}
+		
+
     }
 }
 
 void Canvas::draw()
 {
-    //This block runs every msPerFrame milliseconds.
-    if( (SDL_GetTicks()%1000)>(msPerFrame*framesThisSecond) ) {
-        framesThisSecond++;
-        frameFinished = false;
-    } else {
-        frameFinished = true;
-    }
-
-    //This block runs roughly every second.
-    if( SDL_GetTicks()>=nextSecond ) {
-        nextSecond += 1000;
-        framesThisSecond = 0;
-    }
-
-    //This block runs at the current FPS and draws all textures in 'texes'.
-    for( t_texMap::iterator itrTM = texes.begin(); itrTM!=texes.end(); itrTM++ ) {
-        Texture* tempTex = itrTM->second;
-        tempTex->draw();
-    }
+	//This block runs every msPerFrame milliseconds.
+	if( (SDL_GetTicks()%1000)>(msPerFrame*framesThisSecond) ) {
+		framesThisSecond++;
+		frameFinished = false;
+	} else {
+		frameFinished = true;
+	}
+	
+	//This block runs roughly every second.
+	if( SDL_GetTicks()>=nextSecond ) {
+		nextSecond += 1000;
+		framesThisSecond = 0;
+	}
+	
+	//This block runs at the current FPS and draws all textures in 'texes'.
+	for( t_texMap::iterator itrTM = texes.begin(); itrTM!=texes.end(); itrTM++ ) {
+		Texture* tempTex = itrTM->second;
+		tempTex->draw();
+	}
 }
 
 void Canvas::clearCanvas()
 {
-    if( !forcingBlits && frameFinished )
-        return;
-
-    for( t_texMap::iterator itrTM = texes.begin(); itrTM!=texes.end(); itrTM++ ) {
-        Texture* tempTex = itrTM->second;
-        tempTex->clear();
-    }
+	if( !forcingBlits && frameFinished )
+		return;
+		
+	for( t_texMap::iterator itrTM = texes.begin(); itrTM!=texes.end(); itrTM++ ) {
+		Texture* tempTex = itrTM->second;
+		tempTex->clear();
+	}
 }
 
 void Canvas::setMaximumFPS(int fps) { msPerFrame = 1000.0 / (double)fps; }
@@ -155,7 +192,7 @@ void Canvas::setTexAllocRadiusX(int arx) { texAllocRadiusX = arx; }
 void Canvas::setTexAllocRadiusY(int ary) { texAllocRadiusY = ary; }
 void Canvas::setTexAllocCount(int ac) { texAllocCount = ac; }
 
-void Canvas::info(std::stringstream& ss, int& tabs)
+void Canvas::putInfo(std::stringstream& ss, int& tabs)
 {
     DebugScreen::indentLine(ss, tabs);
     int mapSize = 0;
@@ -173,10 +210,16 @@ void Canvas::info(std::stringstream& ss, int& tabs)
     DebugScreen::newLine(ss);
 
     DebugScreen::indentLine(ss, tabs);
-    double onscreenSize = floor(((double)currentTexSize)*camera->getZoom());
+    double onscreenSize = -1;
+    if( camera!=nullptr ) {
+        onscreenSize = ( ((double)currentTexSize)*camera->getZoom() );
+    }
+    
     ss << "Texture onscreen size (px)=" << onscreenSize << ";";
     DebugScreen::newLine(ss);
 }
+
+Camera* Canvas::getCamera() { return camera; }
 
 
 void Canvas::getSubPos(t_ll& x, t_ll& y, t_ll& z) { x = getSubPos(x); y = getSubPos(y); z = getSubPos(z); }
@@ -368,26 +411,26 @@ int Canvas::loadTex(long rX, long rY)
 
 void Canvas::realloc(long rX, long rY, int maxRegions)
 {
-    //Num of regions to be loaded in per function call that must be less than maxRegions.
-    int numRegions = 0;
+	//Num of regions to be loaded in per function call that must be less than maxRegions.
+	int numRegions = 0;
 
-    //Step 1: Unload texes that are far away (not contained within the square)
-    t_texMap::iterator itrTM = texes.begin();
-    while( itrTM!=texes.end() ) {
-        int riX = std::get<0>(itrTM->first);
-        int riY = std::get<1>(itrTM->first);
+	//Step 1: Unload texes that are far away (not contained within the square)
+	t_texMap::iterator itrTM = texes.begin();
+	while( itrTM!=texes.end() ) {
+		int riX = std::get<0>(itrTM->first);
+		int riY = std::get<1>(itrTM->first);
 
-        //Unload texes with extreme X or Y coords.
-        if( riX<rX-texAllocRadiusX || riX>rX+texAllocRadiusY ||
-            riY<rY-texAllocRadiusX || riY>rY+texAllocRadiusY )
-        {
-            itrTM->second->destroy();
-            delete itrTM->second;
-            itrTM = texes.erase(itrTM);
-        } else {
-            itrTM++;
-        }
-    }
+		//Unload texes with extreme X or Y coords.
+		if( riX<rX-texAllocRadiusX || riX>rX+texAllocRadiusY ||
+			riY<rY-texAllocRadiusX || riY>rY+texAllocRadiusY )
+		{
+			itrTM->second->destroy();
+			delete itrTM->second;
+			itrTM = texes.erase(itrTM);
+		} else {
+			itrTM++;
+		}
+	}
 
     //Step 2: Try to load in texes contained within the square.
     for( long ix = rX-texAllocRadiusX; ix<=rX+texAllocRadiusX; ix++ ) {
@@ -407,10 +450,10 @@ bool Canvas::shouldRendRect(t_ll dx, t_ll dy, t_ll dw, t_ll dh)
         return false;
 
     if( croppingRendering ) {
-        int cx = camera->getX()*32;
-        int cy = camera->getY()*32;
-        int sw = sdlHandler->getWidth()/2/zoom;
-        int sh = sdlHandler->getHeight()/2/zoom;
+        int cx = camera->getSX()*32;
+        int cy = camera->getSY()*32;
+        int sw = sdlHandler->getWidth()/2.0/zoom;
+        int sh = sdlHandler->getHeight()/2.0/zoom;
 
         if( dx+zoom*32<cx-sw ||
             dy+zoom*32<cy-sh ||

@@ -63,6 +63,9 @@ Color WindowData::getPanelColor(char ch) {
 }
 Color WindowData::getPanelColor(int x, int y) { return getPanelColor( getPanelData(x, y) ); }
 Color WindowData::getBorderColor() { return borderColor; }
+int WindowData::getSpecialType() { return specialType; }
+GUI* WindowData::getRelatedUI() { return relatedUI; }
+
 std::string WindowData::toString()
 {
     std::stringstream ss;
@@ -95,6 +98,16 @@ void WindowData::setPanelColor(char ch, const Color& col)
 }
 
 void WindowData::setBorderColor(const Color& col) { borderColor = col; }
+
+void WindowData::setSpecialType(int st, GUI* relatedUI)
+{
+    specialType = st;
+    if(specialType==COLOR_SELECTOR) {
+        WindowData::relatedUI = relatedUI;
+    }
+}
+
+void WindowData::setSpecialType(int st) { setSpecialType(st, nullptr); }
 
 void WindowData::buildTex(Texture* windowTex)
 {

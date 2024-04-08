@@ -71,7 +71,7 @@ Mix_Chunk* AudioLoader::getMixAudioChunk(int id)
 			
 		} else {
 			ss << "Couldn't find audio chunk with ID '" << id << "'";
-			Log::warn(__PRETTY_FUNCTION__, ss.str(), "returning 'missingChunk'" );
+			Log::warnv(__PRETTY_FUNCTION__, "returning 'missingChunk'", ss.str() );
 		}
 		return missingChunk;
 	}
@@ -86,7 +86,7 @@ Mix_Music* AudioLoader::getMixMusicChunk(int id)
 	if( chunk==musicChunks.end() ) {
 		std::stringstream ss;
 		ss << "Couldn't find music chunk with ID '" << id << "'";
-		Log::warn(__PRETTY_FUNCTION__, ss.str(), "returning nullptr" );
+		Log::warnv(__PRETTY_FUNCTION__, "returning nullptr", ss.str() );
 		return nullptr;
 	}
 	
@@ -145,10 +145,9 @@ void AudioLoader::play(int index, int channel, int loops, int ticks, float volum
 		//Mix_Volume(channel, newVol);
 		int res = Mix_PlayChannelTimed(channel, pChunk, loops, ticks);
 	}
-	
 
 	if( res==-1 ) {
-		Log::error(__PRETTY_FUNCTION__, "SDL_mixer error", Mix_GetError());
+		Log::errorv(__PRETTY_FUNCTION__, Mix_GetError(), "SDL_mixer error");
 	}
 	
 }

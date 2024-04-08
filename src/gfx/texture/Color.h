@@ -10,6 +10,7 @@ public:
     /**/
     Color();
     Color(uint32_t p_value);
+	Color(std::string p_value);
     Color(uint8_t p_r, uint8_t p_g, uint8_t p_b);
     Color(uint8_t p_r, uint8_t p_g, uint8_t p_b, uint8_t p_a);
     virtual ~Color();
@@ -25,6 +26,7 @@ public:
     static uint32_t getA(uint32_t rgba);
     uint32_t getA();
 	std::tuple<double, double, double> toHSV();
+	std::string toString();
 	/**/
 	
 	/* Color setting & combining */
@@ -38,7 +40,10 @@ public:
     void blend(Color& c);
     void mod(uint8_t p_r, uint8_t p_g, uint8_t p_b, uint8_t p_a);
     void mod(Color& c);
+	void set(uint32_t p_rgba);
     void set(uint8_t p_r, uint8_t p_g, uint8_t p_b, uint8_t p_a);
+    void setFromDecimalStr(std::string decimal);
+    void setFromHSV(double h, double s, double v);
     Color& operator=( const Color& other );
 	
     /**/

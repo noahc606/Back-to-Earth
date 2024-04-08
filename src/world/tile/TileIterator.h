@@ -56,6 +56,7 @@ public:
     void setTrackerMode(int mode);
     void setTrackerSub(int64_t sx, int64_t sy, int64_t sz);
 
+
     void logWarnings(bool value);
 
     void scanBounds();
@@ -97,9 +98,9 @@ private:
     bool warnings = true;
 
     //Once itrSubPos.(x|y|z) goes above 31 or below 0, itrRegion gets updated.
-    int64_t begSub[3], itrSub[3], endSub[3];
-    int64_t begPos[3], itrPos[3], endPos[3];
-    int64_t begReg[3], itrReg[3], endReg[3];
+    int64_t begSub[3] = {0}, itrSub[3] = {0}, endSub[3] = {0};
+    int64_t begPos[3] = {0}, itrPos[3] = {0}, endPos[3] = {0};
+    int64_t begReg[3] = {0}, itrReg[3] = {0}, endReg[3] = {0};
 
     int64_t trackerSub[3];
 };

@@ -1,6 +1,5 @@
 #include "Log.h"
 #include <SDL.h>
-#include "Main.h"
 #include "MainLoop.h"
 
 bool Log::trbsOverride = false;
@@ -40,114 +39,28 @@ void Log::destroyAll()
 	delete fileHandler;
 }
 
-void Log::printStringStream(std::stringstream& ss)
+void Log::throwException(std::string funcname, std::string format)
 {
-	if(!logDestroyed) {
-		std::cout << ss.str();
-		if( logToFile && fileHandler!=nullptr && fileHandler->fileExists("saved/logs/latest.log") ) {
-			fileHandler->write(ss.str());
-		}
-	}
+	error(funcname, format);
+	throwException();
 }
-
-void Log::log(std::string p_message)
-{
-	std::stringstream ss;
-	ss << "[  Log  ] " << p_message << "\n";
-	printStringStream(ss);
-}
-
-void Log::debug(std::string p_message)
-{
-    if( Main::DEBUG || Main::TROUBLESHOOTING ) {
-		std::stringstream ss;
-		ss << "[ Debug ] " << p_message << "\n";
-		printStringStream(ss);
-    }
-}
-
-void Log::debug(std::string p_method, std::string p_message)
-{
-    if( Main::DEBUG || Main::TROUBLESHOOTING ) {
-		std::stringstream ss;
-		ss << "[ Debug ] " << p_method << " - " << p_message << "\n";
-		printStringStream(ss);
-    }
-}
-
-void Log::coords(std::string object, int x, int y)
-{
-    if( Main::DEBUG || Main::TROUBLESHOOTING ) {
-		std::stringstream ss;
-		ss << "[ Debug ] (x, y) of object \"" << object << "\" = (" << x << ", " << y << ").\n";
-		printStringStream(ss);
-    }
-}
-
-void Log::coords(std::string object, int x, int y, int w, int h)
-{
-    if( Main::DEBUG || Main::TROUBLESHOOTING ) {
-		std::stringstream ss;
-		ss << "[ Debug ] (x, y, w, h) of object \"" << object << "\" = (" << x << ", " << y << ", " << w << ", " << h << ").\n";
-		printStringStream(ss);
-    }
-}
-
-void Log::trbshoot(std::string p_method, std::string p_message)
-{
-    if(Main::TROUBLESHOOTING || trbsOverride) {
-		std::stringstream ss;
-		ss << "[ TrbSh ] " << p_method << " - " << p_message << "\n";
-		printStringStream(ss);
-    }
-}
-
-void Log::trbshoot(std::string p_method, std::string p_message, std::string p_resolution)
-{
-    if(Main::TROUBLESHOOTING || trbsOverride) {
-		std::stringstream ss;
-		ss << "[ TrbSh ] " << p_method << " - " << p_message << ", " << p_resolution << "\n";
-		printStringStream(ss);
-    }
-}
-
-void Log::warn(std::string p_method, std::string p_message, std::string p_resolution)
-{
-	std::stringstream ss;
-	ss<< "[Warning] " << p_method << " - " << p_message << ", " << p_resolution << "...\n";
-	printStringStream(ss);
-}
-
-void Log::warn(std::string p_method, std::string p_message)
-{
-	std::stringstream ss;
-	ss << "[Warning] " << p_method << " - " << p_message << ", ignoring issue...\n";
-	printStringStream(ss);
-}
-
-void Log::error(std::string p_method, std::string p_message)
-{
-	std::stringstream ss;
-	ss << "[ ERROR ] " << p_method << " - " << p_message << "!\n";
-	printStringStream(ss);
-}
-
-void Log::error(std::string p_method, std::string p_message, std::string error)
-{
-	std::stringstream ss;
-	ss << "[ ERROR ] " << p_method << " - " << p_message << ": " << error << "!\n";
-	printStringStream(ss);
-}
-
-void Log::error(std::string p_method, std::string p_message, const char* error)
-{
-	std::stringstream ss;
-	ss << "[ ERROR ] " << p_method << " - " << p_message << ": " << error << "!\n";
-	printStringStream(ss);
-}
-
 
 void Log::throwException()
 {
     throw std::exception();
+}
+
+void Log::logString(std::string s)
+{
+	if(!logDestroyed) {
+		std::cout << s;
+		if( logToFile && fileHandler!=nullptr && fileHandler->fileExists("saved/logs/latest.log") ) {
+			fileHandler->write(s);
+		}
+	}
+}
+
+void Log::logSStream(std::stringstream& ss)
+{
+	logString(ss.str());
 }

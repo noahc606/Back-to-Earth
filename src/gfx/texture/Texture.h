@@ -29,7 +29,7 @@ public:
     int getTexWidth();
     int getTexHeight();
     double getDrawScale();
-    int getBlendMode();
+    SDL_BlendMode getBlendMode();
 
 
     void queryTexInfo(int &texW, int &texH);
@@ -158,9 +158,9 @@ protected:
     bool limitTexSize = true;
     int texSizeLimit = 2048;
 
-    SDLHandler* sdlHandler;
-    SDL_Renderer* renderer;
-    TextureLoader* textureLoader;
+    SDLHandler* sdlHandler = nullptr;
+    SDL_Renderer* renderer = nullptr;
+    TextureLoader* textureLoader = nullptr;
     uint32_t pixelFormat;
 
     //Texture's SDL_Surface and SDL_Texture information

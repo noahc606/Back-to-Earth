@@ -5,7 +5,7 @@
 #include "Log.h"
 #include "MainLoop.h"
 #include "Tests.h"
-#include "Text.h"
+#include "TextOld.h"
 #include "TextBox.h"
 
 /**/
@@ -87,7 +87,7 @@ void BTE::draw()
 		case GameState::WORLD: {
 			if( world==nullptr ) break;
 			
-			world->draw();
+			world->draw( debugScreen.getVisible() );
 		} break;
 	}
 
@@ -152,7 +152,7 @@ void BTE::tick()
 			switch( gaid ) {
 				/** Main Menu */
 				case GUIHandler::btn_MAIN_play: {
-					setGameState(GameState::WORLD);
+					setGameState(GameState::SELECT_CAMPAIGN);
 				} break;
 				case GUIHandler::btn_MAIN_exit: {
 					setGameState(GameState::EXIT);
@@ -277,14 +277,18 @@ std::string BTE::getInfo()
 
 	//SDLHandler
 	DebugScreen::newGroup(ss, tabs, "SDLHandler");
-		//DebugScreen::indentLine(ss, tabs);
-		//ss << sdlHandler->getSystemRamDesc() << ";";
-		//DebugScreen::newLine(ss);
-		
-		DebugScreen::indentLine(ss, tabs);
-		ss << sdlHandler->getVideoDriversDesc() << ";";
-		DebugScreen::newLine(ss);
-		
+		if(!true) {
+			DebugScreen::indentLine(ss, tabs);
+			ss << sdlHandler->getSystemRamDesc() << ";";
+			DebugScreen::newLine(ss);
+		}
+
+		if(!true) {
+			DebugScreen::indentLine(ss, tabs);
+			ss << sdlHandler->getVideoDriversDesc() << ";";
+			DebugScreen::newLine(ss);
+		}
+
 		DebugScreen::indentLine(ss, tabs);
 		ss << "Window(w, h)=(" << sdlHandler->getWidth() << ", " << sdlHandler->getHeight() << "); ";
 		DebugScreen::newLine(ss);
@@ -300,9 +304,12 @@ std::string BTE::getInfo()
 
 	//[BTE]
 	DebugScreen::newGroup(ss, tabs, "BTE");
-		DebugScreen::newGroup(ss, tabs, "BTE::guiHandler");
-			guiHandler.putInfo(ss, tabs);
-		DebugScreen::endGroup(tabs);
+		if(true) {
+			DebugScreen::newGroup(ss, tabs, "BTE::guiHandler");
+				guiHandler.putInfo(ss, tabs);
+			DebugScreen::endGroup(tabs);
+		}
+
 
 		if( world!=nullptr ) {
 			DebugScreen::newGroup(ss, tabs, "BTE::world");
@@ -370,6 +377,9 @@ void BTE::setGameState(int p_gamestate)
 			}
 
 			
+		} break;
+		case SELECT_CAMPAIGN: {
+			guiHandler.setGUIs(GUIHandler::GUIs::SELECT_CAMPAIGN);
 		} break;
 		case WORLD: {
 			guiHandler.setGUIs(GUIHandler::GUIs::WORLD);

@@ -92,16 +92,17 @@ void Slider::syncWithTextboxes(GUIHandler* guih)
 	
 	int id = getID();
 	
+	TextBox* tbx = nullptr;
+	
 	switch(id) {
-		case GUIHandler::sdr_GRAPHICS_SETTINGS_maxFps:
-		{
-			TextBox* tbx = (TextBox*)(guih->getGUI(BTEObject::GUI_textbox, id+1));
-			
-			if( tbx->isSelected() ) {
-				setSelectorVal( tbx->getString() );
-			} else {
-				tbx->setString(selectorVal);
-			}
+		case GUIHandler::sdr_GRAPHICS_SETTINGS_maxFps: 		tbx = (TextBox*)(guih->getGUI(BTEObject::GUI_textbox, id+1)); break;
+	}
+	
+	if( tbx!=nullptr ) {
+		if( tbx->isSelected() ) {
+			setSelectorVal( tbx->getString() );
+		} else {
+			tbx->setString(selectorVal);
 		}
 	}
 }

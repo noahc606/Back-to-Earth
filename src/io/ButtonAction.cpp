@@ -58,9 +58,7 @@ ButtonAction::ButtonAction(SDLHandler* sh, GUIHandler* gh, FileHandler* fh, Cont
 
         case GUIHandler::btn_back_to_MAIN:{ gh->setGUIs(GUIHandler::GUIs::MAIN); } break;
 
-        case GUIHandler::btn_OPTIONS_back:{
-
-        } break;
+        case GUIHandler::btn_OPTIONS_back:{} break;
 
         /** Main menu buttons */
         case GUIHandler::btn_MAIN_exit: {
@@ -77,6 +75,9 @@ ButtonAction::ButtonAction(SDLHandler* sh, GUIHandler* gh, FileHandler* fh, Cont
         case GUIHandler::btn_OPTIONS_graphics_settings: {
             gh->setGUIs(GUIHandler::GUIs::GRAPHICS);
         } break;
+		case GUIHandler::btn_OPTIONS_character_settings: {
+			gh->setGUIs(GUIHandler::GUIs::CHARACTER);
+		} break;
 
         /** Pause menu buttons */
         case GUIHandler::btn_PAUSED_options: {

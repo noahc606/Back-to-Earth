@@ -1,5 +1,5 @@
 #pragma once
-#include "Text.h"
+#include "TextOld.h"
 #include "Texture.h"
 #include "WindowComponent.h"
 
@@ -39,7 +39,7 @@ protected:
     bool clicked = false;
     bool selected = false;
 
-    Text btnText;
+    TextOld btnText;
     std::string btnString;
 
 private:

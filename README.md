@@ -7,10 +7,15 @@ Right now the project is considered "mostly finished" since my original goal was
 # Running:
 Go into the /bin folder and run the appropriate executable file. You should see two binary executable files, one with a .exe extension (for Windows) and one without (for Linux). MAKE SURE that the executable itself is in the same folder as the 'backtoearth' folder (which holds all resources for the program!). Basically just keep it in the root /bin folder it's already in and you'll be fine.
 
-# (re)Building:
-You can rebuild the program yourself to get a new executable file. The easiest way to do this is by using GNU make. After installing that for Windows or Linux, it's as simple as running 'make' in the terminal while in the repo's root folder. This will try to rebuild the program from source and give you a working executable on any platform where C/C++ & SDL works (Windows, macOS, Linux, and theoretically iOS and Android). However, keep in mind that I have only tested this application on Windows and Linux.
+# Building:
+You can build the program yourself to get a new executable file. There are two ways to do this: with CMake (only on Linux right now) or Make (Windows and Linux). If you are on Linux I recommend using VSCode or another environment with integrated support for building from CMakeLists and using that.
+
+For cross-platform building, you can use GNU Make, although it is slower than CMake. After installing GNU Make for Windows or Linux, it's as simple as running 'make' in the terminal while in the repo's root folder. This will try to rebuild the program from source and give you a working executable on any platform where C/C++ & SDL works (Windows, macOS, Linux, and theoretically iOS and Android). However, keep in mind that I have only tested this application on Windows and Linux.
 
 # Credits:
-The SDL library header files (https://www.libsdl.org/) contained within the 'include' folder were not made by me.
-Credits to creators of music + SFX are in 'backtoearth/resources/audio'.
-You may use any of my source code (anything within the 'src' folder) without crediting me.
+Things I did not work on:
+-The SDL library files (https://www.libsdl.org/) contained within the 'include' folder.
+-cURL, which is a network data transfer library (https://curl.se/).
+-Any music/SFX within 'bin/backtoearth/resources/audio' (credits to those authors can be found in that diretory in credits.html).
+Things I developed:
+-Everything within the src folder (unless specified otherwise, a few occassions). You may use any of my source code without crediting me.

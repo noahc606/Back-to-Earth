@@ -31,10 +31,11 @@ public:
 
     enum TextFiles
     {
-        controls,
-        games,
-        options,
-        version,
+		controls,
+		games,
+		options,
+		version,
+		character,
 
         //Keep these two last
         session,

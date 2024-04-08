@@ -12,3 +12,4 @@ nch_*
 /bin/backtoearth/saved/logs
 /bin/backtoearth/saved/screenshots
 /bin/backtoearth/saved/settings
+*.bte_lsr

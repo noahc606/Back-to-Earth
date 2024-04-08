@@ -46,6 +46,7 @@ private:
         TEXTURES = -2,
         TESTING = -1,
         MAIN_MENU,
+        SELECT_CAMPAIGN,
         WORLD,
     };
 

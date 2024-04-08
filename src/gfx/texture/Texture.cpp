@@ -3,7 +3,13 @@
 #include <sstream>
 #include "Log.h"
 
-Texture::Texture(){}
+Texture::Texture()
+{
+    lockArea.x = 0;
+    lockArea.y = 0;
+    lockArea.w = 0;
+    lockArea.h = 0;
+}
 Texture::~Texture(){}
 
 void Texture::init(SDLHandler* p_sdlHandler)
@@ -91,7 +97,7 @@ SDL_Surface* Texture::createSurfaceFromTexture()
 int Texture::getTexWidth() { return texW; }
 int Texture::getTexHeight() { return texH; }
 double Texture::getDrawScale() { return drawScale; }
-int Texture::getBlendMode() { return blendMode; }
+SDL_BlendMode Texture::getBlendMode() { return blendMode; }
 
 
 void Texture::queryTexInfo(int &w, int &h)

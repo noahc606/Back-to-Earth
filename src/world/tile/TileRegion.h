@@ -70,12 +70,12 @@ public:
 	void load(FileHandler* fh, std::string saveGameName, long rX, long rY, long rZ);
 
     enum RegTexState {
-        NONE = 0,
-        UNGENERATED=100,
-        GENERATING=101,
-        FINISHED_GENERATING=102,
-        SHOULD_UPDATE = 103,
-        UPDATED = 104,
+        NONE = 0,                   //Unused state - undefined behavior
+        UNGENERATED=100,            //Region has not been generated yet
+        GENERATING=101,             //Region is generating
+        FINISHED_GENERATING=102,    //Region just finished generating
+        SHOULD_UPDATE = 103,        //Region needs an update for a 32x32 tile draw
+        UPDATED = 104,              //Region has been updated - no need for a 32x32 tile draw
     };
 
 protected:

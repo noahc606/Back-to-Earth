@@ -7,19 +7,46 @@ public:
     /**/
     Camera();
     virtual ~Camera();
-    void init(Controls* ctrls);
+    void init(SDLHandler* sh, Controls* ctrls);
     /**/
     void tick();
     /**/
     bool getInfo();
-    double getX(); double getY(); double getZ(); long long getLayer();
-    int getZoomIndex(); double getZoom();
+    double getX(); double getY(); double getZ();
+	int64_t getLayer(int c); int64_t getLayer();
+	
+	double getSX(); double getSY(); double getSZ();
+	int64_t getRX(); int64_t getRY(); int64_t getRZ();
+    
+	//Zoom/Scale/Screen stuff
+	int getZoomIndex(); double getZoom();
+	int getTileScale(); int getBlitScale();
+    static int getScreenWidthTiles(SDLHandler* sh, int tileScale);      int getScreenWidthTiles();
+    static int getScreenHeightTiles(SDLHandler* sh, int tileScale);     int getScreenHeightTiles();
+    static int getScreenWidthReg(SDLHandler* sh, int tileScale);        int getScreenWidthReg();
+    static int getScreenHeightReg(SDLHandler* sh, int tileScale);       int getScreenHeightReg();
+    static int getScreenSemiWidthReg(SDLHandler* sh, int tileScale);    int getScreenSemiWidthReg();
+    static int getScreenSemiHeightReg(SDLHandler* sh, int tileScale);   int getScreenSemiHeightReg();
+
+	int getDirection();
+	int coordinateHasDepth(int coord);
+	int chd(int coord);
+	static std::string directionToString(int direction);
+	static int getAxisFromDirection(int direction);
+	std::string getDirectionString();
+	int getAxis();
     bool isFocused();
     bool isFreecam();
     /**/
     void setXYZ(double x, double y, double z);
     void setFocused(bool focused);
     /**/
+
+	enum Axes {
+		X = 0,
+		Y = 1,
+		Z = 2
+	};
 
 	enum Directions {
 		WEST = 0,
@@ -43,7 +70,7 @@ private:
 	 * 	North/South = -Y/+Y
 	 * 	Up/Down 	= -Z/+Z
 	 */
-	int camDirection = 5;
+	int direction = DOWN;
 
     bool focused = false;
     bool freecam = false;

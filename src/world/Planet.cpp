@@ -15,7 +15,7 @@
 void Planet::init()
 {
 	initialized = true;
-		
+	
 	std::srand(1234567);
 	id = rand();
 

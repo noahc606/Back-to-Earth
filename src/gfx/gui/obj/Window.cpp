@@ -1,6 +1,7 @@
 #include "Window.h"
-#include "TextureBuilder.h"
+#include "ColorSelector.h"
 #include "Log.h"
+#include "TextureBuilder.h"
 /**/
 int Window::bkgdScroll = 0;
 
@@ -44,7 +45,7 @@ Window(x, y, new WindowData(width/64, height/64, upperPanel, lowerPanel), id){}
 
 Window::Window(int id): Window(0, 0, 0, 0, "", "", id)
 {
-    bkgd = true;
+    winData->setSpecialType( WindowData::BACKGROUND );
 }
 
 Window::~Window()
@@ -61,21 +62,34 @@ void Window::init(SDLHandler* sh, Controls* ctrls)
     TextureBuilder tb(sdlHandler);
     int texW = width/2;
     int texH = height/2;
-    int space = TextureLoader::Textures::WORLD_background_space_interstellar;
 
     if( winData!=nullptr ) {
-
-        //Build application sub-window
-        if(!bkgd) {
-            tb.buildWindow(windowTex, winData, texW, texH);
-            windowTex.setDrawScale(2);
-        //Build a 'background' scrolling window
-        } else {
+        switch( winData->getSpecialType() )
+        {
+        case WindowData::BACKGROUND: {
+            //Build a 'background' scrolling window
             windowTex.init(sdlHandler);
             windowTex.setTexDimensions(1024, 1024);
             windowTex.lock(0, 0, 1024, 1024);
+
+            int space = TextureLoader::Textures::WORLD_background_space_interstellar;
             windowTex.blit(space);
             windowTex.setDrawScale(2);
+        } break;
+
+        case WindowData::COLOR_SELECTOR: {
+            tb.buildWindow(windowTex, winData, texW, texH);
+            windowTex.setDrawScale(2);
+
+            ColorSelector* cs = (ColorSelector*)winData->getRelatedUI();
+            cs->updateColorSelectorUI(&windowTex);
+        } break;
+        
+        default: {
+            //Build application sub-window
+            tb.buildWindow(windowTex, winData, texW, texH);
+            windowTex.setDrawScale(2);
+        } break;
         }
 
         winData->buildTex(&windowTex);
@@ -84,26 +98,9 @@ void Window::init(SDLHandler* sh, Controls* ctrls)
     /* Upper and lower panels */
     //Upper panel
     if( winData!=nullptr ) {
-        /*
-        if( winData->getUpperPanel()!="" ) {
-            for(int i = 0; i<texW; i+=32) {
-                windowTex.lock( 4+i, 5, 32, 30 );
-                windowTex.blit(img, 48,  0);
-            }
-        }
-        */
         upperPanelText.init(sdlHandler);
         upperPanelText.setString(winData->getUpperPanel());
 
-        //Lower panel
-        /*
-        if( winData->getLowerPanel()!="" ) {
-            for(int i = 0; i<texW; i+=32) {
-                windowTex.lock( 4+i,texH-26, 32, 30 );
-                windowTex.blit(img, 48, 31);
-            }
-        }
-        */
         lowerPanelText.init(sdlHandler);
         lowerPanelText.setString(winData->getLowerPanel());
     }
@@ -114,14 +111,19 @@ void Window::init(SDLHandler* sh, Controls* ctrls)
 void Window::destroy()
 {
     BTEObject::destroy();
-    windowTex.destroy();
+
+    if(winData->getSpecialType()==WindowData::BACKGROUND) {
+        windowTex.destroy();
+    }
 }
 
 /**/
 
 void Window::draw()
 {
-    if( bkgd ) {
+    switch( winData->getSpecialType() )
+    {
+    case WindowData::BACKGROUND: {
         int wtx = 0; int wty = 0; double wts = 0;
         windowTex.queryDrawInfo(wtx, wty, wts);
         int wtw = 0; int wth = 0;
@@ -132,18 +134,37 @@ void Window::draw()
         windowTex.setDrawPos(wtx, wty);
 
         windowTex.draw();
-    } else {
+    } break;
+
+    case WindowData::COLOR_SELECTOR: {
         windowTex.draw();
         upperPanelText.draw();
         lowerPanelText.draw();
+
+        if( winData->getRelatedUI()!=nullptr && winData->getRelatedUI()->getType()==BTEObject::GUI_colorselect ) {
+            ColorSelector* cs = (ColorSelector*)winData->getRelatedUI();
+            int wtw = 0; int wth = 0;
+            windowTex.queryTexInfo(wtw, wth);
+            int colAreaX = sX+wtw/2-100;
+            int colAreaY = sY+wth-100;
+            cs->drawCrosshair(colAreaX, colAreaY);
+        }
+
+    } break;
+
+    default: {
+        windowTex.draw();
+        upperPanelText.draw();
+        lowerPanelText.draw();
+    } break;
     }
-
-
 }
 
 void Window::tick()
 {
-    if( bkgd ) {
+    switch( winData->getSpecialType() )
+    {
+    case WindowData::BACKGROUND: {
         bkgdScroll+=1;
 
         int wtw = 0; int wth = 0;
@@ -154,6 +175,16 @@ void Window::tick()
             windowTex.setDrawPos(0, 0);
             bkgdScroll = 0;
         }
+    } break;
+
+    case WindowData::COLOR_SELECTOR: {
+        int wtw = 0; int wth = 0;
+        windowTex.queryTexInfo(wtw, wth);
+
+        ColorSelector* cs = (ColorSelector*)winData->getRelatedUI();
+        cs->trackMouse(sX+wtw/2-100, sY+wth-100);
+    } break;
+
     }
 }
 
@@ -161,11 +192,11 @@ void Window::onWindowUpdate(bool preventInvalidTPos)
 {
     windowTex.setDrawPos(sX, sY);
 
-    upperPanelText.setPos( sX+width/2-upperPanelText.getWidth()/4, sY+32 );
+    upperPanelText.setPos( sX+width/2-upperPanelText.getWidth()/4+12, sY+32 );
     lowerPanelText.setPos( sX+width/2-upperPanelText.getWidth()/2, sY+height-64 );
 
 
-    if(bkgd) {
+    if( winData->getSpecialType()==WindowData::BACKGROUND ) {
         width = sdlHandler->getWidth();
         height = sdlHandler->getHeight();
 
@@ -173,9 +204,4 @@ void Window::onWindowUpdate(bool preventInvalidTPos)
     }
 }
 
-WindowData* Window::getWindowData()
-{
-    return winData;
-}
-
-/**/
+WindowData* Window::getWindowData() { return winData; }

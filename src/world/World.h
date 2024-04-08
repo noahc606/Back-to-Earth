@@ -7,6 +7,7 @@
 #include "Planet.h"
 #include "Player.h"
 #include "PlayerMenu.h"
+#include "RegTexUpdater.h"
 #include "Texture.h"
 #include "TileMap.h"
 #include "TileMapScreen.h"
@@ -19,7 +20,7 @@ public:
 	virtual ~World();
 	void init(SDLHandler* sh, GUIHandler* gh, FileHandler* fh, Controls* ctrls);
 	/**/
-	void draw();
+	void draw(bool debugOn);
 	void tick(bool paused, GUIHandler& guiHandler);
 	/**/
     void putInfo(std::stringstream& ss, int& tabs);
@@ -40,11 +41,12 @@ private:
 	
 	bool lpMenuState = false;
 	bool lpMenuStateLast = false;
-	double mouseX = 0; double mouseY = 0;
-	int64_t mouseXLL = 0; int64_t mouseYLL = 0; int64_t mouseZLL = 0; int64_t mouseCLL = 0;
+	double mouseX = 0; double mouseY = 0; double mouseZ = 0;
+	int64_t mouseXL = 0; int64_t mouseYL = 0; int64_t mouseZL = 0;
 	
 	TileMap tileMap;
 	TileMapScreen tileMapScreen;
+	RegTexUpdater regTexUpdater;
 	
 	Canvas csTileMap;
 	Canvas csATileMap;
@@ -60,5 +62,7 @@ private:
 	
 	void updateMouseAndCamInfo();
 	void playerInteractions(GUIHandler& guiHandler, bool paused);
+	void playerPlaceTile();
+	void playerDestroyTile(bool touchingSolid);
 	void setLocalPlayerMenuState(int newMenuState);
 };

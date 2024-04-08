@@ -1,29 +1,41 @@
 #include "Real.h"
 #include <cmath>
 #include <math.h>
+#include <iomanip>
 #include <iostream>
 #include <sstream>
 
-Real::Real() { *this = 0; }
-Real::Real(int64_t integer) { *this = integer; }
-Real::Real(int integer) { *this = integer; }
-Real::Real(double number) { *this = number; }
-Real::Real(int64_t integer, double decimal)
+/**/
+Real::Real() { i = 0; d = 0.0; }
+Real::Real(int64_t number) { i = number; d = 0.0; }
+Real::Real(int number): Real((int64_t)number) {};
+Real::Real(int64_t integer, long double decimal)
 {
-    Real::integer = integer;
-    Real::decimal = decimal;
+    i = integer;
+    d = validatedDecimal(decimal);
 }
 
-bool Real::isInteger() const { return decimal==0.0; }
-
-int64_t Real::getInteger() const { return integer; }
-double Real::getDecimal() const { return decimal; }
-std::string Real::getString() const
+/**/
+int64_t Real::iReal() const { return i; }
+long double Real::dReal() const { return d; }
+bool Real::isInteger() const { return d==0.0; }
+std::string Real::toString() const
 {
-    std::stringstream ss1; ss1 << getInteger();
+    std::stringstream ss1;
+    std::stringstream temp;
+    if(i>=0||d==0.0) {
+        ss1 << i;
+
+        temp << std::fixed << d;
+    } else {
+        if(i==-1) {
+            ss1 << "-";
+        }
+        ss1 << (i+1);
+        temp << (1.0-d);
+    }
 
     std::stringstream ss2;
-    std::stringstream temp; temp << getDecimal();
     if( temp.str().size()>1 ) {
         ss2 << temp.str().substr(2);
     } else {
@@ -33,180 +45,95 @@ std::string Real::getString() const
     return ss1.str()+"."+ss2.str();
 }
 
-Real& Real::abs()
-{
-    integer = std::abs(integer);
-    return *this;
-}
-
-int64_t Real::floor()
-{
-    if( decimal>0.0 ) {
-        if(integer>=0) {
-            return integer;
-        }
-        return integer-1;
-    }
-    return integer;
-}
-
-int64_t Real::ceil()
-{
-    if( decimal>0.0 ) {
-        if(integer>=0) {
-            return integer+1;
-        }
-        return integer;
-    }
-    return integer;
-}
-
-Real Real::operator+ (int other)
-{
-    return Real((*this).getInteger()+other, decimal);
-}
-
-Real Real::operator- (int other)
-{
-    return Real((*this).getInteger()-other, decimal);
-}
-
-Real Real::operator- ( const Real& other )
-{
-    Real temp = other;
-    temp.integer = -temp.integer;
-
-    return (*this)+temp;
-}
-
-Real Real::operator+ ( const Real& other )
-{
-    int64_t r1Int = (*this).getInteger();
-    double r1Dec = (*this).getDecimal();
-    int64_t r2Int = other.getInteger();
-    double r2Dec = other.getDecimal();
-
-    Real result;
-    bool carry = false;
-
-    //Calculate the int component
-    result.integer = r1Int+r2Int-carry;
-
-    //Calculate the decimal
-    if( r1Int<0 ) {
-        if( r2Int<0 ) {
-            /** -r1, -r2 */
-            //Calculate the decimal component and determine carry.
-            result.decimal = r1Dec+r2Dec;
-            if( result.decimal>=1.0 ) {
-                carry = true;
-                result.decimal--;
-            }
-            //Calculate the int component
-            result.integer = r1Int+r2Int-carry;
-        } else {
-            /** -r1, +r2 */
-
-
-            //Calculate the decimal component and determine carry.
-            result.decimal = -r1Dec+r2Dec;
-            if( result.decimal<0 ) {
-                carry = true;
-                result.decimal++;
-            }
-
-        }
+/**/
+Real Real::abs() const {
+    if(i>0) {
+        return (*this);
     } else {
-        if( r2Int<0 ) {
-            /** +r1, -r2 */
+        return Real(-i, d);
+    }
 
+}
+Real Real::floor() const
+{
+    if(d==0.0) { return Real(i); }   //Positive number OR d==0.0
+    return Real(i);                  //Negative decimal number
+}
+Real Real::ceil() const
+{
+    if(d==0.0) { return Real(i); }  //Negative number OR d==0.0
+    return Real(i+1);               //Positive decimal number
+}
+Real Real::negation() const
+{
+    int64_t iN = -i;
+    
+    double dN = d;
+    if(d!=0) {
+        iN--;
+        dN = 1.0-d;
+    }
+
+    return Real(iN, dN);
+}
+Real Real::inverse() const
+{
+    if((*this)==0) {
+        printf("Warning: 0 has no real inverse, returning INT64_MAX instead.");
+        return INT64_MAX;
+    }
+
+    return nearestReal(1.0/((long double)i+d));
+}
+Real Real::nearestReal(long double impreciseVal) const
+{
+    int64_t ri;
+    long double rd;
+
+    if(impreciseVal>=0.0) {
+        rd = impreciseVal-std::floor(impreciseVal);
+        ri = impreciseVal;
+    } else {
+        rd = 1.0+(impreciseVal-std::ceil(impreciseVal));
+        if(rd>=1.0) {
+            ri = impreciseVal;
+            rd -= 1.0;
         } else {
-            /** +r1, +r2 */
-            //Calculate the decimal component and determine carry.
-            result.decimal = r1Dec+r2Dec;
-            if( result.decimal>=1.0 ) {
-                carry = true;
-                result.decimal--;
-            }
-            //Calculate the int component
-            result.integer += carry;
+            ri = impreciseVal-1;
         }
     }
 
-    //Return result
-    return result;
+    return Real(ri, rd);
 }
 
-bool Real::operator==(Real& other)
+Real Real::timesFrac(long double frac)
 {
-    return (
-        integer==other.getInteger() &&
-        decimal==other.getDecimal()
-    );
-}
-
-
-void Real::operator=(const Real& other)
-{
-    decimal = other.getDecimal();
-    integer = other.getInteger();
-}
-void Real::operator=(const int64_t& other)
-{
-    integer = other;
-    decimal = 0.0;
-}
-void Real::operator=(const int& other)
-{
-    integer = other;
-    decimal = 0.0;
-}
-void Real::operator=(const double& other)
-{
-    //Set int component
-    integer = other;
-
-    //Set decimal component
-    if(other>=0) {
-        decimal = other-std::floor(other);
-    } else {
-        decimal = -(other-std::ceil(other));
+    if(frac<0||frac>=1.0) {
+        printf("Warning: Multiplication should have been used, returning the original number instead.");
+        return (*this);
     }
+
+    Real first = nearestReal((long double)i*frac);
+    return Real(first+nearestReal(d*frac));
 }
 
-bool Real::operator<(Real& other)
+long double Real::validatedDecimal(long double val)
 {
-    if( integer!=other.getInteger() ) {
-        return integer<other.getInteger();
+    bool warn = false;
+    long double res;
+
+    if(val>=1.0) {
+        res = val-std::floor(val);
+        warn = true;
+    } else if(val<0) {
+        res = 1.0+(val-std::ceil(val));
+        warn = true;
     } else {
-        if( integer>=0 ) {
-            return decimal<other.getDecimal();
-        } else {
-            return decimal>other.getDecimal();
-        }
+        res = val;
     }
-}
 
-bool Real::operator>=(Real& other) { return !((*this)<other); }
-
-bool Real::operator>(Real& other)
-{
-    if( integer!=other.getInteger() ) {
-        return integer>other.getInteger();
-    } else {
-
-        if( integer>=0 ) {
-            return decimal>other.getDecimal();
-        } else {
-            return decimal<other.getDecimal();
-        }
+    if(warn) {
+        std::cout << "WARNING: input invalid decimal " << val << " which should be >=0 and <1 (truncated to " << res << ")\n";
     }
+    return res;
 }
-
-bool Real::operator<=(Real& other) { return !((*this)>other); }
-
-/*
-double Real::truncateDecimal(const double& other)
-{
-    return
-}*/

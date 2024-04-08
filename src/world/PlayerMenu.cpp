@@ -12,7 +12,7 @@ void PlayerMenu::init(SDLHandler* sh, GUIHandler* gh, Controls* ctrls, Player* p
 	
 	for( int x = 0; x<invW; x++ ) {
 		for( int y = 0; y<invH; y++ ) {
-			inventorySlots[x][y] = -1;
+			inventorySlots[x][y] = -1; 
 		}
 	}
 	
@@ -23,6 +23,11 @@ void PlayerMenu::init(SDLHandler* sh, GUIHandler* gh, Controls* ctrls, Player* p
 	inventorySlots[7][0] = NYLON_EXOSUIT_HELMET;
 	inventorySlots[7][1] = NYLON_EXOSUIT_BODY;
 	inventorySlots[7][2] = NYLON_EXOSUIT_LEGGINGS;
+	
+	inventorySlots[7][7] = FOOD_RATION_6;
+	inventorySlots[7][6] = FOOD_RATION_6;
+	inventorySlots[7][5] = FOOD_RATION_6;
+	inventorySlots[7][4] = FOOD_RATION_6;
 	uiOverlay.init(sdlHandler, 0, 0);
 	
 	movingItemA.init(sdlHandler, 32, 32);
@@ -266,6 +271,7 @@ std::string PlayerMenu::getItemName(int itemID)
 	case NYLON_EXOSUIT_BODY:		return "Nylon Exosuit Body";
 	case NYLON_EXOSUIT_LEGGINGS:	return "Nylon Exosuit Leggings";
 	case INFINITE_OXYGEN_TANK:		return "Infinite Oxygen Tank";
+	case FOOD_RATION_6:				return "Food Rations (type 6)";
 	default: 						return "";
 	}
 }
@@ -411,5 +417,10 @@ void PlayerMenu::putItemInterface(int itemID)
 	case ATOM_PRINTER: {
 		guiHandler->addGUI( new Tooltip(win, dX+32*00, 524+32*0+ttpDY, "Build tiles with Right Click - select the tile type from Engineering", GUIHandler::ttp_CHARACTER_item) );
 	} break;
+	case FOOD_RATION_6: {
+		guiHandler->addGUI( new Tooltip(win, dX+32*00, 524+32*0+ttpDY, "\"VEGETARIAN TACO PASTA (VEGETABLE CRUMBLES WITH PASTA IN TACO STYLE SAUCE)\"", GUIHandler::ttp_CHARACTER_item) );
+		guiHandler->addGUI( new Tooltip(win, dX+32*00, 524+32*1+ttpDY, "Servings: 10. Calories: 210.", GUIHandler::ttp_CHARACTER_item) );
+		guiHandler->addGUI( new Tooltip(win, dX+32*00, 524+32*2+ttpDY, "Looks pretty disgusting, but it may have to do if you have nothing else to eat...", GUIHandler::ttp_CHARACTER_item) );
+	}
 	}
 }
