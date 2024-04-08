@@ -5,7 +5,7 @@ Back to Earth is a game/game engine written in C++. It does not use OpenGL or an
 Go into the /bin folder and run the appropriate executable file. You should see two binary executable files, one with a .exe extension (for Windows) and one without (for Linux). MAKE SURE that the executable itself is in the same folder as the 'backtoearth' folder (which holds all resources for the program!). Basically just keep it in the root /bin folder it's already in and you'll be fine.
 
 # Building
-Right now building only works on Linux. I recently added two new libraries (cURL and SDL_net). I still need to update the cross-platform Makefile.
+Building is cross-platform and uses CMake. I recommend using VSCode but using the terminal or another environment should work. If you are on Linux/MacOS, you need to make sure you have all the necessary dev libraries for libsdl and libcurl installed. If you are on Windows, the linking step (with the -l) in the CMakeLists.txt can be confusing to get working properly. I recommend using MSYS2 and MinGW for building on Windows. See the CMakeLists.txt for more info on this.
 
 # Credits
 <br>
