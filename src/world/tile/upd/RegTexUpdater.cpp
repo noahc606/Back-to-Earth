@@ -163,6 +163,7 @@ void RegTexUpdater::drawDebugOverlay(Canvas* csInteractions, int64_t camSRX, int
 {
 	csInteractions->setTexAllocRadiusX(loadRadiusH);
 	csInteractions->setTexAllocRadiusY(loadRadiusH);
+	csInteractions->setTexAllocCount(10);
 
 	//Iterate through all loaded regions within the camera's region layer.
 	for(int64_t irx = camSRX-loadRadiusH; irx<camSRX+loadRadiusH; irx++) {
@@ -171,7 +172,7 @@ void RegTexUpdater::drawDebugOverlay(Canvas* csInteractions, int64_t camSRX, int
 				TileRegion* tr = tileMap->getRegByRXYZ(irx, iry, camSRZ);
 
 				//Get fill color which depends on the TileRegion's current regTexState
-				Color fillColor(50, 50, 50);
+				Color fillColor(255, 255, 255);	//White == nullptr
 				if(tr!=nullptr) {
 					switch(tr->getRegTexState()) {
 						case TileRegion::NONE: 					fillColor = Color(255, 127, 255); break;	//Pink

@@ -1,7 +1,7 @@
 #include "Grid.h"
 #include "RegTexUpdater.h"
 
-Grid::Grid(SDLHandler* sh, TileMap* tm, Camera* cam, int64_t loadDistH, int stateToUse)
+Grid::Grid(SDLHandler* sh, TileMap* tm, Camera* cam, int64_t loadDistH, int64_t loadDistV, int stateToUse)
 {
     //Initialize grid
     w = loadDistH*2+1;          //Grid is a (loadDistH*2+1)^2 square.
@@ -22,14 +22,27 @@ Grid::Grid(SDLHandler* sh, TileMap* tm, Camera* cam, int64_t loadDistH, int stat
     */
     for(int x = 0; x<w; x++) {
         for(int y = 0; y<h; y++) {
+
+            //Set all grid squares to be the taxidist from the center
             grid[x][y] = taxiDist(x, y, loadDistH, loadDistH);    //Taxicab distance from center
-            //If TileRegion loaded and regtexstate is > stateToUse, set grid[x][y] = 1000
+            
+            //Set certain grid squares to be 1000 (ignored) depending on the situation
             int64_t rX = cam->getRX()-loadDistH+x;
             int64_t rY = cam->getRY()-loadDistH+y;
             int64_t rZ = cam->getRZ();
-            TileRegion* tr = tm->getRegByRXYZ(rX, rY, rZ);
-            if(tr==nullptr || tr->getRegTexState()>stateToUse || !RegTexUpdater::isRegOnScreen(sh, cam, rX, rY, rZ) ) {
-                grid[x][y] = 1000;
+            
+            for(int64_t iRZ = rZ-loadDistV; iRZ<=rZ+loadDistV; iRZ++) {
+                if(stateToUse!=-1) {
+                    TileRegion* tr = tm->getRegByRXYZ(rX, rY, iRZ);
+                    if(tr==nullptr || tr->getRegTexState()>stateToUse || !RegTexUpdater::isRegOnScreen(sh, cam, rX, rY, rZ) ) {                    
+                        grid[x][y] = 1000;
+                    }
+                } else {
+                    TileRegion* tr = tm->getRegByRXYZ(rX, rY, iRZ);
+                    if(tr!=nullptr ) {                    
+                        grid[x][y] = 1000;                
+                    }
+                }
             }
         }
     }
@@ -37,7 +50,7 @@ Grid::Grid(SDLHandler* sh, TileMap* tm, Camera* cam, int64_t loadDistH, int stat
 
 Grid::~Grid()
 {
-
+    delete grid;
 }
 
 void Grid::logInfo()

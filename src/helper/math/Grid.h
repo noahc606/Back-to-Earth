@@ -4,7 +4,7 @@
 
 class Grid {
 public:
-    Grid(SDLHandler* sh, TileMap* tm, Camera* cam, int64_t loadDistH, int stateToUse);
+    Grid(SDLHandler* sh, TileMap* tm, Camera* cam, int64_t loadDistH, int64_t loadDistV, int stateToUse);
     ~Grid();
 
     void logInfo();

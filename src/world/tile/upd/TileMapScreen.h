@@ -62,8 +62,10 @@ private:
     /* Map update distance + counts */
     int umiTicks = 0;
     int umiTicksMax = 10;	//TODO: Base this on performance level of drawing
-    int loadRadiusH = 4;
-    int loadRadiusV = 2;
+    int loadRadiusH = 5;    //loadRadiusH of 5 => 5*2+1 = 11x11 square of loaded region columns
+    int loadRadiusV = 2;    //loadRadiusV of 2 => 2*2+2 = 5 high column of loaded regions
+    
+
     std::string currentDimPath = "default";
 
     /* Performance gauging */

@@ -135,8 +135,8 @@ void TileMapUpdater::updateMapVisible(bool blackout, int loadDistH, int loadDist
 					int fg = TileRegion::FINISHED_GENERATING;
 					TileRegion* tr = tileMap->getRegByRXYZ(iRX, iRY, iRZ);
 					TileRegion* tr1 = tileMap->getRegByRXYZ(iRX, iRY, iRZ+2);
-					if(tr!=nullptr && tr->getRegTexState()==fg) {
-						if(tr1!=nullptr && tr1->getRegTexState()==fg) {
+					if(tr!=nullptr && tr->getRegTexState()>=fg) {
+						if(tr1!=nullptr && tr1->getRegTexState()>=fg) {
 							tr->setRegTexState(TileRegion::SHOULD_UPDATE);
 						}
 					}
@@ -179,23 +179,15 @@ void TileMapUpdater::updateRegTicked(FileHandler* fileHandler, int64_t rX, int64
 
 void TileMapUpdater::updateMapTicked(FileHandler* fileHandler, int loadDistH, int loadDistV)
 {
-	int64_t camRX = cam->getRX();
-	int64_t camRY = cam->getRY();
-	int64_t camRZ = cam->getRZ();
 
-	//Iterate through a rectangular prism region of TileRegions around the player
-	for( int outline = 0; outline<=loadDistH; outline++ ) {
-		//Iterate dRX (delta RX) from -outline to +outline
-		for( int dRX = -outline; dRX<=outline; dRX++ ) {
-			int dRY = outline*2;                                //Set dRY (delta RY)
-			if( abs(dRX)==outline ) { dRY = 1; }
-			int rX = camRX+dRX;                                 //Get rX
-			//Get rY: Iterate from camRY-outline to camRY+outline based on dRY
-			for( int rY = camRY-outline; rY<=camRY+outline; rY += dRY ) {
-				//Update reg @ camRZ
-				updateRegTicked(fileHandler, rX, rY, camRZ, loadDistV);
-			}
-		}
+	//Try to load the nearest null regions
+	Grid grid(sdlHandler, tileMap, cam, loadDistH, loadDistV, -1);
+	std::pair<int, int> leXY = grid.getLowestElementXY();
+	if(leXY.first!=-1) {
+		int64_t rX = cam->getRX()-loadDistH+leXY.first;
+		int64_t rY = cam->getRY()-loadDistH+leXY.second;
+		
+		updateRegTicked(fileHandler, rX, rY, cam->getRZ(), loadDistV);
 	}
 
 	/** Performance gauging */
@@ -266,7 +258,7 @@ void TileMapUpdater::updateMapMoved(FileHandler* fileHandler, std::string curren
 
 void TileMapUpdater::updateMapIdle(int loadDistH, int loadDistV)
 {
-	Grid grid(sdlHandler, tileMap, cam, loadDistH, TileRegion::RegTexState::SHOULD_UPDATE);
+	Grid grid(sdlHandler, tileMap, cam, loadDistH, loadDistV, TileRegion::RegTexState::SHOULD_UPDATE);
 	std::pair<int, int> leXY = grid.getLowestElementXY();
 
 	if(leXY.first!=-1) {
@@ -274,7 +266,7 @@ void TileMapUpdater::updateMapIdle(int loadDistH, int loadDistV)
 		int64_t rY = cam->getRY()-loadDistH+leXY.second;
 		
 		TileRegion* tr = tileMap->getRegByRXYZ(rX, rY, cam->getRZ());
-		if(tr!=nullptr && tr->getRegTexState()==TileRegion::SHOULD_UPDATE) {
+		if(tr!=nullptr) {
 			addRegionUpdate(rX, rY);
 			tr->setRegTexState(tr->UPDATED);
 		}
