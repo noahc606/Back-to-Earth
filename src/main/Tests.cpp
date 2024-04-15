@@ -31,8 +31,7 @@ void Tests::init(SDLHandler* sh, FileHandler* fh, Controls* ctrls)
 	fileHandler = fh;
 	controls = ctrls;
 
-    Color c;
-    c.setFromHSV(1234, 50, 50);
+    //Log::log();
 
     /*
     GridIterator gi;

@@ -604,11 +604,13 @@ int FileHandler::createDir(std::string path)
     // ...for Windows
     #if ( defined(_WIN32) || defined(WIN32) )
         FilePath fp(path, SDLHandler::WINDOWS);
-        if(mkdir(fp.get().c_str())==0) {
+
+        int mkdirres = mkdir(fp.get().c_str());
+        if(mkdirres==0) {
             Log::trbshoot(__PRETTY_FUNCTION__, "Successfully created new directory." );
             return 0;
         } else {
-            Log::error(__PRETTY_FUNCTION__, "Couldn't create directory.");
+            Log::trbshoot(__PRETTY_FUNCTION__, "Found or couldn't create directory \"%s\"", path.c_str());
         }
     // ...for Linux and macOS
     #elif (defined(__unix__) || defined(__unix) || (defined(__APPLE__) && defined(__MACH__)) )
