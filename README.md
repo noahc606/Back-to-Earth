@@ -10,7 +10,7 @@ Building is cross-platform and uses CMake. I recommend using VSCode but using th
 # Credits
 <br>
 Libraries used:<br>
--SDL2 library (SDL2, SDL2_image, SDL2_mixer, SDL2_ttf, SDL2_net, from https://www.libsdl.org/). This project statically links with the SDL library files contained within the 'lib' folder.<br>
+-SDL2 libraries (SDL2, SDL2_image, SDL2_mixer, SDL2_ttf, SDL2_net, from https://www.libsdl.org/).<br>
 -cURL, which is a network data transfer library (https://curl.se/).<br>
 <br>
 Miscellaneous:<br>
