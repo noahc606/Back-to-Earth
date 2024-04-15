@@ -8,7 +8,6 @@ Go into the /bin folder and run the appropriate executable file. You should see 
 Building is cross-platform and uses CMake. I recommend using VSCode but using the terminal or another environment should work. If you are on Linux/MacOS, you need to make sure you have all the necessary dev libraries for libsdl and libcurl installed. If you are on Windows, the linking step (with the -l) in the CMakeLists.txt can be confusing to get working properly. I recommend using MSYS2 and MinGW for building on Windows. See the CMakeLists.txt for more info on this.
 
 # Credits
-<br>
 Libraries used:<br>
 -SDL2 libraries (SDL2, SDL2_image, SDL2_mixer, SDL2_ttf, SDL2_net, from https://www.libsdl.org/).<br>
 -cURL, which is a network data transfer library (https://curl.se/).<br>
