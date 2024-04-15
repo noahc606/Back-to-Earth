@@ -1,5 +1,5 @@
 # Project Background
-Back to Earth is a game/game engine written in C++. It does not use OpenGL or another API/game engine. The libraries I used are in the 'Credits' section.
+Back to Earth is a game & game engine written in C++ using "basic" cross-platform libraries. It does not use OpenGL or another API/engine. The libraries I used are in the 'Credits' section.
 
 # Running
 Go into the /bin folder and run the appropriate executable file. You should see two binary executable files, one with a .exe extension (for Windows) and one without (for Linux). The unix executable was built on Debian Linux 12, so you may need to build the program from source if you are using another Linux/macOS/etc. MAKE SURE that the executable itself is in the same folder as the 'backtoearth' folder (which holds all resources for the program!). Basically just keep it in the root /bin folder it's already in and you'll be fine.
