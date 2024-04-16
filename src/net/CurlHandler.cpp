@@ -1,14 +1,14 @@
-#include "NetHandler.h"
+#include "CurlHandler.h"
 #include "Log.h"
 
-NetHandler::NetHandler(){}
+CurlHandler::CurlHandler(){}
 
-void NetHandler::init()
+void CurlHandler::init()
 {
     eHandle = curl_easy_init();
 }
 
-void NetHandler::destroy()
+void CurlHandler::destroy()
 {
     curl_easy_cleanup(eHandle);
     eHandle = nullptr;
@@ -18,8 +18,7 @@ void NetHandler::destroy()
     Takes in a 'url' (to a web resource) and an easy curl handle ('eHandle'), then populates 'str' with the HTML of that website.
     This is most useful for sites where the entire page is just raw text.
 */
-
-CURLcode NetHandler::cURLAsString(std::string* str, std::string url)
+CURLcode CurlHandler::cURLAsString(std::string* str, std::string url)
 {
     //URL
     curl_easy_setopt(eHandle, CURLOPT_URL, url.c_str());
@@ -41,12 +40,10 @@ CURLcode NetHandler::cURLAsString(std::string* str, std::string url)
 /*
     Takes in a 'url' (to a web resource) and an easy curl handle ('eHandle'), then downloads the file from 'url' into 'out'.
     
-    Example: 'out' = "dir1/dir2/icon.png", 'url' = "https://noahc606.github.io/nch/bte/1.1.0a-assets/backtoearth/resources/textures/icon.png"
-    
+    Example: 'out' = "dir1/dir2/icon.png", 'url' = "https://noahc606.github.io/nch/bte/1.1.0a-assets/backtoearth/resources/textures/icon.png"  
     Note: More likely than not you want to include "https://" at the beginning of the 'url'.
 */
-
-CURLcode NetHandler::cURLIntoFile(std::string out, std::string url)
+CURLcode CurlHandler::cURLIntoFile(std::string out, std::string url)
 {
     //Create file and error buffer
     FILE* pFile = fopen(out.c_str(), "w");
@@ -75,12 +72,19 @@ CURLcode NetHandler::cURLIntoFile(std::string out, std::string url)
     return cc;
 }
 
+/*
+    Go to noahc606.github.io/nch/bte/version.txt
+*/
+bool CurlHandler::newBTEVersionAvailable()
+{
+    return true;
+}
 
 
 /*
     Private callback function for writing to a string
 */
-size_t NetHandler::curlWriteCallbackString(void *contents, size_t size, size_t nmemb, std::string *s)
+size_t CurlHandler::curlWriteCallbackString(void *contents, size_t size, size_t nmemb, std::string *s)
 {
     size_t newLength = size*nmemb;
     try {
@@ -96,7 +100,7 @@ size_t NetHandler::curlWriteCallbackString(void *contents, size_t size, size_t n
 /*
     Private callback function for writing data with fwrite
 */
-size_t NetHandler::curlWriteCallbackData(void* ptr, size_t size, size_t nmemb, FILE* stream)
+size_t CurlHandler::curlWriteCallbackData(void* ptr, size_t size, size_t nmemb, FILE* stream)
 {
     size_t written = fwrite(ptr, size, nmemb, stream);
     return written;

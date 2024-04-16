@@ -33,7 +33,6 @@ void FileHandler::init( std::string rp, int fsType )
     files[Settings::controls] = 	new FilePath("saved/settings/controls.txt", filesystemType);
     files[Settings::games] =		new FilePath("saved/settings/games.txt", filesystemType);
     files[Settings::options] =		new FilePath("saved/settings/options.txt", filesystemType);
-    files[Settings::version] =		new FilePath("saved/settings/version.txt", filesystemType);
     files[Settings::session] =		new FilePath("saved/settings/session.txt", filesystemType);
     files[Settings::character] =	new FilePath("saved/settings/character.txt", filesystemType);
 

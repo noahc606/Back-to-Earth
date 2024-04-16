@@ -26,6 +26,7 @@ public:
     std::string getInfo();
     GUIHandler* getGUIHandler();
     /**/
+    void updateBTEApp();
 
 protected:
 

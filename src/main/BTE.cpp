@@ -2,6 +2,7 @@
 #include <sstream>
 #include <type_traits>
 #include "ButtonAction.h"
+#include "CurlHandler.h"
 #include "Log.h"
 #include "MainLoop.h"
 #include "Tests.h"
@@ -13,40 +14,44 @@
 BTE::BTE(){}
 void BTE::preinit(SDLHandler* sh, FileHandler* fh, Controls* ctrls)
 {
-	//MainLoop
+	/* Init handlers/tools */
 	sdlHandler = sh;
 	fileHandler = fh;
 	controls = ctrls;
 	settings = fileHandler->getSettings();
 	
 	
-	//Settings
-	if( settings->get(Settings::options, "fullscreen")=="true" ) {
+	/* Configure app to match saved settings */
+	if( settings->get(Settings::options, "fullscreen")=="true" ) {	// Fullscreen?
 		sdlHandler->toggleFullScreen();
 	}
-	
-	MainLoop::setMaxFPS( settings->get(Settings::options, "maxFps") );
-
-	if( settings->get(Settings::options, "bteCursor")=="true" ) {
+	MainLoop::setMaxFPS( settings->get(Settings::options, "maxFps") );	// Max FPS?
+	if( settings->get(Settings::options, "bteCursor")=="true" ) {	// Custom cursor?
 		sdlHandler->toggleBTECursor();
 		lastBTECursorState = "true";
 	}
-
-	if( settings->get(Settings::options, "debugHacks")=="joseph is lame" ) {
+	if( settings->get(Settings::options, "debugHacks")=="joseph is lame" ) {	// Debugging tools?
 		debugScreen.setHaxEnabled(true);
 	}
-
-	//Testing
-	if( alwaysTest || settings->get(Settings::options, "debugTesting")=="true" ) {
+	if( alwaysTest || settings->get(Settings::options, "debugTesting")=="true" ) {	// Testing?
 		testing = true;
 	}
-	if( alwaysTest || settings->get(Settings::options, "debugHardTesting")=="true" ) {
+	if( alwaysTest || settings->get(Settings::options, "debugHardTesting")=="true" ) {	// Hard testing?
 		hardTesting = true;
 	}
-	
 	if( hardTesting ) {
 		setGameState(GameState::TESTING);
 	}
+
+
+	/* Update app if needed */
+	CurlHandler ch;
+	ch.init();
+	if(ch.newVersionAvailable()) {
+		auto dirs = ch.getBTEDirList();
+		auto dirs = ch.getBTEAssetPathList();
+	}
+	ch.destroy();
 }
 void BTE::init()
 {

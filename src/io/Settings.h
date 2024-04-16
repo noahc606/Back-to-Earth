@@ -34,7 +34,6 @@ public:
 		controls,
 		games,
 		options,
-		version,
 		character,
 
         //Keep these two last

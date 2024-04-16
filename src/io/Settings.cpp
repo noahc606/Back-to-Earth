@@ -95,10 +95,7 @@ Settings::Settings()
 		kv(s, "debugTesting", "false");
 		kv(s, "debugHardTesting", "false");
 		kv(s, "logging", "false");
-
-		s = &(defaultSettings[version]);
-		kv(s, "version", Main::VERSION);
-
+		
 		s = &(defaultSettings[session]);
 		kv(s, "date", MainLoop::getSystemTime() );
 	}
