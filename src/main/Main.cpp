@@ -5,7 +5,8 @@
 #include "MainLoop.h"
 
 //Constants
-const std::string Main::VERSION = "Back to Earth 1.1.0a";
+const std::string Main::VERSION_LABEL = "1.0.0a";
+const std::string Main::VERSION = "Back to Earth "+Main::VERSION_LABEL;
 const bool Main::DEBUG = true;
 const bool Main::TROUBLESHOOTING = false;
 

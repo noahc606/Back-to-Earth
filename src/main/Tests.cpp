@@ -14,7 +14,6 @@
 #include "Grid.h"
 #include "Log.h"
 #include "MainLoop.h"
-#include "NetHandler.h"
 #include "Noise.h"
 #include "Terrain.h"
 #include "Real.h"

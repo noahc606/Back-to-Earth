@@ -63,6 +63,7 @@ public:
     Settings* getSettings();
     std::string getResourcePath();
     std::string getModifiedPath(FilePath fp);
+    static std::vector<std::string> split(std::string toSplit, std::string delim);
     static std::string getFileOpenTypeStr(int fot);
 
     enum FileStates {

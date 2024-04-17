@@ -46,12 +46,11 @@ void BTE::preinit(SDLHandler* sh, FileHandler* fh, Controls* ctrls)
 
 	/* Update app if needed */
 	CurlHandler ch;
-	ch.init();
-	if(ch.newVersionAvailable()) {
-		auto dirs = ch.getBTEDirList();
-		auto dirs = ch.getBTEAssetPathList();
+	ch.init(sdlHandler);
+	if(ch.newBTEVersionAvailable()) {
+		//auto dirs = ch.getBTEDirList();
+		//auto assets = ch.getBTEAssetPathList();
 	}
-	ch.destroy();
 }
 void BTE::init()
 {

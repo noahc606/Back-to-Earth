@@ -543,6 +543,30 @@ std::string FileHandler::getModifiedPath(FilePath fp)
     mp = resourcePath+fps;
     return mp;
 }
+
+std::vector<std::string> FileHandler::split(std::string toSplit, std::string delim)
+{
+    std::vector<int> posList;
+    for(int i = 0; i<toSplit.size(); i++) {
+        if(toSplit.substr(i, delim.size())==delim) {
+            posList.push_back(i);
+        }
+    }
+    
+    std::vector<std::string> res;
+    if(posList.size()>=1) {
+        res.push_back(toSplit.substr(0, posList[0]));
+        for(int i = 0; i<posList.size(); i++) {
+            std::string potential = toSplit.substr(posList[i]+delim.size(), posList[i+1]-posList[i]-delim.size());
+            if(potential.size()>0) {
+                res.push_back(potential);
+            }
+        }
+    }
+
+    return res;
+}
+
 std::string FileHandler::getFileOpenTypeStr(int fot)
 {
 	switch(fot) {
