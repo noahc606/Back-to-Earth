@@ -9,7 +9,6 @@ class CurlHandler
 public:
 	CurlHandler();
 	void init(SDLHandler* sh);
-	void destroy();
 
 	CURLcode cURLAsString(std::string* str, std::string url);
 	CURLcode cURLIntoFile(std::string out, std::string url);

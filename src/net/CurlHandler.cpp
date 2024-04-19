@@ -17,12 +17,6 @@ void CurlHandler::init(SDLHandler* sh)
     sdlHandler = sh;
 }
 
-void CurlHandler::destroy()
-{
-    curl_easy_cleanup(eHandle);
-    eHandle = nullptr;
-}
-
 /*
     Takes in a 'url' (to a web resource) and an easy curl handle ('eHandle'), then populates 'str' with the HTML of that website.
     This is most useful for sites where the entire page is just raw text.
@@ -240,36 +234,4 @@ CURLcode CurlHandler::cURLIntoFileTBR(std::string out, std::string url)
 
     //Return curlcode
     return cc;
-
-    /*
-    //Create file
-    FileHandler fh;
-    fh.init(sdlHandler->getResourcePath(), sdlHandler->getFilesystemType());
-    fh.openFile(out.c_str(), FileHandler::WRITE, true);
-    FILE* pFile = fh.getFilePtr();
-    if(pFile==nullptr) {
-        Log::warn(__PRETTY_FUNCTION__, "Null pFile");
-    }
-    //Create error buffer
-    const char* error;
-
-    //Setopt: URL; error buffer; callback function; WRITEDATA into file.
-    curl_easy_setopt(eHandle, CURLOPT_ERRORBUFFER, error);
-    curl_easy_setopt(eHandle, CURLOPT_URL, url.c_str());
-    curl_easy_setopt(eHandle, CURLOPT_WRITEFUNCTION, curlWriteCallbackData);
-    curl_easy_setopt(eHandle, CURLOPT_WRITEDATA, pFile);
-
-    //Perform
-    CURLcode cc = curl_easy_perform(eHandle);
-    
-    //Cleanup
-    curl_easy_reset(eHandle);
-    if(cc==0) {
-        fclose(pFile);
-    } else {
-        Log::errorv(__PRETTY_FUNCTION__, error, "Nonzero CURLcode %d", cc);
-        fclose(pFile);
-    }
-
-    return cc;*/
 }
