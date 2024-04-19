@@ -52,7 +52,7 @@ void World::init(SDLHandler* sh, GUIHandler* gh, FileHandler* fh, Controls* ctrl
 	csTileMap.init(sdlHandler, controls, localPlayer.getCamera());
 	csTileMap.setMaximumFPS(20);
 	csTileMap.setTexUsingDynamicLOD(true);
-	csTileMap.setTexAllocCount(1);
+	csTileMap.setTexAllocCount(5);
 	csTileMap.setTexAllocRadiusX(1);
 	csTileMap.setTexAllocRadiusY(1);
 	//TileMap, tileMapScreen

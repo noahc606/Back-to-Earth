@@ -30,7 +30,7 @@ void TileMapScreen::init(SDLHandler* sh, FileHandler* fh, TileMap* tm, Canvas* c
 	minimap.setDrawScale(2);
 
 	//TileMapUpdater: Governs the addition/removal of tile updates and region updates. Also reponsible for loading and unloading of regions.
-	tileMapUpdater.init(sdlHandler, tileMap, cam);
+	tileMapUpdater.init(sdlHandler, tileMap, csTileMap);
 	//RegTexUpdater: This object processes updates which decide where tiles/region blits need to happen. To do this, this object owns a RegTexProcessor.
 	regTexUpdater.init(sdlHandler, &tileMapUpdater, csTileMap);
 
@@ -153,9 +153,10 @@ void TileMapScreen::tick()
 		// Make sure to do it in the order of 1->2->3->4 (most expensive to least)
 		if( doUpdMapVisible )   tileMapUpdater.updateMapVisible(doMapBlackout, loadRadiusH, loadRadiusV);
 		if( doUpdMapTicked )    tileMapUpdater.updateMapTicked(fileHandler, loadRadiusH, loadRadiusV);
-		if( doUpdMapMoved )     tileMapUpdater.updateMapMoved(fileHandler, currentDimPath, loadRadiusH, loadRadiusV);
-		if( doUpdMapIdle )      tileMapUpdater.updateMapIdle(loadRadiusH, loadRadiusV);
-		if( doUpdMapAutosave )  tileMapUpdater.updateMapAutosave(fileHandler, currentDimPath, loadRadiusH, loadRadiusV);
+		//if( doUpdMapMoved )     tileMapUpdater.updateMapMoved(fileHandler, currentDimPath, loadRadiusH, loadRadiusV);
+		if( doUpdMapIdle )      tileMapUpdater.updateMap103(loadRadiusH, loadRadiusV);
+		if( doUpdMapIdle )      tileMapUpdater.updateMap104(loadRadiusH, loadRadiusV);
+		//if( doUpdMapAutosave )  {}
 	}
 	// Get elapsed time in MS
 	infoTickTime = localTimer.getElapsedTimeMS();

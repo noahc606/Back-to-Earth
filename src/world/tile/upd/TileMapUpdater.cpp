@@ -4,11 +4,12 @@
 #include "RegTexUpdater.h"
 #include "Timer.h"
 
-void TileMapUpdater::init(SDLHandler* sh, TileMap* tm, Camera* cam)
+void TileMapUpdater::init(SDLHandler* sh, TileMap* tm, Canvas* cs)
 {
 	sdlHandler = sh;
 	tileMap = tm;
-    TileMapUpdater::cam = cam;
+    csTileMap = cs;
+	cam = csTileMap->getCamera();
 }
 
 void TileMapUpdater::putInfo(std::stringstream& ss, int& tabs)
@@ -131,14 +132,9 @@ void TileMapUpdater::updateMapVisible(bool blackout, int loadDistH, int loadDist
 			for(int64_t iRZ = cam->getRZ()-loadDistV; iRZ<=cam->getRZ()+loadDistV; iRZ++) {
 				//If this region is visible
 				if(RegTexUpdater::isRegOnScreen(sdlHandler, cam, iRX, iRY, iRZ)) {
-					//If possible, mark it as SHOULD_UPDATE if the region is FINISHED_GENERATING.
-					int fg = TileRegion::FINISHED_GENERATING;
 					TileRegion* tr = tileMap->getRegByRXYZ(iRX, iRY, iRZ);
-					TileRegion* tr1 = tileMap->getRegByRXYZ(iRX, iRY, iRZ+2);
-					if(tr!=nullptr && tr->getRegTexState()>=fg) {
-						if(tr1!=nullptr && tr1->getRegTexState()>=fg) {
-							tr->setRegTexState(TileRegion::SHOULD_UPDATE);
-						}
+					if(tr!=nullptr && tr->getRegTexState()==TileRegion::UPDATED) {
+						tr->setRegTexState(TileRegion::SHOULD_UPDATE);
 					}
 				}
 			}
@@ -147,6 +143,59 @@ void TileMapUpdater::updateMapVisible(bool blackout, int loadDistH, int loadDist
 }
 
 void TileMapUpdater::updateMapVisible(int loadDistH, int loadDistV) { updateMapVisible(false, loadDistH, loadDistV); }
+
+void TileMapUpdater::updateMap103(int loadDistH, int loadDistV)
+{
+	//Iterate through all regions which should be loaded
+	for(int64_t iRX = cam->getRX()-loadDistH; iRX<=cam->getRX()+loadDistH; iRX++) {
+		for(int64_t iRY = cam->getRY()-loadDistH; iRY<=cam->getRY()+loadDistH; iRY++) {
+			for(int64_t iRZ = cam->getRZ()-loadDistV; iRZ<=cam->getRZ()+loadDistV; iRZ++) {
+				//If this region is visible
+				if(RegTexUpdater::isRegOnScreen(sdlHandler, cam, iRX, iRY, iRZ)) {
+					//Mark region as "SHOULD UPDATE" if a few conditions are met:
+					// If that column of regions is "FINISHED GENERATING".
+					// If that csTileMap texture is not nullptr.
+					bool shouldUpdate = true;
+
+					Texture* tex = csTileMap->getTex( iRX, iRY );
+					if(tex==nullptr) {
+						shouldUpdate = false;
+					}
+
+					int fg = TileRegion::FINISHED_GENERATING;
+					TileRegion* tr = tileMap->getRegByRXYZ(iRX, iRY, iRZ);
+					if(tr==nullptr || tr->getRegTexState()!=fg) { shouldUpdate = false; }
+
+					TileRegion* tr1 = tileMap->getRegByRXYZ(iRX, iRY, iRZ+2);
+					if(tr1==nullptr || tr1->getRegTexState()!=fg) { shouldUpdate = false; }
+					
+					if(shouldUpdate) {
+						tr->setRegTexState(TileRegion::SHOULD_UPDATE);
+					}
+				}
+			}
+		}
+	}
+}
+
+void TileMapUpdater::updateMap104(int loadDistH, int loadDistV)
+{
+	Grid grid(sdlHandler, tileMap, cam, loadDistH, loadDistV, TileRegion::RegTexState::UPDATED-1);
+	std::pair<int, int> leXY = grid.getLowestElementXY();
+
+	if(leXY.first!=-1) {
+		int64_t rX = cam->getRX()-loadDistH+leXY.first;
+		int64_t rY = cam->getRY()-loadDistH+leXY.second;
+		
+		TileRegion* tr = tileMap->getRegByRXYZ(rX, rY, cam->getRZ());
+		if(tr!=nullptr) {
+			if(tr->getRegTexState()==TileRegion::SHOULD_UPDATE) {
+				addRegionUpdate(rX, rY);
+				tr->setRegTexState(tr->UPDATED);
+			}
+		}
+	}
+}
 
 /**
 	Load a given region as fast as the computer can handle it (based on loadCountMax, infoRegLoadTime).
@@ -179,7 +228,6 @@ void TileMapUpdater::updateRegTicked(FileHandler* fileHandler, int64_t rX, int64
 
 void TileMapUpdater::updateMapTicked(FileHandler* fileHandler, int loadDistH, int loadDistV)
 {
-
 	//Try to load the nearest null regions
 	Grid grid(sdlHandler, tileMap, cam, loadDistH, loadDistV, -1);
 	std::pair<int, int> leXY = grid.getLowestElementXY();
@@ -255,79 +303,3 @@ void TileMapUpdater::updateMapMoved(FileHandler* fileHandler, std::string curren
 	}
 }
 
-
-void TileMapUpdater::updateMapIdle(int loadDistH, int loadDistV)
-{
-	Grid grid(sdlHandler, tileMap, cam, loadDistH, loadDistV, TileRegion::RegTexState::SHOULD_UPDATE);
-	std::pair<int, int> leXY = grid.getLowestElementXY();
-
-	if(leXY.first!=-1) {
-		int64_t rX = cam->getRX()-loadDistH+leXY.first;
-		int64_t rY = cam->getRY()-loadDistH+leXY.second;
-		
-		TileRegion* tr = tileMap->getRegByRXYZ(rX, rY, cam->getRZ());
-		if(tr!=nullptr) {
-			addRegionUpdate(rX, rY);
-			tr->setRegTexState(tr->UPDATED);
-		}
-	}
-}
-
-void TileMapUpdater::updateMapAutosave(FileHandler* fileHandler, std::string currentDimPath, int loadDistH, int loadDistV)
-{
-	int64_t camRX = cam->getRX();
-	int64_t camRY = cam->getRY();
-	int64_t camRZ = cam->getRZ();
-	return;
-	
-	/** Region unloading (all regions) */
-	/*
-		Region unloading:
-		TileRegions will be deleted from the map if:
-		-they are > 'radius' regions away from the current camera region horizontally
-		-they are > 'verticalRadius' regions away from the current camera region vertically
-	*/
-
-	TileMap::t_regionMap::iterator itrRM = tileMap->getRegionMap()->begin();
-	while( itrRM!=tileMap->getRegionMap()->end() ) {
-		/** Null pointer check */
-		//If this TileRegion is null, stop this iteration and continue to the next one
-		TileRegion* tr = &itrRM->second;
-		if(tr==nullptr) {
-			itrRM++;
-			continue;
-		}
-
-		/** Get basic info */
-		//Get rX, rY, and rZ of itr.
-		int rX = std::get<0>(itrRM->first);
-		int rY = std::get<1>(itrRM->first);
-		int rZ = std::get<2>(itrRM->first);
-		int sz = TileMap::getRegSubPos( cam->getLayer() );
-
-		/** Manage regTexState */
-		//If a tileRegion's regTexState is not NONE (aka not reset)...
-		//... we need to check if it does need to be reset.
-		if( tr->getRegTexState()!=TileRegion::RegTexState::NONE ) {
-			//If a region is far offscreen or not on the same rZ as the camera
-			//if( !regTexUpdates->isOnScreen(rX, rY, rZ) || rZ!=camRZ ) {
-				//Reset region state and stop all region updates
-				//tr->resetRegTexState();
-				stopRegionUpdate( rX, rY );
-			//}
-		}
-		
-		/** Manage regionMap */
-		//If a region is outside of a rectangular prism of regions defined by (rX, rY, and rZ) and loadDistH + loadDistV
-		if( rX<camRX-loadDistH || rX>camRX+loadDistH ||
-			rY<camRY-loadDistH || rY>camRY+loadDistH ||
-			rZ<camRZ-loadDistV || rZ>camRZ+loadDistV
-		) {
-			//Unload region
-			tileMap->saveRegion(fileHandler, currentDimPath, rX, rY, rZ);
-			itrRM = tileMap->getRegionMap()->erase(itrRM);
-		} else {
-			itrRM++;
-		}
-	}
-}
