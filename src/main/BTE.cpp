@@ -42,15 +42,6 @@ void BTE::preinit(SDLHandler* sh, FileHandler* fh, Controls* ctrls)
 	if( hardTesting ) {
 		setGameState(GameState::TESTING);
 	}
-
-
-	/* Update app if needed */
-	CurlHandler ch;
-	ch.init(sdlHandler);
-	if(ch.newBTEVersionAvailable()) {
-		//auto dirs = ch.getBTEDirList();
-		//auto assets = ch.getBTEAssetPathList();
-	}
 }
 void BTE::init()
 {

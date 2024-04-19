@@ -1,11 +1,19 @@
 #include "CurlHandler.h"
+#include <set>
 #include "Log.h"
+
+bool CurlHandler::globalInitState = false;
 
 CurlHandler::CurlHandler(){}
 
 void CurlHandler::init(SDLHandler* sh)
 {
-    eHandle = curl_easy_init();
+    //Global curl init (globalInitState is static)
+    if(!globalInitState) {
+        curl_global_init(CURL_GLOBAL_DEFAULT);
+        globalInitState = true;
+    }
+
     sdlHandler = sh;
 }
 
@@ -23,22 +31,9 @@ void CurlHandler::destroy()
 */
 CURLcode CurlHandler::cURLAsString(std::string* str, std::string url)
 {
-    //URL
-    curl_easy_setopt(eHandle, CURLOPT_URL, url.c_str());
-    
-    //Set write function, create string, set writedata to string, then perform
-    curl_easy_setopt(eHandle, CURLOPT_WRITEFUNCTION, curlWriteCallbackString);
-    std::string res;
-    curl_easy_setopt(eHandle, CURLOPT_WRITEDATA, &res);
-    CURLcode cc = curl_easy_perform(eHandle);
-
-    //Cleanup
-    curl_easy_reset(eHandle);
-
-    //Set transformed str to res and return result
-    *str = res;
-    return cc;
+    return cURLAsStringTBR(str, url);
 }
+
 
 /*
     Takes in a 'url' (to a web resource) and an easy curl handle ('eHandle'), then downloads the file from 'url' into 'out'.
@@ -48,31 +43,7 @@ CURLcode CurlHandler::cURLAsString(std::string* str, std::string url)
 */
 CURLcode CurlHandler::cURLIntoFile(std::string out, std::string url)
 {
-    //Create file and error buffer
-    FILE* pFile = fopen(out.c_str(), "w");
-    const char* error;
-
-    //Setopt: URL; error buffer; callback function; WRITEDATA into file.
-    curl_easy_setopt(eHandle, CURLOPT_ERRORBUFFER, error);
-    curl_easy_setopt(eHandle, CURLOPT_URL, url.c_str());
-    curl_easy_setopt(eHandle, CURLOPT_WRITEFUNCTION, curlWriteCallbackData);
-    curl_easy_setopt(eHandle, CURLOPT_WRITEDATA, pFile);
-
-    //Perform
-    CURLcode cc;
-    cc = curl_easy_perform(eHandle);
-
-    //Cleanup
-    curl_easy_reset(eHandle);
-    if(cc==0) {
-        fclose(pFile);
-    } else {
-        Log::errorv(__PRETTY_FUNCTION__, error, "Nonzero CURLcode %d", cc);
-        fclose(pFile);
-    }
-
-    //Return CURLcode
-    return cc;
+    return cURLIntoFileTBR(out, url);
 }
 
 /*
@@ -119,7 +90,7 @@ bool CurlHandler::v1NewerThanV2(std::string v1, std::string v2)
 /*
     Go to noahc606.github.io/nch/bte/versions.txt and see if a newer version is listed there (higher than the current version defined by Main::VERSION_LABEL)
 */
-bool CurlHandler::newBTEVersionAvailable()
+bool CurlHandler::newBTEVersionAvailable(std::string* newVersion)
 {
     //Get version list as a split string
     std::string versionList;
@@ -136,23 +107,57 @@ bool CurlHandler::newBTEVersionAvailable()
 
     //Return whether we found a newer version or not
     if(v1NewerThanV2(max, Main::VERSION_LABEL)) {
+        *newVersion = max;
         Log::log("Found newer version \"%s\" at noahc606.github.io/nch/bte/versions.txt. Maybe you should update.", max.c_str());
         return true;
     }
-    return false;
-}
 
-std::vector<std::string> CurlHandler::getBTEDirList()
-{
-    std::vector<std::string> res;
-    return res;
+    *newVersion = "";
+    return false;
 }
 
 std::vector<std::string> CurlHandler::getBTEAssetPathList()
 {
-    std::vector<std::string> res;
+    std::string assetPathList;
+    std::string url = "https://noahc606.github.io/nch/bte/assets.txt";
+    CURLcode cc = cURLAsString(&assetPathList, url);
+    if(cc!=0) {
+        Log::errorv(__PRETTY_FUNCTION__, curl_easy_strerror(cc), "Failed to GET \"%s\"", url.c_str());
+        std::vector<std::string> emptyList;
+        return emptyList;
+    }
+
+    std::vector<std::string> res = FileHandler::split(assetPathList, "\n"); //'split assetPathList'
     return res;
 }
+
+std::vector<std::string> CurlHandler::getBTEDirList(std::vector<std::string> assetPathList)
+{
+    std::set<std::string> bteDirSet;
+    for(int i = 0; i<assetPathList.size(); i++) {
+        bteDirSet.insert(FilePath::getDirectory(assetPathList[i], sdlHandler->getFilesystemType()));
+    }
+
+    std::vector<std::string> res;
+    for(std::string dir : bteDirSet) {
+        if(dir!="")
+            res.push_back(dir);
+    }
+    return res;
+}
+
+
+bool CurlHandler::initEHandle()
+{
+    //Curl handle init for the current object
+    eHandle = curl_easy_init();
+    if(!eHandle) {
+        Log::error(__PRETTY_FUNCTION__, "Failed to initialize curl handler");
+        return false;
+    }
+    return true;
+}
+
 /*
     Private callback function for writing to a string
 */
@@ -172,8 +177,99 @@ size_t CurlHandler::curlWriteCallbackString(void *contents, size_t size, size_t 
 /*
     Private callback function for writing data with fwrite
 */
-size_t CurlHandler::curlWriteCallbackData(void* ptr, size_t size, size_t nmemb, FILE* stream)
+size_t CurlHandler::curlWriteCallbackData(void* contents, size_t size, size_t nmemb, FILE* stream)
 {
-    size_t written = fwrite(ptr, size, nmemb, stream);
+    size_t written = fwrite(contents, size, nmemb, stream);
     return written;
+}
+
+/*
+    cURLAsString(T)o(B)e(R)eturned
+    User might pass in a raw c string ("https://google.com" as opposed to std::string test = "https://google.com") as the url.
+    If the user does the former we get a segfault (curl was made for C)
+*/
+CURLcode CurlHandler::cURLAsStringTBR(std::string* str, std::string url)
+{
+    //Track curlcode to be returned from operation
+    CURLcode cc;
+    if(initEHandle()) {
+        //URL
+        curl_easy_setopt(eHandle, CURLOPT_URL, url.c_str());
+
+        //Set write function, create string, set writedata to string, then perform
+        curl_easy_setopt(eHandle, CURLOPT_WRITEFUNCTION, curlWriteCallbackString);
+        std::string res;
+        curl_easy_setopt(eHandle, CURLOPT_WRITEDATA, &res);
+        cc = curl_easy_perform(eHandle);
+
+        //Cleanup
+        if(cc!=0) {
+            Log::errorv(__PRETTY_FUNCTION__, curl_easy_strerror(cc), "Nonzero CURLcode %d", cc);
+        }
+        curl_easy_reset(eHandle);
+
+        //Set transformed str to res and return result
+        *str = res;
+    }
+
+    //Return curlcode
+    return cc;
+}
+
+CURLcode CurlHandler::cURLIntoFileTBR(std::string out, std::string url)
+{
+    //Track curlcode to be returned from operation
+    CURLcode cc;
+    if(initEHandle()) {
+        FILE* fp = fopen(out.c_str(), "wb");
+        char* p_url = url.data();
+
+        //Set operations and perform them
+        curl_easy_setopt(eHandle, CURLOPT_URL, p_url);
+        curl_easy_setopt(eHandle, CURLOPT_WRITEFUNCTION, curlWriteCallbackData);
+        curl_easy_setopt(eHandle, CURLOPT_WRITEDATA, fp);
+        cc = curl_easy_perform(eHandle);
+
+        //Cleanup
+        if(cc!=0)  {
+            Log::errorv(__PRETTY_FUNCTION__, curl_easy_strerror(cc), "Nonzero CURLcode %d", cc);
+        }
+        curl_easy_cleanup(eHandle);
+        fclose(fp);
+    }
+
+    //Return curlcode
+    return cc;
+
+    /*
+    //Create file
+    FileHandler fh;
+    fh.init(sdlHandler->getResourcePath(), sdlHandler->getFilesystemType());
+    fh.openFile(out.c_str(), FileHandler::WRITE, true);
+    FILE* pFile = fh.getFilePtr();
+    if(pFile==nullptr) {
+        Log::warn(__PRETTY_FUNCTION__, "Null pFile");
+    }
+    //Create error buffer
+    const char* error;
+
+    //Setopt: URL; error buffer; callback function; WRITEDATA into file.
+    curl_easy_setopt(eHandle, CURLOPT_ERRORBUFFER, error);
+    curl_easy_setopt(eHandle, CURLOPT_URL, url.c_str());
+    curl_easy_setopt(eHandle, CURLOPT_WRITEFUNCTION, curlWriteCallbackData);
+    curl_easy_setopt(eHandle, CURLOPT_WRITEDATA, pFile);
+
+    //Perform
+    CURLcode cc = curl_easy_perform(eHandle);
+    
+    //Cleanup
+    curl_easy_reset(eHandle);
+    if(cc==0) {
+        fclose(pFile);
+    } else {
+        Log::errorv(__PRETTY_FUNCTION__, error, "Nonzero CURLcode %d", cc);
+        fclose(pFile);
+    }
+
+    return cc;*/
 }

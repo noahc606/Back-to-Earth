@@ -48,6 +48,7 @@ public:
     /**/
     void toggleFullScreen();
     void toggleBTECursor();
+    
     void renderCopy(int id, SDL_Rect* src, SDL_Rect* dst);
     void renderCopy(int id, SDL_Rect* src, SDL_Rect* dst, double angle, SDL_Point* cor);
     void setColorMod(int id, const Color& c);
@@ -62,6 +63,7 @@ private:
     void createWindowAndRenderer();
     void validateDevicePlatform();
     void setVideoDriversDesc();
+    bool updateBTEApp();
 
     /**/
     /* Resources */

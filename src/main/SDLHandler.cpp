@@ -2,6 +2,7 @@
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_mixer.h>
 #include <SDL2/SDL_net.h>
+#include "CurlHandler.h"
 #include "Log.h"
 #include "Main.h"
 
@@ -22,7 +23,9 @@ void SDLHandler::init()
 	
     //Store information about video drivers
     setVideoDriversDesc();
-    
+
+    //updateBTEApp();
+
 	//Create asset loaders
     textureLoader.init(windowRenderer, windowPixelFormat, resourcePath);
     audioLoader.init(resourcePath);
@@ -354,4 +357,46 @@ void SDLHandler::setVideoDriversDesc()
     ss << " }";
 
     videoDriversDesc = ss.str();
+}
+
+bool SDLHandler::updateBTEApp()
+{
+	/* Update app if needed */
+	CurlHandler ch;
+	ch.init(this);
+
+	std::string newVersion = "";
+	if(ch.newBTEVersionAvailable(&newVersion)) {
+		Log::log("================================");
+		Log::log("Preparing to download assets for version \"%s\".", newVersion.c_str());
+
+		auto assets = ch.getBTEAssetPathList();
+		auto dirs = ch.getBTEDirList(assets);
+
+		//Make the necessary dirs
+		Log::log("CREATING DIRECTORIES:");
+        FileHandler fh;
+        fh.init(resourcePath, filesystemType);
+		for(std::string s : dirs) {
+			if(s.substr(0,12).compare("backtoearth/")!=0) {
+				Log::error(__PRETTY_FUNCTION__, "Invalid directory \"%s\" found", s.c_str());
+			} else {
+				fh.createBTEDir(s.substr(12));
+				Log::log(s.substr(12));
+			}
+		}
+
+		//Update the necessary asset files
+		Log::log("DOWNLOADING/UPDATING ASSET FILES:");
+		for(std::string s : assets) {
+			ch.cURLIntoFile(s, "https://noahc606.github.io/nch/bte/1.1.0a-assets/backtoearth/");
+			Log::log(s);
+		}
+
+		Log::log("DOWNLOADS COMPLETE");
+		Log::log("================================");
+		return true;
+	}
+
+	return false;
 }

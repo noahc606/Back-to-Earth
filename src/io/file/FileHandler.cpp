@@ -110,7 +110,7 @@ int FileHandler::openFile(std::string path, int openType, bool binary)
     //Get whether file already exists
     bool fExists = (fileExists(path));
     if(!fExists) {
-        Log::debug( __PRETTY_FUNCTION__, "File '"+mpath+"' not found, attempting to create new file..." );
+        Log::debug("File \"%s\" not found, attempting to create new file...", mpath.c_str());
     }
     //Mode: Binary (b) or Text (t).
     std::string modeArg = "b";
@@ -132,7 +132,7 @@ int FileHandler::openFile(std::string path, int openType, bool binary)
     if(file==NULL) {
         std::string action = "open";
         if(fExists) { action = "create"; }
-        Log::warn("Failed to "+action+" file '"+mpath+"' for "+getFileOpenTypeStr(openType), __PRETTY_FUNCTION__);
+        Log::warn(__PRETTY_FUNCTION__, "Failed to "+action+" file '"+mpath+"' for "+getFileOpenTypeStr(openType));
 		return FileStates::FAILED_ACCESS;
     //If file was successfully created
     } else {
@@ -248,7 +248,6 @@ bool FileHandler::fileExists(FilePath fp)
 }
 bool FileHandler::fileExists(std::string path)
 {
-	
     FilePath fp(path, filesystemType);
     return fileExists(fp);
 }
@@ -305,7 +304,7 @@ Settings::t_kvMap FileHandler::readTxtFileKVs(FilePath fp)
 
 	//Return an empty kvMap if file not found.
 	if( !fileExists(fp) ) {
-		Log::debug( __PRETTY_FUNCTION__, "File '"+fp.get()+"' not found" );
+		Log::debug( __PRETTY_FUNCTION__, "File \"%s\" not found", fp.get().c_str());
 		return contents;
 	}
 	
@@ -523,6 +522,7 @@ void FileHandler::reloadSettings()
     }
 }
 
+FILE* FileHandler::getFilePtr() { return file; }
 Settings* FileHandler::getSettings() { return &settings; }
 std::string FileHandler::getResourcePath() { return resourcePath; }
 /**

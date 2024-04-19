@@ -46,13 +46,10 @@ std::string FilePath::getConvertedPath(std::string path, int fsType)
     return res;
 }
 
-std::string FilePath::getFileExtension(std::string path, int fsType)
+std::string FilePath::getExtension(std::string path, int fsType)
 {
     //Get path seperator character
-    char pathSeperator = '/';
-    if(fsType==SDLHandler::WINDOWS) {
-        pathSeperator = '\\';
-    }
+    char pathSeperator = getSeparator(fsType);
     path = getConvertedPath(path, fsType);
 
     //Find extension by starting at the end and going back until we find "."
@@ -75,6 +72,32 @@ std::string FilePath::getFileExtension(std::string path, int fsType)
     } else {
         return path.substr(dotIndex+1);
     }
+}
+
+std::string FilePath::getDirectory(std::string path, int fsType)
+{
+    char pathSeperator = getSeparator(fsType);
+    path = getConvertedPath(path, fsType);
+
+    //Find directory by starting at the end and going back until we find "/"
+    for( int i = (int)path.size()-1; i>=0; i-- ) {
+        //If we find a slash, return the path of the directory
+        if(path[i]==pathSeperator) {
+            return path.substr(0, i);
+        }
+    }
+
+    return "";
+}
+
+char FilePath::getSeparator(int fsType)
+{
+    //Get path seperator character
+    char res = '/';
+    if(fsType==SDLHandler::WINDOWS) {
+        res = '\\';
+    }
+    return res;
 }
 
 std::string FilePath::get()

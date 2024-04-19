@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 #include "BTEObject.h"
+#include "CurlHandler.h"
 #include "Loggable.h"
 #include "SpriteSheet.h"
 #include "STexture.h"
@@ -33,6 +34,7 @@ private:
     Texture tex;
 	SDL_Rect lvlImgSrc;
 
+    CurlHandler ch;
     STexture stex;
     TTexture ttex;
     SpriteSheet spsh;

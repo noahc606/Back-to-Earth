@@ -30,6 +30,24 @@ void Tests::init(SDLHandler* sh, FileHandler* fh, Controls* ctrls)
 	fileHandler = fh;
 	controls = ctrls;
 
+
+
+    ch.init(sdlHandler);
+    
+    
+    
+    //auto apl = ch.getBTEAssetPathList();
+    //for(std::string s : apl) {
+        //std::cout << s << "\n";
+    //}
+    ch.cURLIntoFile("test.png", "https://noahc606.github.io/nch/bte/assets/backtoearth/resources/textures/icon.png");
+    
+    std::string res;
+    CURLcode cc = ch.cURLAsString(&res, "https://noahc606.github.io/nch/bte/assets.txt");
+    std::cout << res << "\n";
+
+
+    Log::log("test123");
     //Log::log();
 
     /*

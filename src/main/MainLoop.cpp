@@ -2,6 +2,7 @@
 #include <ctime>
 #include <iostream>
 #include <SDL2/SDL.h>
+#include "CurlHandler.h"
 #include "Log.h"
 #include "Main.h"
 #include "Timer.h"

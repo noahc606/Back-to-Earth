@@ -133,13 +133,13 @@ SDL_Surface* TextureLoader::loadSurface(std::string path)
 
 	if( surf==NULL ) {
 		if(filename=="missing.png") {
-			Log::error(__PRETTY_FUNCTION__, "Failed to load image resources", "unable to load default image '"+path+"'");
-			Log::error(__PRETTY_FUNCTION__, "IMG_Error: ", IMG_GetError());
+			Log::errorv(__PRETTY_FUNCTION__, "unable to load default image '"+path+"'", "Failed to load image resources");
+			Log::errorv(__PRETTY_FUNCTION__, IMG_GetError(), "IMG_Error: ");
 			errorFailedTexLoad();
 			return nullptr;
 		} else {
-			Log::warn(__PRETTY_FUNCTION__, "Unable to load image '"+path+"'", "using default 'missing.png' image");
-			Log::error(__PRETTY_FUNCTION__, "IMG_Error: ", IMG_GetError());
+			Log::warnv(__PRETTY_FUNCTION__, "using default 'missing.png' image", "Unable to load image '"+path+"'");
+			Log::error(__PRETTY_FUNCTION__, IMG_GetError(), "IMG_Error: ");
 			return missingSurf;
 		}
 	}

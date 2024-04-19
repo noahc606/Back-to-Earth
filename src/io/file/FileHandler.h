@@ -60,6 +60,7 @@ public:
     void reloadSettings();
 
     /* Getters */
+    FILE* getFilePtr();
     Settings* getSettings();
     std::string getResourcePath();
     std::string getModifiedPath(FilePath fp);
