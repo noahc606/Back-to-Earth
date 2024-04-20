@@ -75,6 +75,11 @@ TileRegion* TileMap::getRegByRXYZ(int64_t rX, int64_t rY, int64_t rZ)
     return nullptr;
 }
 
+TileRegion* TileMap::getRegByScrRXYZ(Camera* cam, int64_t scrRX, int64_t scrRY, int64_t scrRZ)
+{
+	return getRegByRXYZ(scrRX, scrRY, scrRZ);
+}
+
 int64_t TileMap::getRegSubPos(int64_t c) { c %= 32; if( c<0 ) c+=32; return c; }
 void TileMap::getRegSubPos(int64_t& x, int64_t& y, int64_t& z) { x = getRegSubPos(x); y = getRegSubPos(y); z = getRegSubPos(z); }
 
@@ -133,26 +138,61 @@ int TileMap::setTile(int64_t x, int64_t y, int64_t z, TileType tt)
 	return -1;
 }
 
+/*
+	Given a nonexistent region (rX, rY, rZ), create the region, generate its terrain, and load its artificial tiles from file.
+	Returns: 0 if successful, -1 if region already existed.
+*/
 int TileMap::loadRegion(FileHandler* fileHandler, int64_t rX, int64_t rY, int64_t rZ)
 {
+	//Try to find the region (rX, rY, rZ).
 	t_regionMap::iterator itr = regionMap.find( std::make_tuple(rX, rY, rZ) );
-	//If no region was found, continue.
+	//If no region was found, create the region and process it.
 	if( itr==regionMap.end() ) {
+		//Create Terrain and TileRegion objects
 		Terrain terra;
 		TileRegion tr;
 		
-		//Generate terrain
+		//Populate region's terrain
 		tr.setRegTexState(tr.GENERATING);
 		terra.populateRegion(tr, rX, rY, rZ);
 		tr.setRegTexState(tr.FINISHED_GENERATING);
 		
-		//Place artificial tiles
+		//Place region's artificial tiles
 		tr.load(fileHandler, "world1", rX, rY, rZ);
 		
+		//Insert the region into the regionMap.
 		regionMap.insert( std::make_pair(std::make_tuple(rX, rY, rZ), tr) );
 		return 0;
 	}
 	return -1;
+}
+
+/*
+	Load a rectangular prism of regions.
+	Warning: will cause more lag at once compared to a single loadRegion().
+	Returns: -x, where x is the number of regions that couldn't be loaded (because they already existed there)
+*/
+int TileMap::loadRegions(FileHandler* fileHandler, int64_t rX1, int64_t rY1, int64_t rZ1, int64_t rX2, int64_t rY2, int64_t rZ2)
+{
+	//Return result
+	int res = 0;
+
+	//Switch r[?]1 and r[?]2 if necessary (r[?]1 should be <= r[?]2)
+	if(rX2<rX1) { int64_t temp = rX1; rX1 = rX2; rX2 = temp; }
+	if(rY2<rY1) { int64_t temp = rY1; rY1 = rY2; rY2 = temp; }
+	if(rZ2<rZ1) { int64_t temp = rZ1; rZ1 = rZ2; rZ2 = temp; }
+
+	//Load all regions within the rectangular prism using 3D for loop
+	for(int iRX = rX1; iRX<=rX2; iRX++) {
+		for(int iRY = rY1; iRY<=rY2; iRY++) {
+			for(int iRZ = rZ1; iRZ<=rZ2; iRZ++) {
+				res += loadRegion(fileHandler, iRX, iRY, iRZ);
+			}
+		}
+	}
+
+	//Return result
+	return res;
 }
 
 /**

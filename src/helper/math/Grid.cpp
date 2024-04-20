@@ -31,6 +31,7 @@ Grid::Grid(SDLHandler* sh, TileMap* tm, Camera* cam, int64_t loadDistH, int64_t 
             int64_t rY = cam->getRY()-loadDistH+y;
             int64_t rZ = cam->getRZ();
             
+            bool completePillar = true;
             for(int64_t iRZ = rZ-loadDistV; iRZ<=rZ+loadDistV; iRZ++) {
                 if(stateToUse!=-1) {
                     TileRegion* tr = tm->getRegByRXYZ(rX, rY, iRZ);
@@ -39,10 +40,14 @@ Grid::Grid(SDLHandler* sh, TileMap* tm, Camera* cam, int64_t loadDistH, int64_t 
                     }
                 } else {
                     TileRegion* tr = tm->getRegByRXYZ(rX, rY, iRZ);
-                    if(tr!=nullptr ) {                    
-                        grid[x][y] = 1000;                
+                    if(tr==nullptr ) {     
+                        completePillar = false;
                     }
                 }
+            }
+
+            if(stateToUse==-1 && completePillar) {
+                grid[x][y] = 1000;
             }
         }
     }

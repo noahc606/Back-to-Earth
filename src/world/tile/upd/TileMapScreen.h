@@ -39,18 +39,17 @@ public:
 private:
 	void updateMinimap();
     
-	Camera* cam = nullptr;								//Area of the world shown on screen. Also tracks size of each tile (zoom factor).
-	Planet* planet = nullptr;
-	TileMap* tileMap = nullptr;
-	Canvas* csTileMap = nullptr;
+	Camera* cam = nullptr;							//Area of the world shown on screen. Also tracks size of each tile (zoom factor).
+	TileMap* tileMap = nullptr;                     //TileMap we are drawing
+	Canvas* csTileMap = nullptr;                    //Canvas object depicting the TileMap
 	
     RegTexUpdater regTexUpdater;
     TileMapUpdater tileMapUpdater;
     Texture minimap;
 
 	int camRX = 0; int camRY = 0; int camRZ = 0;	//Coordinates of region which the center of the screen occupies. e.g. As player moves regionSize tiles to the right, cameraRX increases by 1.
-	int camL = 0;
-	int camD = -1;
+	int camL = 0;                                   //Layer which the camera occupies
+	int camD = -1;                                  //Direction of the camera (see Camera::Directions)
 
 	/*
 	 * Zoom factor. Determines how many onscreen pixels take up 1px of a single onscreen 32x32px tile
@@ -62,10 +61,10 @@ private:
     /* Map update distance + counts */
     int umiTicks = 0;
     int umiTicksMax = 10;	//TODO: Base this on performance level of drawing
-    int loadRadiusH = 6;    //loadRadiusH of 5 => 6*2+1 = 13x13 square of loaded region columns
-    int loadRadiusV = 3;    //loadRadiusV of 2 => 3*2+2 = 7 high column of loaded regions
-    
+    int loadDistH = 6;      //loadDistH of 5 => 6*2+1 = 13x13 square of loaded region columns
+    int loadDistV = 3;      //loadDistV of 2 => 3*2+2 = 7 high column of loaded regions
 
+    
     std::string currentDimPath = "default";
 
     /* Performance gauging */

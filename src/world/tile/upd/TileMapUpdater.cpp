@@ -1,6 +1,7 @@
 #include "TileMapUpdater.h"
 #include "DebugScreen.h"
 #include "Grid.h"
+#include "Log.h"
 #include "RegTexUpdater.h"
 #include "Timer.h"
 
@@ -133,8 +134,13 @@ void TileMapUpdater::updateMapVisible(bool blackout, int loadDistH, int loadDist
 				//If this region is visible
 				if(RegTexUpdater::isRegOnScreen(sdlHandler, cam, iRX, iRY, iRZ)) {
 					TileRegion* tr = tileMap->getRegByRXYZ(iRX, iRY, iRZ);
-					if(tr!=nullptr && tr->getRegTexState()==TileRegion::UPDATED) {
-						tr->setRegTexState(TileRegion::SHOULD_UPDATE);
+					if(tr!=nullptr) {
+						tr->setRegTexState(TileRegion::FINISHED_GENERATING);
+					}
+
+					if(blackout) {
+						Texture* tex = csTileMap->getTex(iRX, iRY);
+						RegTexProcessor::blackOutRegionArea(csTileMap, iRX, iRY);
 					}
 				}
 			}
@@ -166,7 +172,7 @@ void TileMapUpdater::updateMap103(int loadDistH, int loadDistV)
 
 				for(int jRX = iRX-1; jRX<=iRX+1; jRX++) {
 					for(int jRY = iRY-1; jRY<=iRY+1; jRY++) {
-						for(int jRZ = iRZ-1; jRZ<=iRZ+1; jRZ++) {
+						for(int jRZ = iRZ; jRZ<=iRZ+1; jRZ++) {
 							TileRegion* ttr = tileMap->getRegByRXYZ(jRX, jRY, jRZ);
 							if(ttr==nullptr || ttr->getRegTexState()<fg) shouldUpdate = false;
 						}
@@ -192,7 +198,7 @@ void TileMapUpdater::updateMap104(int loadDistH, int loadDistV)
 	if(leXY.first!=-1) {
 		int64_t rX = cam->getRX()-loadDistH+leXY.first;
 		int64_t rY = cam->getRY()-loadDistH+leXY.second;
-		
+
 		TileRegion* tr = tileMap->getRegByRXYZ(rX, rY, cam->getRZ());
 		if(tr!=nullptr) {
 			if(tr->getRegTexState()==TileRegion::SHOULD_UPDATE) {
@@ -205,44 +211,55 @@ void TileMapUpdater::updateMap104(int loadDistH, int loadDistV)
 
 /**
 	Load a given region as fast as the computer can handle it (based on loadCountMax, infoRegLoadTime).
+	Note: Camera direction has no effect on the loadDistH and loadDistV, this is intended.
 */
 void TileMapUpdater::updateRegTicked(FileHandler* fileHandler, int64_t rX, int64_t rY, int64_t camRZ, int loadDistV)
 {
-	//Load region if loadCount<loadCountMax
-	int loadCount = 0;
-	if( loadCount<loadCountMax ) {
-		//Timer for debugging
-		Timer rlt;
+	//Timer for debugging
+	Timer rlt;
 
-		//If new region load was successful (regions already loaded are not == 0)
-		if( tileMap->loadRegion(fileHandler, rX, rY, camRZ)==0 ) {
-			//Increment loadCount
-			loadCount++;
+	//Check pillar of regions at (rX, rY)
+	for(int64_t neg = -1; neg<=1; neg += 2) {
+		for(int64_t diff = 0; diff<=loadDistV; diff++) {
+			int64_t iRZ = camRZ+neg*diff;
+			//If new region load was successful (regions already loaded are not == 0)
+			if( tileMap->loadRegion(fileHandler, rX, rY, iRZ)==0 ) {
+				//Increment loadCount
+				loadCount++;
 
-			//Load all regions within this column (relative to camera depth) that are within the loadDistV.
-			for(int iRZ = camRZ-loadDistV; iRZ<=camRZ+loadDistV; iRZ++) {
-				tileMap->loadRegion(fileHandler, rX, rY, iRZ);
+				//Set debug info
+				infoRegLoadTimeLatest = rlt.getElapsedTimeMS();
+				infoRegLoadCount++;
+				infoRegLoadTime += infoRegLoadTimeLatest;
+
+				//Exit out of function upon single successful region load
+				return;
 			}
-			
-			//Set debug info
-			infoRegLoadTimeLatest = rlt.getElapsedTimeMS();
-			infoRegLoadCount++;
-			infoRegLoadTime += infoRegLoadTimeLatest;
 		}
 	}
 }
 
 void TileMapUpdater::updateMapTicked(FileHandler* fileHandler, int loadDistH, int loadDistV)
 {
+	//Reset loadCount
+	loadCount = 0;
+
 	//Try to load the nearest null regions
-	Grid grid(sdlHandler, tileMap, cam, loadDistH, loadDistV, -1);
-	std::pair<int, int> leXY = grid.getLowestElementXY();
-	if(leXY.first!=-1) {
-		int64_t rX = cam->getRX()-loadDistH+leXY.first;
-		int64_t rY = cam->getRY()-loadDistH+leXY.second;
-		
-		updateRegTicked(fileHandler, rX, rY, cam->getRZ(), loadDistV);
+	while (loadCount<=loadCountMax)
+	{
+		Grid grid(sdlHandler, tileMap, cam, loadDistH, loadDistV, -1);
+		std::pair<int, int> leXY = grid.getLowestElementXY();
+		if(leXY.first!=-1) {
+			int64_t rX = cam->getRX()-loadDistH+leXY.first;
+			int64_t rY = cam->getRY()-loadDistH+leXY.second;
+			
+			updateRegTicked(fileHandler, rX, rY, cam->getRZ(), loadDistV);
+		} else {
+			break;
+		}
 	}
+	
+
 
 	/** Performance gauging */
 	if(infoRegLoadCount>infoRegLoadDivisor) {

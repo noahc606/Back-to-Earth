@@ -45,8 +45,8 @@ private:
 	Canvas* csTileMap = nullptr;
 
 
-
-    int loadCountMax = 1;
+	int loadCount = 0;
+    int loadCountMax = 3;
 
 
     // Info: region load counting

@@ -10,12 +10,11 @@ public:
     void processRegions(Camera* cam, int loadRadiusH, int rtUpdatesToDo);
     void processRegionLayer(TileIterator& ti, int64_t sRX, int64_t sRY, int64_t sRZ, Camera* cam, int rtUpdatesToDo);
     void processTileArea(TileIterator& ti, Texture* tex, int blitScale);
-
 	void buildRegionArea(int64_t sRX, int64_t sRY);
-    void colorFillRegionArea(Canvas* cs, int64_t sRX, int64_t sRY, uint8_t r, uint8_t g, uint8_t b, uint8_t a);
-    void colorFillRegionArea(int64_t sRX, int64_t sRY, uint8_t r, uint8_t g, uint8_t b, uint8_t a);
-    void colorFillRegionArea(int64_t sRX, int64_t sRY, uint8_t r, uint8_t g, uint8_t b);
-    void blackOutRegionArea(int64_t sRX, int64_t sRY);
+
+    static void colorFillRegionArea(Canvas* csTileMap, int64_t sRX, int64_t sRY, uint8_t r, uint8_t g, uint8_t b, uint8_t a);
+    static void colorFillRegionArea(Canvas* csTileMap, int64_t sRX, int64_t sRY, uint8_t r, uint8_t g, uint8_t b);
+    static void blackOutRegionArea(Canvas* csTileMap, int64_t sRX, int64_t sRY);
 private:
     SDLHandler* sdlHandler = nullptr;
     Canvas* csTileMap = nullptr;

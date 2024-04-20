@@ -34,8 +34,8 @@ void TileMapScreen::init(SDLHandler* sh, FileHandler* fh, TileMap* tm, Canvas* c
 	//RegTexUpdater: This object processes updates which decide where tiles/region blits need to happen. To do this, this object owns a RegTexProcessor.
 	regTexUpdater.init(sdlHandler, &tileMapUpdater, csTileMap);
 
-	//tileMapUpdater.updateMapMoved(fileHandler, currentDimPath, loadRadiusH, loadRadiusV);
-	tileMapUpdater.updateMapVisible(loadRadiusH, loadRadiusV);
+	//tileMapUpdater.updateMapMoved(fileHandler, currentDimPath, loadDistH, loadDistV);
+	tileMapUpdater.updateMapVisible(loadDistH, loadDistV);
 }
 
 void TileMapScreen::destroy()
@@ -81,9 +81,11 @@ void TileMapScreen::tick()
 	bool doUpdMapVisible = false;   // 1. Update entire screen when zoom is changed or when camera layer is changed (most expensive)
 	bool doUpdMapTicked = true;     // 2. Map updates to do every tick
 	bool doUpdMapMoved = false;     // 3. Map updates to do when crossing a region border: Unload regions that just went out of player range
-	bool doMapBlackout = false;
 	bool doUpdMapIdle = false;      // 4. Map updates to do while idle: add updates twice a second at an onscreen region with lowest priority
 	bool doUpdMapAutosave = false;  // 5. Map updates to do every autosave (30s): Check all regions to see if they should be unloaded -> save to disk.
+
+	bool doMapBlackout = false;
+
 
 	if(cam==nullptr) {
 		return;
@@ -151,11 +153,11 @@ void TileMapScreen::tick()
 		
 		// Update different parts of the map under different conditions
 		// Make sure to do it in the order of 1->2->3->4 (most expensive to least)
-		if( doUpdMapVisible )   tileMapUpdater.updateMapVisible(doMapBlackout, loadRadiusH, loadRadiusV);
-		if( doUpdMapTicked )    tileMapUpdater.updateMapTicked(fileHandler, loadRadiusH, loadRadiusV);
-		if( doUpdMapMoved )     tileMapUpdater.updateMapMoved(fileHandler, currentDimPath, loadRadiusH, loadRadiusV);
-		if( doUpdMapIdle )      tileMapUpdater.updateMap103(loadRadiusH, loadRadiusV);
-		if( doUpdMapIdle )      tileMapUpdater.updateMap104(loadRadiusH, loadRadiusV);
+		if( doUpdMapVisible )   tileMapUpdater.updateMapVisible(doMapBlackout, loadDistH, loadDistV);
+		if( doUpdMapTicked )    tileMapUpdater.updateMapTicked(fileHandler, loadDistH, loadDistV);
+		if( doUpdMapMoved )     tileMapUpdater.updateMapMoved(fileHandler, currentDimPath, loadDistH, loadDistV);
+		if( doUpdMapIdle )      tileMapUpdater.updateMap103(loadDistH, loadDistV);
+		if( doUpdMapIdle )      tileMapUpdater.updateMap104(loadDistH, loadDistV);
 		//if( doUpdMapAutosave )  {}
 	}
 	// Get elapsed time in MS
@@ -169,7 +171,7 @@ void TileMapScreen::draw()
 	Timer localTimer;
 	{
 		//draw: RegTexUpdater
-		regTexUpdater.draw(camRX, camRY, camRZ, loadRadiusH);
+		regTexUpdater.draw(camRX, camRY, camRZ, loadDistH);
 
 		//draw: tileMap canvas
 		csTileMap->draw();
@@ -198,7 +200,7 @@ void TileMapScreen::draw()
 
 void TileMapScreen::drawDebugOverlay(Canvas* csInteractions)
 {
-	regTexUpdater.drawDebugOverlay(csInteractions, camRX, camRY, camRZ, loadRadiusH);
+	regTexUpdater.drawDebugOverlay(csInteractions, camRX, camRY, camRZ, loadDistH);
 }
 
 void TileMapScreen::putInfo(std::stringstream& ss, int& tabs, int64_t mouseX, int64_t mouseY, int64_t mouseZ, bool mouseExists)

@@ -5,6 +5,7 @@
 #include <tuple>
 #include "Box3D.h"
 #include "BTEObject.h"
+#include "Camera.h"
 #include "FileHandler.h"
 #include "Loggable.h"
 #include "Planet.h"
@@ -33,6 +34,7 @@ public:
 	TileType getTile(int64_t x, int64_t y, int64_t z);
 	TileRegion* getRegByXYZ (int64_t x, int64_t y, int64_t z);
 	TileRegion* getRegByRXYZ(int64_t rX, int64_t rY, int64_t rZ);
+	TileRegion* getRegByScrRXYZ(Camera* cam, int64_t scrRX, int64_t scrRY, int64_t scrRZ);
 
 	//Get position within region based on xyz
 	static int64_t getRegSubPos(int64_t c);
@@ -52,6 +54,7 @@ public:
 	int setTile(int64_t x, int64_t y, int64_t z, TileType tt);
 	//Load regions
 	int loadRegion(FileHandler* fileHandler, int64_t rX, int64_t rY, int64_t rZ);
+	int loadRegions(FileHandler* fileHandler, int64_t rX1, int64_t rY1, int64_t rZ1, int64_t rX2, int64_t rY2, int64_t rZ2);
 	int forceLoadRegion(FileHandler* fileHandler, int64_t rX, int64_t rY, int64_t rZ);
 	int saveRegion(FileHandler* fileHandler, std::string saveGameName, int64_t rX, int64_t rY, int64_t rZ);
 	int unloadRegion(FileHandler* fileHandler, std::string saveGameName, int64_t rX, int64_t rY, int64_t rZ);

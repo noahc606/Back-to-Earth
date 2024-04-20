@@ -211,10 +211,10 @@ void RegTexProcessor::buildRegionArea(int64_t sRX, int64_t sRY)
 /*
  * Debugging tool: useful for seeing where regions of interest are on the current screen.
  */
-void RegTexProcessor::colorFillRegionArea(Canvas* cs, int64_t sRX, int64_t sRY, uint8_t r, uint8_t g, uint8_t b, uint8_t a)
+void RegTexProcessor::colorFillRegionArea(Canvas* csTileMap, int64_t sRX, int64_t sRY, uint8_t r, uint8_t g, uint8_t b, uint8_t a)
 {
 	/** Get 'tex' located at this region from csTileMap */
-	Texture* tex = cs->getTex(sRX, sRY);
+	Texture* tex = csTileMap->getTex(sRX, sRY);
 	if(tex==nullptr) {
 		return;
 	}
@@ -229,10 +229,9 @@ void RegTexProcessor::colorFillRegionArea(Canvas* cs, int64_t sRX, int64_t sRY, 
 	tex->setBlendMode(oldBlendMode);
 }
 
-void RegTexProcessor::colorFillRegionArea(int64_t sRX, int64_t sRY, uint8_t r, uint8_t g, uint8_t b, uint8_t a) { colorFillRegionArea(csTileMap, sRX, sRY, r, g, b, a); }
-void RegTexProcessor::colorFillRegionArea(int64_t sRX, int64_t sRY, uint8_t r, uint8_t g, uint8_t b) { colorFillRegionArea(sRX, sRY, r, g, b, 255); }
+void RegTexProcessor::colorFillRegionArea(Canvas* csTileMap, int64_t sRX, int64_t sRY, uint8_t r, uint8_t g, uint8_t b) { colorFillRegionArea(csTileMap, sRX, sRY, r, g, b, 255); }
 
 /*
  *  Blacks out regions. Used ingame for regions that aren't loaded or can't be seen anymore.
  */
-void RegTexProcessor::blackOutRegionArea(int64_t sRX, int64_t sRY) { colorFillRegionArea(sRX, sRY, 0, 0, 0); }
+void RegTexProcessor::blackOutRegionArea(Canvas* csTileMap, int64_t sRX, int64_t sRY) { colorFillRegionArea(csTileMap, sRX, sRY, 0, 0, 0); }
