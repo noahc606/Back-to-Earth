@@ -184,20 +184,8 @@ void RegTexUpdater::drawDebugOverlay(Canvas* csInteractions, int64_t camSRX, int
 					}
 				}
 				
-				Texture infoCoords;
-
-				infoCoords.init(sdlHandler);
-								
-				//TextOld infoText;
-				//infoText.init(sdlHandler);
-				//std::stringstream ss; ss << "(" << irx << ", " << iry << ", " << camSRZ << ")";
-				//infoText.setString(ss.str());
-
-				//csInteractions->setSourceTex(infoText.)
-				//csInteractions->rcopy();
-
 				//Fill the region with a translucent version of the chosen color
-				regTexProcessor.colorFillRegionArea(csInteractions, irx, iry, fillColor.r, fillColor.g, fillColor.b, 80);
+				//regTexProcessor.colorFillRegionArea(csInteractions, irx, iry, fillColor.r, fillColor.g, fillColor.b, 80);
 		}
 	}
 }

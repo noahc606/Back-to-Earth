@@ -149,35 +149,34 @@ void TileMapUpdater::updateMap103(int loadDistH, int loadDistV)
 	//Iterate through all regions which should be loaded
 	for(int64_t iRX = cam->getRX()-loadDistH; iRX<=cam->getRX()+loadDistH; iRX++) {
 		for(int64_t iRY = cam->getRY()-loadDistH; iRY<=cam->getRY()+loadDistH; iRY++) {
-			for(int64_t iRZ = cam->getRZ()-loadDistV; iRZ<=cam->getRZ()+loadDistV; iRZ++) {
-				//If this region is visible
-				if(RegTexUpdater::isRegOnScreen(sdlHandler, cam, iRX, iRY, iRZ)) {
-					//Mark region as "SHOULD UPDATE" if a few conditions are met:
-					// If that column of regions is "FINISHED GENERATING".
-					// If that csTileMap texture is not nullptr.
-					bool shouldUpdate = true;
+			int64_t iRZ = cam->getRZ();
+			//If this region is visible
+			if(RegTexUpdater::isRegOnScreen(sdlHandler, cam, iRX, iRY, iRZ)) {
+				//Mark region as "SHOULD UPDATE" if a few conditions are met:
+				// If that column of regions is "FINISHED GENERATING".
+				// If that csTileMap texture is not nullptr.
+				bool shouldUpdate = true;
 
-					Texture* tex = csTileMap->getTex( iRX, iRY );
-					if(tex==nullptr) {
-						shouldUpdate = false;
-					}
+				Texture* tex = csTileMap->getTex( iRX, iRY );
+				if(tex==nullptr) {
+					shouldUpdate = false;
+				}
 
-					int fg = TileRegion::FINISHED_GENERATING;
+				int fg = TileRegion::FINISHED_GENERATING;
 
-					for(int jRX = iRX-1; jRX<=iRX+1; jRX++) {
-						for(int jRY = iRY-1; jRY<=iRY+1; jRY++) {
-							for(int jRZ = iRZ-1; jRZ<=iRZ+1; jRZ++) {
-								TileRegion* ttr = tileMap->getRegByRXYZ(jRX, jRY, jRZ);
-								if(ttr==nullptr || ttr->getRegTexState()<fg) shouldUpdate = false;
-							}
+				for(int jRX = iRX-1; jRX<=iRX+1; jRX++) {
+					for(int jRY = iRY-1; jRY<=iRY+1; jRY++) {
+						for(int jRZ = iRZ-1; jRZ<=iRZ+1; jRZ++) {
+							TileRegion* ttr = tileMap->getRegByRXYZ(jRX, jRY, jRZ);
+							if(ttr==nullptr || ttr->getRegTexState()<fg) shouldUpdate = false;
 						}
 					}
+				}
 
-					TileRegion* tr = tileMap->getRegByRXYZ(iRX, iRY, iRZ);
-					if(shouldUpdate) {
-						if(tr->getRegTexState()==fg) {
-							tr->setRegTexState(TileRegion::SHOULD_UPDATE);
-						}
+				TileRegion* tr = tileMap->getRegByRXYZ(iRX, iRY, iRZ);
+				if(shouldUpdate) {
+					if(tr->getRegTexState()==fg) {
+						tr->setRegTexState(TileRegion::SHOULD_UPDATE);
 					}
 				}
 			}
