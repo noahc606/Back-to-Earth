@@ -16,7 +16,7 @@ Controls MainLoop::controls;
 BTE MainLoop::bte;
 
 double MainLoop::maxFPS = 120.0;
-double MainLoop::msPerTick = 1000.0 / 60.0; double MainLoop::msPerFrame = 1000.0/maxFPS;
+double MainLoop::msPerTick = 1000.0 / 40.0; double MainLoop::msPerFrame = 1000.0/maxFPS;
 uint64_t MainLoop::ticks = 0; uint64_t MainLoop::frames = 0;
 int MainLoop::ticksThisSecond = 0; int MainLoop::framesThisSecond = 0;
 int MainLoop::currentTPS = 0; int MainLoop::currentFPS = 0;

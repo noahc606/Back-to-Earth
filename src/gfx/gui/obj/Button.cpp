@@ -137,7 +137,7 @@ void Button::tick()
 
     //Mouse hover animation
     if( shineAnimation>=0 ) {
-        shineAnimation += width/16;
+        shineAnimation += width/10;
         btnShineTex0.setDrawPos( sX+shineAnimation, sY );
         btnShineTex1.setDrawPos( sX+(width+12)-36-shineAnimation, sY );
         if(shineAnimation+18 >= width)

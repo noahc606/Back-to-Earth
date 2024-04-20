@@ -16,7 +16,8 @@ void TileMapUpdater::init(SDLHandler* sh, TileMap* tm, Canvas* cs)
 void TileMapUpdater::putInfo(std::stringstream& ss, int& tabs)
 {
 	DebugScreen::indentLine(ss, tabs);
-	ss << "Region Loading Time (avg out of last " << infoRegLoadDivisor << ")=" << infoRegLoadTimeAvg << "ms; ";
+	ss << "RegLoadCountMax=" << loadCountMax << "; ";
+	ss << "RegLoadTime (avg out of last " << infoRegLoadDivisor << ")=" << infoRegLoadTimeAvg << "ms; ";
 	DebugScreen::newLine(ss);
 }
 
@@ -269,6 +270,11 @@ void TileMapUpdater::updateMapTicked(FileHandler* fileHandler, int loadDistH, in
 		infoRegLoadCount = 0;
 		infoRegLoadTime = 0.0;
 	}
+
+	//Regulate loadCountMax depending on performance
+	loadCountMax = std::ceil(4.0/infoRegLoadTimeAvg);	//'4.0' => a max of 4.0ms on average that we should allow for loading of regions
+	if(loadCountMax<1) loadCountMax = 1;
+	if(loadCountMax>2000000) loadCountMax = 20;
 }
 
 void TileMapUpdater::updateMapMoved(FileHandler* fileHandler, std::string currentDimPath, int loadDistH, int loadDistV)

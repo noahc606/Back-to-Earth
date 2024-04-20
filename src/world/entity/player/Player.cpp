@@ -285,9 +285,9 @@ void Player::tick()
 
 void Player::tickControls()
 {
-	double speed = 0.05;
-	if( controls->isHeld("PLAYER_SPRINT") ) speed = 0.10;
-	if( controls->isHeld("PLAYER_CROUCH") ) speed = 0.005;
+	double speed = 0.085;
+	if( controls->isHeld("PLAYER_SPRINT") ) speed = 0.170;
+	if( controls->isHeld("PLAYER_CROUCH") ) speed = 0.009;
 	if( godMode ) {
 		if( controls->isHeld("PLAYER_SPRINT") ) {
 			speed = runSpeed;
