@@ -25,13 +25,13 @@ CheckBox::CheckBox(Window* p_parentWindow, int p_x, int p_y, std::string p_text,
 : CheckBox::CheckBox(p_parentWindow, p_x, p_y, p_text, getStateFromString(p_checkBoxState), p_id) {}
 
 CheckBox::CheckBox(Window* p_parentWindow, int p_x, int p_y, std::string p_text, int p_id)
-: CheckBox::CheckBox(p_parentWindow, p_x, p_y, p_text, FALSE, p_id) {}
+: CheckBox::CheckBox(p_parentWindow, p_x, p_y, p_text, CBX_FALSE, p_id) {}
 
 CheckBox::CheckBox(Window* p_parentWindow, int p_x, int p_y, int p_cbs, int p_id)
 : CheckBox::CheckBox(p_parentWindow, p_x, p_y, "", p_cbs, p_id) {}
 
 CheckBox::CheckBox(Window* p_parentWindow, int p_x, int p_y, int p_id)
-: CheckBox::CheckBox(p_parentWindow, p_x, p_y, "", FALSE, p_id) {}
+: CheckBox::CheckBox(p_parentWindow, p_x, p_y, "", CBX_FALSE, p_id) {}
 
 CheckBox::~CheckBox(){}
 
@@ -113,19 +113,19 @@ void CheckBox::draw()
 	}
 
 	switch( state ) {
-		case BLANK: {
+		case CBX_BLANK: {
 
 		} break;
-		case FALSE: {
+		case CBX_FALSE: {
 			texBtn.blit(TextureLoader::GUI_button, 0, 79);
 		} break;
-		case TRUE: {
+		case CBX_TRUE: {
 			texBtn.blit(TextureLoader::GUI_button, 11, 79);
 		} break;
-		case SHUFFLE: {
+		case CBX_SHUFFLE: {
 			texBtn.blit(TextureLoader::GUI_button, 0, 90);
 		} break;
-		case RESET: {
+		case CBX_RESET: {
 			texBtn.blit(TextureLoader::GUI_button, 22, 79);
 		} break;
 		default: {
@@ -175,11 +175,11 @@ void CheckBox::tick()
 int CheckBox::getStateFromString(std::string s)
 {
 	if( s=="true" ) {
-		return TRUE;
+		return CBX_TRUE;
 	} else if( s=="false" ) {
-		return FALSE;
+		return CBX_FALSE;
 	}
-	return UNKNOWN;
+	return CBX_UNKNOWN;
 }
 int CheckBox::getState() { return state; }
 bool CheckBox::isLargerButton() { return largerButton; }
@@ -187,20 +187,20 @@ bool CheckBox::justClicked() { return clicked; }
 
 void CheckBox::cycleState()
 {
-	if( state==RESET ) {
+	if( state==CBX_RESET ) {
 
 	} else {
 		state++;
-		if( state>=UNKNOWN ) {
+		if( state>=CBX_UNKNOWN ) {
 			state = 0;
 		}
 
-		if( !canShuffle && state==SHUFFLE ) {
-			state = BLANK;
+		if( !canShuffle && state==CBX_SHUFFLE ) {
+			state = CBX_BLANK;
 		}
 
-		if( !canLeaveBlank && state==BLANK ) {
-			state = FALSE;
+		if( !canLeaveBlank && state==CBX_BLANK ) {
+			state = CBX_FALSE;
 		}
 	}
 }

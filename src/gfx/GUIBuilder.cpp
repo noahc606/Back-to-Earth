@@ -92,7 +92,7 @@ void GUIBuilder::buildMainControls(GUIHandler& gh, FileHandler& fh)
         ((TextBox*)tb)->setControlBinding(newCB);
 
         //Add the 'set default' button at the end of the row
-        gh.addGUI(new CheckBox(w, 738, 82+i*32, "", CheckBox::RESET, true, gh.cbx_CONTROLS_set_defaults), ctrlIndex);
+        gh.addGUI(new CheckBox(w, 738, 82+i*32, "", CheckBox::CBX_RESET, true, gh.cbx_CONTROLS_set_defaults), ctrlIndex);
     }
 
     gh.addGUI(new Button(w, ch, 730, width, "Back", gh.btn_back_to_OPTIONS ));
@@ -110,7 +110,7 @@ void GUIBuilder::buildMainGraphics(GUIHandler& gh, FileHandler& fh)
 	gh.addGUI(new Tooltip( w, 30, 92, "Maximum FPS:", gh.ttp_GRAPHICS_SETTINGS_maxFps));
 	gh.addGUI(new Slider( w, 406, 82, 0, 320, settings->get(Settings::TextFiles::options, "maxFps") , gh.sdr_GRAPHICS_SETTINGS_maxFps ) );
 	gh.addGUI(new TextBox(w, 664, 82, 72, gh.tbx_GRAPHICS_SETTINGS_maxFps ) );
-	gh.addGUI(new CheckBox(w, 738, 82, "", CheckBox::RESET, true, gh.cbx_CONTROLS_set_defaults), 123456);
+	gh.addGUI(new CheckBox(w, 738, 82, "", CheckBox::CBX_RESET, true, gh.cbx_CONTROLS_set_defaults), 123456);
 
 	
 	gh.addGUI(new CheckBox( w, 26, 92+32*1, "Use Different Cursor", settings->get(Settings::TextFiles::options, "bteCursor"), gh.cbx_GRAPHICS_SETTINGS_bteCursor ));
@@ -148,7 +148,7 @@ void GUIBuilder::buildMainCharacter(GUIHandler& gh, FileHandler& fh)
         gh.addGUI(new ColorSelector(w, 334, 82+i*32, color, gh.csr_CHARACTER_SETTINGS_set_val));
 
 		gh.addGUI(new TextBox(w, 592, 82+i*32, 144, TextBox::FREE_NUMBERS_BASIC, gh.tbx_CHARACTER_SETTINGS_set_val ) );
-		gh.addGUI(new CheckBox(w, 738, 82+i*32, "", CheckBox::RESET, true, gh.cbx_CONTROLS_set_defaults), 123456);
+		gh.addGUI(new CheckBox(w, 738, 82+i*32, "", CheckBox::CBX_RESET, true, gh.cbx_CONTROLS_set_defaults), 123456);
 	}
 	
 	gh.addGUI(new Button( w, ch, 730, width, "Back", gh.btn_back_to_OPTIONS ));

@@ -191,7 +191,7 @@ void GUIHandler::tick()
 				//Unclick
 				cbx->unclick();
 				//If this is a reset checkbox
-				if( cbx->getState()==CheckBox::RESET ) {
+				if( cbx->getState()==CheckBox::CBX_RESET ) {
 					//Reset all GUIs with the same extraID as this checkBox
 					resetGUIs(cbx->getExtraID());
 				}

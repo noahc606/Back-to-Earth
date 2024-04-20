@@ -30,12 +30,12 @@ public:
     void setCanShuffle(bool cs);
 
     enum States {
-        BLANK = 0,
-        FALSE,
-        TRUE,
-        SHUFFLE,
-        RESET,
-        UNKNOWN
+        CBX_BLANK = 0,
+        CBX_FALSE,
+        CBX_TRUE,
+        CBX_SHUFFLE,
+        CBX_RESET,
+        CBX_UNKNOWN
     };
 
 protected:

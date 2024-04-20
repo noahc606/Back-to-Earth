@@ -28,7 +28,7 @@ int main(int argc, char *argv[])
 /*
  * 	WinMain() is called for Windows GUI applications instead of main() - this is needed for cross-platform compatibility.
  */
-int WinMain()
+int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
 {
 	return main(0, new char*);
 }

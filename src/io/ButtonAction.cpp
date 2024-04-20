@@ -33,10 +33,9 @@ ButtonAction::ButtonAction(SDLHandler* sh, GUIHandler* gh, FileHandler* fh, Cont
                 if( possibleCBX!=nullptr ) {
                     int cbxState = ((CheckBox*)possibleCBX)->getState();
                     std::string value = "null";
-                    switch( cbxState ) {
-                        case CheckBox::States::FALSE:{ value = "false"; }break;
-                        case CheckBox::States::TRUE:{ value = "true"; }break;
-                    }
+                    if( cbxState==CheckBox::States::CBX_FALSE ) { value = "false"; }
+                    if( cbxState==CheckBox::States::CBX_TRUE ) { value = "true"; }
+
                     stgs->kv(Settings::TextFiles::options, objKeys[i], value);
                 }
 				
