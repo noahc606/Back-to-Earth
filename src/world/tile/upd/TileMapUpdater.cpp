@@ -163,14 +163,21 @@ void TileMapUpdater::updateMap103(int loadDistH, int loadDistV)
 					}
 
 					int fg = TileRegion::FINISHED_GENERATING;
-					TileRegion* tr = tileMap->getRegByRXYZ(iRX, iRY, iRZ);
-					if(tr==nullptr || tr->getRegTexState()!=fg) { shouldUpdate = false; }
 
-					TileRegion* tr1 = tileMap->getRegByRXYZ(iRX, iRY, iRZ+2);
-					if(tr1==nullptr || tr1->getRegTexState()!=fg) { shouldUpdate = false; }
-					
+					for(int jRX = iRX-1; jRX<=iRX+1; jRX++) {
+						for(int jRY = iRY-1; jRY<=iRY+1; jRY++) {
+							for(int jRZ = iRZ-1; jRZ<=iRZ+1; jRZ++) {
+								TileRegion* ttr = tileMap->getRegByRXYZ(jRX, jRY, jRZ);
+								if(ttr==nullptr || ttr->getRegTexState()<fg) shouldUpdate = false;
+							}
+						}
+					}
+
+					TileRegion* tr = tileMap->getRegByRXYZ(iRX, iRY, iRZ);
 					if(shouldUpdate) {
-						tr->setRegTexState(TileRegion::SHOULD_UPDATE);
+						if(tr->getRegTexState()==fg) {
+							tr->setRegTexState(TileRegion::SHOULD_UPDATE);
+						}
 					}
 				}
 			}

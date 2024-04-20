@@ -153,7 +153,7 @@ void TileMapScreen::tick()
 		// Make sure to do it in the order of 1->2->3->4 (most expensive to least)
 		if( doUpdMapVisible )   tileMapUpdater.updateMapVisible(doMapBlackout, loadRadiusH, loadRadiusV);
 		if( doUpdMapTicked )    tileMapUpdater.updateMapTicked(fileHandler, loadRadiusH, loadRadiusV);
-		//if( doUpdMapMoved )     tileMapUpdater.updateMapMoved(fileHandler, currentDimPath, loadRadiusH, loadRadiusV);
+		if( doUpdMapMoved )     tileMapUpdater.updateMapMoved(fileHandler, currentDimPath, loadRadiusH, loadRadiusV);
 		if( doUpdMapIdle )      tileMapUpdater.updateMap103(loadRadiusH, loadRadiusV);
 		if( doUpdMapIdle )      tileMapUpdater.updateMap104(loadRadiusH, loadRadiusV);
 		//if( doUpdMapAutosave )  {}
