@@ -19,6 +19,7 @@ public:
     /**/
     void putInfo(std::stringstream& ss, int& tabs);
     int getGUIActionID();
+    std::string getGUIActionData();
     Window* getWindow(int id);
     GUI* getGUI(int type, int id, int extraId);
     GUI* getGUI(int type, int id);
@@ -32,13 +33,14 @@ public:
     void removeGUIs(int idMin, int idMax);
     void removeChildGUIs(int id);
     void removeAllUserGUIs();
-    /**/
+    /* Individual GUIs */
     enum ID {
         /* UIs with specific functions */
         null = -1,
         tbx_DEBUG = 0,
         win_COLORSELECTOR = 1,
             sdr_COLORSELECTOR_set_hue,
+            btn_COLORSELECTOR_back,
 
         /* Titlescreen */
         win_MAIN,
@@ -46,10 +48,11 @@ public:
         btn_MAIN_play,
         btn_MAIN_options,
         btn_MAIN_exit,
-        btn_back_to_MAIN,
 
         /* Select Campaign */
         win_SELECT_CAMPAIGN,
+            ssr_SELECT_CAMPAIGN_select,
+            btn_SELECT_CAMPAIGN_back,
 
         /* Main Options */
         win_OPTIONS,
@@ -107,6 +110,7 @@ public:
     		tbx_CHARACTER_item,
     };
 
+    /* Groups of GUIs */
     enum GUIs {
         MAIN,
         OPTIONS,
@@ -128,6 +132,7 @@ protected:
 private:
     ControlBinding cbSpecialInput;
     int guiActionID = -1;
+    std::string guiActionData = "";
 
     /**/
     /**/

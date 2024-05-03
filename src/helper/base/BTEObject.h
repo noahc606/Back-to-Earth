@@ -32,7 +32,7 @@ public:
 
         BTE_GUIHandler = 100,
             GUI_window,
-            GUI_button, GUI_radiobutton, GUI_textbox, GUI_checkbox, GUI_icon, GUI_slider, GUI_colorselect,
+            GUI_button, GUI_radiobutton, GUI_textbox, GUI_checkbox, GUI_icon, GUI_slider, GUI_colorselect, GUI_saveselect,
             GUI_tooltip,
 
         BTE_TileMap = 200,

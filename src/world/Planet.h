@@ -4,6 +4,7 @@
 
 class Planet : public Loggable {
 public:
+	void init(int rotation);
 	void init();
 	void tick();
 	

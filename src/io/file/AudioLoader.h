@@ -45,7 +45,6 @@ public:
 		MUSIC_blender_engine,
 		MUSIC_cyber_city,
 		MUSIC_entering_orbit,
-		MUSIC_kalliope,
 		MUSIC_mercury,
 		MUSIC_space_travel,
 		

@@ -92,7 +92,7 @@ void GUIAligner::alignWindowComponentsVH(std::vector<GUI*>& guis, int align, std
 
         for(int thisCoord : compCoords) {
 
-            int spacing = 48;
+            int spacing = 36;
             int tacw = -16;         //Total aligned components' widths
             int tach = -spacing;    //Total aligned components' heights
             int tac = 0;            //Total number of aligned components

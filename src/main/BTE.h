@@ -32,11 +32,12 @@ protected:
 private:
     /**/
     /**/
+    void setGameState(int p_gamestate, std::string extraInfo);
     void setGameState(int p_gamestate);
 	void unload(World*& world);
 	void unload(Tests*& tests);
 
-	void load(World*& world);
+	void load(World*& world, std::string dirName);
 	void load(Tests*& tests);
 
     /**/
@@ -69,7 +70,7 @@ private:
     /* Debugging, testing */
     DebugScreen debugScreen;
     Tests* tests = nullptr;     //Object that tests everything inside of it
-    bool alwaysTest = false;
-    bool testing = false;       //If true, set gamestate to TESTING (blank screen to draw/tick stuff)
-    bool hardTesting = false;   //If true, disable window + loading of all texture/audio assets
+    bool alwaysTest = 0;
+    bool testing = 0;          //If true, set gamestate to TESTING (blank screen to draw/tick stuff)
+    bool hardTesting = 0;      //If true, disable window + loading of all texture/audio assets
 };

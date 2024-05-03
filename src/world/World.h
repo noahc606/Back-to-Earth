@@ -16,7 +16,7 @@ class World : public BTEObject, public Loggable
 {
 public:
 	/**/
-	World();
+	World(std::string dirName);
 	virtual ~World();
 	void init(SDLHandler* sh, GUIHandler* gh, FileHandler* fh, Controls* ctrls);
 	/**/
@@ -57,8 +57,10 @@ private:
 	
 	Planet planet;
 	
+	std::string worldDirName;
+	std::string worldDirPath;
 	std::string worldDataPath;
-	Settings::t_kvMap worldData;
+	Settings::t_kvMap worldDataKVs;
 	
 	void updateMouseAndCamInfo();
 	void playerInteractions(GUIHandler& guiHandler, bool paused);

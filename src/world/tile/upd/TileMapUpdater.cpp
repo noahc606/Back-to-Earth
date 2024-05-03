@@ -277,7 +277,7 @@ void TileMapUpdater::updateMapTicked(FileHandler* fileHandler, int loadDistH, in
 	if(loadCountMax>2000000) loadCountMax = 20;
 }
 
-void TileMapUpdater::updateMapMoved(FileHandler* fileHandler, std::string currentDimPath, int loadDistH, int loadDistV)
+void TileMapUpdater::updateMapMoved(FileHandler* fileHandler, int loadDistH, int loadDistV)
 {
 	int64_t camRX = cam->getRX();
 	int64_t camRY = cam->getRY();
@@ -304,8 +304,8 @@ void TileMapUpdater::updateMapMoved(FileHandler* fileHandler, std::string curren
 
 			for( int rZ = camRZ-outlineV; rZ<=camRZ+outlineV; rZ += dRZ ) {
 				//Unload regions
-				tileMap->saveRegion(fileHandler, "world1", rX, rY, rZ);
-				tileMap->unloadRegion(fileHandler, currentDimPath, rX, rY, rZ);
+				tileMap->saveRegion(fileHandler, rX, rY, rZ);
+				tileMap->unloadRegion(fileHandler, rX, rY, rZ);
 			}
 		}
 	}

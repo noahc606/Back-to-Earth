@@ -64,8 +64,8 @@ void TileMapScreen::destroy()
 		uint64_t rZ = std::get<2>(thisReg);
 		
 		TileRegion* tr = tileMap->getRegByRXYZ(rX, rY, rZ);
-		tileMap->saveRegion(fileHandler, "world1", rX, rY, rZ);
-		tileMap->unloadRegion(fileHandler, currentDimPath, rX, rY, rZ);
+		tileMap->saveRegion(fileHandler, rX, rY, rZ);
+		tileMap->unloadRegion(fileHandler, rX, rY, rZ);
 	}
 	
 	// Get rid of RegTexUpdates object when this is destroyed
@@ -155,7 +155,7 @@ void TileMapScreen::tick()
 		// Make sure to do it in the order of 1->2->3->4 (most expensive to least)
 		if( doUpdMapVisible )   tileMapUpdater.updateMapVisible(doMapBlackout, loadDistH, loadDistV);
 		if( doUpdMapTicked )    tileMapUpdater.updateMapTicked(fileHandler, loadDistH, loadDistV);
-		if( doUpdMapMoved )     tileMapUpdater.updateMapMoved(fileHandler, currentDimPath, loadDistH, loadDistV);
+		if( doUpdMapMoved )     tileMapUpdater.updateMapMoved(fileHandler, loadDistH, loadDistV);
 		if( doUpdMapIdle )      tileMapUpdater.updateMap103(loadDistH, loadDistV);
 		if( doUpdMapIdle )      tileMapUpdater.updateMap104(loadDistH, loadDistV);
 		//if( doUpdMapAutosave )  {}

@@ -8,6 +8,7 @@
 #include "Log.h"
 #include "MainLoop.h"
 #include "RadioButton.h"
+#include "SaveSelector.h"
 #include "Slider.h"
 #include "TextBox.h"
 #include "Tooltip.h"
@@ -44,6 +45,7 @@ void GUIHandler::draw()
         
             //Second, draw all child GUIs who have this window as a parent
             for( GUI* cgui : guis ) {
+
                 if( cgui->isWindowComponent() && cgui->exists() ) {
                     WindowComponent* wc = (WindowComponent*)cgui;
                     if(wc->getParentWindow()==win) {
@@ -79,11 +81,14 @@ void GUIHandler::tick()
         }
     }
 
+
     //Upon click
     if( controls->isPressed("HARDCODE_LEFT_CLICK") ) {
         for( GUI* gui : guis ) {
-            //If we find a textbox
-            if( gui->getType()==BTEObject::GUI_textbox ) {
+            //If we find a selectable element
+            if( gui->getType()==BTEObject::GUI_textbox ||
+                gui->getType()==BTEObject::GUI_saveselect )
+            {
                 //Deselect it if user is not hovering over it
                 TextBox* tbx = ((TextBox*)gui);
 				if( !tbx->isHovering() ) {
@@ -213,6 +218,20 @@ void GUIHandler::tick()
             }
         } break;
 		
+        case BTEObject::GUI_saveselect: {
+            SaveSelector* ssr = ((SaveSelector*)gui);
+            
+            if( ssr->getActionID()==ssr_SELECT_CAMPAIGN_select ) {
+                //Set guiActionID and guiActionData
+                guiActionID = ssr_SELECT_CAMPAIGN_select;
+                std::stringstream ss; ss << ssr->getActionInfo().second; guiActionData = ss.str();
+                
+                //Reset SSR's action ID
+                ssr->resetActionID(__PRETTY_FUNCTION__);
+            }
+            //int ssr = 
+        } break;
+
 		}
 
         //Tick gui
@@ -274,6 +293,7 @@ void GUIHandler::putInfo(std::stringstream& ss, int& tabs)
 }
 
 int GUIHandler::getGUIActionID() { return guiActionID; }
+std::string GUIHandler::getGUIActionData() { return guiActionData; }
 
 Window* GUIHandler::getWindow(int id)
 {
@@ -316,11 +336,12 @@ void GUIHandler::resetGUIAction(std::string methodName)
 {
     if( guiActionID==-1 ) {
         std::stringstream ss;
-        ss << "Tried to reset GUI Action that already = -1.";
+        ss << "Tried to reset GUI Action that already == -1.";
         Log::warn(methodName, ss.str());
     }
 
     guiActionID = -1;
+    guiActionData = "";
 }
 
 GUI* GUIHandler::addGUI(GUI* gui, int extraID)

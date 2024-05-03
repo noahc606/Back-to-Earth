@@ -23,7 +23,7 @@ WindowComponent::WindowComponent(Window* p_parentWindow, int p_x, int p_y, int p
     if(p_width<8) width = 8;
 
 	width = p_width;
-    height = 16;
+    height = 32;
 
     windowComponent = true;
 }

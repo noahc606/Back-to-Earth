@@ -16,7 +16,9 @@ public:
     std::string getLowerPanel();
     std::string getUpperPanel();
     int getHeight();
+    int getH64();
     int getWidth();
+    int getW64();
     char getPanelData(int line, int x);
     Color getPanelColor(char ch);
     Color getPanelColor(int line, int x);

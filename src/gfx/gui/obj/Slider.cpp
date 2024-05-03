@@ -41,8 +41,8 @@ void Slider::init(SDLHandler* sh, Controls* ctrls)
 	texBtnHovering.blit( TextureLoader::GUI_button, 35, 51 );
 	
 	//Shine animation
-	tb.buildButtonShine(btnShineTex0);
-	tb.buildButtonShine(btnShineTex1);
+	tb.buildButtonShine(texBtnShine0);
+	tb.buildButtonShine(texBtnShine1);
 
 	//Selection overlay
 	tb.buildButton(texBtnSelected, 41, 17, texW);
@@ -59,7 +59,12 @@ void Slider::init(SDLHandler* sh, Controls* ctrls)
 void Slider::draw()
 {
 	Button::draw();
-	selectorTex.draw();
+
+	int stdx = 0; int stdy = 0; double ds = 0;
+	selectorTex.queryDrawInfo(stdx, stdy, ds);
+	if(stdx!=0 || stdy!=0) {
+		selectorTex.draw();
+	}
 }
 
 void Slider::tick()

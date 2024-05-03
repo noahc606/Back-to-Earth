@@ -4,7 +4,9 @@
 #include "CheckBox.h"
 #include "ColorSelector.h"
 #include "GUIAlignable.h"
+#include "Log.h"
 #include "RadioButton.h"
+#include "SaveSelector.h"
 #include "Slider.h"
 #include "TextBox.h"
 #include "Tooltip.h"
@@ -239,7 +241,7 @@ void GUIBuilder::buildColorSelector(GUIHandler& gh)
 
     int width = 300;
     Window* win = new Window(ch, cv, wd, GUIHandler::win_COLORSELECTOR);
-    Button* btn = new Button( win, ch, wd->getHeight()*64+32-70, width, "Back", gh.btn_OPTIONS_back );
+    Button* btn = new Button( win, ch, wd->getHeight()*64+32-70, width, "Back", gh.btn_COLORSELECTOR_back );
     wd->setSpecialType( WindowData::COLOR_SELECTOR, gh.getGUI(BTEObject::GUI_colorselect, GUIHandler::csr_CHARACTER_SETTINGS_set_val) );
 
     gh.addGUI(win);
@@ -257,23 +259,48 @@ void GUIBuilder::buildSelectCampaign(GUIHandler& gh, FileHandler& fh)
     gh.removeGUI(gh.btn_MAIN_options);
     gh.removeGUI(gh.btn_MAIN_exit);
 
-    WindowData* wd = new WindowData(10, 10, "Select Campaign", "");
-    wd->setPanelData(0, "tttttttttt");
-    wd->setPanelData(1, "ssssssssss");
-    wd->setPanelData(2, "ssssssssss");
-    wd->setPanelData(3, "ssssssssss");
-    wd->setPanelData(4, "ssssssssss");
-    wd->setPanelData(5, "ssssssssss");
-    wd->setPanelData(6, "ssssssssss");
-    wd->setPanelData(7, "ssssssssss");
-    wd->setPanelData(8, "aaaaaaaaaa");
-    wd->setPanelData(9, "bbbbbbbbbb");
-    wd->setPanelColor('t', Color(255, 0, 0, 240) );
-    wd->setPanelColor('s', Color(150, 105, 55, 240) );
-    wd->setPanelColor('a', Color(0, 255, 0, 240) );
-    wd->setPanelColor('b', Color(0, 0, 0, 240) );
+    WindowData* wd = new WindowData(12, 12, "Select Campaign", "");
+    wd->setPanelData(0, "tttttttttttt");
+    wd->setPanelData(1, "ssssssssssss");
+    wd->setPanelData(2, "ssssssssssss");
+    wd->setPanelData(3, "ssssssssssss");
+    wd->setPanelData(4, "ssssssssssss");
+    wd->setPanelData(5, "ssssssssssss");
+    wd->setPanelData(6, "ssssssssssss");
+    wd->setPanelData(7, "ssssssssssss");
+    wd->setPanelData(8, "ssssssssssss");
+    wd->setPanelData(9, "ssssssssssss");
+    wd->setPanelData(10,"aaaaaaaaaaaa");
+    wd->setPanelData(11,"bbbbbbbbbbbb");
+    wd->setPanelColor('t', Color(64, 64, 64, 240) );
+    wd->setPanelColor('s', Color(0, 0, 255, 160) );
+    wd->setPanelColor('a', Color(96, 128, 240, 240) );
+    wd->setPanelColor('b', Color(64, 64, 64, 240) );
 
-    gh.addGUI(new Window( ch, cv, wd, gh.win_SELECT_CAMPAIGN ));
+    int width = 300;
+    Window* w = new Window( ch, cv, wd, gh.win_SELECT_CAMPAIGN );
+    gh.addGUI(w);
+
+    auto saveList = fh.listSubDirs("saved/games");
+    int index = 0;
+    for(std::string s : saveList) {
+        std::string saveDir = s;
+        if(saveDir.substr(0, 12).compare("saved/games/")==0) {
+            saveDir = saveDir.substr(12);
+        }
+
+        Log::log("Loaded save dir \"%s\"", saveDir.c_str());
+
+        std::string sizeDesc = fh.getReadableMemorySize(fh.dirDiskSpaceUsed(s));
+        gh.addGUI(  new SaveSelector(w, index, saveDir, sizeDesc, gh.ssr_SELECT_CAMPAIGN_select )  );
+
+        index++;
+    }
+
+    gh.addGUI(new Button( w, ch, wd->getH64()-38, width, "Back", gh.btn_SELECT_CAMPAIGN_back ));
+
+    
+
     //gh.addGUI(new Tooltip( gh.getWindow(gh.win_SELECT_CAMPAIGN), 30, 30, "Sandbox Mode", gh.ttp_CHARACTER_tabs_desc ) );
     //gh.addGUI(new RadioButton( gh.getWindow(gh.win_CHARACTER), 30, 60, "Backpack", true, gh.rbtn_CHARACTER_inventory, gh.rbtn_CHARACTER_tabs_1a, gh.rbtn_CHARACTER_tabs_1b ) );
     //gh.addGUI(new RadioButton( gh.getWindow(gh.win_CHARACTER), 30, 100, "Engineering", gh.rbtn_CHARACTER_engineering, gh.rbtn_CHARACTER_tabs_1a, gh.rbtn_CHARACTER_tabs_1b ) );

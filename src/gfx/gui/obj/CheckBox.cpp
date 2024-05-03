@@ -47,8 +47,10 @@ void CheckBox::init(SDLHandler* sh, Controls* ctrls)
 	} else {
 		if(!largerButton) {
 			width = 20;
+			height = 20;
 		} else {
 			width = 32;
+			height = 32;
 		}
 	}
 

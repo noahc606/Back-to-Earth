@@ -25,7 +25,7 @@ void Button::init(SDLHandler* sh, Controls* ctrls)
     GUI::init(sh, ctrls);
 
     int texW = width/2;
-    int texH = height; //button height hardcoded
+    int texH = height/2;
 
     //Build button textures
     TextureBuilder tb(sdlHandler);
@@ -50,8 +50,8 @@ void Button::init(SDLHandler* sh, Controls* ctrls)
 		} break;
 	}
 	
-	tb.buildButtonShine(btnShineTex0);
-	tb.buildButtonShine(btnShineTex1);
+	tb.buildButtonShine(texBtnShine0);
+	tb.buildButtonShine(texBtnShine1);
 
     //Build text
     btnText.init(sdlHandler);
@@ -68,8 +68,8 @@ void Button::destroy()
     texBtnHovering.destroy();
     texTbxSelected.destroy();
     texBtnSelected.destroy();
-    btnShineTex0.destroy();
-    btnShineTex1.destroy();
+    texBtnShine0.destroy();
+    texBtnShine1.destroy();
 }
 
 /**/
@@ -109,8 +109,8 @@ void Button::draw()
 
     //Draw button shine animation
     if( hovering && shineAnimation>=0 ) {
-        btnShineTex0.draw();
-        btnShineTex1.draw();
+        texBtnShine0.draw();
+        texBtnShine1.draw();
     }
 
     //Draw button's text
@@ -126,7 +126,7 @@ void Button::tick()
     //If mouse hovering
     if(
         mX>sX+1 && mX<=sX+1+width
-     && mY>sY+1 && mY<=sY+1+32
+     && mY>sY+1 && mY<=sY+1+height
      ) {
         if(!hovering) shineAnimation = 1;
         hovering = true;
@@ -138,8 +138,8 @@ void Button::tick()
     //Mouse hover animation
     if( shineAnimation>=0 ) {
         shineAnimation += width/10;
-        btnShineTex0.setDrawPos( sX+shineAnimation, sY );
-        btnShineTex1.setDrawPos( sX+(width+12)-36-shineAnimation, sY );
+        texBtnShine0.setDrawPos( sX+shineAnimation, sY );
+        texBtnShine1.setDrawPos( sX+(width+12)-36-shineAnimation, sY );
         if(shineAnimation+18 >= width)
             shineAnimation = -1;
     }
@@ -184,15 +184,15 @@ void Button::onWindowUpdate()
     translateSPos();
 
     if(getID()==GUIHandler::ID::tbx_DEBUG) {
-        sY = sdlHandler->getHeight()-height*2;
+        sY = sdlHandler->getHeight()-height;
     }
 
     texBtn.setDrawPos(sX, sY);
     texBtnHovering.setDrawPos(sX, sY);
     texTbxSelected.setDrawPos(sX, sY);
     texBtnSelected.setDrawPos(sX, sY);
-    btnShineTex0.setDrawPos(sX, sY);
-    btnShineTex1.setDrawPos(sX, sY);
+    texBtnShine0.setDrawPos(sX, sY);
+    texBtnShine1.setDrawPos(sX, sY);
 
 
     int txtX = 0;

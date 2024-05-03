@@ -33,7 +33,7 @@ public:
 	void updateMap104(int loadDistH, int loadDistV);
 	void updateRegTicked(FileHandler* fileHandler, int64_t rX, int64_t rY, int64_t rZ, int loadDistV);
 	void updateMapTicked(FileHandler* fileHandler, int loadDistH, int loadDistV);
-	void updateMapMoved(FileHandler* fileHandler, std::string currentDimPath, int loadDistH, int loadDistV);
+	void updateMapMoved(FileHandler* fileHandler, int loadDistH, int loadDistV);
 
 private:
 	t_tileUpdates tileUpdates;

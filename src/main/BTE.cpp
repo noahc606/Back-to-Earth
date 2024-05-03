@@ -139,22 +139,26 @@ void BTE::tick()
 		guiHandler.tick();
 
 		//GUI Button Action
-		
 		int gaid = guiHandler.getGUIActionID();
 		if( gaid>-1 ) {
 			ButtonAction ba(sdlHandler, &guiHandler, fileHandler, controls);
 			//Game state switching through buttons
 			switch( gaid ) {
 				/** Main Menu */
-				case GUIHandler::btn_MAIN_play: {
-					setGameState(GameState::WORLD);
+				case GUIHandler::btn_MAIN_play: { setGameState(GameState::SELECT_CAMPAIGN); } break;
+				case GUIHandler::btn_MAIN_exit: { setGameState(GameState::EXIT); } break;
+
+				/** Campaign select menu */
+				case GUIHandler::ssr_SELECT_CAMPAIGN_select: {
+					std::string selectedWorld = guiHandler.getGUIActionData();
+					Log::log("Opening world \"%s\"", selectedWorld.c_str());
+					setGameState(GameState::WORLD, selectedWorld);
 				} break;
-				case GUIHandler::btn_MAIN_exit: {
-					setGameState(GameState::EXIT);
-				} break;
+				
 
 				/** Options menu buttons */
-				case GUIHandler::btn_OPTIONS_back: {
+				case GUIHandler::btn_OPTIONS_back: 
+				case GUIHandler::btn_SELECT_CAMPAIGN_back: {
 					if( gamestate==GameState::WORLD ) {
 						guiHandler.setGUIs(GUIHandler::GUIs::PAUSE);
 					} else {
@@ -332,34 +336,31 @@ GUIHandler* BTE::getGUIHandler()
 	return &guiHandler;
 }
 
-void BTE::setGameState(int p_gamestate)
+void BTE::setGameState(int p_gamestate, std::string extraInfo)
 {
+	// Upon gamestate change, we should unload world and tests
 	if( gamestate!=p_gamestate ) {
 		unload(world);
 		unload(tests);
 	}
 
-	//Gamestate switch
+	// Set gamestate
 	gamestate = p_gamestate;
+	Log::log("Switching to gamestate %d...", gamestate);
 
-	//Gamestate switch message
-	std::stringstream ss;
-	ss << "Switching to gamestate " << p_gamestate << "...";
-	Log::log(ss.str());
-
-	//Validate gamestate switch
+	// Actions depending on new gamestate value
 	switch(p_gamestate) {
-		case EXIT: {
-			MainLoop::quit();
-		} break;
+		// Exit game
+		case EXIT: { MainLoop::quit(); } break;
 
-		case TEXTURES: {
-			guiHandler.removeAllUserGUIs();
-		} break;
+		// Testing stuff (textures, general testing)
+		case TEXTURES: { guiHandler.removeAllUserGUIs(); } break;
 		case TESTING: {
 			guiHandler.removeAllUserGUIs();
 			load(tests);
 		} break;
+
+		// Go to main menu
 		case MAIN_MENU: {
 			guiHandler.setGUIs(GUIHandler::GUIs::MAIN);
 			AudioLoader* al = sdlHandler->getAudioLoader();
@@ -370,25 +371,29 @@ void BTE::setGameState(int p_gamestate)
 				al->play(AudioLoader::TITLE_impact);
 				playedImpact = true;
 			}
-
-			
 		} break;
+
+		// Go to campaign selection
 		case SELECT_CAMPAIGN: {
 			guiHandler.setGUIs(GUIHandler::GUIs::SELECT_CAMPAIGN);
 		} break;
+
+		// Go to world
 		case WORLD: {
 			guiHandler.setGUIs(GUIHandler::GUIs::WORLD);
 			AudioLoader* al = sdlHandler->getAudioLoader();
 			al->stopPlayingMusic();
-			load(world);
+			load(world, extraInfo);
 		} break;
 
+		// Go to unknown gamestate (testing)
 		default: {
 			Log::warn(__PRETTY_FUNCTION__, "Tried to switch to invalid gamestate", "going to TESTING (-1)");
 			setGameState(TESTING);
 		} break;
 	}
 }
+void BTE::setGameState(int p_gamestate) { setGameState(p_gamestate, ""); }
 
 void BTE::unload(World*& world)
 {
@@ -406,10 +411,10 @@ void BTE::unload(Tests*& tests)
 	}
 }
 
-void BTE::load(World*& world)
+void BTE::load(World*& world, std::string dirName)
 {
 	unload(world);
-	world = new World();
+	world = new World(dirName);
 	world->init(sdlHandler, &guiHandler, fileHandler, controls);
 }
 

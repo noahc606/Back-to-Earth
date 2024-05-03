@@ -223,7 +223,6 @@ void AudioLoader::addMixChunks()
 	addMixChunk(MUSIC_blender_engine, "music/blender_engine", "mp3", true);
 	addMixChunk(MUSIC_cyber_city, "music/cyber_city", "mp3", true);
 	addMixChunk(MUSIC_entering_orbit, "music/entering_orbit", "mp3", true);
-	addMixChunk(MUSIC_kalliope, "music/kalliope", "mp3", true);
 	addMixChunk(MUSIC_mercury, "music/mercury", "mp3", true);
 	addMixChunk(MUSIC_space_travel, "music/space_travel", "mp3", true);
 	

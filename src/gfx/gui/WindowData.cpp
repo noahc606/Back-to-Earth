@@ -40,8 +40,11 @@ WindowData::~WindowData()
 
 std::string WindowData::getLowerPanel() { return lowerPanel; }
 std::string WindowData::getUpperPanel() { return upperPanel; }
-int WindowData::getWidth() { return width; }
 int WindowData::getHeight() { return height; }
+int WindowData::getH64() { return height*64; }
+int WindowData::getWidth() { return width; }
+int WindowData::getW64() { return width*64; }
+
 char WindowData::getPanelData(int x, int y)
 {
     auto obj = panelData.find(y);

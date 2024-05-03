@@ -12,8 +12,9 @@
  * Note: Nearly all references of NORTH/EAST/SOUTH/WEST in other areas of Back to Earth merely mean up/left/down/right in the rectangular sense, across the XY plane.
  */ 
 
-void Planet::init()
+void Planet::init(int rotation)
 {
+	Planet::rotation = rotation;
 	initialized = true;
 	
 	std::srand(1234567);
@@ -22,6 +23,11 @@ void Planet::init()
 	std::stringstream ss;
 	ss << "Initialized planet id " << id << "...";
 	Log::log(ss.str());
+}
+
+void Planet::init()
+{
+	init(0);
 }
 
 void Planet::putInfo(std::stringstream& ss, int& tabs)

@@ -23,13 +23,14 @@ public:
 	typedef std::tuple<int64_t, int64_t, int64_t>				t_v3d;
 	typedef std::map<t_v3d, TileRegion>							t_regionMap;
 	/**/
-	void init(SDLHandler* sh, FileHandler* fh, Planet* pt);
+	void init(SDLHandler* sh, FileHandler* fh, Planet* pt, std::string wdn);
 	void destroy();
 	/**/
 	void putInfo(std::stringstream& ss, int& tabs);
 	/**/
 	t_regionMap* getRegionMap();
 	Planet* getPlanet();
+	std::string getWorldDirName();
 
 	TileType getTile(int64_t x, int64_t y, int64_t z);
 	TileRegion* getRegByXYZ (int64_t x, int64_t y, int64_t z);
@@ -56,8 +57,8 @@ public:
 	int loadRegion(FileHandler* fileHandler, int64_t rX, int64_t rY, int64_t rZ);
 	int loadRegions(FileHandler* fileHandler, int64_t rX1, int64_t rY1, int64_t rZ1, int64_t rX2, int64_t rY2, int64_t rZ2);
 	int forceLoadRegion(FileHandler* fileHandler, int64_t rX, int64_t rY, int64_t rZ);
-	int saveRegion(FileHandler* fileHandler, std::string saveGameName, int64_t rX, int64_t rY, int64_t rZ);
-	int unloadRegion(FileHandler* fileHandler, std::string saveGameName, int64_t rX, int64_t rY, int64_t rZ);
+	int saveRegion(FileHandler* fileHandler, int64_t rX, int64_t rY, int64_t rZ);
+	int unloadRegion(FileHandler* fileHandler, int64_t rX, int64_t rY, int64_t rZ);
 
 protected:
 
@@ -68,4 +69,5 @@ private:
 	//World objects
 	Planet* planet = nullptr;
 	std::vector<Player>* players;
+	std::string worldDirName = "world_unknown";
 };

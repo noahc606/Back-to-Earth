@@ -33,22 +33,11 @@ void Tests::init(SDLHandler* sh, FileHandler* fh, Controls* ctrls)
 
 
     ch.init(sdlHandler);
-    
-    
-    
-    //auto apl = ch.getBTEAssetPathList();
-    //for(std::string s : apl) {
-        //std::cout << s << "\n";
-    //}
-    ch.cURLIntoFile("test.png", "https://noahc606.github.io/nch/bte/assets/backtoearth/resources/textures/icon.png");
-    
-    std::string res;
-    CURLcode cc = ch.cURLAsString(&res, "https://noahc606.github.io/nch/bte/assets.txt");
-    std::cout << res << "\n";
 
-
-    Log::log("test123");
-    //Log::log();
+    {
+        Timer t("calculating disk space used", true);
+        //Log::log("used space: %d bytes", 12341234);
+    }
 
     /*
     GridIterator gi;

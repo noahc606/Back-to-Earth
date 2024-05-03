@@ -34,8 +34,12 @@ public:
 
 	/* File reading and seeking */
     //File exists?
-	bool fileExists(FilePath fp);
     bool fileExists(std::string path);
+    bool dirExists(std::string path);
+    std::vector<std::string> listDirContents(std::string parentDir, bool listOnlyDirs, bool recursive);
+    std::vector<std::string> listSubDirs(std::string parentDir);
+    uint64_t dirDiskSpaceUsed(std::string path);
+
 	//Read file types
 	uint8_t readByte();
 	uint8_t readByteStay();
@@ -64,8 +68,10 @@ public:
     Settings* getSettings();
     std::string getResourcePath();
     std::string getModifiedPath(FilePath fp);
+    std::string getUnmodifiedPath(std::string mfp);
     static std::vector<std::string> split(std::string toSplit, std::string delim);
     static std::string getFileOpenTypeStr(int fot);
+    static std::string getReadableMemorySize(uint64_t numBytes);
 
     enum FileStates {
         FAILED_ACCESS = -1,
@@ -91,10 +97,6 @@ private:
     /* Settings handler and files that hold settings */
     Settings settings;
     FilePath* files[Settings::LAST_INDEX];
-
-	static bool attemptedUpdate;
-
-	bool updateBTE();
 
     /* Create new folder ("unsafe" version of createBteDir()) */
     int createDir(std::string path);

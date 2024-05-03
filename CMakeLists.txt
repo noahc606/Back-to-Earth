@@ -16,7 +16,7 @@ endif (UNIX)
 
 # Project
 project(${PROJ_OUT} VERSION 0.1.1.0 LANGUAGES C CXX)
-set(CMAKE_C_FLAGS "-std=c++11 -o")
+set(CMAKE_C_FLAGS "-std=c++17 -o")
 
 
 # Get list of sources and headers

@@ -3,6 +3,7 @@
 #include <codecvt>
 #include <dirent.h>
 #include <errno.h>
+#include <filesystem>
 #include <locale>
 #include <SDL2/SDL_image.h>
 #include <sstream>
@@ -15,8 +16,6 @@
 #include "MainLoop.h"
 #include "SDLHandler.h"
 #include "Timer.h"
-
-bool FileHandler::attemptedUpdate = false;
 
 FileHandler::FileHandler(){}
 FileHandler::~FileHandler(){}
@@ -43,6 +42,10 @@ void FileHandler::init( std::string rp, int fsType )
     createBTEDir("saved/logs");
     createBTEDir("saved/screenshots");
     createBTEDir("saved/settings");
+
+    createBTEDir("saved/games/world1");
+    createBTEDir("saved/games/world2");
+    createBTEDir("saved/games/world3");
 
     //Load and save settings files.
     loadSettings();
@@ -146,7 +149,7 @@ int FileHandler::openFile(std::string path, int openType, bool binary)
 int FileHandler::openFile(std::string path, int openType) { return openFile(path, openType, false); }
 
 /**
-    "(C)lear-Edit": Opens file (contents are cleared) for writing. Simpler to use than pOpenFile()
+    "(C)lear-Edit": Opens file (contents are cleared) for writing. Simpler to use than openFile()
     Returns:
         Whether we fail to access the file (-1), create a new file (0), or access an existing file (1)
 */
@@ -240,16 +243,87 @@ int FileHandler::saveCloseFile()
 	return -1;
 }
 
-bool FileHandler::fileExists(FilePath fp)
-{
-    struct stat buffer;
-    std::string absolutePath = (getModifiedPath(fp));
-    return (stat( absolutePath.c_str(), &buffer) == 0);
-}
 bool FileHandler::fileExists(std::string path)
 {
     FilePath fp(path, filesystemType);
-    return fileExists(fp);
+    struct stat buffer;
+    std::string btePath = (getModifiedPath(fp));
+    return (stat( btePath.c_str(), &buffer) == 0);
+}
+
+bool FileHandler::dirExists(std::string path)
+{
+    FilePath fp(path, filesystemType);
+    std::string mfp = getModifiedPath(fp);
+
+    if(std::filesystem::is_directory(mfp)) {
+        return true;
+    }
+    return false;
+}
+
+std::vector<std::string> FileHandler::listDirContents(std::string parentDir, bool listOnlyDirs, bool recursive)
+{
+    FilePath fp(parentDir, filesystemType);    
+    std::string mfp = getModifiedPath(fp);
+
+    std::vector<std::string> res;
+    if(dirExists(fp.get())) {
+
+        std::vector<std::filesystem::directory_entry> dev;  //Directory entry vector
+        if(recursive) {
+            using dritr = std::filesystem::recursive_directory_iterator;
+            dritr dirListRec = dritr(mfp);
+            for (const auto& dir : dirListRec) { dev.push_back(dir); }
+        } else {
+            using ditr = std::filesystem::directory_iterator;
+            ditr dirList = ditr(mfp);
+            for (const auto& dir : dirList) { dev.push_back(dir); }
+        }
+
+        for (const auto& dir : dev) {
+            std::stringstream ss; ss << dir;
+            std::string withoutQuotes = ss.str().substr(1, ss.str().length()-2);
+            std::string umfp = getUnmodifiedPath(withoutQuotes);
+
+            if(listOnlyDirs) {
+                if(dirExists(umfp)) {
+                    res.push_back(umfp);
+                }
+            } else {
+                res.push_back(umfp);
+            }
+        }
+
+    } else {
+        Log::warnv(__PRETTY_FUNCTION__, "returning empty vector", "\"%s\" is not a directory", parentDir.c_str());
+    }
+
+
+    return res;
+}
+
+std::vector<std::string> FileHandler::listSubDirs(std::string parentDir) { return listDirContents(parentDir, true, false); }
+
+/*
+    returns: number of bytes of disk space used by the directory.
+*/
+uint64_t FileHandler::dirDiskSpaceUsed(std::string parentDir)
+{
+    saveCloseFile();
+
+    uint64_t res = 0;
+    auto dc = listDirContents(parentDir, false, true);
+    for(std::string s : dc) {
+        std::string umfp = getUnmodifiedPath(s);
+        if(fileExists(umfp)) {
+            openFile(umfp, FileOpenTypes::READ, true);
+            res += getFileLength();
+            saveCloseFile();
+        }
+    }
+
+    return res;
 }
 
 uint8_t FileHandler::readByte()
@@ -303,7 +377,7 @@ Settings::t_kvMap FileHandler::readTxtFileKVs(FilePath fp)
 	Settings::t_kvMap contents;
 
 	//Return an empty kvMap if file not found.
-	if( !fileExists(fp) ) {
+	if( !fileExists(fp.get()) ) {
 		Log::debug( __PRETTY_FUNCTION__, "File \"%s\" not found", fp.get().c_str());
 		return contents;
 	}
@@ -453,6 +527,10 @@ int FileHandler::saveSettings(Settings::t_kvMap kvMap, std::string path)
 	
 	if( kvMap.size()!=0 ) {
 		for(auto kvp : kvMap) {
+            if( kvp.first.size()==0 || kvp.second.size()==0 ) {
+                continue;
+            }
+            
 			write(kvp.first);
 			write("=");
 			write(kvp.second);
@@ -526,7 +604,7 @@ FILE* FileHandler::getFilePtr() { return file; }
 Settings* FileHandler::getSettings() { return &settings; }
 std::string FileHandler::getResourcePath() { return resourcePath; }
 /**
-    Takes a file path and returns it with the base BTE path added at the beginning
+    Takes a file path and returns it with the base BTE path added at the beginning.
 */
 std::string FileHandler::getModifiedPath(FilePath fp)
 {
@@ -543,6 +621,17 @@ std::string FileHandler::getModifiedPath(FilePath fp)
     mp = resourcePath+fps;
     return mp;
 }
+std::string FileHandler::getUnmodifiedPath(std::string mfp)
+{
+    int len = resourcePath.length();
+    if(mfp.substr(0, len)==resourcePath) {
+        return mfp.substr(len);
+    } else {
+        //Log::warnv(__PRETTY_FUNCTION__, "returning itself", "Path \"%s\" is not a full path", mfp.c_str());
+        return mfp;
+    }
+}
+
 
 std::vector<std::string> FileHandler::split(std::string toSplit, std::string delim)
 {
@@ -579,16 +668,33 @@ std::string FileHandler::getFileOpenTypeStr(int fot)
 }
 
 
-/**
- * 	Update the Back to Earth executable file, and download the newest Back to Earth assets from github.io/noahc606/bte/latest.
- * 	Unimplemented because it is low priority (and will be for some time)
- */
-bool FileHandler::updateBTE()
+/*
+    Return numBytes as a string with the format [value]B/KB/MB/GB/TB.
+*/
+std::string FileHandler::getReadableMemorySize(uint64_t numBytes)
 {
-	std::string exePath = SDL_GetBasePath();
-	FilePath fp(exePath, filesystemType);
-	
-	return false;
+    //Get 'display' & 'unitType'
+    double display = numBytes;
+    int unitType = 0;
+    while(display>=1000 && unitType<4) {
+        unitType++;
+        display /= 1000.0;
+    }
+
+    //Get 'unitStr'
+    std::string unitStr = "";
+    switch(unitType) {
+        case 0: unitStr = "B"; break;
+        case 1: unitStr = "KB"; break;
+        case 2: unitStr = "MB"; break;
+        case 3: unitStr = "GB"; break;
+        case 4: unitStr = "TB"; break;
+    }
+
+    //Return display+unitStr
+    std::stringstream res;
+    res << display << unitStr;
+    return res.str();
 }
 
 /**

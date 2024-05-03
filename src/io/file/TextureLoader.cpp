@@ -256,6 +256,7 @@ void TextureLoader::load()
 			addSurface("gui/cursor");
 			addSurface("gui/player_interactions");
 			addSurface("gui/window");
+			addSurface("gui/save_selector");
 			//Player
 			addSurface("player/items");
 			addSurface("player/side/hair");
@@ -277,7 +278,7 @@ void TextureLoader::load()
 		}
 		//Create textures from all surfaces
 		addTextures();
-		//Some textures are better to have scaled copies of for faster map rendering (ex: tiles)
+		//Some textures are better to have scaled copies of, for faster map rendering (ex: tiles)
 		addScaledTextures();
 	//If resources have already been loaded
 	} else {

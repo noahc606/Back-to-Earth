@@ -103,6 +103,15 @@ Settings::Settings()
 
 }
 
+void Settings::logInfo(t_kvMap kvMap)
+{
+	std::stringstream ss;
+	for( Settings::t_kvPair kvp : kvMap ) {
+		ss << kvp.first << "=" << kvp.second << "; ";
+	}
+	Log::log("List of key-val pairs: %s", ss.str().c_str());
+}
+
 bool Settings::unload(int index)
 {
 	//Erase all elements in settingsMap.
@@ -115,9 +124,14 @@ bool Settings::unload(int index)
     return false;
 }
 
-void Settings::load(t_kvMap* kvMapNew, t_kvMap kvMapOld)
+void Settings::loadNewMapIntoOld(t_kvMap* kvMapOldVals, t_kvMap kvMapValsToAdd)
 {
-	loadMap(kvMapNew, kvMapOld);
+	//Add all elements of 'kvMapValsToAdd' into 'kvMapOldVals'
+	t_kvMap::iterator kvmItr = kvMapValsToAdd.begin();
+	while( kvmItr!=kvMapValsToAdd.end() ) {
+		kv( kvMapOldVals, kvmItr->first, kvmItr->second );
+		kvmItr++;
+	}
 }
 
 void Settings::load(int index, t_kvMap kvMap)
@@ -225,6 +239,20 @@ std::string Settings::get(t_kvMap kvMap, std::string key)
 	return "null";
 }
 
+double Settings::getNum(t_kvMap kvMap, std::string key)
+{
+	std::string val = get(kvMap, key);
+	
+	double res = 0.0;
+	try {
+		res = std::stold(val);
+	} catch(...) {
+		Log::warnv(__PRETTY_FUNCTION__, "returning 0.0", "Failed to convert value \"%s\" to a number", val.c_str());
+	}
+
+	return res;
+}
+
 int Settings::find(t_kvMap kvMap, std::string key)
 {
 	unsigned int index = 0;
@@ -290,16 +318,6 @@ void Settings::kv(int index, std::string key, int val)
 {
 	std::stringstream ss; ss << val;
 	kv(index, key, ss.str());
-}
-
-void Settings::loadMap(t_kvMap* kvMapNew, t_kvMap kvMapOld)
-{
-	//Add all elements of 'kvMapOld' into 'kvMapNew'
-	t_kvMap::iterator kvmItr = kvMapOld.begin();
-	while( kvmItr!=kvMapOld.end() ) {
-		kv( kvMapNew, kvmItr->first, kvmItr->second );
-		kvmItr++;
-	}
 }
 
 void Settings::loadMap(int index, t_kvMap kvMap)

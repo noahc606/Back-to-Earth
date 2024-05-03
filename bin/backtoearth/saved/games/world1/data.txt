@@ -1,0 +1,4 @@
+planetRotation=1284
+playerX=-13
+playerY=-7
+playerZ=-32

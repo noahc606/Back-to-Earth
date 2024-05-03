@@ -13,8 +13,10 @@ public:
 
     Settings();
 
+    static void logInfo(t_kvMap kvMap);
+
     bool unload(int index);
-    void load(t_kvMap* kvMapNew, t_kvMap kvMapOld);
+    void loadNewMapIntoOld(t_kvMap* kvMapOldVals, t_kvMap kvMapValsToAdd);
     void load(int index, t_kvMap kvMap);
 
     std::string get(int kvMapIndex, std::string key);
@@ -23,6 +25,8 @@ public:
 
     static std::string getKey(t_kvMap kvMap, int index);
     static std::string get(t_kvMap kvMap, std::string key);
+    static double getNum(t_kvMap kvMap, std::string key);
+
     static int find(t_kvMap kvMap, std::string key);
     static void kv(t_kvMap* kvMap, std::string key, std::string val);
     static void kv(t_kvMap* kvMap, std::string key, int val);
@@ -42,7 +46,6 @@ public:
     };
 
 private:
-    void loadMap(t_kvMap* kvMapNew, t_kvMap kvMapOld);
     void loadMap(int index, t_kvMap kvMap);
 
     bool logging = false;

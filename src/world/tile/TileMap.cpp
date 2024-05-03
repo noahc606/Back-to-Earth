@@ -7,11 +7,12 @@
 #include "TileIterator.h"
 #include "TileType.h"
 
-void TileMap::init(SDLHandler* sh, FileHandler* fh, Planet* pt)
+void TileMap::init(SDLHandler* sh, FileHandler* fh, Planet* pt, std::string wdn)
 {
 	sdlHandler = sh;
 	fileHandler = fh;
 	planet = pt;
+	worldDirName = wdn;
 }
 
 void TileMap::destroy()
@@ -44,6 +45,7 @@ void TileMap::putInfo(std::stringstream& ss, int& tabs)
 
 TileMap::t_regionMap* TileMap::getRegionMap() { return &regionMap; }
 Planet* TileMap::getPlanet() { return planet; }
+std::string TileMap::getWorldDirName() { return worldDirName; }
 
 /*
     This function will work fine in small loops but keep in mind getRegSubPos() is somewhat expensive. For large or even 3D loops (like in TileMapScreen::draw()) use a TileIterator.
@@ -158,7 +160,7 @@ int TileMap::loadRegion(FileHandler* fileHandler, int64_t rX, int64_t rY, int64_
 		tr.setRegTexState(tr.FINISHED_GENERATING);
 		
 		//Place region's artificial tiles
-		tr.load(fileHandler, "world1", rX, rY, rZ);
+		tr.load(fileHandler, worldDirName, rX, rY, rZ);
 		
 		//Insert the region into the regionMap.
 		regionMap.insert( std::make_pair(std::make_tuple(rX, rY, rZ), tr) );
@@ -207,13 +209,13 @@ int TileMap::forceLoadRegion(FileHandler* fileHandler, int64_t rX, int64_t rY, i
 	loadRegion(fileHandler, rX, rY, rZ);
 	TileRegion* tr = getRegByRXYZ(rX, rY, rZ);
 	if( tr!=nullptr ) {
-		tr->load(fileHandler, "world1", rX, rY, rZ);
+		tr->load(fileHandler, worldDirName, rX, rY, rZ);
 		return 1;
 	}
 	return -1;
 }
 
-int TileMap::saveRegion(FileHandler* fileHandler, std::string saveGameName, int64_t rX, int64_t rY, int64_t rZ)
+int TileMap::saveRegion(FileHandler* fileHandler, int64_t rX, int64_t rY, int64_t rZ)
 {
 	TileRegion* tr = getRegByRXYZ(rX, rY, rZ);
 	
@@ -221,14 +223,14 @@ int TileMap::saveRegion(FileHandler* fileHandler, std::string saveGameName, int6
 	if( !tr->beenModifiedSinceLoad() ) 	{ return -1; }
 	
 	std::stringstream ss;
-	ss << "Saving region (" << rX << ", " << rY << ", " << rZ << ") in save '" << saveGameName << "'";
+	ss << "Saving region (" << rX << ", " << rY << ", " << rZ << ") in save '" << worldDirName << "'";
 	Log::debug(ss.str());
 	
-	tr->save(fileHandler, saveGameName, rX, rY, rZ, false);
+	tr->save(fileHandler, worldDirName, rX, rY, rZ, false);
 	return 0;
 }
 
-int TileMap::unloadRegion(FileHandler* fileHandler, std::string saveGameName, int64_t rX, int64_t rY, int64_t rZ)
+int TileMap::unloadRegion(FileHandler* fileHandler, int64_t rX, int64_t rY, int64_t rZ)
 {
 	t_regionMap::iterator itr = regionMap.find( std::make_tuple(rX, rY, rZ) );
 	if( itr!=regionMap.end() ) {

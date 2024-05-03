@@ -31,8 +31,8 @@ protected:
     Texture texBtnSelected;         //When button is selected
 
     int shineAnimation = -1;
-    Texture btnShineTex0;           //Shine when mouse is hovering
-    Texture btnShineTex1;           //Shine when mouse is hovering
+    Texture texBtnShine0;           //Shine when mouse is hovering
+    Texture texBtnShine1;           //Shine when mouse is hovering
 
     /* Button draw properties */
     bool hovering = false;

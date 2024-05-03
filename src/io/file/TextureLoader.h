@@ -40,6 +40,7 @@ public:
 		GUI_cursor,
 		GUI_player_interactions,
 		GUI_window,
+		GUI_save_selector,
 
 		PLAYER_items,
 		PLAYER_side_hair,

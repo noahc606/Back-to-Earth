@@ -6,7 +6,15 @@
 #include "MainLoop.h"
 #include "Timer.h"
 
-World::World(){}
+World::World(std::string dirName)
+{
+	if(dirName=="") {
+		dirName = "world1";
+	}
+	worldDirName = dirName;
+	worldDirPath = "saved/games/"+worldDirName;
+	worldDataPath = worldDirPath+"/data.txt";
+}
 
 void World::init(SDLHandler* sh, GUIHandler* gh, FileHandler* fh, Controls* ctrls)
 {
@@ -14,35 +22,44 @@ void World::init(SDLHandler* sh, GUIHandler* gh, FileHandler* fh, Controls* ctrl
 	BTEObject::init(sh, fh, ctrls);
 	guiHandler = gh;
 	
-	fileHandler->createBTEDir("saved/games/world1");
-	fileHandler->createBTEDir("saved/games/world1/tilemap/default");
-	
-	worldDataPath = "saved/games/world1/data.txt";
+
+	/* INIT 0a: Files/directories */
+	// Create world files and directories
+	fileHandler->createBTEDir(worldDirPath);
+	fileHandler->createBTEDir(worldDirPath+"/tilemap/default");
 	if (!fh->fileExists(worldDataPath) ) {
 		fh->cEditFile(worldDataPath);
 		fh->saveCloseFile();
 	}
 	
+
+	/* INIT 0b: world saved settings */
 	//Build default world settings
-	Settings::t_kvMap dwd;	//DWD = default world data
-	Settings::kv(&dwd, "playerX", "nan");
-	Settings::kv(&dwd, "playerY", "nan");
-	Settings::kv(&dwd, "playerZ", "nan");
-	Settings::kv(&dwd, "planetRotation", 1000);
-	
-	//Build loaded world settings
-	worldData = fileHandler->readTxtFileKVs(worldDataPath);
-	fh->getSettings()->load(&dwd, worldData);
+	Settings::t_kvMap lwd;	//LWD = loaded world data
+	Settings::kv(&lwd, "planetRotation", 1000);
+	Settings::kv(&lwd, "playerX", "0");
+	Settings::kv(&lwd, "playerY", "0");
+	Settings::kv(&lwd, "playerZ", "-32");
+	//Build loaded world settings into worldDataKVs
+	worldDataKVs = fileHandler->readTxtFileKVs(worldDataPath);
+	fh->getSettings()->loadNewMapIntoOld(&lwd, worldDataKVs);
+	worldDataKVs = lwd;
+		
+	//Store information in variables
+	double px = Settings::getNum(worldDataKVs, "playerX");
+	double py = Settings::getNum(worldDataKVs, "playerY");
+	double pz = Settings::getNum(worldDataKVs, "playerZ");
+	double plntRot = Settings::getNum(worldDataKVs, "planetRotation");
+	Log::log("Loaded save data: player(%f, %f, %f); planetRotation=%f\n", px, py, pz, plntRot);
 	
 	/* INIT 1: Planet */
 	//Planet
-	planet.init();
-
+	planet.init(plntRot);
 
 	/* INIT 2: Player */
 	//Player
 	localPlayer.init(sh, guiHandler, ctrls);
-	localPlayer.setPos(0, 0, -32);
+	localPlayer.setPos(px, py, pz);
 	//Player menu
 	localPlayerMenu.init(sdlHandler, guiHandler, ctrls, &localPlayer);
 	
@@ -56,7 +73,7 @@ void World::init(SDLHandler* sh, GUIHandler* gh, FileHandler* fh, Controls* ctrl
 	csTileMap.setTexAllocRadiusX(1);
 	csTileMap.setTexAllocRadiusY(1);
 	//TileMap, tileMapScreen
-	tileMap.init(sdlHandler, fileHandler, &planet);
+	tileMap.init(sdlHandler, fileHandler, &planet, worldDirName);
 	tileMapScreen.init(sdlHandler, fileHandler, &tileMap, &csTileMap);
 
 
@@ -80,6 +97,15 @@ void World::init(SDLHandler* sh, GUIHandler* gh, FileHandler* fh, Controls* ctrl
 
 World::~World()
 {
+	// Save world objects
+	Settings::t_kvMap wdKVs = worldDataKVs;
+	Settings::kv(&wdKVs, "planetRotation", planet.getRotationRaw() );
+	Settings::kv(&wdKVs, "playerX", std::get<0>(localPlayer.getPos()) );
+	Settings::kv(&wdKVs, "playerY", std::get<1>(localPlayer.getPos()) );
+	Settings::kv(&wdKVs, "playerZ", std::get<2>(localPlayer.getPos()) );
+	fileHandler->saveSettings(wdKVs, worldDataPath);
+
+	// Destroy canvases
 	csTileMap.destroy();
 	csInteractions.destroy();
 	csEntities.destroy();
