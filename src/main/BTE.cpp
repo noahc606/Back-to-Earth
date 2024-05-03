@@ -380,9 +380,10 @@ void BTE::setGameState(int p_gamestate, std::string extraInfo)
 
 		// Go to world
 		case WORLD: {
-			guiHandler.setGUIs(GUIHandler::GUIs::WORLD);
 			AudioLoader* al = sdlHandler->getAudioLoader();
 			al->stopPlayingMusic();
+
+			guiHandler.setGUIs(GUIHandler::GUIs::WORLD);
 			load(world, extraInfo);
 		} break;
 

@@ -198,7 +198,9 @@ bool AudioLoader::stopPlayingMusic()
 	for(int i = MUSIC_blender_engine; i<=MUSIC_space_travel; i++) {
 		setMixLastPlayedMS(i, -1);
 	}
-	Mix_HaltChannel(-1);
+	
+	Mix_HaltMusic();
+	//Mix_HaltChannel(-1);
 	return true;
 }
 

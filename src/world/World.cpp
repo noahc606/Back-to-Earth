@@ -159,8 +159,8 @@ void World::tick(bool paused, GUIHandler& guiHandler)
 		/** World objects */
 		planet.tick();
 		
-		int prr = planet.getRotationRaw();
-		if( prr==10 || prr==60*60*10 || prr==60*60*20 ) {
+		int pt = playTime; //planet.getRotationRaw();
+		if( pt==200 || pt==60*60*10 || pt==60*60*20 ) {
 			AudioLoader* al = sdlHandler->getAudioLoader();
 			srand(time(NULL));
 			al->playOnce(AudioLoader::MUSIC_kc_50_million_year_trip+(rand()%7));
@@ -185,6 +185,10 @@ void World::tick(bool paused, GUIHandler& guiHandler)
 	playerInteractions(guiHandler, paused);
 
 	performanceCounter = t.getElapsedTimeMS();
+	playTime++;
+	if(playTime==60*60*30) {
+		playTime = 0;
+	}
 }
 
 void World::putInfo(std::stringstream& ss, int& tabs)

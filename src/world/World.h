@@ -38,6 +38,7 @@ private:
 	double prevZoom = -1;
 	Player localPlayer;
 	PlayerMenu localPlayerMenu;
+	int playTime = 0;
 	
 	bool lpMenuState = false;
 	bool lpMenuStateLast = false;
