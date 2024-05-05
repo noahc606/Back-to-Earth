@@ -25,6 +25,8 @@ public:
     GUI* getGUI(int type, int id);
     /**/
     void resetGUIAction(std::string methodName);
+    void setAllWindowsActiveState(bool isActive);
+    void setWindowActiveState(Window* win, bool isActive);
     GUI* addGUI(GUI* gui, int extraID);
     GUI* addGUI(GUI* gui);
     void setGUIs(int guis);

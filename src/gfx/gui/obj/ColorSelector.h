@@ -11,27 +11,31 @@ public:
     void buildTexes();
 
     void draw();
+    void drawExtras();
     void updateColorSelectorUI(Texture* windowTex);
-    void drawCrosshair(int colAreaX, int colAreaY);
     void onWindowUpdate();
     void tick();
-    void trackMouse(int colAreaX, int colAreaY);
+    void updateColAreaXY(int colAreaX, int colAreaY);
     void syncWithTextboxes(GUIHandler* guih);
 
     double getSat(); double getVal();
     bool justClicked();
 
     void unclick();
-    void setSVFromXY(int selX, int selY);
+    void deselect();
+    void setSatValFromXY(int selX, int selY);
 
 private:
-    Texture* texCrosshair = nullptr;
+    Texture texCrosshair;
+    Texture texSelectorEdges;
+    int colAreaX = -100000;
+    int colAreaY = -100000;
 
     std::pair<bool, bool> drawStateLast = std::make_pair(false, false);
     std::pair<bool, bool> drawState = std::make_pair(false, false);
 
     Color color;
-    double lastHue = 0; double hue = 100;
+    double lastHue = 0; double hue = 50;
     double lastSat = 0; double sat = 50;
     double lastVal = 0; double val = 50;
 };

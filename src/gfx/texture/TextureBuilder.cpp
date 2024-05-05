@@ -35,7 +35,6 @@ void TextureBuilder::buildWindow(Texture& tex, WindowData* winData, int texW, in
     //Middle 32x32 squares
     for(int i = 0; i<texW; i+=32) {
         for(int j = 0; j<texH; j+=32) {
-
             tex.setColorMod( winData->getPanelColor(i/32, j/32) );
 
             tex.lock(4+i, 4+j, 32, 32);

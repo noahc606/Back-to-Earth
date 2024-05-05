@@ -11,7 +11,7 @@ public:
 	void init(SDLHandler* sh, Controls* ctrls);
 	void draw();
 	void tick();
-	void syncWithTextboxes(GUIHandler* guih);
+	void syncWithRelatedUIs(GUIHandler* guih);
 	/**/
 	std::string getSelectorVal();
 	/**/

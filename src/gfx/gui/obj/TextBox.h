@@ -45,8 +45,9 @@ public:
     enum InputType {
         LOCKED = -1,
         FREE_TEXT = 0,
-		FREE_NUMBERS_BASIC,
-		FREE_NUMBERS_INTEGERS,
+		FREE_NUMBERS_BASIC,     //Positive integers
+		FREE_NUMBERS_INTEGERS,  //Integers
+        FREE_HEX_BASIC,         //Positive hex integers
         CONTROL_BINDINGS,
     };
 

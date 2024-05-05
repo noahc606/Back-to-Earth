@@ -124,10 +124,7 @@ void Button::tick()
     int mY = controls->getMouseY();
 
     //If mouse hovering
-    if(
-        mX>sX+1 && mX<=sX+1+width
-     && mY>sY+1 && mY<=sY+1+height
-     ) {
+    if( mX>sX+1 && mX<=sX+1+width && mY>sY+1 && mY<=sY+1+height ) {
         if(!hovering) shineAnimation = 1;
         hovering = true;
     //If mouse not hovering
@@ -144,8 +141,8 @@ void Button::tick()
             shineAnimation = -1;
     }
 
-    //If mouse is hovering...
-    if( hovering ) {
+    //If button is within an active window and the mouse is hovering on the button...
+    if( parentWindow->isActive() && hovering ) {
         //If mouse is left clicked
         if( controls->isPressed("HARDCODE_LEFT_CLICK") ) {
             //If this is a textbox
@@ -164,8 +161,10 @@ void Button::tick()
             selected = true;
             btnText.setSelected(true);
         }
-    //If mouse is NOT hovering...
-    } else {
+    }
+
+    //If the button is within an active window and the mouse is NOT hovering on the button...
+    if(parentWindow->isActive() && !hovering) {
         //If mouse is left clicked
         if( controls->isPressed("HARDCODE_LEFT_CLICK") ) {
             //If this is not a radio button

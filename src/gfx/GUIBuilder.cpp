@@ -147,9 +147,9 @@ void GUIBuilder::buildMainCharacter(GUIHandler& gh, FileHandler& fh)
 		gh.addGUI(new Tooltip(w, 30, 92+i*32, name+":", gh.ttp_CHARACTER_SETTINGS_tooltip), stngIndex);
 		
         Color color; color.setFromDecimalStr(settings->get(Settings::character, stng));
-        gh.addGUI(new ColorSelector(w, 334, 82+i*32, color, gh.csr_CHARACTER_SETTINGS_set_val));
+        gh.addGUI(new ColorSelector(w, 334, 82+i*32, color, gh.csr_CHARACTER_SETTINGS_set_val), i);
 
-		gh.addGUI(new TextBox(w, 592, 82+i*32, 144, TextBox::FREE_NUMBERS_BASIC, gh.tbx_CHARACTER_SETTINGS_set_val ) );
+		gh.addGUI(new TextBox(w, 592, 82+i*32, 144, TextBox::FREE_HEX_BASIC, gh.tbx_CHARACTER_SETTINGS_set_val ) );
 		gh.addGUI(new CheckBox(w, 738, 82+i*32, "", CheckBox::CBX_RESET, true, gh.cbx_CONTROLS_set_defaults), 123456);
 	}
 	
@@ -225,28 +225,32 @@ void GUIBuilder::buildCharacterMenu(GUIHandler& gh)
     }
 }
 
-void GUIBuilder::buildColorSelector(GUIHandler& gh)
+void GUIBuilder::buildColorSelector(GUIHandler& gh, Window* parentWindow, int extraID)
 {
-    int w = 8; int h = 6;
-    WindowData* wd = new WindowData(w, h, "Color Selection", "");
+    gh.setWindowActiveState(parentWindow, false);
+
+    WindowData* wd = new WindowData(10, 8, "Color Selection", "");
     wd->setPanelData(0, "xxxxxxxxxx");
     wd->setPanelData(1, "oooooooooo");
     wd->setPanelData(2, "oooooooooo");
     wd->setPanelData(3, "oooooooooo");
     wd->setPanelData(4, "oooooooooo");
     wd->setPanelData(5, "oooooooooo");
-    wd->setPanelData(6, "xxxxxxxxxx");
+    wd->setPanelData(6, "oooooooooo");
+    wd->setPanelData(7, "oooooooooo");
+    wd->setPanelData(8, "xxxxxxxxxx");
     wd->setPanelColor('x', Color(0, 0, 200, 240) );
     wd->setPanelColor('o', Color(150, 105, 55, 240) );
 
     int width = 300;
     Window* win = new Window(ch, cv, wd, GUIHandler::win_COLORSELECTOR);
-    Button* btn = new Button( win, ch, wd->getHeight()*64+32-70, width, "Back", gh.btn_COLORSELECTOR_back );
-    wd->setSpecialType( WindowData::COLOR_SELECTOR, gh.getGUI(BTEObject::GUI_colorselect, GUIHandler::csr_CHARACTER_SETTINGS_set_val) );
+    Button* btn = new Button( win, ch, wd->getHeight()*64+32-70, width, "Back", gh.btn_COLORSELECTOR_back);
+    wd->setSpecialType( WindowData::COLOR_SELECTOR, gh.getGUI(BTEObject::GUI_colorselect, GUIHandler::csr_CHARACTER_SETTINGS_set_val, extraID) );
 
-    gh.addGUI(win);
-    gh.addGUI(btn);
-    gh.addGUI(new Slider(win, 30, 92, 0, 360, "150", GUIHandler::sdr_COLORSELECTOR_set_hue));
+    gh.addGUI(win, extraID);
+    gh.addGUI(btn, extraID);
+    Slider* sdr = (Slider*)gh.addGUI(new Slider(win, 64, 96, 0, 360, "150", GUIHandler::sdr_COLORSELECTOR_set_hue), extraID);
+    sdr->setNumSpaces(128);
 
     gh.onWindowUpdate();
 }

@@ -1,5 +1,6 @@
 #include "Slider.h"
 #include <cmath>
+#include "ColorSelector.h"
 #include "TextBox.h"
 #include "TextureBuilder.h"
 #include "GUIHandler.h"
@@ -15,7 +16,7 @@ Slider::Slider(Window* parentWindow, int x, int y, double min, double max, std::
 	setSelectorVal(val);
 	
 	width = 256;
-	height = 16;
+	height = 32;
 }
 
 void Slider::init(SDLHandler* sh, Controls* ctrls)
@@ -91,24 +92,36 @@ void Slider::tick()
 }
 
 
-void Slider::syncWithTextboxes(GUIHandler* guih)
+void Slider::syncWithRelatedUIs(GUIHandler* guih)
 {
 	validateSelectorVal();
 	
 	int id = getID();
 	
-	TextBox* tbx = nullptr;
 	
 	switch(id) {
-		case GUIHandler::sdr_GRAPHICS_SETTINGS_maxFps: 		tbx = (TextBox*)(guih->getGUI(BTEObject::GUI_textbox, id+1)); break;
-	}
-	
-	if( tbx!=nullptr ) {
-		if( tbx->isSelected() ) {
-			setSelectorVal( tbx->getString() );
-		} else {
-			tbx->setString(selectorVal);
-		}
+		case guih->sdr_GRAPHICS_SETTINGS_maxFps: {
+			TextBox* tbx = (TextBox*)(guih->getGUI(BTEObject::GUI_textbox, guih->tbx_GRAPHICS_SETTINGS_maxFps));
+
+			if( tbx!=nullptr ) {
+				if( tbx->isSelected() ) {
+					setSelectorVal( tbx->getString() );
+				} else {
+					tbx->setString(selectorVal);
+				}
+			}
+		} break;
+
+		case guih->sdr_COLORSELECTOR_set_hue: {
+			int eid = getExtraID();
+			ColorSelector* csr = (ColorSelector*)(guih->getGUI(BTEObject::GUI_colorselect, guih->csr_CHARACTER_SETTINGS_set_val));
+
+			if(csr!=nullptr) {
+				csr->getSat();
+				csr->getVal();
+			}
+
+		} break;
 	}
 }
 

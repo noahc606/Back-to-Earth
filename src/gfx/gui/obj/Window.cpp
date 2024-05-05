@@ -143,13 +143,8 @@ void Window::draw()
 
         if( winData->getRelatedUI()!=nullptr && winData->getRelatedUI()->getType()==BTEObject::GUI_colorselect ) {
             ColorSelector* cs = (ColorSelector*)winData->getRelatedUI();
-            int wtw = 0; int wth = 0;
-            windowTex.queryTexInfo(wtw, wth);
-            int colAreaX = sX+wtw/2-100;
-            int colAreaY = sY+wth-100;
-            cs->drawCrosshair(colAreaX, colAreaY);
+            cs->drawExtras();
         }
-
     } break;
 
     default: {
@@ -182,7 +177,7 @@ void Window::tick()
         windowTex.queryTexInfo(wtw, wth);
 
         ColorSelector* cs = (ColorSelector*)winData->getRelatedUI();
-        cs->trackMouse(sX+wtw/2-100, sY+wth-100);
+        cs->updateColAreaXY(sX+wtw/2-100, sY+wth-100);
     } break;
 
     }
@@ -205,3 +200,6 @@ void Window::onWindowUpdate(bool preventInvalidTPos)
 }
 
 WindowData* Window::getWindowData() { return winData; }
+bool Window::isActive() { return active; }
+
+void Window::setActive(bool isActive) { Window::active = isActive; }

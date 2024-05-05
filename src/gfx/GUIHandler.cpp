@@ -205,7 +205,7 @@ void GUIHandler::tick()
 		
 		case BTEObject::GUI_slider: {
 			Slider* sdr = ((Slider*)gui);
-			sdr->syncWithTextboxes(this);
+			sdr->syncWithRelatedUIs(this);
 		} break;
 
         case BTEObject::GUI_colorselect: {
@@ -214,7 +214,7 @@ void GUIHandler::tick()
                 csr->unclick();
 
                 GUIBuilder gb;
-                gb.buildColorSelector(*this);
+                gb.buildColorSelector(*this, csr->getParentWindow(), csr->getExtraID());
             }
         } break;
 		
@@ -344,6 +344,28 @@ void GUIHandler::resetGUIAction(std::string methodName)
     guiActionData = "";
 }
 
+void GUIHandler::setWindowActiveState(Window* win, bool isActive)
+{
+    for(GUI* g : guis) {
+        if(g->getType()==BTEObject::Type::GUI_window) {
+            Window* wg = (Window*)g;
+            if(wg==win) {
+                win->setActive(isActive);
+            }
+        }
+    }
+}
+
+void GUIHandler::setAllWindowsActiveState(bool isActive)
+{
+    for(GUI* g : guis) {
+        if(g->getType()==BTEObject::Type::GUI_window) {
+            Window* wg = (Window*)g;
+            wg->setActive(isActive);
+        }
+    }
+}
+
 GUI* GUIHandler::addGUI(GUI* gui, int extraID)
 {
     //Set extra ID
@@ -378,28 +400,35 @@ void GUIHandler::setGUIs(int guis)
         case MAIN: {
             AudioLoader* al = sdlHandler->getAudioLoader();
             gb.buildTitleScreen(*this);
+            setAllWindowsActiveState(true);
         } break;
         case OPTIONS: {
             gb.buildMainOptions(*this);
+            setAllWindowsActiveState(true);
         } break;
         case CONTROLS: {
             gb.buildMainControls(*this, *fileHandler);
+            setAllWindowsActiveState(true);
         } break;
         case GRAPHICS: {
             gb.buildMainGraphics(*this, *fileHandler);
+            setAllWindowsActiveState(true);
         } break;
 		case CHARACTER: {
 			gb.buildMainCharacter(*this, *fileHandler);
+            setAllWindowsActiveState(true);
 		} break;
 
         /** Campaign Creation/Selection UIs */
         case SELECT_CAMPAIGN: {
             gb.buildSelectCampaign(*this, *fileHandler);
+            setAllWindowsActiveState(true);
         } break;
 
         /** Pause/Unpause in World */
         case PAUSE: {
 			gb.buildWorldPause(*this);
+            setAllWindowsActiveState(true);
         } break;
         case UNPAUSE: {
             removeGUI(win_PAUSED);
@@ -414,6 +443,7 @@ void GUIHandler::setGUIs(int guis)
         } break;
         case WORLD_characterMenu_open: {
             gb.buildCharacterMenu(*this);
+            setAllWindowsActiveState(true);
         } break;
         case WORLD_characterMenu_close: {
             removeGUI(win_CHARACTER);

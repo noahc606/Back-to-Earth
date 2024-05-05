@@ -129,20 +129,10 @@ void World::draw(bool debugOn)
 	}
 
 	csInteractions.setSourceTex(TextureLoader::GUI_player_interactions, 0, 0);
-	
-	
-	switch( localPlayer.getCamera()->getAxis() ) {
-		case Camera::X: {
-			csInteractions.rcopyNI( 32*mouseYL, 32*mouseZL, 32, 32 );
-		} break;
-		case Camera::Y: {
-			csInteractions.rcopyNI( 32*mouseXL, 32*mouseZL, 32, 32 );
-		} break;
-		case Camera::Z: {
-			csInteractions.rcopyNI( 32*mouseXL, 32*mouseYL, 32, 32 );
-		} break;
-	}
-	
+		
+	Canvas::t_ll csx = localPlayer.getCamera()->getSXFromPos(32*mouseXL, 32*mouseYL, 32*mouseZL);
+	Canvas::t_ll csy = localPlayer.getCamera()->getSYFromPos(32*mouseXL, 32*mouseYL, 32*mouseZL);
+	csInteractions.rcopyNI(csx, csy, 32, 32);
 	csInteractions.draw();
 
 	/** HUDs */
@@ -251,6 +241,8 @@ void World::updateMouseAndCamInfo()
 	//Get mouseZLL - the position of the top visible tile in view of the camera.
 	//At the last line of each case block: Get distance of the closest solid tile "underneath" the mouse.
 	TileIterator ti(&tileMap);
+	
+
 	switch( localPlayer.getCamera()->getAxis() ) {
 		case Camera::X: {
 			mouseY = mouseSX;

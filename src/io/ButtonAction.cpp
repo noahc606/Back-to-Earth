@@ -1,5 +1,6 @@
 #include "ButtonAction.h"
 #include "CheckBox.h"
+#include "ColorSelector.h"
 #include "FileHandler.h"
 #include "Log.h"
 #include "MainLoop.h"
@@ -54,6 +55,23 @@ ButtonAction::ButtonAction(SDLHandler* sh, GUIHandler* gh, FileHandler* fh, Cont
 
             gh->setGUIs(GUIHandler::GUIs::OPTIONS);
         } break;
+        case GUIHandler::btn_COLORSELECTOR_back: {
+            //Get extra id of the colorselector window
+            GUI* gui1 = gh->getGUI(BTEObject::GUI_window, gh->win_COLORSELECTOR);
+            if(gui1!=nullptr) {
+                int eid = gui1->getExtraID();
+
+                //Deselect color selector button
+                GUI* gui2 = gh->getGUI(BTEObject::GUI_colorselect, gh->csr_CHARACTER_SETTINGS_set_val, eid);
+                if(gui2!=nullptr) {
+                    ((ColorSelector*)gui2)->deselect();
+                }
+            }
+
+            //Remove color selector window
+            gh->removeGUI(gh->win_COLORSELECTOR);
+            gh->setAllWindowsActiveState(true);
+        } break;
 
         //case GUIHandler::btn_back_to_MAIN:{ gh->setGUIs(GUIHandler::GUIs::MAIN); } break;
 
@@ -102,14 +120,10 @@ ButtonAction::ButtonAction(SDLHandler* sh, GUIHandler* gh, FileHandler* fh, Cont
 				x = std::stoi(strs[0]);
 				y = std::stoi(strs[1]);
 				z = std::stoi(strs[2]);
-				//int planetId = std::stoi(strs[3]);
-			} catch(...) {
-				
-			}
+			} catch(...) {}
 			
 			std::stringstream ss;
 			ss << "tele " << x << " " << y << " " << z;
-			std::cout << ss.str();
 			Commands::executeCMD(ss.str());
 		} break;
 		

@@ -68,7 +68,12 @@ private:
 		NYLON_EXOSUIT_HELMET,
 		NYLON_EXOSUIT_BODY,
 		NYLON_EXOSUIT_LEGGINGS,
-		FOOD_RATION_6,
+		FOOD_RATION_A,
+		FOOD_RATION_B,
+		FOOD_RATION_C,
+		FOOD_RATION_D,
+		FOOD_RATION_E,
+		FOOD_RATION_F,
 		INFINITE_OXYGEN_TANK,
 
 	};
@@ -83,6 +88,9 @@ private:
 	void updateMenuCoordinates();
 	void moveItemsBetween(int x1, int y1, int x2, int y2);
 	void selectInventorySlot(int x, int y);
+
+	void putItemInterfaceDesc(Window* win, int dX, int ttpDY, std::string itemDesc, int rowNum);
+	void putItemInterfaceTitle(Window* win, int dX, int ttpDY, int itemID);
 	void putItemInterface(int itemID);
 	/**/
 };

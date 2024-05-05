@@ -16,7 +16,7 @@ public:
 
 	void buildWorldPause(GUIHandler& gh);
 	void buildCharacterMenu(GUIHandler& gh);
-	void buildColorSelector(GUIHandler& gh);
+	void buildColorSelector(GUIHandler& gh, Window* parentWindow, int extraID);
 
 	void buildSelectCampaign(GUIHandler& gh, FileHandler& fh);
 

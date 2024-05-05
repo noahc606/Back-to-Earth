@@ -212,41 +212,48 @@ void TextBox::resetEnteredData()
 void TextBox::setEntered(bool p_entered) { entered = p_entered; }
 void TextBox::setString(std::string s)
 {
-	if( inputType==FREE_TEXT || inputType==FREE_NUMBERS_BASIC || inputType==FREE_NUMBERS_INTEGERS ) {
-		int i = btnText.getInsertionPoint();
-		Button::setString(s);
-		if( i>=(int)btnText.getString().size() ) {
-			i = btnText.getString().size();
-		}
-		btnText.setInsertionPoint(i);
+	switch(inputType) {
+		case FREE_TEXT:
+		case FREE_NUMBERS_BASIC:
+		case FREE_NUMBERS_INTEGERS:
+		case FREE_HEX_BASIC:
+		break;
+		default: return;
 	}
+
+	int i = btnText.getInsertionPoint();
+	Button::setString(s);
+	if( i>=(int)btnText.getString().size() ) {
+		i = btnText.getString().size();
+	}
+	btnText.setInsertionPoint(i);
 }
 bool TextBox::validateString()
 {
 	bool res = true;
-	bool allIntegers = inputType==FREE_NUMBERS_INTEGERS;
-	
-	//Remove all numbers from btnText if this textbox should only be for non-negative integers
-	
-	if( inputType==FREE_NUMBERS_BASIC || allIntegers ) {
-		std::string old = btnText.getString();
-		std::stringstream noNumsStream;
-		
-		for( int i = 0; i<old.size(); i++ ) {
-			if( (old[i]>='0' && old[i]<='9') || (allIntegers && old[i]=='-') ) {
-				noNumsStream << old[i];
-			} else {
-				res = false;
-			}
-		}
-		
-		std::string noNums = noNumsStream.str();
-		btnText.setString(noNums);
-		btnText.setInsertionPoint(noNums.size());
+	std::string old = btnText.getString();
+
+	//Find allowedChars
+	std::string allowedChars = "";
+	switch(inputType) {
+		case FREE_NUMBERS_BASIC:	allowedChars = "0123456789"; break;
+		case FREE_NUMBERS_INTEGERS: allowedChars = "-0123456789"; break;
+		case FREE_HEX_BASIC:		allowedChars = "0123456789abcdefABCDEF"; break;
 	}
-	
-	
-	
+
+	//Find newStream
+	std::stringstream newStream;
+	for( int i = 0; i<old.size(); i++ ) {
+		if( allowedChars.find(old[i])!=std::string::npos ) {
+			newStream << old[i];
+		} else {
+			res = false;
+		}
+	}
+
+	//Set btnText's string and insertion point from newStream
+	btnText.setString(newStream.str());
+	btnText.setInsertionPoint(newStream.str().size());
 	return res;
 }
 void TextBox::setControlBinding(ControlBinding& cb) { setCB = cb; }

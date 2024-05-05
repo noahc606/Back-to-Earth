@@ -14,7 +14,7 @@ CheckBox::CheckBox(Window* p_parentWindow, int p_x, int p_y, std::string p_text,
 		width = 10;
 		height = 10;
 	} else {
-		height = 16;
+		height = 32;
 	}
 }
 

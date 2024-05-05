@@ -24,10 +24,13 @@ void PlayerMenu::init(SDLHandler* sh, GUIHandler* gh, Controls* ctrls, Player* p
 	inventorySlots[7][1] = NYLON_EXOSUIT_BODY;
 	inventorySlots[7][2] = NYLON_EXOSUIT_LEGGINGS;
 	
-	inventorySlots[7][7] = FOOD_RATION_6;
-	inventorySlots[7][6] = FOOD_RATION_6;
-	inventorySlots[7][5] = FOOD_RATION_6;
-	inventorySlots[7][4] = FOOD_RATION_6;
+	inventorySlots[7][7] = FOOD_RATION_F;
+	inventorySlots[7][6] = FOOD_RATION_F;
+	inventorySlots[7][5] = FOOD_RATION_A;
+	inventorySlots[7][4] = FOOD_RATION_B;
+	inventorySlots[7][3] = FOOD_RATION_C;
+	inventorySlots[6][7] = FOOD_RATION_D;
+	inventorySlots[6][6] = FOOD_RATION_E;
 	uiOverlay.init(sdlHandler, 0, 0);
 	
 	movingItemA.init(sdlHandler, 32, 32);
@@ -224,7 +227,7 @@ void PlayerMenu::drawInventory()
 				//Draw item
 				if( drawingItem ) {
 					uiOverlay.lock(x*32, y*32, 32, 32);
-					uiOverlay.blit(TextureLoader::PLAYER_items, inventorySlots[x][y]*32, 0);
+					uiOverlay.blit(TextureLoader::PLAYER_items, (inventorySlots[x][y]%8)*32, (inventorySlots[x][y]/8)*32);
 				}
 			} else {
 				uiOverlay.rect(x*32, y*32, 32, 32, box3);
@@ -267,11 +270,16 @@ std::string PlayerMenu::getItemName(int itemID)
 	case GEOPORTER:					return "Geo-porter";
 	case SOLID_PLASMA_ANNIHILATOR:	return "Solid-Plasma Annihilator";
 	case ATOM_PRINTER:				return "Atom Printer";
-	case NYLON_EXOSUIT_HELMET:		return "Nylon Exosuit Helmet";
-	case NYLON_EXOSUIT_BODY:		return "Nylon Exosuit Body";
-	case NYLON_EXOSUIT_LEGGINGS:	return "Nylon Exosuit Leggings";
+	case NYLON_EXOSUIT_HELMET:		return "T1 Nylon Exo-Suit Helmet";
+	case NYLON_EXOSUIT_BODY:		return "T1 Nylon Exo-Suit Body";
+	case NYLON_EXOSUIT_LEGGINGS:	return "T1 Nylon Exo-Suit Leggings";
 	case INFINITE_OXYGEN_TANK:		return "Infinite Oxygen Tank";
-	case FOOD_RATION_6:				return "Food Rations (type 6)";
+	case FOOD_RATION_A:				return "Nutrient Powder A";
+	case FOOD_RATION_B:				return "Nutrient Powder B";
+	case FOOD_RATION_C:				return "MRE Pack (Eggs, Bacon, Toast)";
+	case FOOD_RATION_D:				return "MRE Pack (Steak and Potatoes)";
+	case FOOD_RATION_E:				return "MRE Pack (Chicken and Rice)";
+	case FOOD_RATION_F:				return "MRE Pack (Vegetable Stew)";
 	default: 						return "";
 	}
 }
@@ -356,6 +364,16 @@ void PlayerMenu::selectInventorySlot(int x, int y)
 	}
 }
 
+void PlayerMenu::putItemInterfaceDesc(Window* win, int dX, int ttpDY, std::string itemDesc, int rowNum)
+{
+	guiHandler->addGUI( new Tooltip(win, dX+32*00, 524+32*rowNum+ttpDY, itemDesc, GUIHandler::ttp_CHARACTER_item) );
+}
+
+void PlayerMenu::putItemInterfaceTitle(Window* win, int dX, int ttpDY, int itemID)
+{
+	guiHandler->addGUI( new Tooltip(win, dX+32*00, 524+32*0+ttpDY, "\""+ getItemName(itemID) + "\"", GUIHandler::ttp_CHARACTER_item) );
+}
+
 void PlayerMenu::putItemInterface(int itemID)
 {
 	Window* win = guiHandler->getWindow(GUIHandler::win_CHARACTER);
@@ -390,6 +408,8 @@ void PlayerMenu::putItemInterface(int itemID)
 		tbx3->setString( ss3.str() );
 	} break;
 	case GEOPORTER: {
+
+
 		guiHandler->addGUI( new Tooltip(win, dX+32*00, 524+32*0+ttpDY, "X-position (meters):", GUIHandler::ttp_CHARACTER_item) );
 		TextBox* tbx1 = (TextBox*)guiHandler->addGUI( new TextBox(win, dX+32*06, 524+32*0+tbxDY, 100, TextBox::FREE_NUMBERS_INTEGERS, GUIHandler::tbx_CHARACTER_item), 1000 );
 		std::stringstream ss1; ss1 << (int)std::get<0>(player->getPos());
@@ -412,15 +432,37 @@ void PlayerMenu::putItemInterface(int itemID)
 		guiHandler->addGUI( new Button (win, dX+32*10, 524+32*2+tbxDY, 200, "Teleport", GUIHandler::btn_CHARACTER_item), 1004 );
 	} break;
 	case SOLID_PLASMA_ANNIHILATOR: {
-		guiHandler->addGUI( new Tooltip(win, dX+32*00, 524+32*0+ttpDY, "Destroy solid matter with Left Click", GUIHandler::ttp_CHARACTER_item) );
+		putItemInterfaceDesc(win, dX, ttpDY, "Destroy solid matter with Left Click", 1);
 	} break;
 	case ATOM_PRINTER: {
-		guiHandler->addGUI( new Tooltip(win, dX+32*00, 524+32*0+ttpDY, "Build tiles with Right Click - select the tile type from Engineering", GUIHandler::ttp_CHARACTER_item) );
+		putItemInterfaceDesc(win, dX, ttpDY, "Build tiles with Right Click - select the tile type from Engineering", 1);
 	} break;
-	case FOOD_RATION_6: {
-		guiHandler->addGUI( new Tooltip(win, dX+32*00, 524+32*0+ttpDY, "\"VEGETARIAN TACO PASTA (VEGETABLE CRUMBLES WITH PASTA IN TACO STYLE SAUCE)\"", GUIHandler::ttp_CHARACTER_item) );
-		guiHandler->addGUI( new Tooltip(win, dX+32*00, 524+32*1+ttpDY, "Servings: 10. Calories: 210.", GUIHandler::ttp_CHARACTER_item) );
-		guiHandler->addGUI( new Tooltip(win, dX+32*00, 524+32*2+ttpDY, "Looks pretty disgusting, but it may have to do if you have nothing else to eat...", GUIHandler::ttp_CHARACTER_item) );
-	}
+
+
+
+	case FOOD_RATION_A: {
+		putItemInterfaceDesc(win, dX, ttpDY, "Servings: 128. Calories: 120.", 1);
+		putItemInterfaceDesc(win, dX, ttpDY, "Provides more nutrients but less calories than normal food.", 2);
+	} break;
+	case FOOD_RATION_B: {
+		putItemInterfaceDesc(win, dX, ttpDY, "Servings: 128. Calories: 120.", 1);
+		putItemInterfaceDesc(win, dX, ttpDY, "Provides more nutrients but less calories than normal food.", 2);
+	} break;
+	case FOOD_RATION_C: {
+		putItemInterfaceDesc(win, dX, ttpDY, "Servings: 12. Calories: 350.", 1);
+		putItemInterfaceDesc(win, dX, ttpDY, "\"I'm tired of eating the same breakfast every day.\"", 2);
+	} break;
+	case FOOD_RATION_D: {
+		putItemInterfaceDesc(win, dX, ttpDY, "Servings: 12. Calories: 410.", 1);
+		putItemInterfaceDesc(win, dX, ttpDY, "\"Actually tastes pretty good.\"", 2);
+	} break;
+	case FOOD_RATION_E: {
+		putItemInterfaceDesc(win, dX, ttpDY, "Servings: 10. Calories: 360.", 1);
+		putItemInterfaceDesc(win, dX, ttpDY, "\"It doesn't look that bad.\"", 2);
+	} break;
+	case FOOD_RATION_F: {
+		putItemInterfaceDesc(win, dX, ttpDY, "Servings: 10. Calories: 210.", 1);
+		putItemInterfaceDesc(win, dX, ttpDY, "\"Looks pretty disgusting, but it'll have to do for now...\"", 2);
+	} break;
 	}
 }

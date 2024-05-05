@@ -155,6 +155,7 @@ void Player::tick()
 	if( Commands::cmdIntResult("tele")!=nullptr ) {
 		x = (*Commands::cmdIntResult("tele.x"));
 		y = (*Commands::cmdIntResult("tele.y"));
+		z = (*Commands::cmdIntResult("tele.z"));
 		Commands::resetCMDEntered(__PRETTY_FUNCTION__);
 	}
 	

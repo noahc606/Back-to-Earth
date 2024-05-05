@@ -20,6 +20,9 @@ public:
     void onWindowUpdate(bool preventInvalidTPos);
     /**/
     WindowData* getWindowData();
+    bool isActive();
+    /**/
+    void setActive(bool isActive);
 
 protected:
 
@@ -29,5 +32,6 @@ private:
     TextOld lowerPanelText;
     WindowData* winData = nullptr;
 
+    bool active = true;
     static int bkgdScroll;
 };

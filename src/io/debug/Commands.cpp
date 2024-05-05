@@ -202,6 +202,23 @@ int Commands::executeCMD(std::string cmd)
                 } break;
             }
         }
+    
+        if( w==4 ) {
+            args[3] = word;
+            switch(cmdID) {
+                case CMD_tele: {
+                    //Parse string as an int
+                    if( parseString(word)==ParseTypes::INT ) {
+                        cKV("~cmd.tele.z", std::stoi(word));
+                        cKV("~cmd.tele", 1);
+                    } else {
+                        Log::log(errorInvalidArg(commandList[cmdID], 4, "integer"));
+                        return -1;
+                    }
+                }
+            }
+        }
+    
     }
 
     if( args[0]=="" ) {
