@@ -44,6 +44,9 @@ public:
             sdr_COLORSELECTOR_set_hue,
             btn_COLORSELECTOR_back,
 
+        /* Generic UIs with no specific function */
+        ttp_GENERIC,
+
         /* Titlescreen */
         win_MAIN,
         ttp_MAIN_title,

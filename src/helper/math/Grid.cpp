@@ -1,15 +1,21 @@
 #include "Grid.h"
-#include "RegTexUpdater.h"
+#include "RegTexInfo.h"
 
-Grid::Grid(SDLHandler* sh, TileMap* tm, Camera* cam, int64_t loadDistH, int64_t loadDistV, int stateToUse)
+
+Grid::~Grid()
+{
+    delete grid;
+}
+
+void Grid::updateOrderFinder(SDLHandler* sh, TileMap* tm, Camera* cam, int loadDist, int stateToUse)
 {
     //Initialize grid
-    w = loadDistH*2+1;          //Grid is a (loadDistH*2+1)^2 square.
+    w = loadDist*2+1;         //Grid is a (squaresize*2+1)^2 square.
     h = w;
-    alloc(w, w);                //Allocate this grid.
+    alloc(w, h);                //Allocate this grid.
 
     /*
-        Player should be at the center (0), which is @ grid[loadDistH][loadDistH]
+        Player should be at the center (0), which is @ grid[squaresize][squaresize]
         Generate array similar to the one below, which is 'w'*'w' large:
     
         4 3 2 3 4
@@ -24,38 +30,33 @@ Grid::Grid(SDLHandler* sh, TileMap* tm, Camera* cam, int64_t loadDistH, int64_t 
         for(int y = 0; y<h; y++) {
 
             //Set all grid squares to be the taxidist from the center
-            grid[x][y] = taxiDist(x, y, loadDistH, loadDistH);    //Taxicab distance from center
+            grid[x][y] = taxiDist(x, y, loadDist, loadDist);    //Taxicab distance from center
             
             //Set certain grid squares to be 1000 (ignored) depending on the situation
-            int64_t rX = cam->getRX()-loadDistH+x;
-            int64_t rY = cam->getRY()-loadDistH+y;
-            int64_t rZ = cam->getRZ();
-            
+            int64_t csRX = cam->getCsRX()-loadDist+x;
+            int64_t csRY = cam->getCsRY()-loadDist+y;
+            int64_t csRZ = cam->getCsRZ();
+
             bool completePillar = true;
-            for(int64_t iRZ = rZ-loadDistV; iRZ<=rZ+loadDistV; iRZ++) {
+            for(int64_t icsRZ = csRZ-loadDist; icsRZ<=csRZ+loadDist; icsRZ++) {
                 if(stateToUse!=-1) {
-                    TileRegion* tr = tm->getRegByRXYZ(rX, rY, iRZ);
-                    if(tr==nullptr || tr->getRegTexState()>stateToUse || !RegTexUpdater::isRegOnScreen(sh, cam, rX, rY, rZ) ) {                    
+                    TileRegion* tr = tm->getRegByCsRXYZ(cam, csRX, csRY, icsRZ);
+                    if(tr==nullptr || tr->getRegTexState()>stateToUse || !RegTexInfo::isCsRegOnScreen(cam, csRX, csRY) ) {
                         grid[x][y] = 1000;
                     }
                 } else {
-                    TileRegion* tr = tm->getRegByRXYZ(rX, rY, iRZ);
+                    TileRegion* tr = tm->getRegByCsRXYZ(cam, csRX, csRY, icsRZ);
                     if(tr==nullptr ) {     
                         completePillar = false;
                     }
                 }
             }
-
-            if(stateToUse==-1 && completePillar) {
+            
+            if(completePillar && stateToUse==-1) {
                 grid[x][y] = 1000;
             }
         }
     }
-}
-
-Grid::~Grid()
-{
-    delete grid;
 }
 
 void Grid::logInfo()
@@ -74,20 +75,6 @@ void Grid::logInfo()
         std::cout << "\n";
     }
 }
-
-/**
-    For a wxh=32x32 array: x and y must be from 0 to 31.
-*/
-void Grid::floodfill(int** array, int w, int h, int x, int y, int c)
-{
-    if( x<0||x>=w || y<0||y>=h ) return;
-
-    int lastColor = array[x][y];
-
-    array[x][y] = c;
-}
-
-
 
 int Grid::taxiDist(int x1, int y1, int x2, int y2) { return std::abs(y2-y1)+std::abs(x2-x1); }
 

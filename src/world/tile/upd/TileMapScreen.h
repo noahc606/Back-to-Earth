@@ -8,7 +8,7 @@
 #include "Defs.h"
 #include "Planet.h"
 #include "Player.h"
-#include "RegTexUpdater.h"
+#include "RegTexInfo.h"
 #include "TileIterator.h"
 #include "TileMap.h"
 #include "TileMapUpdater.h"
@@ -43,7 +43,7 @@ private:
 	TileMap* tileMap = nullptr;                     //TileMap we are drawing
 	Canvas* csTileMap = nullptr;                    //Canvas object depicting the TileMap
 	
-    RegTexUpdater regTexUpdater;
+    RegTexInfo regTexInfo;
     TileMapUpdater tileMapUpdater;
     Texture minimap;
 
@@ -61,10 +61,8 @@ private:
     /* Map update distance + counts */
     int umiTicks = 0;
     int umiTicksMax = 10;	//TODO: Base this on performance level of drawing
-    int loadDistH = 6;      //loadDistH of 5 => 6*2+1 = 13x13 square of loaded region columns
-    int loadDistV = 3;      //loadDistV of 2 => 3*2+2 = 7 high column of loaded regions
-
-    
+    int loadDist = 6;
+        
     std::string currentDimPath = "default";
 
     /* Performance gauging */

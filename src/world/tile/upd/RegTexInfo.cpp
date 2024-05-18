@@ -1,4 +1,4 @@
-#include "RegTexUpdater.h"
+#include "RegTexInfo.h"
 #include <math.h>
 #include "DebugScreen.h"
 #include "Log.h"
@@ -6,23 +6,23 @@
 #include "TileMapScreen.h"
 #include "Timer.h"
 
-void RegTexUpdater::init(SDLHandler* sh, TileMapUpdater* tmu, Canvas* cs)
+void RegTexInfo::init(SDLHandler* sh, TileMapUpdater* tmu, Canvas* cs)
 {
-    RegTexUpdater::sdlHandler = sh;
-    RegTexUpdater::tileMap = tmu->getTileMap();
-	RegTexUpdater::csTileMap = cs;
+    RegTexInfo::sdlHandler = sh;
+    RegTexInfo::tileMap = tmu->getTileMap();
+	RegTexInfo::csTileMap = cs;
 
-	RegTexUpdater::cam = csTileMap->getCamera();
+	RegTexInfo::cam = csTileMap->getCamera();
 
 	regTexProcessor.init(sdlHandler, csTileMap, tmu);
 }
 
-RegTexUpdater::~RegTexUpdater(){}
+RegTexInfo::~RegTexInfo(){}
 
 /*
  * Depending on the TileIterator's (ti) position, find the top tile that is visible by the camera assuming it is looking in the 'camDirection' direction.
  */
-std::pair<int64_t, TileType> RegTexUpdater::camTrackedTile(TileIterator& ti, int camDirection)
+std::pair<int64_t, TileType> RegTexInfo::camTrackedTile(TileIterator& ti, int camDirection)
 {
 	int sign = 1;
 	if( camDirection%2==0 ) {
@@ -58,7 +58,7 @@ std::pair<int64_t, TileType> RegTexUpdater::camTrackedTile(TileIterator& ti, int
 /*
  * Depending on the TileIterator's (ti) position (x/y), find the top tile visible from the camera as if it were looking down.
  */
-std::pair<int64_t, TileType> RegTexUpdater::topTrackedTile(TileIterator& ti)
+std::pair<int64_t, TileType> RegTexInfo::topTrackedTile(TileIterator& ti)
 {
 	return camTrackedTile(ti, Camera::DOWN);
 }
@@ -66,7 +66,7 @@ std::pair<int64_t, TileType> RegTexUpdater::topTrackedTile(TileIterator& ti)
 /*
  * Populate a stringstream with this class's info.
  */
-void RegTexUpdater::info(std::stringstream& ss, int& tabs)
+void RegTexInfo::info(std::stringstream& ss, int& tabs)
 {
 	//DebugScreen::indentLine(ss, tabs);
 	//ss << rtUpdatesToDo << " rtUpdates (time elapsed)=" << rtUpdatesTime << "ms; ";
@@ -88,40 +88,26 @@ void RegTexUpdater::info(std::stringstream& ss, int& tabs)
  * Whichever axis is currently used for depth is not taken into consideration (example: camera looking up/down -> depth axis is Z).
  * Thus, only two of the coordinates matter in determining whether a region is considered "onscreen" (the ones that represent horizontal and vertical from the user's perspective).
  */
-bool RegTexUpdater::isRegOnScreen(SDLHandler* sh, Camera* cam, int64_t rX, int64_t rY, int64_t rZ)
+bool RegTexInfo::isRegOnScreen(Camera* cam, int64_t rX, int64_t rY, int64_t rZ)
 {
-	//Get camRXZ
-	int64_t camRX = cam->getRX();
-	int64_t camRY = cam->getRY();
-	int64_t camRZ = cam->getRZ();
-	int64_t axis = cam->getAxis();
-	
-	int64_t sRX = rX;
-	int64_t sRY = rY;
-	int64_t camSRX = camRX;
-	int64_t camSRY = camRY;
-	
-	switch(axis) {
-		case Camera::X: {
-			camSRX = camRY;
-			camSRY = camRZ;
-			sRX = rY;
-			sRY = rZ;
-		} break;
-		case Camera::Y: {
-			camSRX = camRX;
-			camSRY = camRZ;
-			sRX = rX;
-			sRY = rZ;
-		}
+	int64_t csRX = rX;
+	int64_t csRY = rY;
+	switch(cam->getAxis()) {
+		case Camera::X: { csRX = rY; csRY = rZ; } break;
+		case Camera::Y: { csRX = rX; csRY = rZ; } break;
 	}
-	
+
+	return isCsRegOnScreen(cam, csRX, csRY);	
+}
+
+bool RegTexInfo::isCsRegOnScreen(Camera* cam, int64_t csRX, int64_t csRY)
+{
 	//Check if this region at (rX, rY) is onscreen (vertical Z coordinate doesn't matter). Store in 'onScreen'.
 	bool onScreen = false;
-	if( sRX >= camSRX-cam->getScreenSemiWidthReg() &&
-		sRX <= camSRX+cam->getScreenSemiWidthReg() &&
-		sRY >= camSRY-cam->getScreenSemiHeightReg() &&
-		sRY <= camSRY+cam->getScreenSemiHeightReg() ) {
+	if( csRX >= cam->getCsRX()-cam->getScreenSemiWidthReg() &&
+		csRX <= cam->getCsRX()+cam->getScreenSemiWidthReg() &&
+		csRY >= cam->getCsRY()-cam->getScreenSemiHeightReg() &&
+		csRY <= cam->getCsRY()+cam->getScreenSemiHeightReg() ) {
 		onScreen = true;
 	}
 	
@@ -129,16 +115,17 @@ bool RegTexUpdater::isRegOnScreen(SDLHandler* sh, Camera* cam, int64_t rX, int64
 	return onScreen;
 }
 
-Camera* RegTexUpdater::getCamera() { return cam; }
-Canvas* RegTexUpdater::getTileMapCanvas() { return csTileMap; }
 
-void RegTexUpdater::updateTimeAvg(int drawsThisSecond)
+Camera* RegTexInfo::getCamera() { return cam; }
+Canvas* RegTexInfo::getTileMapCanvas() { return csTileMap; }
+
+void RegTexInfo::updateTimeAvg(int drawsThisSecond)
 {
 	rtUpdatesTimeAvg = rtUpdatesTimeTotal/drawsThisSecond;  //Calculate average regTexUpdate time over the last second
 	rtUpdatesTimeTotal = 0.0;                               //Reset regTexUpdate total time
 }
 
-void RegTexUpdater::draw(int64_t camSRX, int64_t camSRY, int64_t camSRZ, int loadRadiusH)
+void RegTexInfo::draw(int64_t camSRX, int64_t camSRY, int64_t camSRZ, int loadDistH)
 {
     if( csTileMap==nullptr ) return;
 
@@ -152,24 +139,24 @@ void RegTexUpdater::draw(int64_t camSRX, int64_t camSRY, int64_t camSRZ, int loa
 		std::stringstream ss; ss << "Performing " << rtUpdatesToDo << " RegTexUpdater";
 		Timer t(ss.str(), false);
 		
-		regTexProcessor.processRegions(cam, loadRadiusH, rtUpdatesToDo);
+		regTexProcessor.processRegions(cam, loadDistH, rtUpdatesToDo);
 		
 		rtUpdatesTime = t.getElapsedTimeMS();
 	}
 	rtUpdatesTimeTotal += rtUpdatesTime;
 }
 
-void RegTexUpdater::drawDebugOverlay(Canvas* csInteractions, int64_t camSRX, int64_t camSRY, int64_t camSRZ, int loadRadiusH)
+void RegTexInfo::drawDebugOverlay(Canvas* csDebug, int64_t csRX, int64_t csRY, int64_t csRZ, int loadDist)
 {
-	csInteractions->setTexAllocRadiusX(loadRadiusH);
-	csInteractions->setTexAllocRadiusY(loadRadiusH);
-	csInteractions->setTexAllocCount(10);
+	csDebug->setTexAllocRadiusX(loadDist);
+	csDebug->setTexAllocRadiusY(loadDist);
+	csDebug->setTexAllocCount(10);
 
 	//Iterate through all loaded regions within the camera's region layer.
-	for(int64_t irx = camSRX-loadRadiusH; irx<camSRX+loadRadiusH; irx++) {
-		for(int64_t iry = camSRY-loadRadiusH; iry<camSRY+loadRadiusH; iry++) {
+	for(int64_t icsRX = csRX-loadDist; icsRX<csRX+loadDist; icsRX++) {
+		for(int64_t icsRY = csRY-loadDist; icsRY<csRY+loadDist; icsRY++) {
 				//Get TileRegion
-				TileRegion* tr = tileMap->getRegByRXYZ(irx, iry, camSRZ);
+				TileRegion* tr = tileMap->getRegByCsRXYZ(cam, icsRX, icsRY, csRZ);
 
 				//Get fill color which depends on the TileRegion's current regTexState
 				Color fillColor(255, 255, 255);	//White == nullptr
@@ -185,41 +172,7 @@ void RegTexUpdater::drawDebugOverlay(Canvas* csInteractions, int64_t camSRX, int
 				}
 				
 				//Fill the region with a translucent version of the chosen color
-				//regTexProcessor.colorFillRegionArea(csInteractions, irx, iry, fillColor.r, fillColor.g, fillColor.b, 80);
+				regTexProcessor.colorFillRegionArea(csDebug, icsRX, icsRY, fillColor.r, fillColor.g, fillColor.b, 80);
 		}
 	}
-}
-
-/*
- * Update all onscreen tile positions.
- */
-void RegTexUpdater::placeEntireScreen()
-{
-	// Stop all updates
-	//tileMap->stopAllUpdates();
-
-
-
-	// Place updates @ every tile position on screen.
-	int margin = 4;
-	
-	double c1 = cam->getX();
-	double c2 = cam->getY();
-	switch(cam->getAxis()) {
-		case Camera::X: {
-			c1 = cam->getY();
-			c2 = cam->getZ();
-		} break;
-		case Camera::Y: {
-			c1 = cam->getX();
-			c2 = cam->getZ();
-		} break;
-	}
-	
-	//tileMap->addTileUpdates(
-		//c1-(double)screenWT/2.0-margin,
-		//c2-(double)screenHT/2.0-margin,
-		//c1+(double)screenWT/2.0+margin,
-		//c2+(double)screenHT/2.0+margin
-	//);
 }

@@ -33,9 +33,10 @@ public:
 	std::string getWorldDirName();
 
 	TileType getTile(int64_t x, int64_t y, int64_t z);
+	TileType getTileByCsXYZ(Camera* cam, int64_t csX, int64_t csY, int64_t csZ);
 	TileRegion* getRegByXYZ (int64_t x, int64_t y, int64_t z);
 	TileRegion* getRegByRXYZ(int64_t rX, int64_t rY, int64_t rZ);
-	TileRegion* getRegByScrRXYZ(Camera* cam, int64_t scrRX, int64_t scrRY, int64_t scrRZ);
+	TileRegion* getRegByCsRXYZ(Camera* cam, int64_t csRX, int64_t csRY, int64_t csRZ);
 
 	//Get position within region based on xyz
 	static int64_t getRegSubPos(int64_t c);
@@ -53,8 +54,10 @@ public:
 	/** TileMap manipulation */
 	//Set tile
 	int setTile(int64_t x, int64_t y, int64_t z, TileType tt);
+	int setTileByCsXYZ(Camera* cam, int64_t cx, int64_t cy, int64_t cz, TileType tt);
 	//Load regions
 	int loadRegion(FileHandler* fileHandler, int64_t rX, int64_t rY, int64_t rZ);
+	int loadRegionByCsRXYZ(FileHandler* fileHandler, int camAxis, int64_t csRX, int64_t csRY, int64_t csRZ);
 	int loadRegions(FileHandler* fileHandler, int64_t rX1, int64_t rY1, int64_t rZ1, int64_t rX2, int64_t rY2, int64_t rZ2);
 	int forceLoadRegion(FileHandler* fileHandler, int64_t rX, int64_t rY, int64_t rZ);
 	int saveRegion(FileHandler* fileHandler, int64_t rX, int64_t rY, int64_t rZ);

@@ -65,6 +65,11 @@ void Camera::tick()
 double Camera::getX() { return x; }
 double Camera::getY() { return y; }
 double Camera::getZ() { return z; }
+int64_t Camera::getCsRX() { return floor( getCsX()/32 ); }
+int64_t Camera::getCsRY() { return floor( getCsY()/32 ); }
+int64_t Camera::getCsRZ() { return floor( getCsZ()/32 ); }
+
+
 int64_t Camera::getRX() { return floor( getX()/32 ); }
 int64_t Camera::getRY() { return floor( getY()/32 ); }
 int64_t Camera::getRZ() { return floor( getZ()/32 ); }
@@ -78,12 +83,12 @@ int64_t Camera::getLayer(int c)
 	}
 }
 int64_t Camera::getLayer() { return getLayer(getAxis()); }
-double Camera::getSX() { return getSXFromPos(x, y, z); }
-double Camera::getSY() { return getSYFromPos(x, y, z); }
-double Camera::getSZ() { return getSZFromPos(x, y, z); }
-double Camera::getSXFromPos(double px, double py, double pz) { return (getAxis()==X ? py : px); }
-double Camera::getSYFromPos(double px, double py, double pz) { return (getAxis()==Z ? py : pz); }
-double Camera::getSZFromPos(double px, double py, double pz) { return (getAxis()==X ? px : (getAxis()==Y ? py : pz)); }
+double Camera::getCsX() { return getCsXFromPos(x, y, z); }
+double Camera::getCsY() { return getCsYFromPos(x, y, z); }
+double Camera::getCsZ() { return getCsZFromPos(x, y, z); }
+double Camera::getCsXFromPos(double px, double py, double pz) { return (getAxis()==X ? py : px); }
+double Camera::getCsYFromPos(double px, double py, double pz) { return (getAxis()==Z ? py : pz); }
+double Camera::getCsZFromPos(double px, double py, double pz) { return (getAxis()==X ? px : (getAxis()==Y ? py : pz)); }
 
 
 double Camera::getZoom() { return zoom; }
@@ -157,9 +162,9 @@ std::string Camera::directionToString(int direction)
 int Camera::getAxisFromDirection(int direction)
 {
 	switch(direction) {
-		case WEST: case EAST: return X;
+		case WEST: case EAST: 	return X;
 		case NORTH: case SOUTH: return Y;
-		case UP: case DOWN: return Z;
+		case UP: case DOWN: 	return Z;
 	}
 	
 	return -100;

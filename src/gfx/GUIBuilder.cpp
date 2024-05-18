@@ -22,7 +22,7 @@ void GUIBuilder::buildTitleScreen(GUIHandler& gh)
 {
     gh.removeAllUserGUIs();
     gh.addGUI(new Window(gh.win_MAIN));
-    gh.addGUI(new Tooltip(gh.getWindow(gh.win_MAIN), ch, cv, "Back to Earth", gh.ttp_MAIN_title ));
+    gh.addGUI(new Tooltip(gh.getWindow(gh.win_MAIN), ch, cv, "Back to Earth", true, gh.ttp_MAIN_title ));
     gh.addGUI(new Button( gh.getWindow(gh.win_MAIN), ch, cv, 450, "Play Campaign", gh.btn_MAIN_play ));
     gh.addGUI(new Button( gh.getWindow(gh.win_MAIN), ch, cv, 450, "Options", gh.btn_MAIN_options ));
     gh.addGUI(new Button( gh.getWindow(gh.win_MAIN), ch, cv, 450, "Exit", gh.btn_MAIN_exit ));
@@ -125,32 +125,39 @@ void GUIBuilder::buildMainCharacter(GUIHandler& gh, FileHandler& fh)
     gh.removeGUI(gh.win_OPTIONS);
 	
 	std::vector<std::pair<std::string, std::string>> uis;
-	uis.push_back( std::make_pair("Hair Color", "hair") );
-	uis.push_back( std::make_pair("Skin Color", "skin") );
-	uis.push_back( std::make_pair("Eye Color", "eyes") );
-	uis.push_back( std::make_pair("Mouth Color", "mouth") );
-	uis.push_back( std::make_pair("Shirt Color", "shirt") );
-	uis.push_back( std::make_pair("Leggings Color", "leggings") );
-	uis.push_back( std::make_pair("Shoes Color", "shoes") );
+	uis.push_back( std::make_pair("Hair", "hair") );
+	uis.push_back( std::make_pair("Skin", "skin") );
+	uis.push_back( std::make_pair("Eyes", "eyes") );
+	uis.push_back( std::make_pair("Mouth", "mouth") );
+	uis.push_back( std::make_pair("Shirt", "shirt") );
+	uis.push_back( std::make_pair("Leggings", "leggings") );
+	uis.push_back( std::make_pair("Shoes", "shoes") );
 	
 	int width = 300;
 	Window* w = (Window*)gh.addGUI(new Window( ch, cv, 800, 800, "Character Settings", "", gh.win_CHARACTER_SETTINGS ));
 	Settings* settings = fh.getSettings();
 	
-	for(unsigned int i = 0; i<uis.size(); i++) {
+    gh.addGUI(new Tooltip(w, 340, 82+10, "Set Colors", gh.ttp_GENERIC));
+	
+    for(unsigned int i = 0; i<uis.size(); i++) {
 		std::pair<std::string, std::string> elem = uis.at(i);
 		std::string name = elem.first;
 		std::string stng = elem.second;
         int stngIndex = settings->find( settings->getKvMap(Settings::character), stng);
 		
-        //Add tooltip at the beginning of the row
-		gh.addGUI(new Tooltip(w, 30, 92+i*32, name+":", gh.ttp_CHARACTER_SETTINGS_tooltip), stngIndex);
-		
-        Color color; color.setFromDecimalStr(settings->get(Settings::character, stng));
-        gh.addGUI(new ColorSelector(w, 334, 82+i*32, color, gh.csr_CHARACTER_SETTINGS_set_val), i);
+        int xPos = 462;
+        int yPos = 130+i*32;
+        if(i<=3) {
+            xPos = 30;
+        } else {
+            yPos = yPos - 4*32;
+        }
 
-		gh.addGUI(new TextBox(w, 592, 82+i*32, 144, TextBox::FREE_HEX_BASIC, gh.tbx_CHARACTER_SETTINGS_set_val ) );
-		gh.addGUI(new CheckBox(w, 738, 82+i*32, "", CheckBox::CBX_RESET, true, gh.cbx_CONTROLS_set_defaults), 123456);
+        Color color; color.setFromDecimalStr(settings->get(Settings::character, stng));
+		gh.addGUI(new Tooltip(w, xPos, yPos+10, name+":", gh.ttp_CHARACTER_SETTINGS_tooltip), stngIndex);
+        gh.addGUI(new ColorSelector(w, xPos+96, yPos, color, gh.csr_CHARACTER_SETTINGS_set_val), i);
+		gh.addGUI(new TextBox(w, xPos+96+34, yPos, 144, TextBox::FREE_HEX_BASIC, gh.tbx_CHARACTER_SETTINGS_set_val ) );
+		gh.addGUI(new CheckBox(w, xPos+96+180, yPos, "", CheckBox::CBX_RESET, true, gh.cbx_CONTROLS_set_defaults), 123456);
 	}
 	
 	gh.addGUI(new Button( w, ch, 730, width, "Back", gh.btn_back_to_OPTIONS ));

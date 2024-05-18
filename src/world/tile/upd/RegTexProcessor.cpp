@@ -1,6 +1,6 @@
 #include "RegTexProcessor.h"
 #include "RegTexBuilder.h"
-#include "RegTexUpdater.h"
+#include "RegTexInfo.h"
 #include "Log.h"
 
 void RegTexProcessor::init(SDLHandler* sh, Canvas* cs, TileMapUpdater* tmu)
@@ -16,11 +16,11 @@ void RegTexProcessor::init(SDLHandler* sh, Canvas* cs, TileMapUpdater* tmu)
  * Centered at region (camRX, camRY, camRZ), process a square of regions perpendicular to the camera direction.
  * The loop starts at the center region and works its way outward, depending on loadRadiusH (horizontal load radius).
  */
-void RegTexProcessor::processRegions(Camera* cam, int loadRadiusH, int rtUpdatesToDo)
+void RegTexProcessor::processRegions(Camera* cam, int loadDist, int rtUpdatesToDo)
 {
-	int64_t camRX = cam->getRX();
-	int64_t camRY = cam->getRY();
-	int64_t camRZ = cam->getRZ();
+	int64_t camCsRX = cam->getCsRX();
+	int64_t camCsRY = cam->getCsRY();
+	int64_t camCsRZ = cam->getCsRZ();
 	int screenSWR = cam->getScreenSemiWidthReg();
 	int screenSHR = cam->getScreenSemiHeightReg();
 
@@ -28,43 +28,22 @@ void RegTexProcessor::processRegions(Camera* cam, int loadRadiusH, int rtUpdates
 	ti.logWarnings(false);
 	ti.setTrackerMode(ti.FULL);
 
-	for( int outline = 0; outline<=loadRadiusH; outline++ ) {
-		//Iterate dSRX (delta SRX) from -outline to +outline
-		for( int dSRX = -outline; dSRX<=outline; dSRX++ ) {
-			int dSRY = outline*2;                                //Set dSRY (delta SRY)
-			if( abs(dSRX)==outline ) { dSRY = 1; }
+	for( int outline = 0; outline<=loadDist; outline++ ) {
+		for( int dCsRX = -outline; dCsRX<=outline; dCsRX++ ) {		//Iterate thru diff values of dCsRX (delta canvas region X)
+			int dSRY = outline*2;                                	//Set dSRY (delta csRY)
+			if( abs(dCsRX)==outline ) { dSRY = 1; }
 			
-			int64_t sRX = dSRX;
-			int64_t sRY = -outline;
-			int64_t sRZ = 0;
+			//Get csRX, csRY, and csRZ
+			int64_t csRX = dCsRX+camCsRX;
+			int64_t csRY = -outline+camCsRY;
+			int64_t csRZ = camCsRZ;
 
-			//Get sRX and sRY depending on camera axis.
-			sRX += camRX;	// X: (camRY, camRZ, camRX)
-			sRY += camRY;	// Y: (camRX, camRZ, camRY)
-			sRZ += camRZ;	// Z: (camRX, camRY, camRZ)
-			
 			//Get sRY: Iterate from camRY-outline to camRY+outline based on dSRY
-			for( ; sRY<=camRY+outline; sRY += dSRY ) {
-				//If this region at (sRX, sRY) is onscreen (vertical coordinate doesn't matter)
-				if( RegTexUpdater::isRegOnScreen(sdlHandler, cam, camRX, camRY, camRZ) ) {
+			for( ; csRY<=camCsRY+outline; csRY += dSRY ) {
+				//If this region at (csRX, csRY) is onscreen (vertical coordinate doesn't matter)
+				if( RegTexInfo::isCsRegOnScreen(cam, camCsRX, camCsRY) ) {
 					//Update regtex at this regionlayer
-					processRegionLayer(ti, sRX, sRY, sRZ, cam, rtUpdatesToDo);
-
-					TileRegion* tr = tileMap->getRegByRXYZ(sRX, sRY, sRZ);
-					if(tr!=nullptr) {
-						int state = tr->getRegTexState();
-						if(state==TileRegion::RegTexState::SHOULD_UPDATE) {
-							//tr->setRegTexState(TileRegion::RegTexState::UPDATED);
-							//tileMapUpdater->addRegionUpdate(sRX, sRY);
-						}
-					}
-
-
-					if((sRX+sRY)%2) {
-						//colorFillRegionArea(sRX, sRY, 0, 255, 0);
-					} else {
-						//colorFillRegionArea(sRX, sRY, 0, 0, 255);
-					}
+					processRegionLayer(ti, csRX, csRY, csRZ, cam, rtUpdatesToDo);
 				}
 			}
 		}
@@ -75,30 +54,30 @@ void RegTexProcessor::processRegions(Camera* cam, int loadRadiusH, int rtUpdates
 /*
  * Draw the camera's view of a specifc region. Called from processRegions().
  */
-void RegTexProcessor::processRegionLayer(TileIterator& ti, int64_t sRX, int64_t sRY, int64_t sRZ, Camera* cam, int rtUpdatesToDo)
+void RegTexProcessor::processRegionLayer(TileIterator& ti, int64_t csRX, int64_t csRY, int64_t csRZ, Camera* cam, int rtUpdatesToDo)
 {
 	int numUpdates = 0;
     int sl = TileMap::getRegSubPos(cam->getLayer());
 
 	/** Get 'ru' (region updates collection) */
 	auto rus = tileMapUpdater->getRegUpdates();
-	auto ruXY = rus->find(std::make_pair(sRX, sRY));
+	auto ruXY = rus->find(std::make_pair(csRX, csRY));
 	//Build a region marked for update
 	if(ruXY!=rus->end()) {
 		rus->erase(ruXY);
-		buildRegionArea(sRX, sRY);
+		buildRegionArea(csRX, csRY);
 	}
 
     /** Get 'tu' (tile updates collection) located within this region */
-    auto tu = tileMapUpdater->getTUsByRXY(sRX, sRY);
+    auto tu = tileMapUpdater->getTUsByRXY(csRX, csRY);
     //Delete empty or null update collections
     if(tu==nullptr || tu->size()==0) {
-		tileMapUpdater->getTileUpdates()->erase(std::make_pair(sRX, sRY));
+		tileMapUpdater->getTileUpdates()->erase(std::make_pair(csRX, csRY));
         return;
     }
 
     /** Get 'tex' located at this region from csTileMap */
-    Texture* tex = csTileMap->getTex(sRX, sRY);
+    Texture* tex = csTileMap->getTex(csRX, csRY);
     //If 'tex' is null
     if(tex==nullptr) return;
 
@@ -106,13 +85,13 @@ void RegTexProcessor::processRegionLayer(TileIterator& ti, int64_t sRX, int64_t 
     //Set bounds of the TileIterator to this region
 	switch( cam->getAxis() ) {
 		case Camera::X: {
-			ti.setBoundsByRXYZ(sRY, sRZ, sRX);
+			ti.setBoundsByRXYZ(csRZ, csRX, csRY);
 		} break;
 		case Camera::Y: {
-			ti.setBoundsByRXYZ(sRX, sRZ, sRY);
+			ti.setBoundsByRXYZ(csRX, csRZ, csRY);
 		} break;
 		case Camera::Z: {
-			ti.setBoundsByRXYZ(sRX, sRY, sRZ);
+			ti.setBoundsByRXYZ(csRX, csRY, csRZ);
 		} break;
 	}
 	
@@ -152,7 +131,7 @@ void RegTexProcessor::processTileArea(TileIterator& ti, Texture* tex, int blitSc
 	if( tex==nullptr ) return;
 
 	//Get data of the top tile from the camera
-	auto tttData = RegTexUpdater::camTrackedTile(ti, cam->getDirection());  //Pair of an int64_t object and a TileType object
+	auto tttData = RegTexInfo::camTrackedTile(ti, cam->getDirection());  //Pair of an int64_t object and a TileType object
 	int64_t dZ = std::get<0>(tttData);        								//Relative height of top tile ( topmost==0, one below==-1, etc. )
 	TileType topTileFromCam = std::get<1>(tttData); 						//TileType of top tile from camera
 
@@ -164,22 +143,14 @@ void RegTexProcessor::processTileArea(TileIterator& ti, Texture* tex, int blitSc
  * Draw an entire region, given the region's horizontal and vertical coordinates from the camera/user's perspective.
  * Instead of placing a bunch of updates, we use this function when drawing a new onscreen region.
  */
-void RegTexProcessor::buildRegionArea(int64_t sRX, int64_t sRY)
+void RegTexProcessor::buildRegionArea(int64_t csRX, int64_t csRY)
 {
-	//Canvas drawing to screen
-	int64_t rX = cam->getRX();
-	int64_t rY = cam->getRY();
-	int64_t rZ = cam->getRZ();
 	int64_t cL = cam->getLayer();
-	switch( cam->getAxis() ) {
-		case Camera::X: rY = sRX; rZ = sRY; break;
-		case Camera::Y: rX = sRX; rZ = sRY; break;
-		default:		rX = sRX; rY = sRY; break;
-	}
 
 	//Get texture
-	Texture* tex = csTileMap->getTex(sRX, sRY);
+	Texture* tex = csTileMap->getTex(csRX, csRY);
 	if(tex==nullptr) {
+		std::cout << "Couldn't find " << csRX << ", " << csRY << "...\n";
 		return;
 	}
 	
@@ -189,7 +160,11 @@ void RegTexProcessor::buildRegionArea(int64_t sRX, int64_t sRY)
 	}
 	TileIterator ti(tileMap);
 	ti.setTrackerMode(TileIterator::FULL);
-	ti.setBoundsByRXYZ(rX, rY, rZ);
+	switch(cam->getAxis()) {
+		case cam->X: ti.setBoundsByRXYZ(cam->getCsRZ(), csRX, csRY); break;
+		case cam->Y: ti.setBoundsByRXYZ(csRX, cam->getCsRZ(), csRY); break;
+		case cam->Z: ti.setBoundsByRXYZ(csRX, csRY, cam->getCsRZ()); break;
+	}
 
 	for(int64_t scx = 0; scx<32; scx++) {
 		for(int64_t scy = 0; scy<32; scy++) {
@@ -199,7 +174,7 @@ void RegTexProcessor::buildRegionArea(int64_t sRX, int64_t sRY)
 				default: ti.setTrackerSub( scx, scy, TileMap::getRegSubPos(cL) ); break;
 			}
 			
-			auto ctt = RegTexUpdater::camTrackedTile(ti, cam->getDirection());
+			auto ctt = RegTexInfo::camTrackedTile(ti, cam->getDirection());
 			int64_t depth = ctt.first;
 			TileType tt = ctt.second;
 			int blitScale = 32.0*Canvas::getTexLODBasedOnZoom(cam->getZoom());

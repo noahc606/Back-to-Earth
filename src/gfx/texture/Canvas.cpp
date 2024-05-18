@@ -112,7 +112,7 @@ void Canvas::tick()
 				tex->translate( -camera->getX()*tileScale, -camera->getZ()*tileScale );
 			} break;
 			case Camera::Z: {
-				tex->translate( -camera->getX()*tileScale, -camera->getY()*tileScale );
+				tex->translate( -camera->getX()*tileScale, -(camera->getY())*tileScale );
 			} break;
 		}
         //Translate tex so that the center of the screen corresponds to (0, 0) if camera(x, y) = (0, 0).
@@ -261,6 +261,8 @@ std::tuple<double, double> Canvas::getMouseXY()
     return std::make_tuple ( mouseX, mouseY );
 }
 
+bool Canvas::isFrameFinished() { return frameFinished; }
+
 void Canvas::setSourceTex(Texture* src, int srcX, int srcY)
 {
     sourceTex = src->getSDLTexture();
@@ -395,21 +397,21 @@ void Canvas::rcopy(t_ll dx, t_ll dy, t_ll dw, t_ll dh)
 
 }
 
-int Canvas::loadTex(long rX, long rY)
+int Canvas::loadTex(int64_t csRX, int64_t csRY)
 {
-    Texture* tex = getTex(rX, rY);
+    Texture* tex = getTex(csRX, csRY);
     if(tex==nullptr) {
         Texture* tex = new Texture();
         tex->init(sdlHandler);
         tex->setBlendMode(SDL_BLENDMODE_BLEND);
         tex->setTexDimensions(currentTexSize, currentTexSize);
-        texes.insert( std::make_pair(std::make_pair(rX, rY), tex) );
+        texes.insert( std::make_pair(std::make_pair(csRX, csRY), tex) );
         return 0;
     }
     return -1;
 }
 
-void Canvas::realloc(long rX, long rY, int maxRegions)
+void Canvas::realloc(int64_t csRX, int64_t csRY, int maxRegions)
 {
 	//Num of regions to be loaded in per function call that must be less than maxRegions.
 	int numRegions = 0;
@@ -417,12 +419,12 @@ void Canvas::realloc(long rX, long rY, int maxRegions)
 	//Step 1: Unload texes that are far away (not contained within the square)
 	t_texMap::iterator itrTM = texes.begin();
 	while( itrTM!=texes.end() ) {
-		int riX = std::get<0>(itrTM->first);
-		int riY = std::get<1>(itrTM->first);
+		int icsRX = std::get<0>(itrTM->first);
+		int icsRY = std::get<1>(itrTM->first);
 
 		//Unload texes with extreme X or Y coords.
-		if( riX<rX-texAllocRadiusX || riX>rX+texAllocRadiusY ||
-			riY<rY-texAllocRadiusX || riY>rY+texAllocRadiusY )
+		if( icsRX<csRX-texAllocRadiusX || icsRX>csRX+texAllocRadiusY ||
+			csRY<icsRY-texAllocRadiusX || csRY>icsRY+texAllocRadiusY )
 		{
 			itrTM->second->destroy();
 			delete itrTM->second;
@@ -433,16 +435,16 @@ void Canvas::realloc(long rX, long rY, int maxRegions)
 	}
 
     //Step 2: Try to load in texes contained within the square.
-    for( long ix = rX-texAllocRadiusX; ix<=rX+texAllocRadiusX; ix++ ) {
-        for( long iy = rY-texAllocRadiusY; iy<=rY+texAllocRadiusY; iy++ ) {
+    for( long icsRX = csRX-texAllocRadiusX; icsRX<=csRX+texAllocRadiusX; icsRX++ ) {
+        for( long icsRY = csRY-texAllocRadiusY; icsRY<=csRY+texAllocRadiusY; icsRY++ ) {
             if( numRegions<maxRegions ) {
-                if( loadTex(ix, iy)==0 ) numRegions++;
+                if( loadTex(icsRX, icsRY)==0 ) numRegions++;
             }
         }
     }
 }
-void Canvas::realloc(long rX, long rY) { realloc(rX, rY, texAllocCount);}
-void Canvas::reallocSingle(long rX, long rY) { realloc(rX, rY, 1); }
+void Canvas::realloc(int64_t csRX, int64_t csRY) { realloc(csRX, csRY, texAllocCount);}
+void Canvas::reallocSingle(int64_t csRX, int64_t csRY) { realloc(csRX, csRY, 1); }
 
 bool Canvas::shouldRendRect(t_ll dx, t_ll dy, t_ll dw, t_ll dh)
 {
@@ -450,8 +452,8 @@ bool Canvas::shouldRendRect(t_ll dx, t_ll dy, t_ll dw, t_ll dh)
         return false;
 
     if( croppingRendering ) {
-        int cx = camera->getSX()*32;
-        int cy = camera->getSY()*32;
+        int cx = camera->getCsX()*32;
+        int cy = camera->getCsY()*32;
         int sw = sdlHandler->getWidth()/2.0/zoom;
         int sh = sdlHandler->getHeight()/2.0/zoom;
 

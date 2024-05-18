@@ -7,7 +7,7 @@
 #include "Planet.h"
 #include "Player.h"
 #include "PlayerMenu.h"
-#include "RegTexUpdater.h"
+#include "RegTexInfo.h"
 #include "Texture.h"
 #include "TileMap.h"
 #include "TileMapScreen.h"
@@ -47,12 +47,13 @@ private:
 	
 	TileMap tileMap;
 	TileMapScreen tileMapScreen;
-	RegTexUpdater regTexUpdater;
+	RegTexInfo regTexInfo;
 	
 	Canvas csTileMap;
 	Canvas csATileMap;
 	Canvas csInteractions;
 	Canvas csEntities;
+	Canvas csDebug;
 	
 	double performanceCounter = 0;
 	
@@ -65,7 +66,7 @@ private:
 	
 	void updateMouseAndCamInfo();
 	void playerInteractions(GUIHandler& guiHandler, bool paused);
-	void playerPlaceTile();
-	void playerDestroyTile(bool touchingSolid);
+	void playerTryPlaceTile(TileType tt, bool force);
+	void playerTryDestroyTile();
 	void setLocalPlayerMenuState(int newMenuState);
 };

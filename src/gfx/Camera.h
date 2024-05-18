@@ -13,12 +13,13 @@ public:
     /**/
     bool getInfo();
     double getX(); double getY(); double getZ();
+	int64_t getCsRX(); int64_t getCsRY(); int64_t getCsRZ();
 	int64_t getRX(); int64_t getRY(); int64_t getRZ();
 	int64_t getLayer(int c); int64_t getLayer();	
-	double getSX(); double getSY(); double getSZ();
-	double getSXFromPos(double px, double py, double pz);
-	double getSYFromPos(double px, double py, double pz);
-	double getSZFromPos(double px, double py, double pz);
+	double getCsX(); double getCsY(); double getCsZ();
+	double getCsXFromPos(double px, double py, double pz);
+	double getCsYFromPos(double px, double py, double pz);
+	double getCsZFromPos(double px, double py, double pz);
 
 
 	//Zoom/Scale/Screen stuff

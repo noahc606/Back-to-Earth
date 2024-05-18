@@ -9,7 +9,7 @@
 #include "Log.h"
 #include "Main.h"
 #include "RegTexBuilder.h"
-#include "RegTexUpdater.h"
+#include "RegTexInfo.h"
 #include "SDLHandler.h"
 #include "TileIterator.h"
 #include "Timer.h"
@@ -31,11 +31,11 @@ void TileMapScreen::init(SDLHandler* sh, FileHandler* fh, TileMap* tm, Canvas* c
 
 	//TileMapUpdater: Governs the addition/removal of tile updates and region updates. Also reponsible for loading and unloading of regions.
 	tileMapUpdater.init(sdlHandler, tileMap, csTileMap);
-	//RegTexUpdater: This object processes updates which decide where tiles/region blits need to happen. To do this, this object owns a RegTexProcessor.
-	regTexUpdater.init(sdlHandler, &tileMapUpdater, csTileMap);
+	//RegTexInfo: This object tracks useful information
+	regTexInfo.init(sdlHandler, &tileMapUpdater, csTileMap);
 
 	//tileMapUpdater.updateMapMoved(fileHandler, currentDimPath, loadDistH, loadDistV);
-	tileMapUpdater.updateMapVisible(loadDistH, loadDistV);
+	tileMapUpdater.updateMapVisible(loadDist);
 }
 
 void TileMapScreen::destroy()
@@ -153,11 +153,11 @@ void TileMapScreen::tick()
 		
 		// Update different parts of the map under different conditions
 		// Make sure to do it in the order of 1->2->3->4 (most expensive to least)
-		if( doUpdMapVisible )   tileMapUpdater.updateMapVisible(doMapBlackout, loadDistH, loadDistV);
-		if( doUpdMapTicked )    tileMapUpdater.updateMapTicked(fileHandler, loadDistH, loadDistV);
-		if( doUpdMapMoved )     tileMapUpdater.updateMapMoved(fileHandler, loadDistH, loadDistV);
-		if( doUpdMapIdle )      tileMapUpdater.updateMap103(loadDistH, loadDistV);
-		if( doUpdMapIdle )      tileMapUpdater.updateMap104(loadDistH, loadDistV);
+		if( doUpdMapVisible )   tileMapUpdater.updateMapVisible(doMapBlackout, loadDist);
+		if( doUpdMapTicked )    tileMapUpdater.updateMapToFINISHED_GENERATING(fileHandler, loadDist);
+		if( doUpdMapMoved )     tileMapUpdater.updateMapMoved(fileHandler, loadDist);
+		if( doUpdMapIdle )      tileMapUpdater.updateMapToSHOULD_UPDATE(loadDist);
+		if( doUpdMapIdle )      tileMapUpdater.updateMapToUPDATED(loadDist);
 		//if( doUpdMapAutosave )  {}
 	}
 	// Get elapsed time in MS
@@ -171,7 +171,7 @@ void TileMapScreen::draw()
 	Timer localTimer;
 	{
 		//draw: RegTexUpdater
-		regTexUpdater.draw(camRX, camRY, camRZ, loadDistH);
+		regTexInfo.draw(camRX, camRY, camRZ, loadDist);
 
 		//draw: tileMap canvas
 		csTileMap->draw();
@@ -183,7 +183,7 @@ void TileMapScreen::draw()
 	drawsThisSecond++;
 	//When SDL_GetTicks() exceeds nextSecond
 	if( SDL_GetTicks()>nextSecond ) {
-		regTexUpdater.updateTimeAvg(drawsThisSecond);
+		regTexInfo.updateTimeAvg(drawsThisSecond);
 
 		//Update minimap
 		//updateMinimap();
@@ -200,7 +200,7 @@ void TileMapScreen::draw()
 
 void TileMapScreen::drawDebugOverlay(Canvas* csInteractions)
 {
-	regTexUpdater.drawDebugOverlay(csInteractions, camRX, camRY, camRZ, loadDistH);
+	regTexInfo.drawDebugOverlay(csInteractions, cam->getCsRX(), cam->getCsRY(), cam->getCsRZ(), loadDist);
 }
 
 void TileMapScreen::putInfo(std::stringstream& ss, int& tabs, int64_t mouseX, int64_t mouseY, int64_t mouseZ, bool mouseExists)
@@ -292,14 +292,16 @@ void TileMapScreen::putInfo(std::stringstream& ss, int& tabs, int64_t mouseX, in
 				TileIterator ti(tileMap);
 				ti.setBoundsByRXYZ( TileMap::getRegRXYZ(mouseX), TileMap::getRegRXYZ(mouseY), TileMap::getRegRXYZ(cam->getLayer()) );
 				ti.setTrackerSub( msx, msy, TileMap::getRegSubPos(cam->getLayer()) );
-				auto tttData = RegTexUpdater::camTrackedTile(ti, cam->getDirection());
+				auto tttData = RegTexInfo::camTrackedTile(ti, cam->getDirection());
 				int64_t dZ = std::get<0>(tttData);
 				ss << "Top tile(dZ, Z)=(" << dZ << ", " << (ti.getTrackerSub(2)+dZ) << "); ";
 				DebugScreen::newLine(ss);
 				//RTB info
 				RegTexBuilder::info(ss, tabs, ti, dZ);
+				//CsTileMap
 			DebugScreen::endGroup(tabs);
 		}
+
 	DebugScreen::endGroup(tabs);
 }
 
@@ -353,7 +355,7 @@ void TileMapScreen::updateMinimap()
 			for(int sy = 0; sy<32; sy++) {
 				ti.setTrackerSub(sx, sy, TileMap::getRegSubPos(cam->getLayer(2)));
 
-				auto ctt = RegTexUpdater::topTrackedTile(ti);
+				auto ctt = RegTexInfo::topTrackedTile(ti);
 				int64_t depth = ctt.first;
 				TileType tt = ctt.second;
 				auto ttRGB = tt.getRGB();

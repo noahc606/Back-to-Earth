@@ -7,7 +7,7 @@ class RegTexProcessor
 public:
     void init(SDLHandler* sh, Canvas* cs, TileMapUpdater* tmu);
 
-    void processRegions(Camera* cam, int loadRadiusH, int rtUpdatesToDo);
+    void processRegions(Camera* cam, int loadDist, int rtUpdatesToDo);
     void processRegionLayer(TileIterator& ti, int64_t sRX, int64_t sRY, int64_t sRZ, Camera* cam, int rtUpdatesToDo);
     void processTileArea(TileIterator& ti, Texture* tex, int blitScale);
 	void buildRegionArea(int64_t sRX, int64_t sRY);

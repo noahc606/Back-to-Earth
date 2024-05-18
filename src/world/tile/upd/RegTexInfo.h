@@ -4,15 +4,16 @@
 #include "TileIterator.h"
 #include "RegTexProcessor.h"
 
-class RegTexUpdater
+class RegTexInfo
 {
 public:
-    virtual ~RegTexUpdater();
+    virtual ~RegTexInfo();
 	void init(SDLHandler* sh, TileMapUpdater* tm, Canvas* cs);
 	
     static std::pair<int64_t, TileType> camTrackedTile(TileIterator& ti, int camDirection);
     static std::pair<int64_t, TileType> topTrackedTile(TileIterator& ti);
-    static bool isRegOnScreen(SDLHandler* sh, Camera* cam, int64_t rX, int64_t rY, int64_t rZ);
+    static bool isRegOnScreen(Camera* cam, int64_t rX, int64_t rY, int64_t rZ);
+    static bool isCsRegOnScreen(Camera* cam, int64_t csRX, int64_t csRY);
 
     void info(std::stringstream& ss, int& tabs);
 	Camera* getCamera();
@@ -21,10 +22,8 @@ public:
     void setScreenInfo();
     void updateScaling(int ts, int bs);
     void updateTimeAvg(int drawsThisSecond);
-    void draw(int64_t camRX, int64_t camRY, int64_t camRZ, int loadRadiusH);
-    void drawDebugOverlay(Canvas* csInteractions, int64_t camRX, int64_t camRY, int64_t camRZ, int loadRadiusH);
-
-    void placeEntireScreen();
+    void draw(int64_t camRX, int64_t camRY, int64_t camRZ, int loadDistH);
+    void drawDebugOverlay(Canvas* csDebug, int64_t camRX, int64_t camRY, int64_t camRZ, int loadDist);
 
 protected:
 

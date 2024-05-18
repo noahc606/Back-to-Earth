@@ -6,6 +6,8 @@ ColorSelector::ColorSelector(Window* parentWindow, int x, int y, Color col, int 
 {
 	setSubType(BTEObject::Type::GUI_colorselect);
 
+    color = col;
+
 	btnString = "";
     width = 32;
     height = 32;

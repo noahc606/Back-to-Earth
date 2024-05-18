@@ -33,6 +33,7 @@ public:
 	std::tuple<double, double, double> getVelComponents();
 	double getVel();
 	Camera* getCamera();
+	bool inGodMode();
 	/**/
 	void setPos(double, double, double);
 	void setMenuState(int newMenuState);
@@ -63,7 +64,7 @@ protected:
 
 private:
 	void updateFacingDirection();
-	void rebuildPlayerTex(bool alt);
+	void rebuildPlayerTex(Texture& tex, bool alt);
 
 	//Player palettes, textures, spritesheets
 	ColorPalette playerPal;

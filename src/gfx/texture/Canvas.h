@@ -18,14 +18,15 @@ public:
     void draw();
     /**/
     //Load / unload textures from map given the location of a 1024x1024 region.
-    int loadTex(long rX, long rY);
-    void realloc(long x, long y, int maxRegions);
-    void realloc(long x, long y);
-    void reallocSingle(long x, long y);
+    int loadTex(int64_t csRX, int64_t csRY);
+    void realloc(int64_t csRX, int64_t csRY, int maxRegions);
+    void realloc(int64_t csRX, int64_t csRY);
+    void reallocSingle(int64_t csRX, int64_t csRY);
     /**/
     //Get a texture from the map given the location of a 1024x1024 region.
     Texture* getTex(long rX, long rY);
     std::tuple<double, double> getMouseXY();
+    bool isFrameFinished();
 
     //Get info about the Canvas.
     void putInfo(std::stringstream& ss, int& tabs);

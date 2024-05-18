@@ -140,7 +140,7 @@ void TextBox::passFreeTextInput(std::string s, int type)
 	}
 	
 	//Invalidate input where non-numbers (not in 0-9) are entered in a numbers-only textbox
-	if( inputType==FREE_NUMBERS_BASIC || inputType==FREE_NUMBERS_INTEGERS ) {
+	if( inputType==FREE_NUMBERS_BASIC || inputType==FREE_NUMBERS_INTEGERS || inputType==FREE_HEX_BASIC ) {
 		if(!validateString()) {
 			invalidInput = true;
 		}
@@ -153,6 +153,7 @@ void TextBox::passSpecialInput(ControlBinding& cb)
         case FREE_TEXT:
         case FREE_NUMBERS_BASIC:
 		case FREE_NUMBERS_INTEGERS:
+		case FREE_HEX_BASIC:
 		{
             if(cb.getType()==cb.KEYBOARD_ACTION) {
                 std::stringstream ss; ss << cb.keyboardAction;
@@ -238,11 +239,12 @@ bool TextBox::validateString()
 	switch(inputType) {
 		case FREE_NUMBERS_BASIC:	allowedChars = "0123456789"; break;
 		case FREE_NUMBERS_INTEGERS: allowedChars = "-0123456789"; break;
-		case FREE_HEX_BASIC:		allowedChars = "0123456789abcdefABCDEF"; break;
+		case FREE_HEX_BASIC:		allowedChars = "#0123456789abcdefABCDEF"; break;
 	}
 
 	//Find newStream
 	std::stringstream newStream;
+	std::string newString = "";
 	for( int i = 0; i<old.size(); i++ ) {
 		if( allowedChars.find(old[i])!=std::string::npos ) {
 			newStream << old[i];
@@ -250,10 +252,39 @@ bool TextBox::validateString()
 			res = false;
 		}
 	}
+	newString = newStream.str();
+
+	//Hexadecimal input validation
+	if(inputType==FREE_HEX_BASIC) {
+		//Remove all #'s and add a # at the beginning
+		std::stringstream hexStream;
+		hexStream << "#";
+		for(int i = 0; i<newString.size(); i++) {
+			if(newString[i]!='#') {
+				hexStream << newString[i];
+			}
+		}
+		newString = hexStream.str();
+		
+		//Capitalize all lowercase letters for hexadecimal input
+		for(int i = 0; i<newString.size(); i++) {
+			if(newString[i]>='a' && newString[i]<='f') {
+				newString[i] = newString[i]-32;
+			}
+		}
+
+		//Limit hex input to 7 chars (including the #)
+		if(newString.size()>7) {
+			newString = newString.substr(0, 7);
+			res = false;
+		}
+	}
+
+
 
 	//Set btnText's string and insertion point from newStream
-	btnText.setString(newStream.str());
-	btnText.setInsertionPoint(newStream.str().size());
+	btnText.setString(newString);
+	btnText.setInsertionPoint(newString.size());
 	return res;
 }
 void TextBox::setControlBinding(ControlBinding& cb) { setCB = cb; }

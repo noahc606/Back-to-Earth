@@ -1,13 +1,19 @@
 #include "Tooltip.h"
 
-Tooltip::Tooltip(Window* p_parentWindow, int p_x, int p_y, std::string p_text, int p_id)
+double Tooltip::specialFlicker = 0;
+
+Tooltip::Tooltip(Window* p_parentWindow, int p_x, int p_y, std::string p_text, bool special, int p_id)
 : WindowComponent::WindowComponent(p_parentWindow, p_x, p_y)
 {
     setType(BTEObject::Type::GUI_tooltip);
     setID(p_id);
 
+    Tooltip::special = special;
     text = p_text;
 }
+Tooltip::Tooltip(Window* p_parentWindow, int p_x, int p_y, std::string p_text, int p_id)
+: Tooltip::Tooltip(p_parentWindow, p_x, p_y, p_text, false, p_id){}
+
 Tooltip::~Tooltip(){}
 
 void Tooltip::init(SDLHandler* sh)
@@ -17,6 +23,7 @@ void Tooltip::init(SDLHandler* sh)
     TextOld t; t.init(sh);
     t.setString(text);
     width = t.getWidth()/2;
+    if(special) width *= 2;
 
     onWindowUpdate();
 }
@@ -28,12 +35,26 @@ void Tooltip::destroy()
 
 void Tooltip::draw()
 {
-    TextOld::draw(sdlHandler, text, sX, sY, 2);
+    if(special) {
+        double sf = specialFlicker;
+        double ed = 40*((double)(rand()%10)/10.0); // ED = Extra Darkness
+
+        int r = 50*sf-ed;   if(r<0) r = 0;
+        int g = 50*sf-ed;   if(g<0) g = 0;
+        int b = 155*sf-ed;  if(b<0) b = 0;
+        
+        TextOld::draw(sdlHandler, text, sX, sY, 4, Color(r, g, b), Color(0, 0, 0, 255), TextureLoader::GUI_FONT_robot);
+    } else {
+        TextOld::draw(sdlHandler, text, sX, sY, 2);
+    }
 }
 
 void Tooltip::tick()
 {
-
+    if(special) {
+        if(specialFlicker<1)
+            specialFlicker += 0.005;
+    }
 }
 
 void Tooltip::onWindowUpdate()

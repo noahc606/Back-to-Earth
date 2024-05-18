@@ -2,7 +2,7 @@
 #include "DebugScreen.h"
 #include "Grid.h"
 #include "Log.h"
-#include "RegTexUpdater.h"
+#include "RegTexInfo.h"
 #include "Timer.h"
 
 void TileMapUpdater::init(SDLHandler* sh, TileMap* tm, Canvas* cs)
@@ -29,42 +29,42 @@ TileMapUpdater::t_tileUpdates* TileMapUpdater::getTileUpdates() { return &tileUp
 /*
  * Return the set of all tile updates (set<pair<int64_t, int64_t>>) within a specific region. If region doesn't exist, return nullptr.
  */
-TileMapUpdater::t_updates* TileMapUpdater::getTUsByRXY(int64_t rX, int64_t rY)
+TileMapUpdater::t_updates* TileMapUpdater::getTUsByRXY(int64_t csRX, int64_t csRY) 
 {
-    t_tileUpdates::iterator itr = tileUpdates.find( std::make_pair(rX, rY) );
+    t_tileUpdates::iterator itr = tileUpdates.find( std::make_pair(csRX, csRY) );
     if( itr!=tileUpdates.end() )
         return &(itr->second);
     return nullptr;
 }
 
-int TileMapUpdater::addTileUpdate(int64_t x, int64_t y)
+int TileMapUpdater::addTileUpdate(int64_t csX, int64_t csY)
 {
-	int rX = TileMap::getRegRXYZ(x);
-	int rY = TileMap::getRegRXYZ(y);
-	int sx = TileMap::getRegSubPos(x);
-	int sy = TileMap::getRegSubPos(y);
+	int csRX = TileMap::getRegRXYZ(csX);
+	int csRY = TileMap::getRegRXYZ(csY);
+	int cssx = TileMap::getRegSubPos(csX);
+	int cssy = TileMap::getRegSubPos(csY);
 
-	t_tileUpdates::iterator itr = tileUpdates.find( std::make_pair(rX, rY) );
+	t_tileUpdates::iterator itr = tileUpdates.find( std::make_pair(csRX, csRY) );
 	if( itr!=tileUpdates.end() ) {
 		//Add the update inside of an existing update region
 		t_updates* upd = &(itr->second);
-		upd->insert( std::make_pair(sx, sy) );
+		upd->insert( std::make_pair(cssx, cssy) );
 		return 0;
 	} else {
 		//Add the update region with the update.
 		t_updates upd;
-		upd.insert( std::make_pair(sx, sy) );
-		tileUpdates.insert( std::make_pair(std::make_pair(rX, rY), upd ) );
+		upd.insert( std::make_pair(cssx, cssy) );
+		tileUpdates.insert( std::make_pair(std::make_pair(csRX, csRY), upd ) );
 		return 1;
 	}
 }
 
-int TileMapUpdater::addTileUpdates(int64_t x0, int64_t y0, int64_t x1, int64_t y1)
+int TileMapUpdater::addTileUpdates(int64_t csX0, int64_t csY0, int64_t csX1, int64_t csY1)
 {
 	int result = 0;
-	for( int ix = x0; ix<=x1; ix++ ) {
-		for( int iy = y0; iy<=y1; iy++ ) {
-			result += addTileUpdate(ix, iy);
+	for( int icsX = csX0; icsX<=csX1; icsX++ ) {
+		for( int icsY = csY0; icsY<=csY1; icsY++ ) {
+			result += addTileUpdate(icsX, icsY);
 		}
 	}
 	
@@ -74,22 +74,22 @@ int TileMapUpdater::addTileUpdates(int64_t x0, int64_t y0, int64_t x1, int64_t y
 /*
  * Create a 3x3 of tile updates at the specified position
  */
-int TileMapUpdater::addTileUpdates(int64_t x, int64_t y)
+int TileMapUpdater::addTileUpdates(int64_t csX, int64_t csY)
 {
-    return addTileUpdates(x-1, y-1, x+1, y+1);
+    return addTileUpdates(csX-1, csY-1, csX+1, csY+1);
 }
 
 /*
  * Fully update a region by ensuring that all tile columns in the region (32*32) get an update
  */ 
-int TileMapUpdater::addRegionUpdate(int64_t rX, int64_t rY)
+int TileMapUpdater::addRegionUpdate(int64_t csRX, int64_t csRY)
 {
 	//Find (rX, rY) within regUpdates, store in iterator
-	t_regUpdates::iterator itr = regUpdates.find( std::make_pair(rX, rY) );
+	t_regUpdates::iterator itr = regUpdates.find( std::make_pair(csRX, csRY) );
 	
 	//If (rX, rY) was not found, mark it for an update by adding it to regUpdates
 	if( itr==regUpdates.end() ) {
-		regUpdates.insert(std::make_pair(rX, rY));
+		regUpdates.insert(std::make_pair(csRX, csRY));
 		return 0;
 	}
 
@@ -100,14 +100,14 @@ int TileMapUpdater::addRegionUpdate(int64_t rX, int64_t rY)
 /*
  * Stop updating a region by erasing all updates within it
  */
-int TileMapUpdater::stopRegionUpdate(int64_t rX, int64_t rY)
+int TileMapUpdater::stopRegionUpdate(int64_t csRX, int64_t csRY)
 {
 	//Find (rX, rY) within regUpdates, store in iterator
-	t_regUpdates::iterator itr = regUpdates.find( std::make_pair(rX, rY) );
+	t_regUpdates::iterator itr = regUpdates.find( std::make_pair(csRX, csRY) );
 
 	//If (rX, rY) exists, delete it.
 	if( itr!=regUpdates.end() ) {
-		regUpdates.erase(std::make_pair(rX, rY));
+		regUpdates.erase(std::make_pair(csRX, csRY));
 		return 0;
 	}
 
@@ -124,16 +124,20 @@ void TileMapUpdater::stopAllUpdates()
 }
 
 /**
- 	Mark every region that is loaded and onscreen for an update.
+ 	Mark every region that is loaded and onscreen as FINISHED_GENERATING.
  */
-void TileMapUpdater::updateMapVisible(bool blackout, int loadDistH, int loadDistV)
+void TileMapUpdater::updateMapVisible(bool blackout, int loadDist)
 {
+	if(blackout) {
+		stopAllUpdates();
+	}
+
 	//Iterate through all regions which should be loaded
-	for(int64_t iRX = cam->getRX()-loadDistH; iRX<=cam->getRX()+loadDistH; iRX++) {
-		for(int64_t iRY = cam->getRY()-loadDistH; iRY<=cam->getRY()+loadDistH; iRY++) {
-			for(int64_t iRZ = cam->getRZ()-loadDistV; iRZ<=cam->getRZ()+loadDistV; iRZ++) {
+	for(int64_t iRX = cam->getRX()-loadDist; iRX<=cam->getRX()+loadDist; iRX++) {
+		for(int64_t iRY = cam->getRY()-loadDist; iRY<=cam->getRY()+loadDist; iRY++) {
+			for(int64_t iRZ = cam->getRZ()-loadDist; iRZ<=cam->getRZ()+loadDist; iRZ++) {
 				//If this region is visible
-				if(RegTexUpdater::isRegOnScreen(sdlHandler, cam, iRX, iRY, iRZ)) {
+				if(RegTexInfo::isRegOnScreen(cam, iRX, iRY, iRZ)) {
 					TileRegion* tr = tileMap->getRegByRXYZ(iRX, iRY, iRZ);
 					if(tr!=nullptr) {
 						tr->setRegTexState(TileRegion::FINISHED_GENERATING);
@@ -149,82 +153,23 @@ void TileMapUpdater::updateMapVisible(bool blackout, int loadDistH, int loadDist
 	}
 }
 
-void TileMapUpdater::updateMapVisible(int loadDistH, int loadDistV) { updateMapVisible(false, loadDistH, loadDistV); }
-
-void TileMapUpdater::updateMap103(int loadDistH, int loadDistV)
-{
-	//Iterate through all regions which should be loaded
-	for(int64_t iRX = cam->getRX()-loadDistH; iRX<=cam->getRX()+loadDistH; iRX++) {
-		for(int64_t iRY = cam->getRY()-loadDistH; iRY<=cam->getRY()+loadDistH; iRY++) {
-			int64_t iRZ = cam->getRZ();
-			//If this region is visible
-			if(RegTexUpdater::isRegOnScreen(sdlHandler, cam, iRX, iRY, iRZ)) {
-				//Mark region as "SHOULD UPDATE" if a few conditions are met:
-				// If that column of regions is "FINISHED GENERATING".
-				// If that csTileMap texture is not nullptr.
-				bool shouldUpdate = true;
-
-				Texture* tex = csTileMap->getTex( iRX, iRY );
-				if(tex==nullptr) {
-					shouldUpdate = false;
-				}
-
-				int fg = TileRegion::FINISHED_GENERATING;
-
-				for(int jRX = iRX-1; jRX<=iRX+1; jRX++) {
-					for(int jRY = iRY-1; jRY<=iRY+1; jRY++) {
-						for(int jRZ = iRZ; jRZ<=iRZ+1; jRZ++) {
-							TileRegion* ttr = tileMap->getRegByRXYZ(jRX, jRY, jRZ);
-							if(ttr==nullptr || ttr->getRegTexState()<fg) shouldUpdate = false;
-						}
-					}
-				}
-
-				TileRegion* tr = tileMap->getRegByRXYZ(iRX, iRY, iRZ);
-				if(shouldUpdate) {
-					if(tr->getRegTexState()==fg) {
-						tr->setRegTexState(TileRegion::SHOULD_UPDATE);
-					}
-				}
-			}
-		}
-	}
-}
-
-void TileMapUpdater::updateMap104(int loadDistH, int loadDistV)
-{
-	Grid grid(sdlHandler, tileMap, cam, loadDistH, loadDistV, TileRegion::RegTexState::UPDATED-1);
-	std::pair<int, int> leXY = grid.getLowestElementXY();
-
-	if(leXY.first!=-1) {
-		int64_t rX = cam->getRX()-loadDistH+leXY.first;
-		int64_t rY = cam->getRY()-loadDistH+leXY.second;
-
-		TileRegion* tr = tileMap->getRegByRXYZ(rX, rY, cam->getRZ());
-		if(tr!=nullptr) {
-			if(tr->getRegTexState()==TileRegion::SHOULD_UPDATE) {
-				addRegionUpdate(rX, rY);
-				tr->setRegTexState(tr->UPDATED);
-			}
-		}
-	}
-}
+void TileMapUpdater::updateMapVisible(int loadDist) { updateMapVisible(false, loadDist); }
 
 /**
 	Load a given region as fast as the computer can handle it (based on loadCountMax, infoRegLoadTime).
 	Note: Camera direction has no effect on the loadDistH and loadDistV, this is intended.
 */
-void TileMapUpdater::updateRegTicked(FileHandler* fileHandler, int64_t rX, int64_t rY, int64_t camRZ, int loadDistV)
+void TileMapUpdater::regPillarGenAttempt(FileHandler* fileHandler, int64_t csRX, int64_t csRY, int64_t camCsRZ, int loadDepth)
 {
 	//Timer for debugging
 	Timer rlt;
 
 	//Check pillar of regions at (rX, rY)
 	for(int64_t neg = -1; neg<=1; neg += 2) {
-		for(int64_t diff = 0; diff<=loadDistV; diff++) {
-			int64_t iRZ = camRZ+neg*diff;
+		for(int64_t diff = 0; diff<=loadDepth; diff++) {
+			int64_t icsRZ = camCsRZ+neg*diff;
 			//If new region load was successful (regions already loaded are not == 0)
-			if( tileMap->loadRegion(fileHandler, rX, rY, iRZ)==0 ) {
+			if( tileMap->loadRegionByCsRXYZ(fileHandler, cam->getAxis(), csRX, csRY, icsRZ)==0 ) {
 				//Increment loadCount
 				loadCount++;
 
@@ -240,27 +185,23 @@ void TileMapUpdater::updateRegTicked(FileHandler* fileHandler, int64_t rX, int64
 	}
 }
 
-void TileMapUpdater::updateMapTicked(FileHandler* fileHandler, int loadDistH, int loadDistV)
+void TileMapUpdater::updateMapToFINISHED_GENERATING(FileHandler* fileHandler, int loadDist)
 {
 	//Reset loadCount
 	loadCount = 0;
 
-	//Try to load the nearest null regions
-	while (loadCount<=loadCountMax)
-	{
-		Grid grid(sdlHandler, tileMap, cam, loadDistH, loadDistV, -1);
+	for(int i = 0; i<loadCountMax; i++)
+	if(loadCount<=loadCountMax) {
+		Grid grid;
+		grid.updateOrderFinder(sdlHandler, tileMap, cam, loadDist, -1);
 		std::pair<int, int> leXY = grid.getLowestElementXY();
 		if(leXY.first!=-1) {
-			int64_t rX = cam->getRX()-loadDistH+leXY.first;
-			int64_t rY = cam->getRY()-loadDistH+leXY.second;
+			int64_t csRX = cam->getCsRX()-loadDist+leXY.first;
+			int64_t csRY = cam->getCsRY()-loadDist+leXY.second;
 			
-			updateRegTicked(fileHandler, rX, rY, cam->getRZ(), loadDistV);
-		} else {
-			break;
+			regPillarGenAttempt(fileHandler, csRX, csRY, cam->getCsRZ(), loadDist);
 		}
 	}
-	
-
 
 	/** Performance gauging */
 	if(infoRegLoadCount>infoRegLoadDivisor) {
@@ -274,20 +215,84 @@ void TileMapUpdater::updateMapTicked(FileHandler* fileHandler, int loadDistH, in
 	//Regulate loadCountMax depending on performance
 	loadCountMax = std::ceil(4.0/infoRegLoadTimeAvg);	//'4.0' => a max of 4.0ms on average that we should allow for loading of regions
 	if(loadCountMax<1) loadCountMax = 1;
-	if(loadCountMax>2000000) loadCountMax = 20;
+	if(loadCountMax>20) loadCountMax = 20;
 }
 
-void TileMapUpdater::updateMapMoved(FileHandler* fileHandler, int loadDistH, int loadDistV)
+void TileMapUpdater::updateMapToSHOULD_UPDATE(int loadDist)
+{
+	//Iterate through all regions which should be loaded
+	for(int64_t icsRX = cam->getCsRX()-loadDist; icsRX<=cam->getCsRX()+loadDist; icsRX++) {
+		for(int64_t icsRY = cam->getCsRY()-loadDist; icsRY<=cam->getCsRY()+loadDist; icsRY++) {
+			int64_t icsRZ = cam->getCsRZ();
+			//If this region is visible
+			if(RegTexInfo::isCsRegOnScreen(cam, icsRX, icsRY)) {
+				//Mark region as "SHOULD UPDATE" if a few conditions are met:
+				// If that column of regions is "FINISHED GENERATING".
+				// If that csTileMap texture is not nullptr.
+				bool shouldUpdate = true;
+
+				//If texture could not be found within canvas, shouldUpdate is automatically false.
+				Texture* tex = csTileMap->getTex( icsRX, icsRY );
+				if(tex==nullptr) {
+					shouldUpdate = false;
+				}
+
+				//Check 3x3x3 area of regions centered on the current region.
+				//If a region is found which is not FINISHED_GENERATING or which is nullptr => should not update.
+				for(int jcsRX = icsRX-1; jcsRX<=icsRX+1; jcsRX++) {
+					for(int jcsRY = icsRY-1; jcsRY<=icsRY+1; jcsRY++) {
+						for(int jcsRZ = icsRZ-1; jcsRZ<=icsRZ+1; jcsRZ++) {
+							TileRegion* ttr = tileMap->getRegByCsRXYZ(cam, jcsRX, jcsRY, jcsRZ);
+							if(ttr==nullptr || ttr->getRegTexState()<TileRegion::FINISHED_GENERATING) {
+								shouldUpdate = false;
+							}
+						}
+					}
+				}
+
+				//If a tile region is FINISHED_GENERATING and shouldUpdate==true, mark it as SHOULD_UPDATE
+				TileRegion* tr = tileMap->getRegByCsRXYZ(cam, icsRX, icsRY, icsRZ);
+				if(shouldUpdate) {
+					if(tr->getRegTexState()==TileRegion::FINISHED_GENERATING) {
+						tr->setRegTexState(TileRegion::SHOULD_UPDATE);
+					}
+				}
+			}
+		}
+	}
+}
+
+void TileMapUpdater::updateMapToUPDATED(int loadDist)
+{
+	Grid grid;
+	grid.updateOrderFinder(sdlHandler, tileMap, cam, loadDist, TileRegion::RegTexState::UPDATED-1);
+	std::pair<int, int> leXY = grid.getLowestElementXY();
+
+	if(leXY.first!=-1) {
+		int64_t csRX = cam->getCsRX()-loadDist+leXY.first;
+		int64_t csRY = cam->getCsRY()-loadDist+leXY.second;
+		TileRegion* tr = tileMap->getRegByCsRXYZ(cam, csRX, csRY, cam->getCsRZ());
+		
+		if(tr!=nullptr) {
+			if(tr->getRegTexState()==TileRegion::SHOULD_UPDATE) {
+				addRegionUpdate(csRX, csRY);
+				tr->setRegTexState(tr->UPDATED);
+			}
+		}
+	}
+}
+
+void TileMapUpdater::updateMapMoved(FileHandler* fileHandler, int loadDist)
 {
 	int64_t camRX = cam->getRX();
 	int64_t camRY = cam->getRY();
 	int64_t camRZ = cam->getRZ();
 
-	updateMapVisible(false, loadDistH, loadDistV);
+	updateMapVisible(false, loadDist);
 
 	/** Region unloading (nearby region immediately out of range) */
-	int outlineH = loadDistH+1;
-	int outlineV = loadDistV+1;
+	int outlineH = loadDist+1;
+	int outlineV = loadDist+1;
 
 	for( int dRX = -outlineH; dRX<=outlineH; dRX++) {
 		for( int dRY = -outlineH; dRY<=outlineH; dRY++) {
@@ -309,26 +314,4 @@ void TileMapUpdater::updateMapMoved(FileHandler* fileHandler, int loadDistH, int
 			}
 		}
 	}
-
-	/** Region priority calculation (horizontal manhattan distance from camera region) */
-	TileMap::t_regionMap::iterator itrRM = tileMap->getRegionMap()->begin();
-	while( itrRM!=tileMap->getRegionMap()->end() ) {
-		/** Null pointer check */
-		//If this TileRegion is null, stop this iteration and continue to the next one
-		TileRegion* tr = &itrRM->second;
-		if(tr==nullptr) {
-			itrRM++;
-			continue;
-		}
-
-		//Calculate region's 2D manhattan distance, where the 2 dimensions are perpendicular to the camera's direction (by default, down)
-		int rX = std::get<0>(itrRM->first);
-		int rY = std::get<1>(itrRM->first);
-		int manhattanDist = std::abs(camRX-rX) + std::abs(camRY-rY);
-		//Set the TR's Region Texture update priority to be the above value.
-		tr->setRegTexPriority(manhattanDist);
-		//Increment iterator
-		itrRM++;
-	}
 }
-

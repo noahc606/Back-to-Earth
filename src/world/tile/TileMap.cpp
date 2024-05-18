@@ -62,6 +62,14 @@ TileType TileMap::getTile(int64_t x, int64_t y, int64_t z)
     //If tr==null
     return TileType();
 }
+TileType TileMap::getTileByCsXYZ(Camera* cam, int64_t csX, int64_t csY, int64_t csZ)
+{
+	switch(cam->getAxis()) {
+		case Camera::X: return getTile(csZ, csX, csY); break;
+		case Camera::Y: return getTile(csX, csZ, csY); break;
+	}
+	return getTile(csX, csY, csZ);
+}
 
 TileRegion* TileMap::getRegByXYZ(int64_t x, int64_t y, int64_t z)
 {
@@ -77,9 +85,18 @@ TileRegion* TileMap::getRegByRXYZ(int64_t rX, int64_t rY, int64_t rZ)
     return nullptr;
 }
 
-TileRegion* TileMap::getRegByScrRXYZ(Camera* cam, int64_t scrRX, int64_t scrRY, int64_t scrRZ)
+/*
+	Get region given a canvas region location.
+	Canvas's plane is perpendicular to camera's depth axis (canvas plane matches up with screen).
+	csRZ represents traveling forward and backward in 3D space relative to the 2D canvas which fills up the screen.
+*/
+TileRegion* TileMap::getRegByCsRXYZ(Camera* cam, int64_t csRX, int64_t csRY, int64_t csRZ)
 {
-	return getRegByRXYZ(scrRX, scrRY, scrRZ);
+	switch(cam->getAxis()) {
+		case Camera::X: return getRegByRXYZ(csRZ, csRX, csRY); break;
+		case Camera::Y: return getRegByRXYZ(csRX, csRZ, csRY); break;
+	}
+	return getRegByRXYZ(csRX, csRY, csRZ);
 }
 
 int64_t TileMap::getRegSubPos(int64_t c) { c %= 32; if( c<0 ) c+=32; return c; }
@@ -140,12 +157,23 @@ int TileMap::setTile(int64_t x, int64_t y, int64_t z, TileType tt)
 	return -1;
 }
 
+int TileMap::setTileByCsXYZ(Camera* cam, int64_t csX, int64_t csY, int64_t csZ, TileType tt)
+{
+	switch(cam->getAxis()) {
+		case Camera::X: return setTile(csZ, csX, csY, tt); break;
+		case Camera::Y: return setTile(csX, csZ, csY, tt); break;
+	}
+	return setTile(csX, csY, csZ, tt);
+}
+
 /*
 	Given a nonexistent region (rX, rY, rZ), create the region, generate its terrain, and load its artificial tiles from file.
 	Returns: 0 if successful, -1 if region already existed.
 */
 int TileMap::loadRegion(FileHandler* fileHandler, int64_t rX, int64_t rY, int64_t rZ)
 {
+	//std::cout << "x" << regionMap.size() << "x";
+
 	//Try to find the region (rX, rY, rZ).
 	t_regionMap::iterator itr = regionMap.find( std::make_tuple(rX, rY, rZ) );
 	//If no region was found, create the region and process it.
@@ -167,6 +195,15 @@ int TileMap::loadRegion(FileHandler* fileHandler, int64_t rX, int64_t rY, int64_
 		return 0;
 	}
 	return -1;
+}
+
+int TileMap::loadRegionByCsRXYZ(FileHandler* fileHandler, int camAxis, int64_t csRX, int64_t csRY, int64_t csRZ)
+{
+	switch(camAxis) {
+		case Camera::X: return loadRegion(fileHandler, csRZ, csRX, csRY); break;
+		case Camera::Y: return loadRegion(fileHandler, csRX, csRZ, csRY); break;
+	}
+	return loadRegion(fileHandler, csRX, csRY, csRZ);
 }
 
 /*

@@ -141,8 +141,12 @@ void Button::tick()
             shineAnimation = -1;
     }
 
-    //If button is within an active window and the mouse is hovering on the button...
-    if( parentWindow->isActive() && hovering ) {
+    //Test whether this button is interactable
+    bool btnInteractable = false;
+    if(parentWindow==nullptr || parentWindow->isActive()) btnInteractable = true;
+
+    //If button is interactable and the mouse is hovering on the button...
+    if( btnInteractable && hovering ) {
         //If mouse is left clicked
         if( controls->isPressed("HARDCODE_LEFT_CLICK") ) {
             //If this is a textbox
@@ -163,8 +167,8 @@ void Button::tick()
         }
     }
 
-    //If the button is within an active window and the mouse is NOT hovering on the button...
-    if(parentWindow->isActive() && !hovering) {
+    //If the button is interactable and the mouse is NOT hovering on the button...
+    if( btnInteractable && !hovering) {
         //If mouse is left clicked
         if( controls->isPressed("HARDCODE_LEFT_CLICK") ) {
             //If this is not a radio button

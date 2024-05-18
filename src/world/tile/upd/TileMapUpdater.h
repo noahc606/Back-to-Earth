@@ -16,24 +16,24 @@ public:
 	TileMap* getTileMap();
 	t_regUpdates* getRegUpdates();
 	t_tileUpdates* getTileUpdates();
-	t_updates* getTUsByRXY(int64_t rX, int64_t rY);
+	t_updates* getTUsByRXY(int64_t csRX, int64_t csRY);
 
 	//Add/Remove updates
-	int addTileUpdate(int64_t x, int64_t y);
-	int addTileUpdates(int64_t x, int64_t y);
-	int addTileUpdates(int64_t x0, int64_t y0, int64_t x1, int64_t y1);
-	int addRegionUpdate(int64_t rX, int64_t rY);
-	int stopRegionUpdate(int64_t rX, int64_t rY);
+	int addTileUpdate(int64_t csX, int64_t csY);
+	int addTileUpdates(int64_t csX, int64_t csY);
+	int addTileUpdates(int64_t csX0, int64_t csY0, int64_t csX1, int64_t csY1);
+	int addRegionUpdate(int64_t csRX, int64_t csRY);
+	int stopRegionUpdate(int64_t csRX, int64_t csRY);
 	void stopAllUpdates();
 
 	//Control updates on a map-wide scale
-    void updateMapVisible(bool blackout, int loadDistH, int loadDistV);
-	void updateMapVisible(int loadDistH, int loadDistV);
-	void updateMap103(int loadDistH, int loadDistV);
-	void updateMap104(int loadDistH, int loadDistV);
-	void updateRegTicked(FileHandler* fileHandler, int64_t rX, int64_t rY, int64_t rZ, int loadDistV);
-	void updateMapTicked(FileHandler* fileHandler, int loadDistH, int loadDistV);
-	void updateMapMoved(FileHandler* fileHandler, int loadDistH, int loadDistV);
+    void updateMapVisible(bool blackout, int loadDist);
+	void updateMapVisible(int loadDist);
+	void regPillarGenAttempt(FileHandler* fileHandler, int64_t csRX, int64_t csRY, int64_t csRZ, int loadDepth);
+	void updateMapToFINISHED_GENERATING(FileHandler* fileHandler, int loadDist);
+	void updateMapToSHOULD_UPDATE(int loadDist);
+	void updateMapToUPDATED(int loadDist);
+	void updateMapMoved(FileHandler* fileHandler, int loadDist);
 
 private:
 	t_tileUpdates tileUpdates;
@@ -43,7 +43,6 @@ private:
     TileMap* tileMap = nullptr;
     Camera* cam = nullptr;
 	Canvas* csTileMap = nullptr;
-
 
 	int loadCount = 0;
     int loadCountMax = 3;

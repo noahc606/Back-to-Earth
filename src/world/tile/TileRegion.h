@@ -34,7 +34,6 @@ public:
 	//Get Region info
 	bool beenModifiedSinceLoad();
 	int getRegTexState();
-	int getRegTexPriority();
 	
 	/* Mutators */
 	//Check palette
@@ -60,7 +59,6 @@ public:
     //Set region state/priority
     void setRegTexState(int p_rts);
     void resetRegTexState();
-    void setRegTexPriority(int p_rtp);
 	//Used in level saving
     void compress();
     void dumpPaletteData(DataStream& ds, uint8_t dataBitsPerTile);
@@ -86,6 +84,5 @@ private:
 	bool modifiedSinceLoad = false;
 
     int regTexState = UNGENERATED;
-    int regTexPriority = -1;
 
 };

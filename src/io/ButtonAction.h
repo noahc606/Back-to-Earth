@@ -13,4 +13,6 @@ public:
 protected:
 
 private:
+    void populateSettingUIInfo(GUIHandler* gh, int& currentWindowID, int& settingFileID, std::vector<std::pair<int, int>>& objIDs, std::vector<std::string>& objKeys);
+    void saveSettingsBasedOnUIs(GUIHandler* gh, Settings* stgs, FileHandler* fh, Controls* ctrls);
 };

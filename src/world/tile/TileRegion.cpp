@@ -35,7 +35,7 @@ void TileRegion::putPaletteInfo(std::stringstream& ss, int& tabs, bool natural)
 void TileRegion::putInfo(std::stringstream& ss, int& tabs, int subX, int subY, int subZ)
 {
 	DebugScreen::indentLine(ss, tabs);
-	ss << "RegTex(State, Priority)=(" << regTexState << ", " << regTexPriority << "); ";
+	ss << "RegTexState=" << regTexState << "; ";
 	DebugScreen::newLine(ss);
 	DebugScreen::indentLine(ss, tabs);
 	ss << "palette.size()=" << (int)palette.size() << ", " << "natural=" << getPaletteSizeNatural() << ", artificial=" << getArtificialPaletteSize() << "; ";
@@ -180,7 +180,6 @@ TileType TileRegion::getTile( int x, int y, int z )
  */
 bool TileRegion::beenModifiedSinceLoad() { return modifiedSinceLoad; }
 int TileRegion::getRegTexState() { return regTexState; }
-int TileRegion::getRegTexPriority() { return regTexPriority; }
 
 bool TileRegion::assertDefaultTileExists(t_palette& pal)
 {
@@ -331,7 +330,6 @@ void TileRegion::setRegTexState(int p_rts)
 }
 
 void TileRegion::resetRegTexState() { regTexState = 0; }
-void TileRegion::setRegTexPriority(int p_rtp) { regTexPriority = p_rtp; }
 
 /**
 	Compresses the tile palette. Rarely, there could be unused or repeated tiles in a palette - this function takes care of that.

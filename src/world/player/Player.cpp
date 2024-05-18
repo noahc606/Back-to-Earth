@@ -75,8 +75,25 @@ void Player::draw(Canvas* csEntities)
 	}
 	
 	//Build player texture
-	rebuildPlayerTex(cameraHorizontal);
-	
+	if(1) {
+		rebuildPlayerTex(playerTex, cameraHorizontal);
+	} else {
+		if(cameraHorizontal) {
+			playerTex.clear();
+			playerTex.setTexDimensions(32, 64);
+			playerTex.lock();
+			playerTex.setColorMod(255, 0, 0);
+			playerTex.fill();
+		} else {
+			playerTex.clear();
+			playerTex.setTexDimensions(32, 32);
+			playerTex.lock();
+			playerTex.setColorMod(255, 0, 0);
+			playerTex.fill();
+		}
+	}
+
+
 	//If player is inside a tile, make sure part of the player isn't rendered
 	/** Draw player texture to canvas */
 	//playerTex.rect(0, 0, 32, 64, 255, 0, 0);
@@ -98,11 +115,12 @@ void Player::draw(Canvas* csEntities)
 void Player::drawCharInMenu()
 {
 	//Build player texture
-	rebuildPlayerTex(true);
+	rebuildPlayerTex(playerTexAlt, true);
 	
 	int ptaX = sdlHandler->getWidth()/2+(-32+2)*4;
 	int ptaY = sdlHandler->getHeight()/2+(-64+10)*4;
 	playerTexAlt.setDrawPos(ptaX, ptaY);
+	playerTexAlt.setDrawScale(4);
 	playerTexAlt.draw();
 }
 
@@ -375,6 +393,7 @@ std::tuple<double, double, double> Player::getPos() { return std::make_tuple(x, 
 std::tuple<double, double, double> Player::getVelComponents() { return std::make_tuple(vx, vy, vz); }
 double Player::getVel() { return sqrt( vx*vx + vy*vy + vz*vz ); }
 Camera* Player::getCamera() { return &camera; }
+bool Player::inGodMode() { return godMode; }
 
 void Player::setPos(double x, double y, double z)
 {
@@ -398,88 +417,88 @@ void Player::updateFacingDirection()
 	}
 }
 
-void Player::rebuildPlayerTex(bool alt)
+void Player::rebuildPlayerTex(Texture& tex, bool alt)
 {
 	//Get sprite sheet texture
 	Texture* sst = spsh.getSheetTexture();
 	
 	if(!alt) {
-		playerTex.clear();
-		playerTex.setTexDimensions(32, 32);
+		tex.clear();
+		tex.setTexDimensions(32, 32);
 	} else {
-		playerTexAlt.clear();
-		playerTexAlt.setTexDimensions(32, 64);
-		playerTexAlt.setDrawScale(4);
+		tex.clear();
+		tex.setTexDimensions(32, 64);
+		tex.setDrawScale(4);
 	}
 	
 	if(!alt) {
 		/* Lower body (legs) */
-		playerTex.lock();
+		tex.lock();
 		//tex.blitEx(sst, 0, 32*TOP_LOWER_BODY, 32, 32, rotation);
 		//if( anWalkState==0 ) {
-		playerTex.blitEx(sst, 32*anWalkFrameX, (TOP_LOWER_BODY+1)*32, 32, 32, rotation);
+		tex.blitEx(sst, 32*anWalkFrameX, (TOP_LOWER_BODY+1)*32, 32, 32, rotation);
 		//}
 		
 		
 		/* Middle body */
-		playerTex.lock();
-		playerTex.blitEx(sst, 0, 32*TOP_MIDDLE_BODY, 32, 32, rotation);
+		tex.lock();
+		tex.blitEx(sst, 0, 32*TOP_MIDDLE_BODY, 32, 32, rotation);
 		
 		/* Arms (if player is walking) */
 		if(walkSpeed>0)
 		{
-			playerTex.lock();
-			playerTex.blitEx(sst, 0, 32*TOP_ARMS, 32, 32, rotation);
+			tex.lock();
+			tex.blitEx(sst, 0, 32*TOP_ARMS, 32, 32, rotation);
 		}
 		
 		
 		/* Head */
-		playerTex.lock();
-		playerTex.blitEx(sst, 0, 32*TOP_HAIR, 32, 32, rotation);
+		tex.lock();
+		tex.blitEx(sst, 0, 32*TOP_HAIR, 32, 32, rotation);
 	} else {
 		//Head base
-		playerTexAlt.lock(0, 0, 32, 32);
-		playerTexAlt.blitEx(sst, 0, 32*SIDE_HEAD_BASE, 32, 32, flip);
+		tex.lock(0, 0, 32, 32);
+		tex.blitEx(sst, 0, 32*SIDE_HEAD_BASE, 32, 32, flip);
 
 		//Eyes layer 1
 		if(anBlinkTimer<0) {
-			playerTexAlt.lock(0, 0, 32, 32);
-			playerTexAlt.blitEx(sst, 0, 32*SIDE_HEAD_EYES, 32, 32, flip);
+			tex.lock(0, 0, 32, 32);
+			tex.blitEx(sst, 0, 32*SIDE_HEAD_EYES, 32, 32, flip);
 		}
 
 		//Eyes layer 2
 		if(anBlinkTimer<0) {
-			playerTexAlt.lock(0, 0, 32, 32);
-			playerTexAlt.blitEx(sst, 0, 32*SIDE_HEAD_PUPILS, 32, 32, flip);
+			tex.lock(0, 0, 32, 32);
+			tex.blitEx(sst, 0, 32*SIDE_HEAD_PUPILS, 32, 32, flip);
 		}
 
 		//Lips
-		playerTexAlt.lock(0, 0, 32, 32);
-		playerTexAlt.blitEx(sst, 0, 32*SIDE_HEAD_MOUTH, 32, 32, flip);
+		tex.lock(0, 0, 32, 32);
+		tex.blitEx(sst, 0, 32*SIDE_HEAD_MOUTH, 32, 32, flip);
 
 		/** Arms */
 		//Arms
 		int aTX = (anWalkFrameX%2);
-		playerTexAlt.lock(0+aTX, 16, 32+aTX, 32);
-		playerTexAlt.blitEx(sst, 0, 32*SIDE_ARMS, flip);
+		tex.lock(0+aTX, 16, 32+aTX, 32);
+		tex.blitEx(sst, 0, 32*SIDE_ARMS, flip);
 
 		/** Body */
 		//Legs
-		playerTexAlt.lock(0, 29, 32, 32);
+		tex.lock(0, 29, 32, 32);
 		if( anWalkState!=0 ) {
 			int dy = 1;
 			if( facing==Camera::SOUTH || facing==Camera::NORTH ) {
 				dy = 2;
 			}
-			playerTexAlt.blitEx(sst, 32*anWalkFrameX, (SIDE_LOWER_BODY+dy)*32, 32, 32, flip);
+			tex.blitEx(sst, 32*anWalkFrameX, (SIDE_LOWER_BODY+dy)*32, 32, 32, flip);
 		} else {
-			playerTexAlt.blitEx(sst, 32*anWalkFrameX, (SIDE_LOWER_BODY)*32, 32, 32, flip);
+			tex.blitEx(sst, 32*anWalkFrameX, (SIDE_LOWER_BODY)*32, 32, 32, flip);
 		}
 		//Middle body
 		{
-			playerTexAlt.lock(0+aTX, 9, 32+aTX, 32);
+			tex.lock(0+aTX, 9, 32+aTX, 32);
 
-			playerTexAlt.blitEx(sst, 0, (SIDE_MIDDLE_BODY)*32, 32, 32, flip);
+			tex.blitEx(sst, 0, (SIDE_MIDDLE_BODY)*32, 32, 32, flip);
 		}
 		
 		/** Extra */
@@ -488,7 +507,7 @@ void Player::rebuildPlayerTex(bool alt)
 		//tex.blitEx(sst, 0, FEET*32, 31, 32, flip);
 
 		//Hair
-		playerTexAlt.lock(0, 0, 32, 32);
-		playerTexAlt.blitEx(sst, 0, 32*SIDE_HAIR, 32, 32, flip);
+		tex.lock(0, 0, 32, 32);
+		tex.blitEx(sst, 0, 32*SIDE_HAIR, 32, 32, flip);
 	}
 }

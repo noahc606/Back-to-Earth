@@ -25,13 +25,15 @@ RegTexBuilder::RegTexBuilder(Texture* tex, TileIterator& ti, int camDirection, i
 	
 	RegTexBuilder::ttdfc = ttdfc;
 	
-	drawTypeA( ti, ttfc );
+	//if(ttdfc==0) {
+		drawTypeA( ti, ttfc );
+	//}
 	if(ttdfc==0) {
-		detailDepth0Tiles(ti);
+		detailDepth0Tiles(ti, camDirection);
 	}
 	
 	if(ttdfc>0) {
-		detailDepthPTiles(ti);
+		//detailDepthPTiles(ti);
 	}
 }
 
@@ -55,9 +57,9 @@ void RegTexBuilder::info(std::stringstream& ss, int& tabs, TileIterator& ti, int
 	DebugScreen::newLine(ss);
 }
 
-void RegTexBuilder::infoBl(TileIterator& ti, bool bl[8], int ttdfc)
+void RegTexBuilder::infoBl(TileIterator& ti, bool bl[8], int ttdfc, int camDirection)
 {
-	//'bl' = blocking
+	//'bl' = represents a tile that is opaque
 	//012
 	//3 4
 	//567
@@ -65,7 +67,7 @@ void RegTexBuilder::infoBl(TileIterator& ti, bool bl[8], int ttdfc)
 	// 0 = Camera looking toward X axis
 	// 1 = ... Y axis
 	// 2 = ... Z axis
-	int axis = 2;
+	int axis = Camera::getAxisFromDirection(camDirection);
 	
 	for( int i = 0; i<8; i++ ) {
 		int c1 = 0;
@@ -89,7 +91,7 @@ void RegTexBuilder::infoBl(TileIterator& ti, bool bl[8], int ttdfc)
 		}
 	}
 }
-void RegTexBuilder::infoBl(TileIterator& ti, bool bl[8]) { infoBl(ti, bl, 0); }
+void RegTexBuilder::infoBl(TileIterator& ti, bool bl[8], int camDirection) { infoBl(ti, bl, 0, camDirection); }
 
 
 void RegTexBuilder::infoCoSi(bool bl[8], bool co[4], bool si[4])
@@ -132,14 +134,14 @@ void RegTexBuilder::infoCoSiSh(bool bl[8], bool co[4], bool si[4], bool sh[4])
     infoSh(co, si, sh);
 }
 
-void RegTexBuilder::detailDepth0Tiles(TileIterator& ti)
+void RegTexBuilder::detailDepth0Tiles(TileIterator& ti, int camDirection)
 {
 	bool bl[8] = { false };
-	infoBl(ti, bl);
+	infoBl(ti, bl, camDirection);
 
-	bool co[4] = { 0, 0, 0, 0 }; //Corners
-	bool si[4] = { 0, 0, 0, 0 }; //Sides
-	bool sh[4] = { 1, 1, 1, 1 };  //Shadows
+	bool co[4] = { 0, 0, 0, 0 }; 	//Corners
+	bool si[4] = { 0, 0, 0, 0 }; 	//Sides
+	bool sh[4] = { 1, 1, 1, 1 };  	//Shadows
 	infoCoSiSh(bl, co, si, sh);
 
 	//Get total # of shadows
@@ -228,9 +230,11 @@ void RegTexBuilder::drawTypeA(TileIterator& ti, int srcX, int srcY, Color c)
 {
 	TextureLoader* tl = tex->getTextureLoader();
 	
+	//Prep texture for editing (set lock area and color)
 	tex->lock(dstX, dstY, blitScale, blitScale);
 	tex->setColorMod(c.r, c.g, c.b);
 	
+	//Depending on blitScale, draw whichever size we need to
 	if( blitScale<=1 ) {
 		tex->blit( tl->getTexture(TextureLoader::WORLD_TILE_type_a, 5), srcX/32, srcY/32 );
 	} else if( blitScale<=2 ) {
@@ -245,6 +249,7 @@ void RegTexBuilder::drawTypeA(TileIterator& ti, int srcX, int srcY, Color c)
 		tex->blit( tl->getTexture(TextureLoader::WORLD_TILE_type_a, 0), srcX, srcY );
 	}
 	
+	//For a positive depth (capped at 6), make the tile look darker (deeper = darker)
 	int depth = ttdfc;
 	if( depth!=0 ) {
 		if(depth>6) {
@@ -264,6 +269,7 @@ void RegTexBuilder::drawTypeA(TileIterator& ti, int srcX, int srcY, Color c)
 
 void RegTexBuilder::drawTypeA(TileIterator& ti, TileType tt)
 {
+	//Draw a Type A tile based on its TileType data
 	int srcX = 32*std::get<0>(tt.getTextureXYZ());
 	int srcY = 32*std::get<1>(tt.getTextureXYZ());
 	int r = std::get<0>(tt.getRGB());
