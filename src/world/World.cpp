@@ -346,6 +346,7 @@ void World::playerInteractions(GUIHandler& guiHandler, bool paused)
 			case Player::Action::GM_Place_Tile: {
 
 				TileType tt;
+				tt.init();
 				tt.setRGB(localPlayerMenu.getSandboxTexRed(), localPlayerMenu.getSandboxTexGreen(), localPlayerMenu.getSandboxTexBlue());
 				tt.setSolid(true);
 				tt.setTextureXY(localPlayerMenu.getSandboxTexX(), localPlayerMenu.getSandboxTexY());
