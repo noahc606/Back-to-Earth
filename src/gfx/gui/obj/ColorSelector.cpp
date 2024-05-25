@@ -1,5 +1,6 @@
 #include "ColorSelector.h"
 #include "TextureBuilder.h"
+#include "Log.h"
 
 ColorSelector::ColorSelector(Window* parentWindow, int x, int y, Color col, int id)
 : Button::Button(parentWindow, x, y, 0, "", id)
@@ -7,6 +8,10 @@ ColorSelector::ColorSelector(Window* parentWindow, int x, int y, Color col, int 
 	setSubType(BTEObject::Type::GUI_colorselect);
 
     color = col;
+    auto hsv = col.toHSV();
+    hue = std::get<0>(hsv);
+    sat = std::get<1>(hsv);
+    val = std::get<2>(hsv);
 
 	btnString = "";
     width = 32;
@@ -54,6 +59,8 @@ void ColorSelector::buildTexes()
     //texSelectorEdges.setTexDimensions
 }
 
+void ColorSelector::setSelectorWindow(Window* sw) { selectorWindow = sw; }
+
 void ColorSelector::onWindowUpdate()
 {
 	Button::onWindowUpdate();
@@ -88,10 +95,23 @@ void ColorSelector::draw()
 
     texBtn.draw();
 
-    if(lastHue!=hue || lastSat!=sat || lastVal!=val) {
+    //Hue update
+    if(lastHue!=hue && SDL_GetTicks64()>lastHueUpdate+100) {
+        color.setFromHSV(hue, sat, val);
+
+        if(selectorWindow!=nullptr) {
+            selectorWindow->updateColorSelectorUI(hue);
+        }
+
         lastHue = hue;
+        lastHueUpdate = SDL_GetTicks64();
+    }
+
+    //Sat or val update
+    if(lastSat!=sat || lastVal!=val) {
         lastSat = sat;
         lastVal = val;
+        color.setFromHSV(hue, sat, val);
 
         //Update crosshair texture:
         //Horizontal + vertical bars built from pixels whose color is inverted from background
@@ -122,22 +142,6 @@ void ColorSelector::drawExtras()
     texSelectorEdges.draw();
 }
 
-void ColorSelector::updateColorSelectorUI(Texture* windowTex)
-{
-    int wtw = 0; int wth = 0;
-    windowTex->queryTexInfo(wtw, wth);
-    int uiX = wtw/4-50; int uiW = 128;
-    int uiY = wth/2-50; int uiH = 128;
-
-    //Color gradient
-    for(int ix = 0; ix<uiW; ix++) {
-        for(int iy = 0; iy<uiH; iy++) {
-            Color c; c.setFromHSV(hue, ((double)ix)*100.0/128.0, ((double)iy)*100.0/128.0);
-            windowTex->pixel(uiX+ix, uiY+iy, c.getRGBA());
-        }
-    }
-}
-
 void ColorSelector::tick()
 {
     Button::tick();
@@ -164,6 +168,7 @@ void ColorSelector::updateColAreaXY(int colAreaX, int colAreaY)
     ColorSelector::colAreaY = colAreaY;
 }
 
+double ColorSelector::getHue() { return hue; }
 double ColorSelector::getSat() { return sat; }
 double ColorSelector::getVal() { return val; }
 bool ColorSelector::justClicked() { return clicked; }
@@ -180,6 +185,7 @@ void ColorSelector::setSatValFromXY(int selX, int selY)
 
     sat = std::floor(((selX)/2.0)*100.0/128.0);
     val = std::floor(((selY)/2.0)*100.0/128.0);
-    
-    color.setFromHSV(hue, sat, val);
 }
+void ColorSelector::setHue(double newHue) { hue = newHue; }
+void ColorSelector::setSat(double newSat) { sat = newSat; }
+void ColorSelector::setVal(double newVal) { val = newVal; }

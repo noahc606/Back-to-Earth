@@ -143,8 +143,8 @@ void GUIBuilder::buildMainCharacter(GUIHandler& gh, FileHandler& fh)
 		std::pair<std::string, std::string> elem = uis.at(i);
 		std::string name = elem.first;
 		std::string stng = elem.second;
-        int stngIndex = settings->find( settings->getKvMap(Settings::character), stng);
-		
+
+        //Get x and y pos from indexs
         int xPos = 462;
         int yPos = 130+i*32;
         if(i<=3) {
@@ -153,13 +153,20 @@ void GUIBuilder::buildMainCharacter(GUIHandler& gh, FileHandler& fh)
             yPos = yPos - 4*32;
         }
 
-        Color color; color.setFromDecimalStr(settings->get(Settings::character, stng));
-		gh.addGUI(new Tooltip(w, xPos, yPos+10, name+":", gh.ttp_CHARACTER_SETTINGS_tooltip), stngIndex);
+        //Get color from setting
+        Color color; color.setFromB10Str(settings->get(Settings::character, stng));
+
+        //Add GUIs
+		gh.addGUI(new Tooltip(w, xPos, yPos+10, name+":", gh.ttp_CHARACTER_SETTINGS_tooltip), i);
         gh.addGUI(new ColorSelector(w, xPos+96, yPos, color, gh.csr_CHARACTER_SETTINGS_set_val), i);
-		gh.addGUI(new TextBox(w, xPos+96+34, yPos, 144, TextBox::FREE_HEX_BASIC, gh.tbx_CHARACTER_SETTINGS_set_val ) );
-		gh.addGUI(new CheckBox(w, xPos+96+180, yPos, "", CheckBox::CBX_RESET, true, gh.cbx_CONTROLS_set_defaults), 123456);
+		TextBox* colorTBX = (TextBox*)gh.addGUI(new TextBox(w, xPos+96+34, yPos, 144, TextBox::FREE_HEX_BASIC, gh.tbx_CHARACTER_SETTINGS_set_val), i);
+        colorTBX->setString(color.toStringB16(false));
+        colorTBX->setColorInput(true);
+
+		gh.addGUI(new CheckBox(w, xPos+96+180, yPos, "", CheckBox::CBX_RESET, true, gh.cbx_CHARACTER_SETTINGS_set_defaults), i);
 	}
 	
+    //Add back button
 	gh.addGUI(new Button( w, ch, 730, width, "Back", gh.btn_back_to_OPTIONS ));
 }
 
@@ -252,12 +259,29 @@ void GUIBuilder::buildColorSelector(GUIHandler& gh, Window* parentWindow, int ex
     int width = 300;
     Window* win = new Window(ch, cv, wd, GUIHandler::win_COLORSELECTOR);
     Button* btn = new Button( win, ch, wd->getHeight()*64+32-70, width, "Back", gh.btn_COLORSELECTOR_back);
-    wd->setSpecialType( WindowData::COLOR_SELECTOR, gh.getGUI(BTEObject::GUI_colorselect, GUIHandler::csr_CHARACTER_SETTINGS_set_val, extraID) );
+    ColorSelector* csr = (ColorSelector*)gh.getGUI(BTEObject::GUI_colorselect, GUIHandler::csr_CHARACTER_SETTINGS_set_val, extraID);
+    TextBox* tbx = (TextBox*)gh.getGUI(BTEObject::GUI_textbox, GUIHandler::tbx_CHARACTER_SETTINGS_set_val, extraID);
 
+    wd->setSpecialType(WindowData::COLOR_SELECTOR, csr);
     gh.addGUI(win, extraID);
     gh.addGUI(btn, extraID);
+
     Slider* sdr = (Slider*)gh.addGUI(new Slider(win, 64, 96, 0, 360, "150", GUIHandler::sdr_COLORSELECTOR_set_hue), extraID);
     sdr->setNumSpaces(128);
+    
+    //Get textbox's color in HSV
+    Color c;
+    c.setFromB16Str(tbx->getString());
+    auto hsv = c.toHSV();
+
+    //Set slider value
+    std::stringstream ss;
+    ss << std::get<0>(hsv);
+    sdr->setSelectorVal(ss.str());
+
+    //Set colorselector's HSV
+    csr->setSat(std::get<1>(hsv));
+    csr->setVal(std::get<2>(hsv));
 
     gh.onWindowUpdate();
 }

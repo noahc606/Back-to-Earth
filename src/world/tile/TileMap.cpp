@@ -172,8 +172,6 @@ int TileMap::setTileByCsXYZ(Camera* cam, int64_t csX, int64_t csY, int64_t csZ, 
 */
 int TileMap::loadRegion(FileHandler* fileHandler, int64_t rX, int64_t rY, int64_t rZ)
 {
-	//std::cout << "x" << regionMap.size() << "x";
-
 	//Try to find the region (rX, rY, rZ).
 	t_regionMap::iterator itr = regionMap.find( std::make_tuple(rX, rY, rZ) );
 	//If no region was found, create the region and process it.

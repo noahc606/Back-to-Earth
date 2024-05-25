@@ -58,45 +58,51 @@ void World::init(SDLHandler* sh, GUIHandler* gh, FileHandler* fh, Controls* ctrl
 
 	/* INIT 2: Player */
 	//Player
-	localPlayer.init(sh, guiHandler, ctrls);
+	localPlayer.init(sh, guiHandler, ctrls, fileHandler->getSettings());
 	localPlayer.setPos(px, py, pz);
 	//Player menu
 	localPlayerMenu.init(sdlHandler, guiHandler, ctrls, &localPlayer);
 	
+	/* INIT 3: Canvases */
+	initCanvases();
 
-	/* INIT 3: Tile Map */
-	//TileMap's canvas.
-	csTileMap.init(sdlHandler, controls, localPlayer.getCamera());
-	csTileMap.setMaximumFPS(20);
-	csTileMap.setTexUsingDynamicLOD(true);
-	csTileMap.setTexAllocCount(5);
-	csTileMap.setTexAllocRadiusX(1);
-	csTileMap.setTexAllocRadiusY(1);
-	//TileMap, tileMapScreen
+	/* INIT 4: TileMap and TileMapScreen */
 	tileMap.init(sdlHandler, fileHandler, &planet, worldDirName);
 	tileMapScreen.init(sdlHandler, fileHandler, &tileMap, &csTileMap);
-
-
-	/* INIT 4: Misc. canvases */
-	//Entities canvas.
-	csEntities.init(sdlHandler, controls, localPlayer.getCamera());
-	csEntities.setTexAllocRadiusX(1);
-	csEntities.setTexAllocRadiusY(1);
-	//Interactions canvas
-	csInteractions.init(sdlHandler, controls, localPlayer.getCamera());
-	csInteractions.setMaximumFPS(20);
-	csInteractions.setTexAllocRadiusX(1);
-	csInteractions.setTexAllocRadiusY(1);
-	//Debug canvas
-	csDebug.init(sdlHandler, controls, localPlayer.getCamera());
-	csDebug.setMaximumFPS(1);
-	csDebug.setTexAllocRadiusX(1);
-	csDebug.setTexAllocRadiusY(1);
 
 	/* INIT 5: Miscellaneous */
 	//Build textures
 	TextureBuilder tb(sdlHandler);
 	tb.buildDefaultTile(defaultTile);
+}
+
+void World::initCanvases()
+{
+	//TileMap
+	csTileMap.init(sdlHandler, controls, localPlayer.getCamera());
+	csTileMap.setMaximumFPS(20);
+	csTileMap.setTexUsingDynamicLOD(true);
+	csTileMap.setTexAllocCount(5);
+
+	//Sky
+	csSky.init(sdlHandler, controls, localPlayer.getCamera());
+	csSky.setMaximumFPS(4);
+	csSky.setTexAllocCount(5);
+	csSky.setMoveWithCamera(false);
+	skyTex.init(sdlHandler, 1024, 1024);
+	skyTex.lock();
+	skyTex.blit(TextureLoader::WORLD_background_space_interstellar);
+
+	//Entities
+	csEntities.init(sdlHandler, controls, localPlayer.getCamera());
+
+	//Interactions canvas
+	csInteractions.init(sdlHandler, controls, localPlayer.getCamera());
+	csInteractions.setMaximumFPS(20);
+
+	//Debug stuff
+	csDebug.init(sdlHandler, controls, localPlayer.getCamera());
+	csDebug.setMaximumFPS(1);
 }
 
 World::~World()
@@ -110,6 +116,7 @@ World::~World()
 	fileHandler->saveSettings(wdKVs, worldDataPath);
 
 	// Destroy canvases
+	csSky.destroy();
 	csTileMap.destroy();
 	csInteractions.destroy();
 	csEntities.destroy();
@@ -118,24 +125,46 @@ World::~World()
 
 void World::draw(bool debugOn)
 {
-	/** Tile Canvas (csTileMap) */
+	/*
+		Draw order of canvases:
+		- 1) Sky (background behind tiles)
+		- 2) Tiles (TileMapScreen)
+		- 3) Entities (player, other entities, etc.)
+		- 4) Interactions (tile selection overlay)
+		- 5) Debugging (region texture state overlay)
+
+		THEN we draw:
+		- 1) HUDs (player health/defense/etc.)
+	*/
+
+	/* Drawing canvases */
+	// 1 - Sky
+	//csSky.setSourceTex(TextureLoader::WORLD_background_space_interstellar, 0, 0);
+	//csSky.rcopy(-32, -32, 64, 64);
+	//csSky.draw();
+
+	double skyScale = 2;
+	skyTex.setDrawScale(skyScale);
+	skyTex.setDrawPos(sdlHandler->getWidth()/2-512*skyScale, sdlHandler->getHeight()/2-512*skyScale);
+	skyTex.draw();
+
+	// 2 - Tiles
 	tileMapScreen.draw();
 
-	/** Entity Canvas */
+	// 3 - Entities
 	csEntities.clearCanvas();
 	localPlayer.draw(&csEntities);
 	csEntities.draw();
 
-	/** Interactions Canvas */
+	// 4 - Interactions
 	csInteractions.clearCanvas();
-	//Draw tile selector
-	csInteractions.setSourceTex(TextureLoader::GUI_player_interactions, 0, 0);
-	int64_t csx = localPlayer.getCamera()->getCsXFromPos(32*mouseXL, 32*mouseYL, 32*mouseZL);
-	int64_t csy = localPlayer.getCamera()->getCsYFromPos(32*mouseXL, 32*mouseYL, 32*mouseZL);
-	csInteractions.rcopyNI(csx, csy, 32, 32);
+	csInteractions.setSourceTex(TextureLoader::GUI_player_interactions, 0, 0);					// Set tex src to GUI_player_interactions
+	int64_t csx = localPlayer.getCamera()->getCsXFromPos(32*mouseXL, 32*mouseYL, 32*mouseZL);	// Get location where tile selector should be
+	int64_t csy = localPlayer.getCamera()->getCsYFromPos(32*mouseXL, 32*mouseYL, 32*mouseZL);	// ...
+	csInteractions.rcopyNI(csx, csy, 32, 32);													// Draw tile selector
 	csInteractions.draw();
 
-	/** Debug canvas */
+	// 5 - Debug Overlays
 	if(debugOn) {
 		csDebug.clearCanvas();
 		if(!csDebug.isFrameFinished())
@@ -143,7 +172,8 @@ void World::draw(bool debugOn)
 		csDebug.draw();
 	}
 
-	/** HUDs */
+	/* Drawing misc. */
+	// 1 - HUDs
 	localPlayer.drawHUD();
 }
 
@@ -157,11 +187,20 @@ void World::tick(bool paused, GUIHandler& guiHandler)
 		/** World objects */
 		planet.tick();
 		
-		int pt = playTime; //planet.getRotationRaw();
+		int pt = playTime;
 		if( pt==200 || pt==60*60*10 || pt==60*60*20 ) {
 			AudioLoader* al = sdlHandler->getAudioLoader();
 			srand(time(NULL));
-			al->playOnce(AudioLoader::MUSIC_kc_50_million_year_trip+(rand()%7));
+
+			std::vector<int> gameplayTracks = {
+				AudioLoader::MUSIC_kc_50_million_year_trip,
+				AudioLoader::MUSIC_kc_alien_ruins,
+				AudioLoader::MUSIC_kc_digital_sunset,
+				AudioLoader::MUSIC_kc_nuclear_winter,
+				AudioLoader::MUSIC_kc_space_dust,
+				AudioLoader::MUSIC_kc_the_witching_hour,
+			};
+			al->playOnce(gameplayTracks[(rand()%6)]);
 		}
 		
 		localPlayer.tick();
@@ -173,11 +212,12 @@ void World::tick(bool paused, GUIHandler& guiHandler)
 		lpMenuState = 0;
 	}
 
-	/** Canvases */
-	csTileMap.tick();
-	csEntities.tick();
-	csInteractions.tick();
-	csDebug.tick();
+	/** Tick canvases */
+	csSky.tick();			// 1 - Sky
+	csTileMap.tick();		// 2 - Tiles
+	csEntities.tick();		// 3 - Entities
+	csInteractions.tick();	// 4 - Interactions
+	csDebug.tick();			// 5 - Debug
 
 	/** Interactions with world */
 	updateMouseAndCamInfo();

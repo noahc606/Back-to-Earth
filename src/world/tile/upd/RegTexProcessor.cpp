@@ -122,11 +122,7 @@ void RegTexProcessor::processRegionLayer(TileIterator& ti, int64_t csRX, int64_t
 }
 
 void RegTexProcessor::processTileArea(TileIterator& ti, Texture* tex, int blitScale)
-{
-	if( cam->getDirection()==Camera::WEST ) {
-		std::cout << ti.gtp(0) << ", " << ti.gtp(1) << ", " << ti.gtp(2) << "\n";
-	}
-	
+{	
 	//If tex is nullptr for some reason, stop method
 	if( tex==nullptr ) return;
 
@@ -207,6 +203,6 @@ void RegTexProcessor::colorFillRegionArea(Canvas* csTileMap, int64_t sRX, int64_
 void RegTexProcessor::colorFillRegionArea(Canvas* csTileMap, int64_t sRX, int64_t sRY, uint8_t r, uint8_t g, uint8_t b) { colorFillRegionArea(csTileMap, sRX, sRY, r, g, b, 255); }
 
 /*
- *  Blacks out regions. Used ingame for regions that aren't loaded or can't be seen anymore.
+ *  Clears a texture region. Used ingame for regions that aren't loaded or can't be seen anymore.
  */
-void RegTexProcessor::blackOutRegionArea(Canvas* csTileMap, int64_t sRX, int64_t sRY) { colorFillRegionArea(csTileMap, sRX, sRY, 0, 0, 0); }
+void RegTexProcessor::clearRegionArea(Canvas* csTileMap, int64_t sRX, int64_t sRY) { colorFillRegionArea(csTileMap, sRX, sRY, 0, 0, 0, 0); }

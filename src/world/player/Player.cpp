@@ -10,15 +10,17 @@
 #include "TileMap.h"
 
 Player::Player() { }
-void Player::init(SDLHandler* sh, GUIHandler* guih, Controls* ctrls)
+void Player::init(SDLHandler* sh, GUIHandler* guih, Controls* ctrls, Settings* stngs)
 {
 	sdlHandler = sh;
 	guiHandler = guih;
 	controls = ctrls;
+	settings = stngs;
 	camera.init(sdlHandler, ctrls);
 
 	/** Build player spritesheet */
-	playerPal.init(playerPal.DEFAULT_PLAYER);
+	//playerPal.init(playerPal.DEFAULT_PLAYER);
+	playerPal.initPlayerPalette(settings);
 
 	/** Build sprite sheet */
 	SpriteSheetBuilder ssb(sdlHandler);

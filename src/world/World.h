@@ -19,6 +19,7 @@ public:
 	World(std::string dirName);
 	virtual ~World();
 	void init(SDLHandler* sh, GUIHandler* gh, FileHandler* fh, Controls* ctrls);
+	void initCanvases();
 	/**/
 	void draw(bool debugOn);
 	void tick(bool paused, GUIHandler& guiHandler);
@@ -54,10 +55,12 @@ private:
 	Canvas csInteractions;
 	Canvas csEntities;
 	Canvas csDebug;
+	Canvas csSky;
 	
 	double performanceCounter = 0;
 	
 	Planet planet;
+	Texture skyTex;
 	
 	std::string worldDirName;
 	std::string worldDirPath;

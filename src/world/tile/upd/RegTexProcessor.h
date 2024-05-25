@@ -14,7 +14,7 @@ public:
 
     static void colorFillRegionArea(Canvas* csTileMap, int64_t sRX, int64_t sRY, uint8_t r, uint8_t g, uint8_t b, uint8_t a);
     static void colorFillRegionArea(Canvas* csTileMap, int64_t sRX, int64_t sRY, uint8_t r, uint8_t g, uint8_t b);
-    static void blackOutRegionArea(Canvas* csTileMap, int64_t sRX, int64_t sRY);
+    static void clearRegionArea(Canvas* csTileMap, int64_t sRX, int64_t sRY);
 private:
     SDLHandler* sdlHandler = nullptr;
     Canvas* csTileMap = nullptr;

@@ -38,10 +38,10 @@ void Tooltip::draw()
     if(special) {
         double sf = specialFlicker;
         double ed = 40*((double)(rand()%10)/10.0); // ED = Extra Darkness
-
-        int r = 50*sf-ed;   if(r<0) r = 0;
-        int g = 50*sf-ed;   if(g<0) g = 0;
-        int b = 155*sf-ed;  if(b<0) b = 0;
+        
+        int r = 100*sf-ed;  if(r<0) r = 0; if(r>255) r = 255;
+        int g = 100*sf-ed;  if(g<0) g = 0; if(g>255) g = 255;
+        int b = 225*sf-ed;  if(b<0) b = 0; if(b>255) b = 255;
         
         TextOld::draw(sdlHandler, text, sX, sY, 4, Color(r, g, b), Color(0, 0, 0, 255), TextureLoader::GUI_FONT_robot);
     } else {

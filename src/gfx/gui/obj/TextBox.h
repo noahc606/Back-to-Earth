@@ -34,6 +34,7 @@ public:
     void setControlBinding(ControlBinding& cb);
     void setInsertionPoint(int ip);
     void deselect();
+    void setColorInput(bool ci);
     /**/
 
     enum Actions {
@@ -55,6 +56,7 @@ protected:
 
 private:
     int inputType = NONE;
+    bool colorInput = false;
     int actionID = 0;
     bool entered = false;
 	bool invalidInput = false;

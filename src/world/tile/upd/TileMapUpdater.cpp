@@ -145,7 +145,7 @@ void TileMapUpdater::updateMapVisible(bool blackout, int loadDist)
 
 					if(blackout) {
 						Texture* tex = csTileMap->getTex(iRX, iRY);
-						RegTexProcessor::blackOutRegionArea(csTileMap, iRX, iRY);
+						RegTexProcessor::clearRegionArea(csTileMap, iRX, iRY);
 					}
 				}
 			}
@@ -213,7 +213,7 @@ void TileMapUpdater::updateMapToFINISHED_GENERATING(FileHandler* fileHandler, in
 	}
 
 	//Regulate loadCountMax depending on performance
-	loadCountMax = std::ceil(4.0/infoRegLoadTimeAvg);	//'4.0' => a max of 4.0ms on average that we should allow for loading of regions
+	loadCountMax = std::ceil(allowedLoadTimeMS/infoRegLoadTimeAvg);	//allowedLoadTimeMS => a max of that # of ms on average that we should allow for loading of regions
 	if(loadCountMax<1) loadCountMax = 1;
 	if(loadCountMax>20) loadCountMax = 20;
 }

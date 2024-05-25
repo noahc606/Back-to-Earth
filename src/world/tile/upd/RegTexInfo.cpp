@@ -33,7 +33,7 @@ std::pair<int64_t, TileType> RegTexInfo::camTrackedTile(TileIterator& ti, int ca
 	int axis = Camera::getAxisFromDirection(camDirection);
 	
 	//Find top-most tile at current x, y
-	int depth = 0;
+	int depth = -1;
 	TileType topTileFromCam;
 	for(int i = 0; i<32; i++) {
 		

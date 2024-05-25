@@ -82,7 +82,9 @@ void Window::init(SDLHandler* sh, Controls* ctrls)
             windowTex.setDrawScale(2);
 
             ColorSelector* cs = (ColorSelector*)winData->getRelatedUI();
-            cs->updateColorSelectorUI(&windowTex);
+            if(cs!=nullptr) {
+                updateColorSelectorUI(cs->getHue());
+            }
         } break;
         
         default: {
@@ -114,6 +116,11 @@ void Window::destroy()
 
     if(winData->getSpecialType()==WindowData::BACKGROUND) {
         windowTex.destroy();
+    }
+
+    if(winData->getSpecialType()==WindowData::COLOR_SELECTOR) {
+        ColorSelector* cs = (ColorSelector*)winData->getRelatedUI();
+        cs->setSelectorWindow(nullptr);
     }
 }
 
@@ -178,6 +185,7 @@ void Window::tick()
 
         ColorSelector* cs = (ColorSelector*)winData->getRelatedUI();
         cs->updateColAreaXY(sX+wtw/2-100, sY+wth-100);
+        cs->setSelectorWindow(this);
     } break;
 
     }
@@ -203,3 +211,23 @@ WindowData* Window::getWindowData() { return winData; }
 bool Window::isActive() { return active; }
 
 void Window::setActive(bool isActive) { Window::active = isActive; }
+
+void Window::updateColorSelectorUI(double hue)
+{
+    if(winData->getSpecialType()!=WindowData::COLOR_SELECTOR) {
+        return;
+    }
+
+    int wtw = 0; int wth = 0;
+    windowTex.queryTexInfo(wtw, wth);
+    int uiX = wtw/4-50; int uiW = 128;
+    int uiY = wth/2-50; int uiH = 128;
+
+    //Color gradient
+    for(int ix = 0; ix<uiW; ix++) {
+        for(int iy = 0; iy<uiH; iy++) {
+            Color c; c.setFromHSV(hue, ((double)ix)*100.0/128.0, ((double)iy)*100.0/128.0);
+            windowTex.pixel(uiX+ix, uiY+iy, c.getRGBA());
+        }
+    }
+}

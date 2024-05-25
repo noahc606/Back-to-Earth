@@ -72,13 +72,13 @@ Settings::Settings()
 		ColorPalette pal;
 		pal.init( ColorPalette::DEFAULT_PLAYER );
 		s = &(defaultSettings[character]);
-		kv(s, "hair", pal.get("hair").toString() );
-		kv(s, "skin", pal.get("skin").toString() );
-		kv(s, "eyes", pal.get("eyes").toString() );
-		kv(s, "mouth", pal.get("mouth").toString() );
-		kv(s, "shirt", pal.get("shirt").toString() );
-		kv(s, "leggings", pal.get("leggings").toString() );
-		kv(s, "shoes", pal.get("shoes").toString() );
+		kv(s, "hair", pal.get("hair").toStringB10() );
+		kv(s, "skin", pal.get("skin").toStringB10() );
+		kv(s, "eyes", pal.get("eyes").toStringB10() );
+		kv(s, "mouth", pal.get("mouth").toStringB10() );
+		kv(s, "shirt", pal.get("shirt").toStringB10() );
+		kv(s, "leggings", pal.get("leggings").toStringB10() );
+		kv(s, "shoes", pal.get("shoes").toStringB10() );
 	}
 	
 	/** Miscellaneous settings */

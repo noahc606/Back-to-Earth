@@ -75,6 +75,29 @@ void ColorPalette::init(int id)
 	}
 }
 
+void ColorPalette::initPlayerPalette(Settings* s)
+{
+	if(s==nullptr) {
+		return;	
+	}
+
+	int ci = s->character;
+	auto kvm = s->getKvMap(ci);
+	for(int i = 0; i<7; i++) {
+		std::string key = s->getKey(kvm, i);
+		std::string val = s->get(kvm, key);
+		
+		Color col(val);
+		
+		//If color failed to load
+		if(col.getRGBA()==0) {
+			col.a = 150;
+		}
+		
+		palette.insert( std::make_pair(key, col) );
+	}
+}
+
 Color ColorPalette::randColor()
 {
     return Color(rand(), rand(), rand(), 255);

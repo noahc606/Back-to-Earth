@@ -13,6 +13,7 @@ public:
     void init(SDLHandler* sh);
     virtual ~TextOld();
     /**/
+    void draw(const Color& fg);
     void draw();
     static void draw(SDLHandler* sdlHandler, Texture* tex, std::string s, int x, int y, int scale, const Color& fg, const Color& bg, int fontType);
     static void draw(SDLHandler* sdlHandler, std::string s, int x, int y, int scale, const Color& fg, const Color& bg, int fontType);

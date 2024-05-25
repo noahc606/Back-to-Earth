@@ -12,8 +12,9 @@ void Canvas::init(SDLHandler* sh, Controls* ctrls, Camera* cam)
     setMaximumFPS(200);
     setCroppingRendering(false);
 
+	setTexAllocRadiusX(1);
+	setTexAllocRadiusY(1);
     realloc(0, 0);
-
 }
 
 void Canvas::destroy()
@@ -27,33 +28,20 @@ void Canvas::destroy()
 
 void Canvas::tick()
 {
-	int64_t crx = 0;
-	int64_t cry = 0;
-	
-	switch(camera->getAxis()) {
-		case Camera::X: {
-			crx = TileMap::getRegRXYZ( camera->getY() );
-			cry = TileMap::getRegRXYZ( camera->getZ() );
-		} break;
-		case Camera::Y: {
-			crx = TileMap::getRegRXYZ( camera->getX() );
-			cry = TileMap::getRegRXYZ( camera->getZ() );
-		} break;
-		case Camera::Z: {
-			crx = TileMap::getRegRXYZ( camera->getX() );
-			cry = TileMap::getRegRXYZ( camera->getY() );
-		} break;
-	}
+    if(camera==nullptr) {
+        Log::warnv(__PRETTY_FUNCTION__, "skipping tick", "camera is nullptr!");
+        return;
+    }
+
+    // Get csRX and csRY from the camera
+	int64_t csRX = 0;
+    int64_t csRY = 0;
+    csRX = TileMap::getRegRXYZ(camera->getCsX());
+    csRY = TileMap::getRegRXYZ(camera->getCsY());
 
     //Loads textures (which will initially be empty) one at a time per tick.
     //Unloads all textures that are too far away.
-	realloc( crx, cry );
-    //}
-
-
-    if(camera==nullptr) {
-        Log::warn(__PRETTY_FUNCTION__, "Camera is nullptr.");
-    }
+	realloc(csRX, csRY);
 
     //If zoom!=camera zoom, update zoom & LOD (level of detail) settings if applicable
     if( zoom!=camera->getZoom() ) {
@@ -90,7 +78,7 @@ void Canvas::tick()
         //  otherwise there might be tiny visible lines in between regions, breaking continuity.
         //  cf = correctionFactor. Always == a tiny more than 1.0.
         double cf = (zoom*((double)currentTexSize))/(zoom*((double)currentTexSize)-1);
-        /* For fun: cf = (zoom*((double)currentTexSize))/(zoom*((double)currentTexSize)-1)*1.4; */
+        // For fun: cf = (zoom*((double)currentTexSize))/(zoom*((double)currentTexSize)-1)*1.4;
 
         tex->setDrawScale( zoom );
         tex->dilate(cf);
@@ -98,25 +86,12 @@ void Canvas::tick()
             tex->dilate( 1.0/texLOD );
         }
 
-        /** Texture translations */
-        //Reset location of tex
-        tex->setDrawPos(0, 0);
-        //Translate tex according to the world region's physical location
-        tex->translate( tX*((double)defaultTexSize)*zoom, tY*((double)defaultTexSize)*zoom );
-        //Translate tex according to location of the camera
-		switch(camera->getAxis()) {
-			case Camera::X: {
-				tex->translate( -camera->getY()*tileScale, -camera->getZ()*tileScale );
-			} break;
-			case Camera::Y: {
-				tex->translate( -camera->getX()*tileScale, -camera->getZ()*tileScale );
-			} break;
-			case Camera::Z: {
-				tex->translate( -camera->getX()*tileScale, -(camera->getY())*tileScale );
-			} break;
-		}
-        //Translate tex so that the center of the screen corresponds to (0, 0) if camera(x, y) = (0, 0).
-        tex->translate( sdlHandler->getWidth()/2, sdlHandler->getHeight()/2 );
+        /** Texture translations... */
+        tex->setDrawPos(0, 0);                                                                  //Reset location of tex
+        tex->translate( tX*((double)defaultTexSize)*zoom, tY*((double)defaultTexSize)*zoom );   //Translate according to the world region's physical location
+        if(moveWithCamera)
+            tex->translate( -camera->getCsX()*tileScale, -camera->getCsY()*tileScale );         //Translate according to location of the camera
+        tex->translate( sdlHandler->getWidth()/2, sdlHandler->getHeight()/2 );                  //Translate so that the center of the screen corresponds to (0, 0) if camera(x, y) = (0, 0).
 
         /** Other info */
         //Find tile scale
@@ -124,26 +99,10 @@ void Canvas::tick()
         double ts = 32*mapZoom;
 
         //Find where the mouse is pointing to in the world
-		
 		mouseX = ((controls->getMouseX()-sdlHandler->getWidth()/2.0 )/(double)ts)/cf;
 		mouseY = ((controls->getMouseY()-sdlHandler->getHeight()/2.0 )/(double)ts)/cf;
-		
-		switch(camera->getAxis()) {
-			case Camera::X: {
-				mouseX += camera->getY();
-				mouseY += camera->getZ();
-			} break;
-			case Camera::Y: {
-				mouseX += camera->getX();
-				mouseY += camera->getZ();
-			} break;
-			case Camera::Z: {
-				mouseX += camera->getX();
-				mouseY += camera->getY();
-			} break;
-		}
-		
-
+        mouseX += camera->getCsX();
+        mouseY += camera->getCsY();
     }
 }
 
@@ -191,6 +150,7 @@ void Canvas::setTexUsingDynamicLOD(bool dLod) { texUsingDynamicLOD = dLod; }
 void Canvas::setTexAllocRadiusX(int arx) { texAllocRadiusX = arx; }
 void Canvas::setTexAllocRadiusY(int ary) { texAllocRadiusY = ary; }
 void Canvas::setTexAllocCount(int ac) { texAllocCount = ac; }
+void Canvas::setMoveWithCamera(bool mwc) { moveWithCamera = mwc; }
 
 void Canvas::putInfo(std::stringstream& ss, int& tabs)
 {

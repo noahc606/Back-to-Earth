@@ -24,16 +24,30 @@ RegTexBuilder::RegTexBuilder(Texture* tex, TileIterator& ti, int camDirection, i
 	}
 	
 	RegTexBuilder::ttdfc = ttdfc;
+	bool lookingDown = camDirection==Camera::Directions::DOWN;
 	
-	//if(ttdfc==0) {
+	//If there is a tile seen by the camera:
+	if(ttdfc!=-1) {
+		//Draw tile
 		drawTypeA( ti, ttfc );
-	//}
+	//If no tile is seen by the camera and camera is not looking down:
+	} else if(!lookingDown) {
+		//Draw transparency to make sky visible
+		tex->rect(dstX, dstY, blitScale, blitScale, 255, 0, 0, 0, SDL_BLENDMODE_NONE);
+	}
+
+	//If the camera is looking downward into a deep hole, don't draw the sky
+	if(ttdfc==-1 && lookingDown) {
+		TileType tt;
+		tt.init();
+		tt.setTextureXY(0, 0);
+		tt.setRGB(0, 0, 0);
+		drawTypeA( ti, tt );
+	}
+
+	//Detail tiles
 	if(ttdfc==0) {
 		detailDepth0Tiles(ti, camDirection);
-	}
-	
-	if(ttdfc>0) {
-		//detailDepthPTiles(ti);
 	}
 }
 

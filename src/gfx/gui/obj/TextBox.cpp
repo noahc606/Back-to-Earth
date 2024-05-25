@@ -44,6 +44,14 @@ void TextBox::draw()
 {
     Button::draw();
 
+	if(colorInput && inputType==FREE_HEX_BASIC && btnText.getString().size()==7 ) {
+		Color c(255, 0, 0);
+		c.setFromB16Str(btnText.getString()+"FF");
+		btnText.draw(c);
+	} else {
+		btnText.draw();
+	}
+	
 	if(invalidInput) {
 		texInvalidInput.draw();
 		btnText.draw();
@@ -284,7 +292,13 @@ bool TextBox::validateString()
 
 	//Set btnText's string and insertion point from newStream
 	btnText.setString(newString);
-	btnText.setInsertionPoint(newString.size());
+
+	//Make sure insertion point does not exceed new string length
+	if(res==false) {
+		if(btnText.getInsertionPoint()>newString.size())
+			btnText.setInsertionPoint(newString.size());
+	}
+
 	return res;
 }
 void TextBox::setControlBinding(ControlBinding& cb) { setCB = cb; }
@@ -300,3 +314,5 @@ void TextBox::deselect() {
     btnText.selected = false;
     selected = false;
 }
+
+void TextBox::setColorInput(bool ci) { colorInput = true; }

@@ -87,6 +87,7 @@ public:
 			ttp_CHARACTER_SETTINGS_tooltip,
 			csr_CHARACTER_SETTINGS_set_val,
 			tbx_CHARACTER_SETTINGS_set_val,
+			cbx_CHARACTER_SETTINGS_set_defaults,
 
             // Main Options -> Debug Settings
             win_DEBUG_SETTINGS,

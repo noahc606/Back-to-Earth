@@ -81,10 +81,6 @@ void Planet::tick()
 	} else {
 		skyColor = sky[0];
 	}
-	
-	
-	
-	//skyColor.interpolateBetween()
 }
 
 int Planet::getRotationRaw() { return rotation; }

@@ -26,7 +26,7 @@ TextOld::~TextOld(){}
 
 /**/
 
-void TextOld::draw()
+void TextOld::draw(const Color& fg)
 {
     if( insertionPoint>-1 && selected ) {
 
@@ -36,7 +36,13 @@ void TextOld::draw()
         }
     }
 
-    draw(sdlHandler, text, sX, sY, scale);
+    draw(sdlHandler, text, sX, sY, scale, fg, background, fontType);
+}
+
+void TextOld::draw()
+{
+    Color c(255, 255, 255);
+    draw(c);
 }
 
 /**

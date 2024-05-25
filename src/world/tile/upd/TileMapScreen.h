@@ -60,7 +60,7 @@ private:
 
     /* Map update distance + counts */
     int umiTicks = 0;
-    int umiTicksMax = 10;	//TODO: Base this on performance level of drawing
+    int umiTicksMax = 10;
     int loadDist = 6;
         
     std::string currentDimPath = "default";

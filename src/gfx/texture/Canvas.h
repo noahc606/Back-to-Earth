@@ -59,6 +59,7 @@ public:
     void setTexAllocRadiusX(int arx);
     void setTexAllocRadiusY(int ary);
     void setTexAllocCount(int ac);
+    void setMoveWithCamera(bool mwc);
 protected:
 
 private:
@@ -80,7 +81,7 @@ private:
     SDL_Texture* sourceTex;
     int sourceX = 32; int sourceY = 32; int sourceW = -1; int sourceH = -1;
 
-    //Map of texes
+    //Map of texes and how many to draw.
     t_texMap texes;
     int defaultTexSize = 1024; int currentTexSize = 1024;
     float texLOD = 1.0;
@@ -89,7 +90,9 @@ private:
     int texAllocRadiusY = 3;
     int texAllocCount = 1;
 
-
+    //Extra features
+    bool moveWithCamera = true; // Move with camera is disabled for certain Canvases (Sky)
+    
     //Camera object
     Camera* camera = nullptr; double zoom = 0;
     long camRX = 0; long camRY = 0;

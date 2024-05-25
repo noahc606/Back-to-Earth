@@ -26,7 +26,8 @@ public:
     static uint32_t getA(uint32_t rgba);
     uint32_t getA();
 	std::tuple<double, double, double> toHSV();
-	std::string toString();
+	std::string toStringB10();
+	std::string toStringB16(bool transparency);
 	/**/
 	
 	/* Color setting & combining */
@@ -42,7 +43,8 @@ public:
     void mod(Color& c);
 	void set(uint32_t p_rgba);
     void set(uint8_t p_r, uint8_t p_g, uint8_t p_b, uint8_t p_a);
-    void setFromDecimalStr(std::string decimal);
+    void setFromB10Str(std::string decimal);
+    void setFromB16Str(std::string hexadecimal);
     void setFromHSV(double h, double s, double v);
     Color& operator=( const Color& other );
 	

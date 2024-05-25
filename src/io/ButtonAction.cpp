@@ -163,53 +163,50 @@ void ButtonAction::saveSettingsBasedOnUIs(GUIHandler* gh, Settings* stgs, FileHa
     std::vector<std::string> objKeys;
     populateSettingUIInfo(gh, currentWindowID, settingFileID, objIDs, objKeys);
 
-    //Iterate through all specified objs that have the specified objKeys
-    for(unsigned int i = 0; i<objKeys.size(); i++) {
-        //Get possible UIs corresponding to these IDs
-        GUI* possibleTBX = gh->getGUI(BTEObject::GUI_textbox, objIDs[i].first, objIDs[i].second);
-        GUI* possibleCBX = gh->getGUI(BTEObject::GUI_checkbox, objIDs[i].first, objIDs[i].second);
-        
-        //If we found a checkbox
-        if( possibleCBX!=nullptr ) {
-            int cbxState = ((CheckBox*)possibleCBX)->getState();
-            std::string value = "null";
-            if( cbxState==CheckBox::States::CBX_FALSE ) { value = "false"; }
-            if( cbxState==CheckBox::States::CBX_TRUE ) { value = "true"; }
+    if(!false) {
+        //Iterate through all specified objs that have the specified objKeys
 
-            stgs->kv(settingFileID, objKeys[i], value);
-        }
-        
-        //If we found a textbox
-        if( possibleTBX!=nullptr ) {
-            TextBox* tbx = (TextBox*)possibleTBX;
-            std::string value = "null";
-            //If inputType is hex digits
-            if(tbx->getInputType()==tbx->FREE_HEX_BASIC) {
-                try {
-                    int number = (int)strtol(tbx->getString().c_str(), NULL, 16);
-                    std::stringstream ss; ss << number; value = ss.str();
-                } catch(...) {
-                    Log::warnv(__PRETTY_FUNCTION__, "using \"null\"", "Failed to convert hex string \"%s\" to a base 10 integer string.", tbx->getString().c_str());
-                }
-                
-            //If inputType is anything else
-            } else {
-                value = tbx->getString();
+        for(unsigned int i = 0; i<objKeys.size(); i++) {
+            //Get possible UIs corresponding to these IDs
+            GUI* possibleTBX = gh->getGUI(BTEObject::GUI_textbox, objIDs[i].first, objIDs[i].second);
+            GUI* possibleCBX = gh->getGUI(BTEObject::GUI_checkbox, objIDs[i].first, objIDs[i].second);
+            
+            //If we found a checkbox
+            if( possibleCBX!=nullptr ) {
+                int cbxState = ((CheckBox*)possibleCBX)->getState();
+                std::string value = "null";
+                if( cbxState==CheckBox::States::CBX_FALSE ) { value = "false"; }
+                if( cbxState==CheckBox::States::CBX_TRUE ) { value = "true"; }
+
+                stgs->kv(settingFileID, objKeys[i], value);
             }
+            
+            //If we found a textbox
+            if( possibleTBX!=nullptr ) {
+                TextBox* tbx = (TextBox*)possibleTBX;
+                std::string value = "null";
+                //If inputType is hex digits
+                if(tbx->getInputType()==tbx->FREE_HEX_BASIC) {
+                    Color thisCol;
+                    thisCol.setFromB16Str(tbx->getString()+"FF");
 
-            stgs->kv(settingFileID, objKeys[i], value);
+                    value = thisCol.toStringB10();
+                }
+
+                stgs->kv(settingFileID, objKeys[i], value);
+            }
+        }
+
+        
+        fh->saveSettings(settingFileID);
+        ctrls->reloadBindings(fh->getSettings());
+        
+        //Special settings which should be set manually
+        if(currentWindowID==gh->ID::win_GRAPHICS_SETTINGS) {
+            std::string maxFps = stgs->get(settingFileID, "maxFps");
+            MainLoop::setMaxFPS(maxFps);
         }
     }
-
-    fh->saveSettings(settingFileID);
-    ctrls->reloadBindings(fh->getSettings());
-    
-    //Special settings which should be set manually
-    if(currentWindowID==gh->ID::win_GRAPHICS_SETTINGS) {
-        std::string maxFps = stgs->get(settingFileID, "maxFps");
-        MainLoop::setMaxFPS(maxFps);
-    }
-
 
     gh->setGUIs(GUIHandler::GUIs::OPTIONS);
 }

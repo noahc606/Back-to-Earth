@@ -35,8 +35,6 @@ private:
 	Canvas* csTileMap = nullptr;
     RegTexProcessor regTexProcessor;
 
-    int regionScale = 32*32;
-
     /* Performance gauging */
     int rtUpdatesToDo = 1024;
     double rtUpdatesTime = -1.0;

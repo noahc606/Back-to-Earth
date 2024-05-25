@@ -24,37 +24,92 @@
 #include "Window.h"
 
 Tests::Tests(){}
+
+float dist(float x0, float y0, float z0, float x1, float y1, float z1)
+{
+    return std::sqrt( (x1-x0)*(x1-x0) + (y1-y0)*(y1-y0) + (z1-z0)*(z1-z0) );
+}
+
 void Tests::init(SDLHandler* sh, FileHandler* fh, Controls* ctrls)
 {
 	sdlHandler = sh;
 	fileHandler = fh;
 	controls = ctrls;
 
-
-
-    ch.init(sdlHandler);
-
-    {
-        Timer t("calculating disk space used", true);
-        //Log::log("used space: %d bytes", 12341234);
+    float noiseCol[34][34][34];
+    for(int x = 0; x<34; x++)
+    for(int y = 0; y<34; y++)
+    for(int z = 0; z<34; z++) {
+        noiseCol[x][y][z] = 0;
     }
+
+    Noise noiseGen(1000);
+
+
+    double avg = 0.0;
+    int numTests = 100;
+    int a = 3;
+    for(int c = 0; c<numTests; c++) {
+        {
+            Timer t1("noisetest");
+
+            double avg2 = 0.0;
+            for(int x = 0; x<34; x+=a)
+            for(int y = 0; y<34; y+=a)
+            for(int z = 0; z<34; z+=a) {
+                noiseCol[x][y][z] = noiseGen.clampedSNoise3D(x/64.0, y/64.0, z/64.0);
+            }
+
+            float dc[8] = {0};
+            if(false)
+            for(int x = 0; x<34-a; x+=a)
+            for(int y = 0; y<34-a; y+=a)
+            for(int z = 0; z<34-a; z+=a) {
+                //i, j, k all in {0, 1, 2}
+                for(int i = 0; i<a; i++)
+                for(int j = 0; j<a; j++)
+                for(int k = 0; k<a; k++) {
+                    dc[0] = dist(x  , y  , z  , x+i, y+j, z+k); //Distance from corner 0
+                    dc[1] = dist(x  , y  , z+a, x+i, y+j, z+k); //...
+                    dc[2] = dist(x  , y+a, z  , x+i, y+j, z+k);
+                    dc[3] = dist(x  , y+a, z+a, x+i, y+j, z+k);
+                    dc[4] = dist(x+a, y  , z  , x+i, y+j, z+k);
+                    dc[5] = dist(x+a, y  , z+a, x+i, y+j, z+k);
+                    dc[6] = dist(x+a, y+a, z  , x+i, y+j, z+k); //...
+                    dc[7] = dist(x+a, y+a, z+a, x+i, y+j, z+k); //Distance from corner 7
+
+
+
+                    //Grid::taxiDist()
+                    //Grid::tax
+                    //noiseCol[x+a][y+a][z+a]
+
+                    
+
+                    noiseCol[x+i][y+j][z+k] = noiseCol[x][y][z];
+                }
+            }
+
+            avg += t1.getElapsedTimeMS();
+        }
+    }
+    std::cout << "AVG: " << (avg/numTests) << "\n";
+
 
     /*
-    GridIterator gi;
+    
+    
+    */
 
-    int** grid = (int**)malloc(32 * sizeof(*grid));
-    for (int i = 0; i<32; i++) {
-        grid[i] = (int*)malloc(32 * sizeof(*grid[i]));
-    }
-
-    for(int i = 0; i<32; i++) {
-        for(int j = 0; j<32; j++) {
-           grid[i][j] = 0;
+    tex.init(sdlHandler, 34, 34);
+    for(int x = 0; x<34; x++) {
+        for(int y = 0; y<34; y++) {
+            Color c(noiseCol[x][y][0]*255.0, noiseCol[x][y][0]*255.0, noiseCol[x][y][0]*255.0, 255);
+            tex.pixel(x, y, c.getRGBA());
         }
-    }*/
-
-    //gi.floodfill(grid, 32, 32, 4, 4, 3);
-
+    }
+    
+    //tex.pixel()
 }
 
 Tests::~Tests(){}
@@ -113,6 +168,11 @@ void drawlevel()
 
 void Tests::draw()
 {
+    tex.draw();
+
+    double scale = 5;
+    tex.setDrawScale(scale);
+    tex.setDrawPos(sdlHandler->getWidth()/2-17*scale, sdlHandler->getHeight()/2-17*scale);
     //Text txt;
     //txt.init(sdlHandler);
     //txt.setString("The quick brown fox jumps over the lazy dog.");

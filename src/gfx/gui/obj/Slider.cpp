@@ -97,6 +97,8 @@ void Slider::syncWithRelatedUIs(GUIHandler* guih)
 	validateSelectorVal();
 	
 	int id = getID();
+	int eid = getExtraID();
+	
 	
 	
 	switch(id) {
@@ -113,13 +115,20 @@ void Slider::syncWithRelatedUIs(GUIHandler* guih)
 		} break;
 
 		case guih->sdr_COLORSELECTOR_set_hue: {
-			int eid = getExtraID();
-			ColorSelector* csr = (ColorSelector*)(guih->getGUI(BTEObject::GUI_colorselect, guih->csr_CHARACTER_SETTINGS_set_val));
-
+			//Update ColorSelector's hue
+			ColorSelector* csr = (ColorSelector*)(guih->getGUI(BTEObject::GUI_colorselect, guih->csr_CHARACTER_SETTINGS_set_val, eid));
 			if(csr!=nullptr) {
-				csr->getSat();
-				csr->getVal();
+				double x = 0;
+				try {
+					x = std::stod(getSelectorVal());
+				} catch(...) {}
+				csr->setHue(x);
 			}
+
+			//Update TextBox's color value
+			//TextBox* tbx = (TextBox*)(guih->getGUI(BTEObject::GUI_textbox, guih->tbx_CHARACTER_SETTINGS_set_val, eid));
+			//if(tbx!=nullptr) {	
+			//}
 
 		} break;
 	}

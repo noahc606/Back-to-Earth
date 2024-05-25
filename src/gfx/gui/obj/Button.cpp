@@ -113,8 +113,10 @@ void Button::draw()
         texBtnShine1.draw();
     }
 
-    //Draw button's text
-    btnText.draw();
+    //Draw button's text (for textboxes there is a custom implementation)
+    if( getType()!=GUI_textbox ) {
+        btnText.draw();
+    }
 }
 
 void Button::tick()

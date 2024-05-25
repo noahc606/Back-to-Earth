@@ -23,6 +23,7 @@ public:
     bool isActive();
     /**/
     void setActive(bool isActive);
+    void updateColorSelectorUI(double hue);
 
 protected:
 

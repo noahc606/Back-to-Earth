@@ -16,7 +16,7 @@ class Player : public BTEObject, public Loggable
 public:
 	/**/
 	Player();
-	void init(SDLHandler* sh, GUIHandler* guih, Controls* ctrls);
+	void init(SDLHandler* sh, GUIHandler* guih, Controls* ctrls, Settings* stngs);
 	virtual ~Player();
 	void destroy();
 	/**/
@@ -96,6 +96,7 @@ private:
 
 	Camera camera;
 	GUIHandler* guiHandler;
+	Settings* settings;
 
 	int action = NONE;
 

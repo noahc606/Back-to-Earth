@@ -1,6 +1,7 @@
 #include "Color.h"
 #include <algorithm>
 #include <cmath>
+#include <iomanip>
 #include "DebugScreen.h"
 #include "Log.h"
 
@@ -15,10 +16,11 @@ Color::Color(uint32_t p_value)
 Color::Color(std::string p_value)
 {
 	try {
-		uint32_t num = std::stoi(p_value);
+		uint32_t num = std::stoul(p_value);
 		set(num);
 	} catch(...) {
 		Log::error(__PRETTY_FUNCTION__, "Failed to parse string as a color", "setting RGBA=(0,0,0,0)");
+		set(0);
 	}
 }
 
@@ -107,10 +109,29 @@ std::tuple<double, double, double> Color::toHSV()
 /**
  * Return the 32bit RGBA value, interpreted as a base 10 number, as a string.
  */
-std::string Color::toString()
+std::string Color::toStringB10()
 {
 	std::stringstream ss; ss << getRGBA();
 	return ss.str();
+}
+
+std::string Color::toStringB16(bool transparency)
+{
+	std::stringstream ss;
+	ss << "#";
+	ss << std::setfill('0') << std::setw(2) << std::hex << (int)r;
+	ss << std::setfill('0') << std::setw(2) << std::hex << (int)g;
+	ss << std::setfill('0') << std::setw(2) << std::hex << (int)b;
+	if(transparency) {
+		ss << std::hex << (int)a;
+	}
+
+	std::string ssStr = ss.str();
+	std::stringstream res;
+	for(int i = 0; i<ssStr.size(); i++) {
+		res << (char)std::toupper(ssStr[i]);
+	}
+	return res.str();
 }
 
 /*
@@ -186,9 +207,30 @@ void Color::set(uint8_t p_r, uint8_t p_g, uint8_t p_b, uint8_t p_a)
 /**
 	Take in a uint32_t number represented as a string, and set the rgba to that number.
 */
-void Color::setFromDecimalStr(std::string decimal)
+void Color::setFromB10Str(std::string decimal)
 {
 	uint32_t rgba = std::stoul(decimal);
+	set(rgba);
+}
+
+void Color::setFromB16Str(std::string hexadecimal)
+{
+	//Sanitize input
+	std::string allowedChars = "0123456789ABCDEF";
+	std::stringstream ss;
+	for(int i = 0; i<hexadecimal.size(); i++) {
+		if( allowedChars.find(hexadecimal[i])!=-1 ) {
+			ss << hexadecimal[i];
+		}
+	}
+	std::string sanitizedHex = ss.str();
+	
+	//Convert hex string to uint32_t RGBA
+	std::istringstream converter(sanitizedHex);
+	uint32_t rgba;
+	converter >> std::hex >> rgba;
+
+	//Set RGBA
 	set(rgba);
 }
 
