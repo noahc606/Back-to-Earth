@@ -5,8 +5,8 @@
 #include "MainLoop.h"
 
 //Constants
-const std::string Main::VERSION_LABEL = "1.0.0a";
-const std::string Main::VERSION_DATE = "01 June 2024";
+const std::string Main::VERSION_LABEL = "1.1.0a";
+const std::string Main::VERSION_DATE = "06 June 2024";
 const std::string Main::TITLE = "Back to Earth";
 const std::string Main::PASSWORD = "joseph is lame";
 const bool Main::DEBUG = true;
