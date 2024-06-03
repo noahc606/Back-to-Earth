@@ -20,24 +20,12 @@ void Player::init(SDLHandler* sh, GUIHandler* guih, Settings* stngs, Controls* c
 	camera.init(sdlHandler, ctrls);
 	camera.setFocused(false);
 
-/** Build player palette, spritesheets and textures */
-//Palette
-	playerPal.initPlayerPalette(settings);
-//Build sprite sheet
-	SpriteSheetBuilder ssb(sdlHandler);
-	ssb.buildSpriteSheet(ssb.DEFAULT_PLAYER, spsh, playerPal);
-//Textures
-	//Main (top view)
-	playerTex.init(sdlHandler);
-	playerTex.setTexDimensions(32, 64);
-	//Alternate (side view)
-	playerTexAlt.init(sdlHandler);
-	playerTexAlt.setTexDimensions(32, 64);
+	plan.init(sdlHandler, settings, &camera);
 	//Init HUD
 	hud.init(sdlHandler, 30, 30);
 	hud.setDrawScale(2);
 	hud.setDrawPos(0, 0);
-	
+
 /** Player properties */
 //Booleans
 	godMode = true;
@@ -47,94 +35,15 @@ void Player::init(SDLHandler* sh, GUIHandler* guih, Settings* stngs, Controls* c
 Player::~Player() {}
 void Player::destroy()
 {
-	playerTex.destroy();
+	plan.destroy();
 }
 
 void Player::draw(Canvas* csEntities, bool debugging)
 {
-	/*
-	 *	Rebuild player texture from spritesheet
-	 *	
-	 *	We rebuild the player's texture every frame.
-	 *	Meanwhile, the spritesheet was built once during player initialization.
-	 */
-	bool cameraHorizontal = false;
-	if(camera.getAxis()!=Camera::Z) {
-		cameraHorizontal = true;
-	}
-	
-	//Get sprite sheet texture
-	Texture* sst = spsh.getSheetTexture();
-	
-	//Render spritesheet on screen if it should be shown (debug feature)
-	int* show_ss = Commands::getInt("player.show_ss");
-	if( show_ss!=nullptr && *show_ss!=0 ) {
-		sst->setDrawPos(0, 0);
-		sst->draw();
-	}
-	
-	//Player is slightly translucent
-	int opacity = 255;
-	if(noclip) {
-		opacity = 150;
-	}
-
-	//Build player texture
-	if(0) {
-		playerTex.clear();
-		playerTex.setTexDimensions(20, 64);
-	} else if(!debugging) {
-		playerTex.setColorMod(255, 255, 255, opacity);
-		rebuildPlayerTex(playerTex, cameraHorizontal);
-	} else {
-		if(cameraHorizontal) {
-			playerTex.clear();
-			playerTex.setTexDimensions(32, 64);
-			
-			playerTex.lock();
-			playerTex.setColorMod(255, 0, 0, opacity);
-			playerTex.fill();
-		} else {
-			playerTex.clear();
-			playerTex.setTexDimensions(32, 32);
-
-			playerTex.lock();
-			playerTex.setColorMod(255, 0, 0, opacity);
-			playerTex.fill();
-		}
-	}
-
-
-	//If player is inside a tile, make sure part of the player isn't rendered
-	/** Draw player texture to canvas */
-	//playerTex.rect(0, 0, 32, 64, 255, 0, 0);
-	csEntities->setSourceTex(&playerTex);
-	switch(camera.getAxis()) {
-		case Camera::X: {
-			csEntities->rcopy(y*32-16, z*32, playerTex.getTexWidth(), playerTex.getTexHeight());
-		} break;
-		case Camera::Y: {
-			csEntities->rcopy(x*32-16, z*32, playerTex.getTexWidth(), playerTex.getTexHeight());
-		} break;
-		case Camera::Z: {
-			csEntities->rcopy(x*32-16, y*32-16, playerTex.getTexWidth(), playerTex.getTexHeight());
-		} break;
-	}
-	
+	plan.draw(csEntities, debugging, noclip, x, y, z);
 }
 
-void Player::drawCharInMenu()
-{
-	//Build player texture
-	rebuildPlayerTex(playerTexAlt, true);
-	
-	int ptaX = sdlHandler->getWidth()/2+(-32+2)*4;
-	int ptaY = sdlHandler->getHeight()/2+(-64+10)*4;
-	playerTexAlt.setDrawPos(ptaX, ptaY);
-	playerTexAlt.setDrawScale(4);
-	playerTexAlt.draw();
-}
-
+void Player::drawCharInMenu() { plan.drawCharInMenu(); }
 void Player::drawHUD()
 {
 	int hudW = (sdlHandler->getWidth()+1)/2;
@@ -179,7 +88,7 @@ void Player::drawHUD()
 	}
 }
 
-void Player::tick()
+void Player::tick(TileMap* tm)
 {
 /** Process commands */
 	//"tele" command
@@ -190,6 +99,8 @@ void Player::tick()
 		Commands::resetCMDEntered(__PRETTY_FUNCTION__);
 	}
 	
+
+
 /** Player's body state */
 //Incrementers
 	//Gaining age - +1/tick = +40/sec.
@@ -214,6 +125,8 @@ void Player::tick()
 	if(nutrition>maxNutrition) nutrition = maxNutrition;
 	if(water>maxWater) water = maxWater;
 	if(oxygen>maxOxygen) oxygen = maxOxygen;
+
+
 
 /** Player actions and controls */
 //Set player actions
@@ -241,25 +154,28 @@ void Player::tick()
 	}
 	
 
-/** Snap from bounding boxes (after velocity processing) */
-//Based on snap calculated last tick, limit certain velocity components
-	if(snapD && vz>0) { vz = 0; }
-	if(snapU && vz<0) { vz = 0; }
-	if(snapE && vx>0) { vx = 0; }
-	if(snapW && vx<0) { vx = 0; }
-	if(snapS && vy>0) { vy = 0; }
-	if(snapN && vy<0) { vy = 0; }
 
-/** Player position and velocity */
-	//vx, vy, vz velocity components added to x, y, z
-	x+=vx;
-	y+=vy;
-	z+=vz;
+/** Player acceleration, velocity, and position */
+//If necessary, set downward accel. based on planet gravity
+	if(!noclip && !snapD) {
+		az = 9.81/1600.;	//9.81m/(40ticks)^2 = 9.81m/sec^2
+	}
+//Based on snap calculated last tick cancel certain acceleration and velocity if necessary.
+	if( (snapE && (vx>0||ax>0)) || (snapW && (vx<0||ax<0)) ) { 	vx = 0; ax = 0; }	//If snapped East/West
+	if( (snapS && (vy>0||ay>0)) || (snapN && (vy<0||ay<0)) ) {	vy = 0; ay = 0;	}	//If snapped South/North
+	if( (snapD && (vz>0||az>0)) || (snapU && (vz<0||az<0)) ) {
+		vz = 0; az = 0;
+	}	//If snapped Down/Up
+//vx, vy, vz velocity components added to x, y, z
+	vx += ax;	vy += ay;	vz += az;	//Add acceleration to velocity
+	applyVelAndCollision(tm);			//Add velocity to position
+
+
 
 /** Visuals */
 //Player animation
 	//Tick animation
-	tickAnimation();
+	plan.tick(vx, vy, vz);
 //Camera - keep as last
 	//Tick camera
 	camera.tick();
@@ -279,61 +195,6 @@ void Player::tick()
 	camera.setXYZ(cx+dcx, cy+dcy, cz+dcz);
 }
 
-void Player::tickAnimation()
-{
-	//Determine player flip + rotation
-	flip = Texture::Flip::NONE;
-	if(facing==Camera::WEST) {
-		flip = Texture::Flip::H;
-	}
-	rotation = 0;
-	switch(facing) {
-		case Camera::WEST: rotation = 270;	break;
-		case Camera::NORTH: rotation = 0;	break;
-		case Camera::EAST: rotation = 90;	break;
-		case Camera::SOUTH: rotation = 180;	break;
-	}
-	
-	/* Blinking */
-	if(anBlinkTimer==-1) {
-		if( rand()%240==0 ) anBlinkTimer++;
-	} else {
-		anBlinkTimer++;
-	}
-	if(anBlinkTimer>12) {
-		anBlinkTimer = -480;
-	}
-
-	/**
-		Walking
-	*/
-
-	//Set walk speed from velocity
-	walkSpeed = std::abs((double)sqrt(vx*vx+vy*vy))/2.0;
-	//Set player facing direction (NESW)
-	updateFacingDirection();
-
-	/* Animation */
-	//Animation timer. This timer increments every draw() call
-	anTimer++;
-	//The block below runs when anTimer is above a certain threshold.
-	//This threshold is lower the faster the player is walking, resulting in a faster animation.
-	if( anTimer>2.0/(walkSpeed/0.05) ) {
-		//Reset anTimer.
-		anTimer = 0;
-		//Play the player's walking animation
-		if( walkSpeed>0 ) {
-			if(anWalkState==0) anWalkState = 1;
-			anWalkFrameX += anWalkState;
-			if( anWalkState==1 && anWalkFrameX==12 ) {
-				anWalkFrameX = 0;
-			}
-		} else {
-
-		}
-	}
-}
-
 void Player::tickControls()
 {
 	noclip = false;
@@ -349,11 +210,22 @@ void Player::tickControls()
 			}
 		}
 	}
+
+	//When the player wants to jump and is standing on the ground (snapD == standing on ground)
+	if( snapD && controls->isHeld("PLAYER_JUMP") ) {
+		//If hugging wall, slightly increase jump
+		if( snapN||snapE||snapS||snapW ) {
+			vz = -0.16;
+		//If not next to a wall, do a lower jump
+		} else {
+			vz = -0.1;
+		}
+		snapD = false;
+	}
 	
 	//Reset velocity
 	vx = 0;
 	vy = 0;
-	vz = 0;
 	
 	//Set velocity components from movement
 	double mv1 = 0;
@@ -368,23 +240,41 @@ void Player::tickControls()
 
 	//Depending on camera direction, apply velocity in the appropriate direction.
 	switch(camera.getDirection()) {
-		case Camera::NORTH:
-		case Camera::SOUTH: {
-			vx = mv1; vy = mv3;
-			if(godMode) vz = mv2;
+		case Camera::NORTH: case Camera::SOUTH: {
+			vx = mv1;
+			vy = mv3;
+			if(noclip) vz = mv2;
 		} break;
 		
-		case Camera::EAST:
-		case Camera::WEST: {
-			vx = mv3; vy = mv1;
-			if(godMode) vz = mv2;
+		case Camera::EAST: case Camera::WEST: {
+			vx = mv3;
+			vy = mv1;
+			if(noclip) vz = mv2;
 		} break;
 		
-		case Camera::DOWN:
-		case Camera::UP: {
-			vx = mv1; vy = mv2;
-			if(godMode) vz = mv3;
+		case Camera::DOWN: case Camera::UP: {
+			vx = mv1;
+			vy = mv2;
+			if(noclip) vz = mv3;
 		} break;
+	}
+}
+
+void Player::applyVelAndCollision(TileMap* tm)
+{	
+	int vxNumSteps = std::ceil(std::abs(vx/0.08));
+	int vyNumSteps = std::ceil(std::abs(vy/0.08));
+	int vzNumSteps = std::ceil(std::abs(vz/0.08));
+	
+	if(vxNumSteps==0) vxNumSteps = 1;
+	if(vyNumSteps==0) vyNumSteps = 1;
+	if(vzNumSteps==0) vzNumSteps = 1;
+
+	for(int i = 0; i<vxNumSteps||i<vyNumSteps||i<vzNumSteps; i++) {
+		collision(tm);
+		if(i<vxNumSteps) x += (vx/(double)vxNumSteps);
+		if(i<vyNumSteps) y += (vy/(double)vyNumSteps);
+		if(i<vzNumSteps) z += (vz/(double)vzNumSteps);
 	}
 }
 
@@ -441,6 +331,9 @@ void Player::putInfo(std::stringstream& ss, int& tabs)
 		DebugScreen::indentLine(ss, tabs);
 		ss << "vXYZ=(" << vx << ", " << vy << ", " << vz << "); ";
 		DebugScreen::newLine(ss);
+		DebugScreen::indentLine(ss, tabs);
+		ss << "aXYZ=(" << ax << ", " << ay << ", " << az << "); ";
+		DebugScreen::newLine(ss);
 	}
 
 	if(true) {
@@ -448,12 +341,14 @@ void Player::putInfo(std::stringstream& ss, int& tabs)
 		ss << "snap(NESWUD)=(" << snapN << ", " << snapE << ", " << snapS << ", " << snapW << ", " << snapU << ", " << snapD << ")";
 	}
 
+
+	/*
 	if(!true) {
 		DebugScreen::indentLine(ss, tabs);
 		ss << "(anWalkFrameX, anWalkState)=(" << anWalkFrameX << ", " << anWalkState << "); ";
 		ss << "(walkSpeed)=(" << walkSpeed << "); ";
 		DebugScreen::newLine(ss);
-	}
+	}*/
 
 }
 
@@ -518,111 +413,3 @@ void Player::setPos(double x, double y, double z)
 	Player::z = z;
 }
 
-void Player::updateFacingDirection()
-{
-	if( vy<0 ) {
-		facing = Camera::NORTH;
-	} else if( vy>0 ) {
-		facing = Camera::SOUTH;
-	}
-
-	if( vx<0 ) {
-		facing = Camera::WEST;
-	} else if( vx>0 ) {
-		facing = Camera::EAST;
-	}
-}
-
-void Player::rebuildPlayerTex(Texture& tex, bool alt)
-{
-	//Get sprite sheet texture
-	Texture* sst = spsh.getSheetTexture();
-	
-	if(!alt) {
-		tex.clear();
-		tex.setTexDimensions(32, 32);
-	} else {
-		tex.clear();
-		tex.setTexDimensions(32, 64);
-		tex.setDrawScale(4);
-	}
-	
-	if(!alt) {
-		/* Lower body (legs) */
-		tex.lock();
-		//tex.blitEx(sst, 0, 32*TOP_LOWER_BODY, 32, 32, rotation);
-		//if( anWalkState==0 ) {
-		tex.blitEx(sst, 32*anWalkFrameX, (TOP_LOWER_BODY+1)*32, 32, 32, rotation);
-		//}
-		
-		
-		/* Middle body */
-		tex.lock();
-		tex.blitEx(sst, 0, 32*TOP_MIDDLE_BODY, 32, 32, rotation);
-		
-		/* Arms (if player is walking) */
-		if(walkSpeed>0) {
-			tex.lock();
-			tex.blitEx(sst, 0, 32*TOP_ARMS, 32, 32, rotation);
-		}
-		
-		
-		/* Head */
-		tex.lock();
-		tex.blitEx(sst, 0, 32*TOP_HAIR, 32, 32, rotation);
-	} else {
-		//Head base
-		tex.lock(0, 0, 32, 32);
-		tex.blitEx(sst, 0, 32*SIDE_HEAD_BASE, 32, 32, flip);
-
-		//Eyes layer 1
-		if(anBlinkTimer<0) {
-			tex.lock(0, 0, 32, 32);
-			tex.blitEx(sst, 0, 32*SIDE_HEAD_EYES, 32, 32, flip);
-		}
-
-		//Eyes layer 2
-		if(anBlinkTimer<0) {
-			tex.lock(0, 0, 32, 32);
-			tex.blitEx(sst, 0, 32*SIDE_HEAD_PUPILS, 32, 32, flip);
-		}
-
-		//Lips
-		tex.lock(0, 0, 32, 32);
-		tex.blitEx(sst, 0, 32*SIDE_HEAD_MOUTH, 32, 32, flip);
-
-		/** Arms */
-		//Arms
-		int aTX = (anWalkFrameX%2);
-		tex.lock(0+aTX, 16, 32+aTX, 32);
-		tex.blitEx(sst, 0, 32*SIDE_ARMS, flip);
-
-		/** Body */
-		//Legs
-		tex.lock(0, 29, 32, 32);
-		if( anWalkState!=0 ) {
-			int dy = 1;
-			if( facing==Camera::SOUTH || facing==Camera::NORTH ) {
-				dy = 2;
-			}
-			tex.blitEx(sst, 32*anWalkFrameX, (SIDE_LOWER_BODY+dy)*32, 32, 32, flip);
-		} else {
-			tex.blitEx(sst, 32*anWalkFrameX, (SIDE_LOWER_BODY)*32, 32, 32, flip);
-		}
-		//Middle body
-		{
-			tex.lock(0+aTX, 9, 32+aTX, 32);
-
-			tex.blitEx(sst, 0, (SIDE_MIDDLE_BODY)*32, 32, 32, flip);
-		}
-		
-		/** Extra */
-		//Shoes
-		//tex.lock(1, 48, 32, 32);
-		//tex.blitEx(sst, 0, FEET*32, 31, 32, flip);
-
-		//Hair
-		tex.lock(0, 0, 32, 32);
-		tex.blitEx(sst, 0, 32*SIDE_HAIR, 32, 32, flip);
-	}
-}

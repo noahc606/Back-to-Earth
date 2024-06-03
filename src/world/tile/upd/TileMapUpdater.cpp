@@ -239,9 +239,9 @@ void TileMapUpdater::updateMapToSHOULD_UPDATE(int loadDist)
 
 				//Check 3x3x3 area of regions centered on the current region.
 				//If a region is found which is not FINISHED_GENERATING or which is nullptr => should not update.
-				for(int jcsRX = icsRX-1; jcsRX<=icsRX+1; jcsRX++) {
-					for(int jcsRY = icsRY-1; jcsRY<=icsRY+1; jcsRY++) {
-						for(int jcsRZ = icsRZ-1; jcsRZ<=icsRZ+1; jcsRZ++) {
+				for(int64_t jcsRX = icsRX-1; jcsRX<=icsRX+1; jcsRX++) {
+					for(int64_t jcsRY = icsRY-1; jcsRY<=icsRY+1; jcsRY++) {
+						for(int64_t jcsRZ = icsRZ-1; jcsRZ<=icsRZ+1; jcsRZ++) {
 							TileRegion* ttr = tileMap->getRegByCsRXYZ(cam, jcsRX, jcsRY, jcsRZ);
 							if(ttr==nullptr || ttr->getRegTexState()<TileRegion::FINISHED_GENERATING) {
 								shouldUpdate = false;
@@ -252,7 +252,7 @@ void TileMapUpdater::updateMapToSHOULD_UPDATE(int loadDist)
 
 				//If a tile region is FINISHED_GENERATING and shouldUpdate==true, mark it as SHOULD_UPDATE
 				TileRegion* tr = tileMap->getRegByCsRXYZ(cam, icsRX, icsRY, icsRZ);
-				if(shouldUpdate) {
+				if(tr!=nullptr && shouldUpdate) {
 					if(tr->getRegTexState()==TileRegion::FINISHED_GENERATING) {
 						tr->setRegTexState(TileRegion::SHOULD_UPDATE);
 					}

@@ -231,7 +231,7 @@ void World::tickWorldObjs()
 	}
 	
 	localPlayer.collision(&tileMap);
-	localPlayer.tick();
+	localPlayer.tick(&tileMap);
 
 	localPlayerMenu.tick();
 }

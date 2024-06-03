@@ -7,6 +7,7 @@
 #include "ColorPalette.h"
 #include "GUIHandler.h"
 #include "Loggable.h"
+#include "PlayerAnimation.h"
 #include "SpriteSheet.h"
 #include "Texture.h"
 #include "TileMap.h"
@@ -19,22 +20,6 @@ public:
 		NONE,
 		GM_Place_Tile,
 		GM_Destroy_Tile,
-	};
-
-	enum Components {
-		TOP_HAIR,
-		TOP_ARMS,
-		TOP_MIDDLE_BODY,
-		TOP_LOWER_BODY,
-		
-		SIDE_HAIR = TOP_LOWER_BODY+2,
-		SIDE_HEAD_BASE, SIDE_HEAD_EYES, SIDE_HEAD_PUPILS, SIDE_HEAD_MOUTH,
-		SIDE_ARMS,
-		SIDE_MIDDLE_BODY,
-		SIDE_LOWER_BODY,
-		SIDE_FEET = SIDE_LOWER_BODY+3,
-
-		LAST_INDEX
 	};
 
 	enum BoundingBoxType {
@@ -52,9 +37,10 @@ public:
 	void draw(Canvas* csEntities, bool debugging);
 	void drawCharInMenu();
 	void drawHUD();
-	void tick();
+	void tick(TileMap* tm);
 	void tickAnimation();
 	void tickControls();
+	void applyVelAndCollision(TileMap* tm);
 	void collision(TileMap* tm);
 	void collisionSnap(int64_t tileCoord, double depthMod, double& playerCoordRef, bool& snapRef);
 	void putInfo(std::stringstream& ss, int& tabs);
@@ -84,24 +70,11 @@ private:
 	Settings* settings;
 
 /* Player visuals */
-	//Palette, textures, spritesheet
-	ColorPalette playerPal;
-	Texture playerTex;		//Render this in world
-	Texture playerTexAlt;	//Render this in character menu
-	Texture hud;			//Main screen HUD.
-	SpriteSheet spsh;
-	//Player animation frame tracking + timers
-	int anTimer = 0;
-	int anStandFrame = 0;
-	int anWalkFrameX = 0; int anWalkState = 0;
-	int anWalkShirtFrame = 0; int anWalkShirtState = 0;
-	int anBlinkTimer = 0;
+	PlayerAnimation plan;	//Player texture, color palette, and animation
+	Texture hud;			//Player's HUD
 
 /* Player physicals */
 	//Ability, body state properties
-	double walkSpeed = 0.0;
-	char facing = Camera::NORTH;
-	int flip = 0; int rotation = 0;
 	double defense = 0; double maxDefense = 100;
 	double health = 100; double maxHealth = 100;
 	double nutrition = 100; double maxNutrition = 100;
@@ -117,10 +90,10 @@ private:
 	int action = NONE;
 
 	double runSpeed = 4;
-	double age = 0;                                 //Age in ticks (60ticks = 1 second)
-	double x  = 0; double y  = 0; double z  = 0;    //Position in world (meters)
-	double vx = 0; double vy = 0; double vz = 0;    //Velocity in world (meters per tick)
-	double ay = -9.81/3600.0;                       //Vertical acceleration in world (meters per tick^2)
+	double age = 0;						//Age in ticks (60ticks = 1 second)
+	double x  = 0, y  = 0, z  = 0;    	//Position in world (meters)
+	double vx = 0, vy = 0, vz = 0;    	//Velocity in world (meters per tick)
+	double ax = 0, ay = 0, az = 0;		//Acceleration in world (meters per tick^2)
 
 /* Player collision */
 	bool snapU = 0, snapD = 0;
