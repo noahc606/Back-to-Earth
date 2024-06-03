@@ -34,33 +34,32 @@ ButtonAction::ButtonAction(SDLHandler* sh, GUIHandler* gh, FileHandler* fh, Cont
             gh->setAllWindowsActiveState(true);
         } break;
 
-        //case GUIHandler::btn_back_to_MAIN:{ gh->setGUIs(GUIHandler::GUIs::MAIN); } break;
+        /** Update prompt buttons */
+        case GUIHandler::btn_UPDATE_PROMPT_not_now: {   gh->setGUIs(GUIHandler::GUIs::MAIN); } break;
+        case GUIHandler::btn_UPDATE_PROMPT_dont_ask: {
+            gh->setGUIs(GUIHandler::GUIs::MAIN);
+            stgs->kv(Settings::options, "checkForUpdates", "false");
+            fh->saveSettings(Settings::options);
+        } break;
 
         /** Main menu buttons */
-        case GUIHandler::btn_MAIN_exit: {
-            MainLoop::quit();
-        } break;
-        case GUIHandler::btn_MAIN_options: {
-            gh->setGUIs(GUIHandler::GUIs::OPTIONS);
-        } break;
+        case GUIHandler::btn_MAIN_exit:     { MainLoop::quit(); } break;
+        case GUIHandler::btn_MAIN_options:  { gh->setGUIs(GUIHandler::GUIs::OPTIONS); } break;
 
         /** Options buttons */
-        case GUIHandler::btn_OPTIONS_controls: {
-            gh->setGUIs(GUIHandler::GUIs::CONTROLS);
+        case GUIHandler::btn_OPTIONS_controls:              { gh->setGUIs(GUIHandler::GUIs::CONTROLS); } break;
+        case GUIHandler::btn_OPTIONS_graphics_settings:     { gh->setGUIs(GUIHandler::GUIs::GRAPHICS); } break;
+		case GUIHandler::btn_OPTIONS_character_settings:    { gh->setGUIs(GUIHandler::GUIs::CHARACTER); } break;
+		case GUIHandler::btn_OPTIONS_debug_settings:        { gh->setGUIs(GUIHandler::GUIs::DEBUG); } break;
+
+        /** Campaign Selection buttons */
+        case GUIHandler::btn_SELECT_CAMPAIGN_openSaveDirectory: {
+            fh->openUserLocalURL("saved/games/");
+            
         } break;
-        case GUIHandler::btn_OPTIONS_graphics_settings: {
-            gh->setGUIs(GUIHandler::GUIs::GRAPHICS);
-        } break;
-		case GUIHandler::btn_OPTIONS_character_settings: {
-			gh->setGUIs(GUIHandler::GUIs::CHARACTER);
-		} break;
 
         /** Pause menu buttons */
-        case GUIHandler::btn_PAUSED_options: {
-            gh->setGUIs(GUIHandler::GUIs::OPTIONS);
-        } break;
-
-        /** Graphics settings buttons */
+        case GUIHandler::btn_PAUSED_options: {  gh->setGUIs(GUIHandler::GUIs::OPTIONS); } break;
 		
 		/** World buttons */
 		case GUIHandler::btn_CHARACTER_item: {
@@ -105,6 +104,7 @@ void ButtonAction::populateSettingUIInfo(GUIHandler* gh, int& currentWindowID, i
         gh->ID::win_GRAPHICS_SETTINGS,
         gh->ID::win_CHARACTER_SETTINGS,
         gh->ID::win_CONTROLS,
+        gh->ID::win_DEBUG_SETTINGS,
     };
 
     //Set currentWindowID to whichever setting window we are on, if any (if none, currentWindowID remains what it was).
@@ -121,9 +121,9 @@ void ButtonAction::populateSettingUIInfo(GUIHandler* gh, int& currentWindowID, i
         case gh->ID::win_GRAPHICS_SETTINGS: {
             //Set
             objIDs = {
-                std::make_pair(GUIHandler::ID::tbx_GRAPHICS_SETTINGS_maxFps, -1),
-                std::make_pair(GUIHandler::ID::cbx_GRAPHICS_SETTINGS_bteCursor, -1),
-                std::make_pair(GUIHandler::ID::cbx_GRAPHICS_SETTINGS_fullscreen, -1),
+                std::make_pair(GUIHandler::tbx_GRAPHICS_SETTINGS_maxFps, -1),
+                std::make_pair(GUIHandler::cbx_GRAPHICS_SETTINGS_bteCursor, -1),
+                std::make_pair(GUIHandler::cbx_GRAPHICS_SETTINGS_fullscreen, -1),
             };
             objKeys = { "maxFps", "bteCursor", "fullscreen", };
             settingFileID = Settings::TextFiles::options;
@@ -131,13 +131,13 @@ void ButtonAction::populateSettingUIInfo(GUIHandler* gh, int& currentWindowID, i
         case gh->ID::win_CHARACTER_SETTINGS: {
             //Set
             objIDs = {
-                std::make_pair(GUIHandler::ID::tbx_CHARACTER_SETTINGS_set_val, 0),
-                std::make_pair(GUIHandler::ID::tbx_CHARACTER_SETTINGS_set_val, 1),
-                std::make_pair(GUIHandler::ID::tbx_CHARACTER_SETTINGS_set_val, 2),
-                std::make_pair(GUIHandler::ID::tbx_CHARACTER_SETTINGS_set_val, 3),
-                std::make_pair(GUIHandler::ID::tbx_CHARACTER_SETTINGS_set_val, 4),
-                std::make_pair(GUIHandler::ID::tbx_CHARACTER_SETTINGS_set_val, 5),
-                std::make_pair(GUIHandler::ID::tbx_CHARACTER_SETTINGS_set_val, 6),
+                std::make_pair(GUIHandler::tbx_CHARACTER_SETTINGS_set_val, 0),
+                std::make_pair(GUIHandler::tbx_CHARACTER_SETTINGS_set_val, 1),
+                std::make_pair(GUIHandler::tbx_CHARACTER_SETTINGS_set_val, 2),
+                std::make_pair(GUIHandler::tbx_CHARACTER_SETTINGS_set_val, 3),
+                std::make_pair(GUIHandler::tbx_CHARACTER_SETTINGS_set_val, 4),
+                std::make_pair(GUIHandler::tbx_CHARACTER_SETTINGS_set_val, 5),
+                std::make_pair(GUIHandler::tbx_CHARACTER_SETTINGS_set_val, 6),
             };
             objKeys = { "hair", "skin", "eyes", "mouth", "shirt", "leggings", "shoes" };
             settingFileID = Settings::TextFiles::character;
@@ -147,7 +147,18 @@ void ButtonAction::populateSettingUIInfo(GUIHandler* gh, int& currentWindowID, i
             objKeys = {};
             settingFileID = Settings::TextFiles::controls;
         } break;
-        default:{
+        case gh->ID::win_DEBUG_SETTINGS: {
+            objIDs = {
+                std::make_pair(GUIHandler::cbx_DEBUG_SETTINGS_debugEnabled, 0),
+                std::make_pair(GUIHandler::cbx_DEBUG_SETTINGS_logging, 1),
+                std::make_pair(GUIHandler::cbx_DEBUG_SETTINGS_checkForUpdates, 2),
+                std::make_pair(GUIHandler::tbx_DEBUG_SETTINGS_debugHacks, 3),
+                std::make_pair(GUIHandler::tbx_DEBUG_SETTINGS_debugTesting, 4),
+            };
+            objKeys = { "debugEnabled", "logging", "checkForUpdates", "debugHacks", "debugTesting" };
+            settingFileID = Settings::TextFiles::options;
+        } break;
+        default: {
             Log::error(__PRETTY_FUNCTION__, "Couldn't find any setting-holding windows");
             return;
         } break;
@@ -163,50 +174,49 @@ void ButtonAction::saveSettingsBasedOnUIs(GUIHandler* gh, Settings* stgs, FileHa
     std::vector<std::string> objKeys;
     populateSettingUIInfo(gh, currentWindowID, settingFileID, objIDs, objKeys);
 
-    if(!false) {
-        //Iterate through all specified objs that have the specified objKeys
+    //Iterate through all specified objs that have the specified objKeys
+    for(unsigned int i = 0; i<objKeys.size(); i++) {
+        //Get possible UIs corresponding to these IDs
+        GUI* possibleTBX = gh->getGUI(BTEObject::GUI_textbox, objIDs[i].first, objIDs[i].second);
+        GUI* possibleCBX = gh->getGUI(BTEObject::GUI_checkbox, objIDs[i].first, objIDs[i].second);
+        
+        //If we found a checkbox
+        if( possibleCBX!=nullptr ) {
+            int cbxState = ((CheckBox*)possibleCBX)->getState();
+            std::string value = "null";
+            if( cbxState==CheckBox::States::CBX_FALSE ) { value = "false"; }
+            if( cbxState==CheckBox::States::CBX_TRUE ) { value = "true"; }
 
-        for(unsigned int i = 0; i<objKeys.size(); i++) {
-            //Get possible UIs corresponding to these IDs
-            GUI* possibleTBX = gh->getGUI(BTEObject::GUI_textbox, objIDs[i].first, objIDs[i].second);
-            GUI* possibleCBX = gh->getGUI(BTEObject::GUI_checkbox, objIDs[i].first, objIDs[i].second);
-            
-            //If we found a checkbox
-            if( possibleCBX!=nullptr ) {
-                int cbxState = ((CheckBox*)possibleCBX)->getState();
-                std::string value = "null";
-                if( cbxState==CheckBox::States::CBX_FALSE ) { value = "false"; }
-                if( cbxState==CheckBox::States::CBX_TRUE ) { value = "true"; }
-
-                stgs->kv(settingFileID, objKeys[i], value);
-            }
-            
-            //If we found a textbox
-            if( possibleTBX!=nullptr ) {
-                TextBox* tbx = (TextBox*)possibleTBX;
-                std::string value = "null";
-                //If inputType is hex digits
-                if(tbx->getInputType()==tbx->FREE_HEX_BASIC) {
-                    Color thisCol;
-                    thisCol.setFromB16Str(tbx->getString()+"FF");
-
-                    value = thisCol.toStringB10();
-                }
-
-                stgs->kv(settingFileID, objKeys[i], value);
-            }
+            stgs->kv(settingFileID, objKeys[i], value);
         }
 
-        
-        fh->saveSettings(settingFileID);
-        ctrls->reloadBindings(fh->getSettings());
-        
-        //Special settings which should be set manually
-        if(currentWindowID==gh->ID::win_GRAPHICS_SETTINGS) {
-            std::string maxFps = stgs->get(settingFileID, "maxFps");
-            MainLoop::setMaxFPS(maxFps);
+        //If we found a textbox
+        if( possibleTBX!=nullptr ) {
+            TextBox* tbx = (TextBox*)possibleTBX;
+            std::string value = "null";
+            //If inputType is hex digits
+            if(tbx->getInputType()==tbx->FREE_HEX_BASIC) {
+                Color thisCol;
+                thisCol.setFromB16Str(tbx->getString()+"FF");
+
+                value = thisCol.toStringB10();
+            //If inputType is something else
+            } else {
+                value = tbx->getString();
+            }
+
+            stgs->kv(settingFileID, objKeys[i], value);
         }
     }
 
-    gh->setGUIs(GUIHandler::GUIs::OPTIONS);
+    fh->saveSettings(settingFileID);
+    ctrls->reloadBindings(fh->getSettings());
+    
+    //Special settings which should be set manually
+    if(currentWindowID==gh->ID::win_GRAPHICS_SETTINGS) {
+        std::string maxFps = stgs->get(settingFileID, "maxFps");
+        MainLoop::setMaxFPS(maxFps);
+    }
+
+    gh->setGUIs(GUIHandler::OPTIONS);
 }

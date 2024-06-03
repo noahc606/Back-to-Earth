@@ -57,7 +57,7 @@ MainLoop::MainLoop()
 	//Start gameLoop
 	initialized = true;
 	if(!bte.isHardTesting()) {
-		Log::log("Running "+Main::VERSION+"...");
+		Log::log("Running "+Main::TITLE+" "+Main::VERSION_LABEL+"...");
 		while(running) gameLoop();
 	}
 }
@@ -69,9 +69,9 @@ MainLoop::~MainLoop()
 {
 	if(!bte.isHardTesting()) {
 		sdlHandler.getTextureLoader()->destroy();
-		Log::log("Exiting "+Main::VERSION+"...");
+		Log::log("Exiting "+Main::TITLE+" "+Main::VERSION_LABEL+"...");
 	} else {
-		Log::log("Finished hard testing "+Main::VERSION+"...");
+        Log::log("Finished hard testing "+Main::TITLE+" "+Main::VERSION_LABEL+"...");
 		Log::log("To enable the BTE window, make sure you have \"debugHardTesting=false\" in 'backtoearth/saved/settings/options.txt'!");
 	}
 	

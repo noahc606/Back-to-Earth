@@ -58,8 +58,8 @@ void World::init(SDLHandler* sh, GUIHandler* gh, FileHandler* fh, Controls* ctrl
 
 	/* INIT 2: Player */
 	//Player
-	localPlayer.init(sh, guiHandler, ctrls, fileHandler->getSettings());
-	localPlayer.setPos(px, py, pz);
+	localPlayer.init(sh, guiHandler, fileHandler->getSettings(), ctrls);
+	localPlayer.setPos(px-0.5, py-0.5, pz);
 	//Player menu
 	localPlayerMenu.init(sdlHandler, guiHandler, ctrls, &localPlayer);
 	
@@ -153,7 +153,7 @@ void World::draw(bool debugOn)
 
 	// 3 - Entities
 	csEntities.clearCanvas();
-	localPlayer.draw(&csEntities);
+	localPlayer.draw(&csEntities, debugOn);
 	csEntities.draw();
 
 	// 4 - Interactions
@@ -184,28 +184,7 @@ void World::tick(bool paused, GUIHandler& guiHandler)
 
 	/** Tick world objects if not paused */
 	if( !paused ) {
-		/** World objects */
-		planet.tick();
-		
-		int pt = playTime;
-		if( pt==200 || pt==60*60*10 || pt==60*60*20 ) {
-			AudioLoader* al = sdlHandler->getAudioLoader();
-			srand(time(NULL));
-
-			std::vector<int> gameplayTracks = {
-				AudioLoader::MUSIC_kc_50_million_year_trip,
-				AudioLoader::MUSIC_kc_alien_ruins,
-				AudioLoader::MUSIC_kc_digital_sunset,
-				AudioLoader::MUSIC_kc_nuclear_winter,
-				AudioLoader::MUSIC_kc_space_dust,
-				AudioLoader::MUSIC_kc_the_witching_hour,
-			};
-			al->playOnce(gameplayTracks[(rand()%6)]);
-		}
-		
-		localPlayer.tick();
-		localPlayerMenu.tick();
-
+		tickWorldObjs();
 		tileMapScreen.tick();
 	} else {
 		//Force-disable character menu when paused
@@ -228,6 +207,33 @@ void World::tick(bool paused, GUIHandler& guiHandler)
 	if(playTime==60*60*30) {
 		playTime = 0;
 	}
+}
+
+void World::tickWorldObjs()
+{
+	/** World objects */
+	planet.tick();
+	
+	int pt = playTime;
+	if( pt==200 || pt==60*60*10 || pt==60*60*20 ) {
+		AudioLoader* al = sdlHandler->getAudioLoader();
+		srand(time(NULL));
+
+		std::vector<int> gameplayTracks = {
+			AudioLoader::MUSIC_kc_50_million_year_trip,
+			AudioLoader::MUSIC_kc_alien_ruins,
+			AudioLoader::MUSIC_kc_digital_sunset,
+			AudioLoader::MUSIC_kc_nuclear_winter,
+			AudioLoader::MUSIC_kc_space_dust,
+			AudioLoader::MUSIC_kc_the_witching_hour,
+		};
+		al->playOnce(gameplayTracks[(rand()%6)]);
+	}
+	
+	localPlayer.collision(&tileMap);
+	localPlayer.tick();
+
+	localPlayerMenu.tick();
 }
 
 void World::putInfo(std::stringstream& ss, int& tabs)
@@ -340,16 +346,6 @@ void World::updateMouseAndCamInfo()
 
 void World::playerInteractions(GUIHandler& guiHandler, bool paused)
 {
-	/*
-		//Get localPlayer x, y, and z both in double and in t_ll form.
-		double pxd = std::get<0>(localPlayer.getPos());
-		int px = floor(pxd);
-		double pyd = std::get<1>(localPlayer.getPos());
-		int py = floor(pyd);
-		double pzd = std::get<2>(localPlayer.getPos());
-		int pz = floor(pzd);
-	*/
-
 	//Control character menu state
 	if( !paused && controls->isPressed("PLAYER_INVENTORY") ) {
 		if(lpMenuState) {

@@ -41,6 +41,7 @@ public:
 		GUI_player_interactions,
 		GUI_window,
 		GUI_save_selector,
+		GUI_misc,
 
 		PLAYER_items,
 		PLAYER_side_hair,
@@ -55,6 +56,7 @@ public:
 		PLAYER_top_lower_body,
 
 		WORLD_background_space_interstellar,
+		WORLD_background_space_intergalactic,
 		WORLD_region0,
 		WORLD_region1,
 		WORLD_TILE_type_a,

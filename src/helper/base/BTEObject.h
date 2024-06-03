@@ -32,8 +32,8 @@ public:
 
         BTE_GUIHandler = 100,
             GUI_window,
-            GUI_button, GUI_radiobutton, GUI_textbox, GUI_checkbox, GUI_icon, GUI_slider, GUI_colorselect, GUI_saveselect,
-            GUI_tooltip,
+            GUI_button, GUI_radiobutton, GUI_textbox, GUI_checkbox, GUI_slider, GUI_colorselect, GUI_saveselect,
+            GUI_tooltip, GUI_icon, GUI_progressbar,
 
         BTE_TileMap = 200,
     };

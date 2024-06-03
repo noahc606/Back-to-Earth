@@ -1,6 +1,7 @@
 #include "Button.h"
 #include "CheckBox.h"
 #include "GUIHandler.h"
+#include "Log.h"
 #include "TextureBuilder.h"
 #include "TextBox.h"
 
@@ -47,6 +48,7 @@ void Button::init(SDLHandler* sh, Controls* ctrls)
 			tb.buildButton(texBtnHovering, 41, 0, texW);
 			tb.buildButton(texTbxSelected, 0, 17, texW);	//This component is unused in a non-textbox
 			tb.buildButton(texBtnSelected, 0, 34, texW);
+            texBtnSelected.setTexWidth( texBtnSelected.getTexWidth()-2 );
 		} break;
 	}
 	
@@ -126,12 +128,14 @@ void Button::tick()
     int mY = controls->getMouseY();
 
     //If mouse hovering
-    if( mX>sX+1 && mX<=sX+1+width && mY>sY+1 && mY<=sY+1+height ) {
-        if(!hovering) shineAnimation = 1;
-        hovering = true;
-    //If mouse not hovering
-    } else {
-        hovering = false;
+    if(parentWindow==nullptr || parentWindow->isActive()) {
+        if( mX>sX+1 && mX<=sX+1+width && mY>sY+1 && mY<=sY+1+height ) {
+            if(!hovering) shineAnimation = 1;
+            hovering = true;
+        //If mouse not hovering
+        } else {
+            hovering = false;
+        }
     }
 
     //Mouse hover animation
@@ -220,3 +224,5 @@ bool Button::isSelected() { return selected; }
 std::string Button::getString() { return btnText.getString(); }
 
 void Button::setString(std::string s) { btnText.setString(s); }
+void Button::unclick() { clicked = false; }
+void Button::deselect() { selected = false; }

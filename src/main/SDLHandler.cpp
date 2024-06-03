@@ -24,8 +24,6 @@ void SDLHandler::init()
     //Store information about video drivers
     setVideoDriversDesc();
 
-    //updateBTEApp();
-
 	//Create asset loaders
     textureLoader.init(windowRenderer, windowPixelFormat, resourcePath);
     audioLoader.init(resourcePath);
@@ -270,7 +268,7 @@ void SDLHandler::createWindowAndRenderer()
     if(fullscreen) {
         //Create fullscreen window that is positioned in the display with id 'lastDisplayID.'
         window = SDL_CreateWindow(
-                                  Main::VERSION.c_str(),
+                                  Main::TITLE.c_str(),
                                   SDL_WINDOWPOS_UNDEFINED_DISPLAY(lastDisplayID),
                                   SDL_WINDOWPOS_UNDEFINED_DISPLAY(lastDisplayID),
                                   0, 0,
@@ -280,7 +278,7 @@ void SDLHandler::createWindowAndRenderer()
     } else {
         //Create resizable window that is resizable and positioned in the display with id 'lastDisplayID.'
         window = SDL_CreateWindow(
-                                  Main::VERSION.c_str(),
+                                  Main::TITLE.c_str(),
                                   SDL_WINDOWPOS_UNDEFINED_DISPLAY(lastDisplayID),
                                   SDL_WINDOWPOS_UNDEFINED_DISPLAY(lastDisplayID),
                                   maxWidth*3/4, maxHeight*3/4,
@@ -357,46 +355,4 @@ void SDLHandler::setVideoDriversDesc()
     ss << " }";
 
     videoDriversDesc = ss.str();
-}
-
-bool SDLHandler::updateBTEApp()
-{
-	/* Update app if needed */
-	CurlHandler ch;
-	ch.init(this);
-
-	std::string newVersion = "";
-	if(ch.newBTEVersionAvailable(&newVersion)) {
-		Log::log("================================");
-		Log::log("Preparing to download assets for version \"%s\".", newVersion.c_str());
-
-		auto assets = ch.getBTEAssetPathList();
-		auto dirs = ch.getBTEDirList(assets);
-
-		//Make the necessary dirs
-		Log::log("CREATING DIRECTORIES:");
-        FileHandler fh;
-        fh.init(resourcePath, filesystemType);
-		for(std::string s : dirs) {
-			if(s.substr(0,12).compare("backtoearth/")!=0) {
-				Log::error(__PRETTY_FUNCTION__, "Invalid directory \"%s\" found", s.c_str());
-			} else {
-				fh.createBTEDir(s.substr(12));
-				Log::log(s.substr(12));
-			}
-		}
-
-		//Update the necessary asset files
-		Log::log("DOWNLOADING/UPDATING ASSET FILES:");
-		for(std::string s : assets) {
-			ch.cURLIntoFile(s, "https://noahc606.github.io/nch/bte/1.1.0a-assets/backtoearth/");
-			Log::log(s);
-		}
-
-		Log::log("DOWNLOADS COMPLETE");
-		Log::log("================================");
-		return true;
-	}
-
-	return false;
 }

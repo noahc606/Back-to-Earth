@@ -3,7 +3,8 @@
 #include "Log.h"
 #include "TextureBuilder.h"
 /**/
-int Window::bkgdScroll = 0;
+double Window::bkgdScrollA = 0;
+double Window::bkgdScrollB = 0;
 
 Window::Window(int x, int y, WindowData* winData, int id)
 {
@@ -67,14 +68,18 @@ void Window::init(SDLHandler* sh, Controls* ctrls)
         switch( winData->getSpecialType() )
         {
         case WindowData::BACKGROUND: {
-            //Build a 'background' scrolling window
-            windowTex.init(sdlHandler);
-            windowTex.setTexDimensions(1024, 1024);
-            windowTex.lock(0, 0, 1024, 1024);
+            //Build the two background scrolling windows
+            windowTexBkgdA.init(sdlHandler);
+            windowTexBkgdA.setTexDimensions(1024, 1024);
+            windowTexBkgdA.lock();
+            windowTexBkgdA.blit(TextureLoader::WORLD_background_space_interstellar);
+            windowTexBkgdA.setDrawScale(2);
 
-            int space = TextureLoader::Textures::WORLD_background_space_interstellar;
-            windowTex.blit(space);
-            windowTex.setDrawScale(2);
+            windowTexBkgdB.init(sdlHandler);
+            windowTexBkgdB.setTexDimensions(1024, 1024);
+            windowTexBkgdB.lock();
+            windowTexBkgdB.blit(TextureLoader::WORLD_background_space_intergalactic);
+            windowTexBkgdB.setDrawScale(2);
         } break;
 
         case WindowData::COLOR_SELECTOR: {
@@ -131,16 +136,17 @@ void Window::draw()
     switch( winData->getSpecialType() )
     {
     case WindowData::BACKGROUND: {
-        int wtx = 0; int wty = 0; double wts = 0;
-        windowTex.queryDrawInfo(wtx, wty, wts);
-        int wtw = 0; int wth = 0;
-        windowTex.queryTexInfo(wtw, wth);
+        //Draw windowTexBkgdB twice
+        int wtx = 0; int wty = 0; double wts = 0;           wtx = windowTexBkgdB.getDrawX(); wty = windowTexBkgdB.getDrawY(); wts = windowTexBkgdB.getDrawScale();
+        int wtw = 0; int wth = 0;                           wtw = windowTexBkgdB.getTexWidth(); wth = windowTexBkgdB.getTexHeight();
+        windowTexBkgdB.setDrawPos(wtx-wtw*wts, wty);        windowTexBkgdB.draw();
+        windowTexBkgdB.setDrawPos(wtx, wty);                windowTexBkgdB.draw();
 
-        windowTex.setDrawPos(wtx-wtw*wts, wty);
-        windowTex.draw();
-        windowTex.setDrawPos(wtx, wty);
-
-        windowTex.draw();
+        //Draw windowTexBkgdA twice
+        wtx = windowTexBkgdA.getDrawX(); wty = windowTexBkgdA.getDrawY(); wts = windowTexBkgdA.getDrawScale();
+        wtw = windowTexBkgdA.getTexWidth(); wth = windowTexBkgdA.getTexHeight();
+        windowTexBkgdA.setDrawPos(wtx-wtw*wts, wty);        windowTexBkgdA.draw();
+        windowTexBkgdA.setDrawPos(wtx, wty);                windowTexBkgdA.draw();
     } break;
 
     case WindowData::COLOR_SELECTOR: {
@@ -167,21 +173,33 @@ void Window::tick()
     switch( winData->getSpecialType() )
     {
     case WindowData::BACKGROUND: {
-        bkgdScroll+=1;
+        //Increment scroll of both textures
+        bkgdScrollA+=0.7;
+        bkgdScrollB+=0.2;
 
-        int wtw = 0; int wth = 0;
-        windowTex.queryTexInfo(wtw, wth);
+        //Get information of both textures
+        int wtwA = windowTexBkgdA.getTexWidth();
+        int wthA = windowTexBkgdA.getTexHeight();
+        int wtwB = windowTexBkgdB.getTexWidth();
+        int wthB = windowTexBkgdB.getTexHeight();
 
-        windowTex.setDrawPos(bkgdScroll*windowTex.getDrawScale(), 0);
-        if( bkgdScroll>wtw ) {
-            windowTex.setDrawPos(0, 0);
-            bkgdScroll = 0;
+        //Set draw position of both textures
+        windowTexBkgdA.setDrawPos(((int)bkgdScrollA)*windowTexBkgdA.getDrawScale(), 0);
+        if( bkgdScrollA>wtwA ) {
+            windowTexBkgdA.setDrawPos(0, 0);
+            bkgdScrollA = 0;
         }
+        windowTexBkgdB.setDrawPos(((int)bkgdScrollB)*windowTexBkgdB.getDrawScale(), 0);
+        if( bkgdScrollB>wtwB ) {
+            windowTexBkgdB.setDrawPos(0, 0);
+            bkgdScrollB = 0;
+        }
+
     } break;
 
     case WindowData::COLOR_SELECTOR: {
-        int wtw = 0; int wth = 0;
-        windowTex.queryTexInfo(wtw, wth);
+        int wtw = windowTex.getTexWidth();
+        int wth = windowTex.getTexHeight();
 
         ColorSelector* cs = (ColorSelector*)winData->getRelatedUI();
         cs->updateColAreaXY(sX+wtw/2-100, sY+wth-100);
@@ -203,7 +221,7 @@ void Window::onWindowUpdate(bool preventInvalidTPos)
         width = sdlHandler->getWidth();
         height = sdlHandler->getHeight();
 
-        windowTex.setDrawPos(bkgdScroll*windowTex.getDrawScale(), 0);
+        windowTexBkgdA.setDrawPos(bkgdScrollA*windowTexBkgdA.getDrawScale(), 0);
     }
 }
 
@@ -218,8 +236,8 @@ void Window::updateColorSelectorUI(double hue)
         return;
     }
 
-    int wtw = 0; int wth = 0;
-    windowTex.queryTexInfo(wtw, wth);
+    int wtw = windowTex.getTexWidth();
+    int wth = windowTex.getTexHeight();
     int uiX = wtw/4-50; int uiW = 128;
     int uiY = wth/2-50; int uiH = 128;
 

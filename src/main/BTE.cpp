@@ -3,7 +3,9 @@
 #include <type_traits>
 #include "ButtonAction.h"
 #include "CurlHandler.h"
+#include "GUIBuilder.h"
 #include "Log.h"
+#include "ProgressBar.h"
 #include "MainLoop.h"
 #include "Tests.h"
 #include "TextOld.h"
@@ -30,13 +32,13 @@ void BTE::preinit(SDLHandler* sh, FileHandler* fh, Controls* ctrls)
 		sdlHandler->toggleBTECursor();
 		lastBTECursorState = "true";
 	}
-	if( settings->get(Settings::options, "debugHacks")=="joseph is lame" ) {	// Debugging tools?
+	if( settings->get(Settings::options, "debugHacks")==Main::PASSWORD ) {	// Debugging tools?
 		debugScreen.setHaxEnabled(true);
 	}
-	if( alwaysTest || settings->get(Settings::options, "debugTesting")=="true" ) {	// Testing?
+	if( alwaysTest || settings->get(Settings::options, "debugTesting")==Main::PASSWORD ) {	// Testing?
 		testing = true;
 	}
-	if( alwaysTest || settings->get(Settings::options, "debugHardTesting")=="true" ) {	// Hard testing?
+	if( alwaysTest || settings->get(Settings::options, "debugHardTesting")==Main::PASSWORD ) {	// Hard testing?
 		hardTesting = true;
 	}
 	if( hardTesting ) {
@@ -57,6 +59,25 @@ void BTE::init()
 		setGameState(GameState::MAIN_MENU);
 	} else {
 		setGameState(GameState::TESTING);
+	}
+
+	//Test for new version
+	std::string cfu = settings->get(Settings::options, "checkForUpdates");
+	Log::debug("checkForUpdates==%s...", cfu.c_str());
+	if(cfu=="true") {
+		CurlHandler ch;
+		ch.init(sdlHandler);
+		std::string potentialNewVersion = "";
+
+		if(ch.newBTEVersionAvailable(&potentialNewVersion)) {
+			Window* titleWindow = guiHandler.getWindow(GUIHandler::win_MAIN);
+			if(titleWindow!=nullptr) {
+				GUIBuilder gb;
+				gb.buildUpdatePrompt(guiHandler, titleWindow, potentialNewVersion);
+			} else {
+				Log::warnv(__PRETTY_FUNCTION__, "skipping update prompt GUI", "Didn't find title window (are you in gamestate MAIN?)");
+			}
+		}
 	}
 }
 
@@ -141,9 +162,14 @@ void BTE::tick()
 		//GUI Button Action
 		int gaid = guiHandler.getGUIActionID();
 		if( gaid>-1 ) {
+			//Handle most button action IDs
 			ButtonAction ba(sdlHandler, &guiHandler, fileHandler, controls);
-			//Game state switching through buttons
+			
+			//Handle special button action IDs (mostly gamestate switching)
 			switch( gaid ) {
+				/** Update prompt */
+				case GUIHandler::btn_UPDATE_PROMPT_accept: { setGameState(GameState::UPDATING); } break;
+
 				/** Main Menu */
 				case GUIHandler::btn_MAIN_play: { setGameState(GameState::SELECT_CAMPAIGN); } break;
 				case GUIHandler::btn_MAIN_exit: { setGameState(GameState::EXIT); } break;
@@ -336,6 +362,69 @@ GUIHandler* BTE::getGUIHandler()
 	return &guiHandler;
 }
 
+bool BTE::updateBTEApp()
+{
+	//Prevent update sequence if not in the correct gamestate
+	if(gamestate!=GameState::UPDATING) {
+		Log::warn(__PRETTY_FUNCTION__, "Within invalid gamestate");
+		return false;
+	}
+
+	/* Update app */
+	CurlHandler ch;
+	ch.init(sdlHandler);
+
+	std::string newVersion = "";
+	if(ch.newBTEVersionAvailable(&newVersion)) {
+		Log::log("================================");
+		Log::log("Preparing to download assets for version \"%s\".", newVersion.c_str());
+
+		auto assets = ch.getBTEAssetPathList(); updateNumFiles = assets.size();
+		auto dirs = ch.getBTEDirList(assets);
+
+		//Make the necessary dirs
+		Log::log("CREATING DIRECTORIES:");
+        FileHandler fh;
+        fh.init(sdlHandler->getResourcePath(), sdlHandler->getFilesystemType());
+		for(std::string s : dirs) {
+			if(s.substr(0,12).compare("backtoearth/")!=0) {
+				Log::error(__PRETTY_FUNCTION__, "Invalid directory \"%s\" found", s.c_str());
+			} else {
+				if(!forceDisableUpdateDLs) {
+					fh.createBTEDir(s.substr(12));
+				}
+				Log::log(s.substr(12));
+			}
+		}
+
+		//Update the necessary asset files
+		Log::log("DOWNLOADING/UPDATING ASSET FILES:");
+		for(std::string s : assets) {
+			if(!forceDisableUpdateDLs) {
+				ch.cURLIntoFile(s, "https://noahc606.github.io/nch/bte/assets/"+s);
+			}
+
+			GUI* gui = guiHandler.getGUI(BTEObject::GUI_progressbar, GUIHandler::pbr_UPDATING_SCREEN);
+			if(gui!=nullptr) {
+				ProgressBar* pbr = (ProgressBar*)gui;
+				pbr->onWindowUpdate();
+				pbr->tick();
+				pbr->draw();
+			}
+
+			SDL_Delay(100);
+
+			Log::log(s);
+		}
+
+		Log::log("DOWNLOADS COMPLETE");
+		Log::log("================================");
+		return true;
+	}
+
+	return false;
+}
+
 void BTE::setGameState(int p_gamestate, std::string extraInfo)
 {
 	// Upon gamestate change, we should unload world and tests
@@ -371,6 +460,17 @@ void BTE::setGameState(int p_gamestate, std::string extraInfo)
 				al->play(AudioLoader::TITLE_impact);
 				playedImpact = true;
 			}
+		} break;
+
+		case UPDATING: {
+			Log::log("Started updating...");
+			GUIBuilder gb;
+			gb.buildUpdatingScreen(guiHandler);
+
+			updateBTEApp();
+
+			Log::log("Finished updating.");
+
 		} break;
 
 		// Go to campaign selection

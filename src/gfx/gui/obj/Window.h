@@ -29,10 +29,13 @@ protected:
 
 private:
     Texture windowTex;
+    Texture windowTexBkgdA;
+    Texture windowTexBkgdB;
     TextOld upperPanelText;
     TextOld lowerPanelText;
     WindowData* winData = nullptr;
 
     bool active = true;
-    static int bkgdScroll;
+    static double bkgdScrollA;
+    static double bkgdScrollB;
 };

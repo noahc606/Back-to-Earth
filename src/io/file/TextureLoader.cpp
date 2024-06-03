@@ -257,6 +257,7 @@ void TextureLoader::load()
 			addSurface("gui/player_interactions");
 			addSurface("gui/window");
 			addSurface("gui/save_selector");
+			addSurface("gui/misc");
 			//Player
 			addSurface("player/items");
 			addSurface("player/side/hair");
@@ -271,6 +272,7 @@ void TextureLoader::load()
 			addSurface("player/top/lower_body");
 			//World
 			addSurface("world/background/space/interstellar");
+			addSurface("world/background/space/intergalactic");
 			addSurface("world/region0");
 			addSurface("world/region1");
 			addSurface("world/tile/type_a");

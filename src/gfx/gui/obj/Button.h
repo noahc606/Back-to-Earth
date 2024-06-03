@@ -22,7 +22,9 @@ public:
     std::string getString();
     /**/
     void setString(std::string s);
-
+    void unclick();
+    void deselect();
+    
 protected:
     /* Button textures */
     Texture texBtn;                 //When mouse not hovering

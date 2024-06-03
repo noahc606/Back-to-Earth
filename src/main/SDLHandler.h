@@ -63,7 +63,6 @@ private:
     void createWindowAndRenderer();
     void validateDevicePlatform();
     void setVideoDriversDesc();
-    bool updateBTEApp();
 
     /**/
     /* Resources */

@@ -182,10 +182,10 @@ void Canvas::putInfo(std::stringstream& ss, int& tabs)
 Camera* Canvas::getCamera() { return camera; }
 
 
-void Canvas::getSubPos(t_ll& x, t_ll& y, t_ll& z) { x = getSubPos(x); y = getSubPos(y); z = getSubPos(z); }
-Canvas::t_ll Canvas::getSubPos(t_ll c) { c %= defaultTexSize; if( c<0 ) c+=defaultTexSize; return c; }
-void Canvas::getRXYZ(t_ll& x, t_ll& y, t_ll& z) { x = getRXYZ(x); y = getRXYZ(y); z = getRXYZ(z); }
-Canvas::t_ll Canvas::getRXYZ(t_ll c) { c = floor(c/((double)defaultTexSize)); return c; }
+void Canvas::getSubPos(int64_t& x, int64_t& y, int64_t& z) { x = getSubPos(x); y = getSubPos(y); z = getSubPos(z); }
+int64_t Canvas::getSubPos(int64_t c) { c %= defaultTexSize; if( c<0 ) c+=defaultTexSize; return c; }
+void Canvas::getRXYZ(int64_t& x, int64_t& y, int64_t& z) { x = getRXYZ(x); y = getRXYZ(y); z = getRXYZ(z); }
+int64_t Canvas::getRXYZ(int64_t c) { c = floor(c/((double)defaultTexSize)); return c; }
 float Canvas::getTexLODBasedOnZoom(double p_zoom)
 {
     if( p_zoom<0.03125 ) {
@@ -278,7 +278,7 @@ void Canvas::setTexLODBasedOnZoom(double p_zoom)
     texture borders (for example, tiles),
     use this function which performs a single blit.
 */
-void Canvas::rcopyNI(t_ll dx, t_ll dy, t_ll dw, t_ll dh)
+void Canvas::rcopyNI(int64_t dx, int64_t dy, int64_t dw, int64_t dh)
 {
     if(!shouldRendRect(dx, dy, dw, dh)) return;
 
@@ -295,7 +295,7 @@ void Canvas::rcopyNI(t_ll dx, t_ll dy, t_ll dw, t_ll dh)
     May perform multiple blits if an object crosses
     a texture border.
 */
-void Canvas::rcopy(t_ll dx, t_ll dy, t_ll dw, t_ll dh)
+void Canvas::rcopy(int64_t dx, int64_t dy, int64_t dw, int64_t dh)
 {
     if(!shouldRendRect(dx, dy, dw, dh)) return;
 
@@ -406,7 +406,7 @@ void Canvas::realloc(int64_t csRX, int64_t csRY, int maxRegions)
 void Canvas::realloc(int64_t csRX, int64_t csRY) { realloc(csRX, csRY, texAllocCount);}
 void Canvas::reallocSingle(int64_t csRX, int64_t csRY) { realloc(csRX, csRY, 1); }
 
-bool Canvas::shouldRendRect(t_ll dx, t_ll dy, t_ll dw, t_ll dh)
+bool Canvas::shouldRendRect(int64_t dx, int64_t dy, int64_t dw, int64_t dh)
 {
     if( !forcingBlits && frameFinished )
         return false;

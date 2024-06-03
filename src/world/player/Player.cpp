@@ -9,24 +9,24 @@
 #include "TextureLoader.h"
 #include "TileMap.h"
 
+const double Player::unit = 0.03125; // 0.03125 = 1/32
+
 Player::Player() { }
-void Player::init(SDLHandler* sh, GUIHandler* guih, Controls* ctrls, Settings* stngs)
+void Player::init(SDLHandler* sh, GUIHandler* guih, Settings* stngs, Controls* ctrls)
 {
-	sdlHandler = sh;
-	guiHandler = guih;
-	controls = ctrls;
-	settings = stngs;
+	sdlHandler = sh; guiHandler = guih;
+	settings = stngs; controls = ctrls;
+	
 	camera.init(sdlHandler, ctrls);
+	camera.setFocused(false);
 
-	/** Build player spritesheet */
-	//playerPal.init(playerPal.DEFAULT_PLAYER);
+/** Build player palette, spritesheets and textures */
+//Palette
 	playerPal.initPlayerPalette(settings);
-
-	/** Build sprite sheet */
+//Build sprite sheet
 	SpriteSheetBuilder ssb(sdlHandler);
 	ssb.buildSpriteSheet(ssb.DEFAULT_PLAYER, spsh, playerPal);
-
-	/** Build player textures */
+//Textures
 	//Main (top view)
 	playerTex.init(sdlHandler);
 	playerTex.setTexDimensions(32, 64);
@@ -37,14 +37,11 @@ void Player::init(SDLHandler* sh, GUIHandler* guih, Controls* ctrls, Settings* s
 	hud.init(sdlHandler, 30, 30);
 	hud.setDrawScale(2);
 	hud.setDrawPos(0, 0);
-
-	/** Build bounding box */
-	//TODO
 	
+/** Player properties */
+//Booleans
 	godMode = true;
-	ghost = true;
-
-	camera.setFocused(false);
+	noclip = false;
 }
 
 Player::~Player() {}
@@ -53,7 +50,7 @@ void Player::destroy()
 	playerTex.destroy();
 }
 
-void Player::draw(Canvas* csEntities)
+void Player::draw(Canvas* csEntities, bool debugging)
 {
 	/*
 	 *	Rebuild player texture from spritesheet
@@ -76,21 +73,33 @@ void Player::draw(Canvas* csEntities)
 		sst->draw();
 	}
 	
+	//Player is slightly translucent
+	int opacity = 255;
+	if(noclip) {
+		opacity = 150;
+	}
+
 	//Build player texture
-	if(1) {
+	if(0) {
+		playerTex.clear();
+		playerTex.setTexDimensions(20, 64);
+	} else if(!debugging) {
+		playerTex.setColorMod(255, 255, 255, opacity);
 		rebuildPlayerTex(playerTex, cameraHorizontal);
 	} else {
 		if(cameraHorizontal) {
 			playerTex.clear();
 			playerTex.setTexDimensions(32, 64);
+			
 			playerTex.lock();
-			playerTex.setColorMod(255, 0, 0);
+			playerTex.setColorMod(255, 0, 0, opacity);
 			playerTex.fill();
 		} else {
 			playerTex.clear();
 			playerTex.setTexDimensions(32, 32);
+
 			playerTex.lock();
-			playerTex.setColorMod(255, 0, 0);
+			playerTex.setColorMod(255, 0, 0, opacity);
 			playerTex.fill();
 		}
 	}
@@ -102,13 +111,13 @@ void Player::draw(Canvas* csEntities)
 	csEntities->setSourceTex(&playerTex);
 	switch(camera.getAxis()) {
 		case Camera::X: {
-			csEntities->rcopy(y*32, z*32, playerTex.getTexWidth(), playerTex.getTexHeight());
+			csEntities->rcopy(y*32-16, z*32, playerTex.getTexWidth(), playerTex.getTexHeight());
 		} break;
 		case Camera::Y: {
-			csEntities->rcopy(x*32, z*32, playerTex.getTexWidth(), playerTex.getTexHeight());
+			csEntities->rcopy(x*32-16, z*32, playerTex.getTexWidth(), playerTex.getTexHeight());
 		} break;
 		case Camera::Z: {
-			csEntities->rcopy(x*32, y*32, playerTex.getTexWidth(), playerTex.getTexHeight());
+			csEntities->rcopy(x*32-16, y*32-16, playerTex.getTexWidth(), playerTex.getTexHeight());
 		} break;
 	}
 	
@@ -172,6 +181,8 @@ void Player::drawHUD()
 
 void Player::tick()
 {
+/** Process commands */
+	//"tele" command
 	if( Commands::cmdIntResult("tele")!=nullptr ) {
 		x = (*Commands::cmdIntResult("tele.x"));
 		y = (*Commands::cmdIntResult("tele.y"));
@@ -179,16 +190,18 @@ void Player::tick()
 		Commands::resetCMDEntered(__PRETTY_FUNCTION__);
 	}
 	
-	/** Physical */
-	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	//Losing oxygen - 100 points. Losing 0.01/tick = lasts 2min 46sec. May be shorter depending on sprinting/swimming/etc.
-	oxygen -= 0.01;
-	//Losing water - 100 points. 0.0004/tick = lasts 69.4min = 2.89 earth days. May be shorter depending on heat
-	water -=  0.0004;
-	//Losing food - 100 points. 0.000025/tick = lasts 1111.1min = 46.29 earth days. May be shorter depending on body activity
-	nutrition -= 0.000025;
-	
-	/** Handle things being out of range */
+/** Player's body state */
+//Incrementers
+	//Gaining age - +1/tick = +40/sec.
+	age++;
+//Decrementers
+	//Losing oxygen - 100 points. Losing 0.015/tick = lasts 2min 46sec. May be shorter depending on sprinting/swimming/etc.
+	oxygen -= 0.015;
+	//Losing water - 100 points. 0.0006/tick = lasts 69.4min = 2.89 earth days. May be shorter depending on heat
+	water -=  0.0006;
+	//Losing food - 100 points. 0.0000375/tick = lasts 1111.1min = 46.29 earth days. May be shorter depending on body activity
+	nutrition -= 0.0000375;
+//Limiters (handle things out of range)
 	//Less than 0
 	if(defense<0) defense = 0;
 	if(health<0) health = 0;
@@ -201,13 +214,73 @@ void Player::tick()
 	if(nutrition>maxNutrition) nutrition = maxNutrition;
 	if(water>maxWater) water = maxWater;
 	if(oxygen>maxOxygen) oxygen = maxOxygen;
+
+/** Player actions and controls */
+//Set player actions
+	//Player action reset to NONE
+	action = NONE;
+	//Special actions in godMode
+	if( godMode ) {
+		if( controls->isHeld("HARDCODE_RIGHT_CLICK") ) {
+			action = Action::GM_Place_Tile;
+		} else if( controls->isHeld("HARDCODE_LEFT_CLICK") ) {
+			action = Action::GM_Destroy_Tile;
+		}
+	}
+//Set whether player is controllable
+	//Controllable reset to true
+	controllable = true;
+	//If a tbx_DEBUG exists (console command textbox), disable controlling
+	if( guiHandler->getGUI(BTEObject::GUI_textbox, GUIHandler::tbx_DEBUG)!=nullptr ) {
+		controllable = false;
+	}
+//Tick controls if appropriate
+	//Movement (sprint/crouch, walk)
+	if(!camera.isFreecam() && controllable) {
+		tickControls();
+	}
 	
-	
-	age++;
-	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	
-	/** Graphical */
-	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/** Snap from bounding boxes (after velocity processing) */
+//Based on snap calculated last tick, limit certain velocity components
+	if(snapD && vz>0) { vz = 0; }
+	if(snapU && vz<0) { vz = 0; }
+	if(snapE && vx>0) { vx = 0; }
+	if(snapW && vx<0) { vx = 0; }
+	if(snapS && vy>0) { vy = 0; }
+	if(snapN && vy<0) { vy = 0; }
+
+/** Player position and velocity */
+	//vx, vy, vz velocity components added to x, y, z
+	x+=vx;
+	y+=vy;
+	z+=vz;
+
+/** Visuals */
+//Player animation
+	//Tick animation
+	tickAnimation();
+//Camera - keep as last
+	//Tick camera
+	camera.tick();
+	//Camera translations
+	double dcx = 0.0;
+	double dcy = 0.0;
+	double dcz = 0.0;
+	switch(camera.getAxis()) {
+		case Camera::X: { dcx = 0.0; dcy = 0.0; dcz = 1.0; } break;
+		case Camera::Y: { dcx = 0.0; dcy = 0.0; dcz = 1.0; } break;
+	}
+	//Camera coordinates
+	double cx = (int)(x*32.0)/32.0;
+	double cy = (int)(y*32.0)/32.0;
+	double cz = z;
+	//Set camera to appropriate coordinates
+	camera.setXYZ(cx+dcx, cy+dcy, cz+dcz);
+}
+
+void Player::tickAnimation()
+{
 	//Determine player flip + rotation
 	flip = Texture::Flip::NONE;
 	if(facing==Camera::WEST) {
@@ -259,61 +332,20 @@ void Player::tick()
 
 		}
 	}
-	
-	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-	//Physics
-	x+=vx;
-	y+=vy;
-	z+=vz;
-
-	//Reset player action
-	action = NONE;
-
-	/** God mode actions */
-	if( godMode ) {
-		if( controls->isHeld("HARDCODE_RIGHT_CLICK") ) {
-			action = Action::GM_Place_Tile;
-		} else if( controls->isHeld("HARDCODE_LEFT_CLICK") ) {
-			action = Action::GM_Destroy_Tile;
-		}
-	}
-
-	controllable = true;
-	if( guiHandler->getGUI(BTEObject::GUI_textbox, GUIHandler::tbx_DEBUG)!=nullptr ) {
-		controllable = false;
-	}
-
-	/** Player control */
-	//Movement (sprint/crouch, walk)
-	if(!camera.isFreecam() && controllable) {
-		tickControls();
-	}
-	
-	/** Camera set to player's (x, y, z) - keep as last */
-	camera.tick();
-	double t1 = 0.5;
-	double t2 = 1.0;
-	double t3 = -1.0;
-	
-	double c1 = (int)(x*32.0)/32.0;
-	double c2 = (int)(y*32.0)/32.0;
-	double c3 = z;
-	camera.setXYZ(c1+t1, c2+t2, c3+t3);
-	/** Set bounding box */
 }
 
 void Player::tickControls()
 {
+	noclip = false;
 	double speed = 0.085;
 	if( controls->isHeld("PLAYER_SPRINT") ) speed = 0.170;
 	if( controls->isHeld("PLAYER_CROUCH") ) speed = 0.009;
 	if( godMode ) {
 		if( controls->isHeld("PLAYER_SPRINT") ) {
+			noclip = true;
 			speed = runSpeed;
 			if ( controls->isHeld("PLAYER_CROUCH") ) {
-				speed = 1000000;
+				speed = 1000;
 			}
 		}
 	}
@@ -336,8 +368,6 @@ void Player::tickControls()
 
 	//Depending on camera direction, apply velocity in the appropriate direction.
 	switch(camera.getDirection()) {
-		//case Camera::NORTH:	{ vx = v3; vy = v1; vz = v2;  } break;
-		//case Camera::SOUTH:	{ vx = v3; vy = v1; vz = v2;  } break;
 		case Camera::NORTH:
 		case Camera::SOUTH: {
 			vx = mv1; vy = mv3;
@@ -358,16 +388,64 @@ void Player::tickControls()
 	}
 }
 
+void Player::collision(TileMap* tm)
+{
+	//Reset snap states
+	snapS = 0; snapN = 0; snapE = 0; snapW = 0;
+	snapD = 0; snapU = 0;
+
+	//If player is intangible, do no collision.
+	if(noclip) {
+		return;
+	}
+
+	//Store location of tile being collided with
+	int64_t cx = 0;
+	int64_t cy = 0;
+	int64_t cz = 0;
+	
+	//Determine whether to snap to SOUTH, NORTH (y), EAST, WEST (x), or DOWN (z).
+	if(tm->collides(getBounds(SOUTH), cx, cy, cz)) 	collisionSnap(cy, 10, y, snapS);
+	if(tm->collides(getBounds(NORTH), cx, cy, cz)) 	collisionSnap(cy+1, -10, y, snapN);
+	if(tm->collides(getBounds(EAST), cx, cy, cz)) 	collisionSnap(cx, 10, x, snapE);
+	if(tm->collides(getBounds(WEST), cx, cy, cz)) 	collisionSnap(cx+1, -10, x, snapW);
+	if(tm->collides(getBounds(LOWER), cx, cy, cz)) 	collisionSnap(cz, 64, z, snapD);
+
+	//Determine up/ceiling snap (special case)
+	if(tm->collides(getBounds(UPPER), cx, cy, cz)) {
+		//If head nearly matches up with the ceiling, teleport player to be right under the ceiling.
+		double headDepth = z+0.125;
+		if( cz+1>headDepth-0.1 && cz+1<headDepth+0.1 ) {
+			z = cz+0.875;
+			snapU = true;
+		}
+	}
+}
+
+void Player::collisionSnap(int64_t tileCoord, double depthMod, double& playerCoordRef, bool& snapRef)
+{
+	double depth = playerCoordRef+unit*depthMod;
+	if(tileCoord>depth-0.1 && tileCoord<depth+0.1) {
+		playerCoordRef = tileCoord-unit*depthMod;
+		snapRef = true;
+	}
+}
+
 void Player::putInfo(std::stringstream& ss, int& tabs)
 {
 	DebugScreen::indentLine(ss, tabs);
 	ss << "XYZ=(" << x << ", " << y << ", " << z << "); ";
 	DebugScreen::newLine(ss);
 
-	if(!true) {
+	if(true) {
 		DebugScreen::indentLine(ss, tabs);
-		ss << "dXYZ=(" << vx << ", " << vy << ", " << vz << "); ";
+		ss << "vXYZ=(" << vx << ", " << vy << ", " << vz << "); ";
 		DebugScreen::newLine(ss);
+	}
+
+	if(true) {
+		DebugScreen::indentLine(ss, tabs);
+		ss << "snap(NESWUD)=(" << snapN << ", " << snapE << ", " << snapS << ", " << snapW << ", " << snapU << ", " << snapD << ")";
 	}
 
 	if(!true) {
@@ -380,17 +458,53 @@ void Player::putInfo(std::stringstream& ss, int& tabs)
 }
 
 int Player::getAction() { return action; }
-Box3D* Player::getBounds()
+
+Box3D Player::getBounds(int bbt)
 {
-	bounds.c1.x = x-0.3;
-	bounds.c1.y = y-0.3;
-	bounds.c1.z = z-2;
-	bounds.c2.x = x+0.3;
-	bounds.c2.y = y+0.3;
-	bounds.c2.z = z;
-	
-	return &bounds;
+	Box3D b3d;
+	b3d.c1.x = x-unit*11.;	b3d.c2.x = x+unit*11.;
+	b3d.c1.y = y-unit*11.;	b3d.c2.y = y+unit*11.;
+	b3d.c1.z = z+4.*unit;	b3d.c2.z = z+2;
+
+	switch (bbt) {
+	case MAIN: 	{ } break;
+	case EAST: 	{
+		b3d.c1.x = x+unit*11.;
+		b3d.c1.y = y-unit*10.;	b3d.c2.y = y+unit*10.;
+	} break;
+	case WEST: 	{
+		b3d.c2.x = x-unit*11.;
+		b3d.c1.y = y-unit*10.;	b3d.c2.y = y+unit*10.;
+	} break;
+	case SOUTH: {
+		b3d.c1.x = x-unit*10.;	b3d.c2.x = x+unit*10.;
+		b3d.c1.y = y+unit*11.;
+	} break;
+	case NORTH: {
+		b3d.c1.x = x-unit*10.;	b3d.c2.x = x+unit*10.;
+		b3d.c2.y = y-unit*11.;
+	} break;
+
+	case LOWER: {
+		b3d.c1.x = x-unit*10.;	b3d.c2.x = x+unit*10.;
+		b3d.c1.y = y-unit*10.;	b3d.c2.y = y+unit*10.;
+		b3d.c1.z = z+unit*65.;	b3d.c2.z = z+unit*65.;
+	} break;
+	case UPPER: {
+		b3d.c1.x = x-unit*10.;	b3d.c2.x = x+unit*10.;
+		b3d.c1.y = y-unit*10.;	b3d.c2.y = y+unit*10.;
+		b3d.c1.z = z+unit*3.;	b3d.c2.z = z+unit*3.;
+	} break;
+	default:
+		Log::warnv(__PRETTY_FUNCTION__, "returning default Box3D", "Invalid bounding box type %d", bbt);
+		break;
+	}
+
+	return b3d;
 }
+Box3D Player::getBounds() { return getBounds(MAIN); }
+
+
 std::tuple<double, double, double> Player::getPos() { return std::make_tuple(x, y, z); }
 std::tuple<double, double, double> Player::getVelComponents() { return std::make_tuple(vx, vy, vz); }
 double Player::getVel() { return sqrt( vx*vx + vy*vy + vz*vz ); }
@@ -447,8 +561,7 @@ void Player::rebuildPlayerTex(Texture& tex, bool alt)
 		tex.blitEx(sst, 0, 32*TOP_MIDDLE_BODY, 32, 32, rotation);
 		
 		/* Arms (if player is walking) */
-		if(walkSpeed>0)
-		{
+		if(walkSpeed>0) {
 			tex.lock();
 			tex.blitEx(sst, 0, 32*TOP_ARMS, 32, 32, rotation);
 		}

@@ -60,10 +60,10 @@ int FileHandler::createBTEDir(std::string path)
 {
     path = resourcePath+path;
 
-    int x;
+    int cd;
     do {
-        x = createDir(path);
-    } while(x==0);
+        cd = createDir(path);
+    } while(cd==0);
 
     return 1;
 }
@@ -99,6 +99,20 @@ int FileHandler::createPNGScreenshot(SDL_Window* w, SDL_Renderer* r, SDL_PixelFo
         //Free surface
         SDL_FreeSurface(surf);
         return -1;
+    }
+}
+
+void FileHandler::openUserLocalURL(std::string url)
+{
+    //Create local URL ('lurl') from 'url'
+    std::stringstream ss;
+    ss << "file://" << resourcePath << url;
+    std::string lurl = ss.str();    //Local URL recognized as such by SDL (must start with "file:///")
+
+    //Attempt to open 'lurl'
+    Log::log("Attempting to open local URL \"%s\" in user's file manager...", lurl.c_str());
+    if(SDL_OpenURL(lurl.c_str())==-1) {
+        Log::errorv(__PRETTY_FUNCTION__, SDL_GetError(), "Failed to open local URL \"%s\"", lurl.c_str());
     }
 }
 
@@ -245,6 +259,10 @@ int FileHandler::saveCloseFile()
 
 bool FileHandler::fileExists(std::string path)
 {
+    if(dirExists(path)) {
+        return false;
+    }
+
     FilePath fp(path, filesystemType);
     struct stat buffer;
     std::string btePath = (getModifiedPath(fp));
@@ -264,7 +282,7 @@ bool FileHandler::dirExists(std::string path)
 
 std::vector<std::string> FileHandler::listDirContents(std::string parentDir, bool listOnlyDirs, bool recursive)
 {
-    FilePath fp(parentDir, filesystemType);    
+    FilePath fp(parentDir, filesystemType);
     std::string mfp = getModifiedPath(fp);
 
     std::vector<std::string> res;
@@ -322,6 +340,8 @@ uint64_t FileHandler::dirDiskSpaceUsed(std::string parentDir)
             saveCloseFile();
         }
     }
+
+    
 
     return res;
 }
@@ -482,16 +502,31 @@ bool FileHandler::checkMagicNumber(uint64_t mnPart1, uint64_t mnPart2)
 	return success;
 }
 
-long FileHandler::tellPos() { return ftell(file); }
+long FileHandler::tellPos() {
+    long res = ftell(file);
+    if(res==-1) {
+        Log::warnv(__PRETTY_FUNCTION__, "returning 0 instead", "ftell failed");
+        return 0;
+    }
+    return res;
+}
 
 long FileHandler::getFileLength()
 {
-	long origPos = tellPos();
+	//Store current pos
+    long origPos = tellPos();
 	
-	seekToEnd();
+    //Go to end and store pos of end
+    seekToEnd();
 	long res = tellPos();
 
+    //Go back to original pos
 	seekTo(origPos);
+
+    if(res==-1) {
+        Log::warnv(__PRETTY_FUNCTION__, "returning 0 instead", "getFileLength failed");
+        return 0;
+    }
 	return res;
 }
 
@@ -521,11 +556,10 @@ int FileHandler::seekTo(long byte)
 int FileHandler::seekToEnd() { return seek(0, SEEK_END); }
 int FileHandler::seekThru(long bytesDelta) { return seek(bytesDelta, SEEK_CUR); }
 
-int FileHandler::saveSettings(Settings::t_kvMap kvMap, std::string path)
-{
-	cEditFile( path );
-	
+void FileHandler::saveSettings(Settings::t_kvMap kvMap, std::string path)
+{	
 	if( kvMap.size()!=0 ) {
+	    cEditFile( path );
 		for(auto kvp : kvMap) {
             if( kvp.first.size()==0 || kvp.second.size()==0 ) {
                 continue;
@@ -536,58 +570,35 @@ int FileHandler::saveSettings(Settings::t_kvMap kvMap, std::string path)
 			write(kvp.second);
 			write("\n");
 		}
-		return 0;
-	}
 
-	saveCloseFile();
-	return 1;
+	    saveCloseFile();
+	} else {
+        Log::warn(__PRETTY_FUNCTION__, "kvMap is empty");
+    }
 }
 
-int FileHandler::saveSettings(int index)
+void FileHandler::saveSettings(int index)
 {
-    int success = -1;
-
     if( index>=0 && index<Settings::LAST_INDEX ) {
 		auto kvMap = settings.getKvMap(index);
 		std::string path = (*files[index]).get();
-		success = saveSettings(kvMap, path);
-    } else {
-        success = -1000;
-    }
+		saveSettings(kvMap, path);
 
-    if( success==0 ) {
         std::stringstream ss;
         ss << "Successfully saved file with index '" << index << "'.";
         Log::trbshoot(__PRETTY_FUNCTION__, ss.str());
-    } else if( success==-1000 ) {
+    } else {
         std::stringstream ss;
         ss << "Index '" << index << "' doesn't exist.";
         Log::error(__PRETTY_FUNCTION__, ss.str());
-    } else {
-        std::stringstream ss;
-        ss << "Failed to save file with index '" << index << "': kvMap.size()=0.";
-        Log::debug(ss.str());
     }
-    return success;
 }
 
-int FileHandler::saveSettings()
+void FileHandler::saveSettings()
 {
-    int fails = 0;
     for(int i = 0; i<Settings::LAST_INDEX; i++) {
-        if( saveSettings(i)!=0 ) {
-            fails++;
-        }
+        saveSettings(i);
     }
-
-    if( fails==0 )
-        return 1;
-
-    std::stringstream ss;
-    ss << "Failed to save " << fails << " files, something is very wrong";
-    Log::error(__PRETTY_FUNCTION__, ss.str());
-
-    return -fails;
 }
 
 void FileHandler::reloadSettings()
@@ -676,7 +687,7 @@ std::string FileHandler::getReadableMemorySize(uint64_t numBytes)
     //Get 'display' & 'unitType'
     double display = numBytes;
     int unitType = 0;
-    while(display>=1000 && unitType<4) {
+    while(display>=1000.0 && unitType<4) {
         unitType++;
         display /= 1000.0;
     }

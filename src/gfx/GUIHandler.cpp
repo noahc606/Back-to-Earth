@@ -42,12 +42,12 @@ void GUIHandler::draw()
             //First, draw the window.
             Window* win = (Window*)gui;
             win->draw();
-        
+
             //Second, draw all child GUIs who have this window as a parent
             for( GUI* cgui : guis ) {
-
                 if( cgui->isWindowComponent() && cgui->exists() ) {
                     WindowComponent* wc = (WindowComponent*)cgui;
+                    
                     if(wc->getParentWindow()==win) {
                         wc->draw();
                     }
@@ -156,7 +156,17 @@ void GUIHandler::tick()
 			//If button selected (not clicked)
 			if( btn->isSelected() ) {
 				guiActionID = btn->getID();
-				removeGUI( btn->getID() );
+
+                //Remove most buttons when they are clicked, but not all
+                switch(btn->getID()) {
+                    case btn_SELECT_CAMPAIGN_openSaveDirectory: {
+                        btn->deselect();
+                    } break;
+                    default: {
+				        removeGUI( btn->getID() );
+                    } break;
+                }
+
 				AudioLoader* al = sdlHandler->getAudioLoader();
 				al->play(AudioLoader::TITLE_button, 0.15);
 			}
@@ -372,7 +382,9 @@ GUI* GUIHandler::addGUI(GUI* gui, int extraID)
     gui->setExtraID(extraID);
     //Call init constructor based on its type
     switch(gui->getType()) {
-        case BTEObject::GUI_tooltip: {
+        case BTEObject::GUI_tooltip:
+        case BTEObject::GUI_progressbar:
+        {
             gui->init(sdlHandler);
         } break;
         case BTEObject::GUI_textbox: {
@@ -418,6 +430,10 @@ void GUIHandler::setGUIs(int guis)
 			gb.buildMainCharacter(*this, *fileHandler);
             setAllWindowsActiveState(true);
 		} break;
+        case DEBUG: {
+            gb.buildMainDebug(*this, *fileHandler);
+            setAllWindowsActiveState(true);
+        } break;
 
         /** Campaign Creation/Selection UIs */
         case SELECT_CAMPAIGN: {
@@ -435,6 +451,7 @@ void GUIHandler::setGUIs(int guis)
 			removeGUI(win_OPTIONS);
 			removeGUI(win_CONTROLS);
 			removeGUI(win_GRAPHICS_SETTINGS);
+			removeGUI(win_DEBUG_SETTINGS);
         } break;
 
         /** Active World UIs */

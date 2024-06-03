@@ -109,41 +109,53 @@ int64_t TileMap::convRxyToLSRxy(int64_t rxOrY) { rxOrY = floor(rxOrY/16.0); retu
 int64_t TileMap::convRzToLSRz(int64_t rz) { rz = floor(rz/4.0); return rz; }
 void TileMap::convRxyzToLSRxyz(int64_t& rx, int64_t& ry, int64_t& rz) { rx = convRxyToLSRxy(rx); ry = convRxyToLSRxy(ry); rz = convRzToLSRz(rz); }
 
-bool TileMap::collides( Box3D& b )
+/*
+	Do any tiles in the TileMap collide with Box 'b'?
+*/
+bool TileMap::collides(Box3D b, int64_t& cx, int64_t& cy, int64_t& cz)
 {
     TileIterator ti(this);
 
     int64_t xf = std::floor(b.c1.x);
     int64_t yf = std::floor(b.c1.y);
     int64_t zf = std::floor(b.c1.z);
-    int64_t xc = std::ceil(b.c2.x);
-    int64_t yc = std::ceil(b.c2.y);
-    int64_t zc = std::ceil(b.c2.z);
+    int64_t xc = std::floor(b.c2.x);
+    int64_t yc = std::floor(b.c2.y);
+    int64_t zc = std::floor(b.c2.z);
 
     ti.setBounds( xf, yf, zf, xc, yc, zc );
     ti.setTrackerMode( ti.SINGLE );
 
-    for( ; !ti.invalidIndex(); ti.nextRegion() ) {
+	//Iterate through all relevant tile positions (maximum of 2*2*3=12)
+    for( ; !ti.invalidIndex(); ti.nextRegion() ) {	
         TileRegion* tr = ti.peekRegion();
-        for(long x = ti.getBegSub(0); x<=ti.getEndSub(0); x++ ) {
-            for(long y = ti.getBegSub(1); y<=ti.getEndSub(1); y++ ) {
-                for(long z = ti.getBegSub(2); y<=ti.getEndSub(2); z++ ) {
-
-					TileType tt = tr->getTile(x, y, z);
-					
-					if ( tt.isSolid() ) {
-						std::stringstream ss; int tabs = 0;
-						tt.putInfo(ss, tabs);
-						std::cout << "Intersecting TileType @ (" << x << ", " << y << ", " << z << "):" << ss.str();
+		if(tr!=nullptr) {
+			for(int64_t sx = ti.getBegSub(0); sx<=ti.getEndSub(0); sx++ )
+			for(int64_t sy = ti.getBegSub(1); sy<=ti.getEndSub(1); sy++ )
+			for(int64_t sz = ti.getBegSub(2); sz<=ti.getEndSub(2); sz++ ) {
+				//If we are looking at a solid tile...
+				if(tr->getTile(sx, sy, sz).isSolid() ) {
+					int64_t x = ti.getItrReg(0)*32+sx;
+					int64_t y = ti.getItrReg(1)*32+sy;
+					int64_t z = ti.getItrReg(2)*32+sz;
+					//Build tileBox and check for collision against it
+					Box3D tileBox(x, y, z, x+1, y+1, z+1);
+					if(b.intersects(tileBox)) {
+						cx = x; cy = y; cz = z;
+						return true;
 					}
-                }
-            }
-        }
+				}
+			}
+		}
+	}
+	
+	return false;
+}
 
-
-    }
-
-    return true;
+bool TileMap::collides(Box3D b)
+{
+	int64_t x, y, z = 0;
+	return collides(b, x, y, z);
 }
 
 int TileMap::setTile(int64_t x, int64_t y, int64_t z, TileType tt)

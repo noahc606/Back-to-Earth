@@ -205,7 +205,8 @@ bool LevelSave::loadTileRegion(TileRegion& tr, int64_t rX, int64_t rY, int64_t r
 	
 	/** Retrieve tile index data ('dataBitsPerTile' bits per entry) */
 	//Seek to tile data
-	fileHandler->seekTo(dataLocation+16+8*std::pow(2, dataBitsPerTile)+16);
+	long tileDataLocation = dataLocation+16+8*std::pow(2, dataBitsPerTile)+16;
+	fileHandler->seekTo(tileDataLocation);
 	//Put tile data from file into datastream
 	DataStream tileDS;
 	for(int i = 0; i<32*32*32/8*dataBitsPerTile; i++) {
@@ -222,11 +223,27 @@ bool LevelSave::loadTileRegion(TileRegion& tr, int64_t rX, int64_t rY, int64_t r
 					}
 				} else {
 					std::stringstream ss;
-					ss << "Invalid tile value " << val;
-					ss << " @ (sx, sy, sz)=(" << sx << ", " << sy << ", " << sz;
-					ss << "), bytepos=" << tileDS.getSeekBytePos();
-					ss << ". Should be within [" << -aps << ", 0]";
-					Log::warn(__PRETTY_FUNCTION__, ss.str(), "stopping tile placement");
+					ss << "\n";
+					ss << "Invalid palette index " << val << " @ sxyz=(" << sx << ", " << sy << ", " << sz << ") within rXYZ(" << rX << ", " << rY << ", " << rZ << ").\n";
+					ss << "Palette index should be within [" << -aps << ", 0]\n";
+					ss << "File=" << lsrFp << ";\n";
+					ss << "tileDataLocation=" << tileDataLocation << ";\n";
+					ss << "tileDS.getSeekBytePos()=" << tileDS.getSeekBytePos() << "; \n";
+
+					if(true) {
+						Log::warnv(__PRETTY_FUNCTION__, "placing debug tile\n====================", ss.str());
+						TileType tt;
+						tt.init();
+						tt.setSolid(true);
+						tt.setVisionBlocking(true);
+						tt.setTextureXY(4, 0);
+						tt.setRGB(255, 0, 255);
+						tr.setTile(sx, sy, sz, tt);
+					}
+
+					if(true) {
+						Log::throwException(__PRETTY_FUNCTION__, "Throwing exception to prevent re-saving of bad region...");
+					}
 				}
 				tileDS.seekBitDelta(dataBitsPerTile);
 			}

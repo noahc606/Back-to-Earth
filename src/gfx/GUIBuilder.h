@@ -7,6 +7,9 @@ public:
 	GUIBuilder();
 	virtual ~GUIBuilder();
 
+	void buildUpdatePrompt(GUIHandler& gh, Window* titleWindow, std::string newVersion);
+	void buildUpdatingScreen(GUIHandler& gh);
+
 	void buildTitleScreen(GUIHandler& gh);
 	void buildMainOptions(GUIHandler& gh);
 	void buildMainControls(GUIHandler& gh, FileHandler& fh);

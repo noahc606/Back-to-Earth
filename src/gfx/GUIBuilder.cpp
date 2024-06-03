@@ -5,6 +5,7 @@
 #include "ColorSelector.h"
 #include "GUIAlignable.h"
 #include "Log.h"
+#include "ProgressBar.h"
 #include "RadioButton.h"
 #include "SaveSelector.h"
 #include "Slider.h"
@@ -17,6 +18,39 @@ GUIBuilder::GUIBuilder(){}
 GUIBuilder::~GUIBuilder(){}
 
 void getSetting();
+
+void GUIBuilder::buildUpdatePrompt(GUIHandler& gh, Window* titleWindow, std::string newVersion)
+{
+    gh.setWindowActiveState(titleWindow, false);
+    
+    Window* win = (Window*)gh.addGUI(new Window(ch, cv, 768, 512, "New Update Available", "", gh.win_UPDATE_PROMPT));
+    gh.addGUI(new Tooltip(win, ch, 92+32*0, "Do you want to download it automatically?", gh.ttp_GENERIC ));
+    gh.addGUI(new Tooltip(win, ch, 92+32*1, "You will have to restart after everything is done downloading.", gh.ttp_GENERIC ));
+    gh.addGUI(new Button(win, ch, 92+32*3, 320, "Yes", gh.btn_UPDATE_PROMPT_accept));
+    gh.addGUI(new Button(win, ch, 92+32*5, 320, "Not Now", gh.btn_UPDATE_PROMPT_not_now));
+    gh.addGUI(new Button(win, ch, 92+32*7, 320, "Never", gh.btn_UPDATE_PROMPT_dont_ask));
+    gh.addGUI(new Tooltip(win, ch, 92+32*10, "(currently on "+Main::VERSION_LABEL+", latest is "+newVersion+")", gh.ttp_GENERIC ));
+
+    gh.onWindowUpdate();
+}
+
+void GUIBuilder::buildUpdatingScreen(GUIHandler& gh)
+{
+    Window* updateWindow = gh.getWindow(gh.win_UPDATE_PROMPT);
+    if(updateWindow!=nullptr) {
+        gh.removeGUI(gh.win_UPDATE_PROMPT);
+
+        Window* win = (Window*)gh.addGUI(new Window(ch, cv, 512, 512, "Downloading Update", "", gh.win_UPDATING_SCREEN));
+        gh.addGUI(new Tooltip(win, ch, 92+32*0, "Downloading assets...", gh.ttp_GENERIC ));
+        gh.addGUI(new ProgressBar(win, ch, cv, 384, gh.pbr_UPDATING_SCREEN) );
+    } else {
+
+    }
+
+    
+    gh.onWindowUpdate();
+    //gh.setWindowActiveState(titleWindow, false)
+}
 
 void GUIBuilder::buildTitleScreen(GUIHandler& gh)
 {
@@ -41,13 +75,14 @@ void GUIBuilder::buildMainOptions(GUIHandler& gh)
     gh.removeGUI(gh.win_CONTROLS);
     gh.removeGUI(gh.win_GRAPHICS_SETTINGS);
 	gh.removeGUI(gh.win_CHARACTER_SETTINGS);
+	gh.removeGUI(gh.win_DEBUG_SETTINGS);
 
     int width = 300;
     Window* w = (Window*)gh.addGUI(new Window( ch, cv, 800, 800, "Options", "", gh.win_OPTIONS ));
-    gh.addGUI(new Button( w, ch, cv, width, "Controls...", gh.btn_OPTIONS_controls ));
+    gh.addGUI(new Button( w, ch, cv, width, "Input...", gh.btn_OPTIONS_controls ));
     gh.addGUI(new Button( w, ch, cv, width, "Graphics...", gh.btn_OPTIONS_graphics_settings ));
     gh.addGUI(new Button( w, ch, cv, width, "Character...", gh.btn_OPTIONS_character_settings ));
-    gh.addGUI(new Button( w, ch, cv, width, "Debug...", gh.btn_OPTIONS_debug_settings ));
+    gh.addGUI(new Button( w, ch, cv, width, "Debug & Miscellaneous...", gh.btn_OPTIONS_debug_settings ));
     gh.addGUI(new Button( w, ch, 730, width, "Back", gh.btn_OPTIONS_back ));
 }
 
@@ -56,7 +91,7 @@ void GUIBuilder::buildMainControls(GUIHandler& gh, FileHandler& fh)
     gh.removeGUI(gh.win_OPTIONS);
 
     int width = 300;
-    gh.addGUI(new Window( ch, cv, 800, 800, "Controls Settings", "", gh.win_CONTROLS ));
+    gh.addGUI(new Window( ch, cv, 800, 800, "Input Settings", "", gh.win_CONTROLS ));
 
     Window* w = gh.getWindow(gh.win_CONTROLS);
     settings = fh.getSettings();
@@ -107,17 +142,35 @@ void GUIBuilder::buildMainGraphics(GUIHandler& gh, FileHandler& fh)
 	int width = 300;
 	Window* w = (Window*)gh.addGUI(new Window( ch, cv, 800, 800, "Graphics Settings", "", gh.win_GRAPHICS_SETTINGS ));
 	Settings* settings = fh.getSettings();
-		
-	//Max FPS
-	gh.addGUI(new Tooltip( w, 30, 92, "Maximum FPS:", gh.ttp_GRAPHICS_SETTINGS_maxFps));
-	gh.addGUI(new Slider( w, 406, 82, 0, 320, settings->get(Settings::TextFiles::options, "maxFps") , gh.sdr_GRAPHICS_SETTINGS_maxFps ) );
-	gh.addGUI(new TextBox(w, 664, 82, 72, gh.tbx_GRAPHICS_SETTINGS_maxFps ) );
-	gh.addGUI(new CheckBox(w, 738, 82, "", CheckBox::CBX_RESET, true, gh.cbx_CONTROLS_set_defaults), 123456);
-
 	
-	gh.addGUI(new CheckBox( w, 26, 92+32*1, "Use Different Cursor", settings->get(Settings::TextFiles::options, "bteCursor"), gh.cbx_GRAPHICS_SETTINGS_bteCursor ));
-	gh.addGUI(new CheckBox( w, 26, 92+32*2, "Force Fullscreen on Startup", settings->get(Settings::TextFiles::options, "fullscreen"), gh.cbx_GRAPHICS_SETTINGS_fullscreen ));
-	gh.addGUI(new Button( w, ch, 730, width, "Back", gh.btn_back_to_OPTIONS ));
+
+    //General
+    gh.addGUI(new Tooltip(w, ch, 92, "General", gh.ttp_GENERIC));
+        //Max FPS
+	    gh.addGUI(new Tooltip( w, 30, 92+32*1, "Maximum FPS:", gh.ttp_GRAPHICS_SETTINGS_maxFps));
+	    gh.addGUI(new Slider( w, 406, 82+32*1, 0, 320, settings->get(Settings::TextFiles::options, "maxFps") , gh.sdr_GRAPHICS_SETTINGS_maxFps ) );
+	    gh.addGUI(new TextBox(w, 664, 82+32*1, 72, gh.tbx_GRAPHICS_SETTINGS_maxFps ) );
+	    gh.addGUI(new CheckBox(w, 738, 82+32*1, "", CheckBox::CBX_RESET, true, gh.cbx_CONTROLS_set_defaults), 123456);
+        //Different Cursor
+	    gh.addGUI(new CheckBox( w, 26, 92+32*2, "Use Different Cursor", settings->get(Settings::TextFiles::options, "bteCursor"), gh.cbx_GRAPHICS_SETTINGS_bteCursor ));
+	    //Fullscreen on Startup
+        gh.addGUI(new CheckBox( w, 26, 92+32*3, "Force Fullscreen on Startup", settings->get(Settings::TextFiles::options, "fullscreen"), gh.cbx_GRAPHICS_SETTINGS_fullscreen ));
+	//World
+    gh.addGUI(new Tooltip(w, ch, 92+32*5, "World", gh.ttp_GENERIC));
+        //Sky Quality
+	    gh.addGUI(new Tooltip( w, 30, 92+32*6, "Sky Quality:", gh.ttp_GRAPHICS_SETTINGS_maxRLT));
+	    gh.addGUI(new Slider( w, 406, 82+32*6, 0, 20, settings->get(Settings::TextFiles::options, "maxFps") , gh.sdr_GRAPHICS_SETTINGS_maxRLT ) );
+	    gh.addGUI(new TextBox(w, 664, 82+32*6, 72, gh.tbx_GRAPHICS_SETTINGS_maxRLT ) );
+	    gh.addGUI(new CheckBox(w, 738, 82+32*6, "", CheckBox::CBX_RESET, true, gh.cbx_CONTROLS_set_defaults), 123456);
+        //Max Region Load Time
+	    gh.addGUI(new Tooltip( w, 30, 92+32*7, "Maximum Time to Load Regions (ms):", gh.ttp_GRAPHICS_SETTINGS_maxRLT));
+	    gh.addGUI(new Slider( w, 406, 82+32*7, 0, 20, settings->get(Settings::TextFiles::options, "maxFps") , gh.sdr_GRAPHICS_SETTINGS_maxRLT ) );
+	    gh.addGUI(new TextBox(w, 664, 82+32*7, 72, gh.tbx_GRAPHICS_SETTINGS_maxRLT ) );
+	    gh.addGUI(new CheckBox(w, 738, 82+32*7, "", CheckBox::CBX_RESET, true, gh.cbx_CONTROLS_set_defaults), 123456);
+
+
+    //Back button
+    gh.addGUI(new Button( w, ch, 730, width, "Back", gh.btn_back_to_OPTIONS ));
 }
 
 void GUIBuilder::buildMainCharacter(GUIHandler& gh, FileHandler& fh)
@@ -137,14 +190,14 @@ void GUIBuilder::buildMainCharacter(GUIHandler& gh, FileHandler& fh)
 	Window* w = (Window*)gh.addGUI(new Window( ch, cv, 800, 800, "Character Settings", "", gh.win_CHARACTER_SETTINGS ));
 	Settings* settings = fh.getSettings();
 	
-    gh.addGUI(new Tooltip(w, 340, 82+10, "Set Colors", gh.ttp_GENERIC));
+    gh.addGUI(new Tooltip(w, ch, 82+10, "Set Colors", gh.ttp_GENERIC));
 	
     for(unsigned int i = 0; i<uis.size(); i++) {
 		std::pair<std::string, std::string> elem = uis.at(i);
 		std::string name = elem.first;
 		std::string stng = elem.second;
 
-        //Get x and y pos from indexs
+        //Get x and y pos from indexes
         int xPos = 462;
         int yPos = 130+i*32;
         if(i<=3) {
@@ -172,16 +225,49 @@ void GUIBuilder::buildMainCharacter(GUIHandler& gh, FileHandler& fh)
 
 void GUIBuilder::buildMainDebug(GUIHandler& gh, FileHandler& fh)
 {
+    //Remove old options window
     gh.removeGUI(gh.win_OPTIONS);
 
+    //Build list of UIs
 	std::vector<std::pair<std::string, std::string>> uis;
-	uis.push_back( std::make_pair("Debug Screen", "debugEnabled") );
-	uis.push_back( std::make_pair("Advanced Debug Screen", "debugHacks") );
+	uis.push_back( std::make_pair("Debug Screen Visible", "debugEnabled") );
 	uis.push_back( std::make_pair("Logging", "logging") );
+	uis.push_back( std::make_pair("Check For Updates", "checkForUpdates") );
 
+	uis.push_back( std::make_pair("Console Commands", "debugHacks") );
+	uis.push_back( std::make_pair("Testing on Startup", "debugTesting") );
+
+    //Add window, get settings
 	int width = 300;
-	Window* w = (Window*)gh.addGUI(new Window( ch, cv, 800, 800, "Debug Settings", "", gh.win_DEBUG_SETTINGS ));
+	Window* w = (Window*)gh.addGUI(new Window( ch, cv, 800, 800, "Debug Settings & Miscellaneous", "", gh.win_DEBUG_SETTINGS ));
 	Settings* settings = fh.getSettings();
+
+    /* Add setting UIs */
+    //General
+    gh.addGUI(new Tooltip(w, ch, 92, "General", gh.ttp_GENERIC));
+        //Debug Screen visible
+        gh.addGUI(new CheckBox( w, 26, 92+32*(1), uis[0].first, settings->get(Settings::TextFiles::options, uis[0].second), gh.cbx_DEBUG_SETTINGS_debugEnabled ), 0);
+        //Logging
+        gh.addGUI(new CheckBox( w, 26, 92+32*(2), uis[1].first, settings->get(Settings::TextFiles::options, uis[1].second), gh.cbx_DEBUG_SETTINGS_logging ), 1);
+        //Check For Updates
+        gh.addGUI(new CheckBox( w, 26, 92+32*(3), uis[2].first, settings->get(Settings::TextFiles::options, uis[2].second), gh.cbx_DEBUG_SETTINGS_checkForUpdates ), 2);
+    //Advanced
+    gh.addGUI(new Tooltip(w, ch, 92+32*5, "Advanced", gh.ttp_GENERIC));
+        //Console Commands
+        gh.addGUI(new Tooltip(w, 30, 92+32*(6), uis[3].first+": ", gh.ttp_DEBUG_SETTINGS_debugHacks), 3);
+        gh.addGUI(new TextBox(w, 536, 82+32*(6), 224, gh.tbx_DEBUG_SETTINGS_debugHacks), 3);
+        //Testing on Startup
+        gh.addGUI(new Tooltip(w, 30, 92+32*(7), uis[4].first+": ", gh.ttp_DEBUG_SETTINGS_debugTesting), 4);
+        gh.addGUI(new TextBox(w, 536, 82+32*(7), 224, gh.tbx_DEBUG_SETTINGS_debugTesting), 4);
+    //About
+    gh.addGUI(new Tooltip(w, ch, 92+32*(16), "About", gh.ttp_GENERIC));
+        gh.addGUI(new Tooltip(w, 30, 92+32*(17), ""+Main::TITLE+" "+Main::VERSION_LABEL, gh.ttp_GENERIC));
+        gh.addGUI(new Tooltip(w, 30, 92+32*(18), "Released: "+Main::VERSION_DATE, gh.ttp_GENERIC));
+
+
+
+    //Back button
+	gh.addGUI(new Button( w, ch, 730, width, "Back", gh.btn_back_to_OPTIONS ));
 }
 
 void GUIBuilder::buildWorldPause(GUIHandler& gh)
@@ -266,12 +352,12 @@ void GUIBuilder::buildColorSelector(GUIHandler& gh, Window* parentWindow, int ex
     gh.addGUI(win, extraID);
     gh.addGUI(btn, extraID);
 
-    Slider* sdr = (Slider*)gh.addGUI(new Slider(win, 64, 96, 0, 360, "150", GUIHandler::sdr_COLORSELECTOR_set_hue), extraID);
+    Slider* sdr = (Slider*)gh.addGUI(new Slider(win, 64, 96, 0, 360, "0", GUIHandler::sdr_COLORSELECTOR_set_hue), extraID);
     sdr->setNumSpaces(128);
     
     //Get textbox's color in HSV
     Color c;
-    c.setFromB16Str(tbx->getString());
+    c.setFromB16Str(tbx->getString()+"00");
     auto hsv = c.toHSV();
 
     //Set slider value
@@ -279,7 +365,6 @@ void GUIBuilder::buildColorSelector(GUIHandler& gh, Window* parentWindow, int ex
     ss << std::get<0>(hsv);
     sdr->setSelectorVal(ss.str());
 
-    //Set colorselector's HSV
     csr->setSat(std::get<1>(hsv));
     csr->setVal(std::get<2>(hsv));
 
@@ -312,7 +397,6 @@ void GUIBuilder::buildSelectCampaign(GUIHandler& gh, FileHandler& fh)
     wd->setPanelColor('a', Color(96, 128, 240, 240) );
     wd->setPanelColor('b', Color(64, 64, 64, 240) );
 
-    int width = 300;
     Window* w = new Window( ch, cv, wd, gh.win_SELECT_CAMPAIGN );
     gh.addGUI(w);
 
@@ -332,7 +416,9 @@ void GUIBuilder::buildSelectCampaign(GUIHandler& gh, FileHandler& fh)
         index++;
     }
 
-    gh.addGUI(new Button( w, ch, wd->getH64()-38, width, "Back", gh.btn_SELECT_CAMPAIGN_back ));
+    gh.addGUI(new Button( w, 26, wd->getH64()-38-66, 200, "Create New...", gh.btn_SELECT_CAMPAIGN_createNew ));
+    gh.addGUI(new Button( w, ch, wd->getH64()-38-66, 300, "Open Save Directory", gh.btn_SELECT_CAMPAIGN_openSaveDirectory ));
+    gh.addGUI(new Button( w, ch, wd->getH64()-38, 300, "Back", gh.btn_SELECT_CAMPAIGN_back ));
 
     
 

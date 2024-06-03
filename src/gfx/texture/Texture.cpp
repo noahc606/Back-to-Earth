@@ -31,10 +31,10 @@ void Texture::init(SDLHandler* p_sdlHandler, int p_texWidth, int p_texHeight)
     setTexDimensions(p_texWidth, p_texHeight);
 }
 
-void Texture::init(SDLHandler* p_sdlHandler, int p_texWidth, int p_texHeight, int p_texScale)
+void Texture::init(SDLHandler* p_sdlHandler, int p_texWidth, int p_texHeight, double p_texDrawScale)
 {
     init(p_sdlHandler, p_texWidth, p_texHeight);
-    setDrawScale(p_texScale);
+    setDrawScale(p_texDrawScale);
 }
 
 void Texture::destroy()
@@ -52,9 +52,6 @@ void Texture::destroy()
         //Destroy texture, set to nullptr.
         SDL_DestroyTexture(tex);
         tex = nullptr;
-        //Destroy pixels
-        free(dstPixels);
-        dstPixels = nullptr;
     }
 }
 
@@ -70,7 +67,7 @@ TextureLoader* Texture::getTextureLoader() { return textureLoader; }
 SDL_Texture* Texture::getSDLTexture() { return tex; }
 /**
     This function creates + returns a copy of 'tex' (SDL_Texture*) that will
-    live indefinitely until you free it yourself using SDL_DestroyTexture().
+    live indefinitely until you free it yourself using destroy().
 
     If you just need quick access to 'tex' (no new memory alloc), use getSDLTexture().
 */
@@ -96,21 +93,10 @@ SDL_Surface* Texture::createSurfaceFromTexture()
 
 int Texture::getTexWidth() { return texW; }
 int Texture::getTexHeight() { return texH; }
+int Texture::getDrawX() { return drawX; }
+int Texture::getDrawY() { return drawY; }
 double Texture::getDrawScale() { return drawScale; }
 SDL_BlendMode Texture::getBlendMode() { return blendMode; }
-
-
-void Texture::queryTexInfo(int &w, int &h)
-{
-    w = texW;
-    h = texH;
-}
-void Texture::queryDrawInfo(int &x, int &y, double &scale)
-{
-    x = drawX;
-    y = drawY;
-    scale = drawScale;
-}
 
 void Texture::setLock(int lx, int ly, int lw, int lh)
 {
@@ -456,80 +442,85 @@ void Texture::initTex(bool scale)
 {
     validateTexSize();
 
-    /* Recreate 'tex' with new dimensions. */
-    //If texW and texH are both positive
-    if( texW>0 && texH>0 ) {
-        //Create a 'texCopy' which has the exact same pixel data within a new size.
-        SDL_Texture* texCopy = SDL_CreateTexture(renderer, pixelFormat, access, texW, texH);
+    switch(access) {
+        case SDL_TEXTUREACCESS_TARGET: {
+            /* Recreate 'tex' with new dimensions. */
+            //If texW and texH are both positive
+            if( texW>0 && texH>0 ) {
+                //Create a 'texCopy' which has the exact same pixel data within a new size.
+                SDL_Texture* texCopy = SDL_CreateTexture(renderer, pixelFormat, access, texW, texH);
 
-        //Set render target to 'texCopy'
-        SDL_SetRenderTarget(renderer, texCopy);
-        //Clear pixels in 'texCopy' (might be some garbage left over within pixel data)
-        SDL_RenderClear(renderer);
+                //Set render target to 'texCopy'
+                SDL_SetRenderTarget(renderer, texCopy);
+                //Clear pixels in 'texCopy' (might be some garbage left over within pixel data)
+                SDL_RenderClear(renderer);
 
-        if(scale) {
-            //Render the entire surface of 'tex' onto the entire surface of 'texCopy'. (effectively resizing the old image).
-            SDL_RenderCopy(renderer, tex, NULL, NULL);
-        } else {
-            //Get the width and height of the last texture.
-            int lastTexW = 0; int lastTexH = 0;
-            SDL_QueryTexture(tex, nullptr, nullptr, &lastTexW, &lastTexH );
-            //Render the entire surface of tex onto part of 'texCopy' (effectively cropping the old image).
-            SDL_Rect lastRect; lastRect.x = 0; lastRect.y = 0; lastRect.w = lastTexW; lastRect.h = lastTexH;
-            SDL_RenderCopy(renderer, tex, &lastRect, &lastRect);
-        }
+                if(scale) {
+                    //Render the entire surface of 'tex' onto the entire surface of 'texCopy'. (effectively resizing the old image).
+                    SDL_RenderCopy(renderer, tex, NULL, NULL);
+                } else {
+                    //Get the width and height of the last texture.
+                    int lastTexW = 0; int lastTexH = 0;
+                    SDL_QueryTexture(tex, nullptr, nullptr, &lastTexW, &lastTexH );
+                    //Render the entire surface of tex onto part of 'texCopy' (effectively cropping the old image).
+                    SDL_Rect lastRect; lastRect.x = 0; lastRect.y = 0; lastRect.w = lastTexW; lastRect.h = lastTexH;
+                    SDL_RenderCopy(renderer, tex, &lastRect, &lastRect);
+                }
 
-        //Recreate the old texture 'tex'.
-        {
-            //Destroy 'tex'
-            SDL_DestroyTexture(tex);
-            //Create 'tex' with new width and height
-            tex = SDL_CreateTexture(renderer, pixelFormat, access, texW, texH );
+                //Recreate the old texture 'tex'.
+                {
+                    //Destroy 'tex'
+                    SDL_DestroyTexture(tex);
+                    //Create 'tex' with new width and height
+                    tex = SDL_CreateTexture(renderer, pixelFormat, access, texW, texH );
 
-            /* Check for errrors */
-            //If 'tex' is NULL
+                    /* Check for errrors */
+                    //If 'tex' is NULL
+                    if(tex==NULL) {
+                        Log::error( __PRETTY_FUNCTION__, "texture is NULL", SDL_GetError() );
+                    }
+                    //Set BlendMode of 'tex' to SDL_BLENDMODE_BLEND
+                    setBlendMode(SDL_BLENDMODE_BLEND);
+                    if( SDL_SetTextureBlendMode(tex, SDL_BLENDMODE_BLEND)==-1 ) {
+                        Log::error( __PRETTY_FUNCTION__, "Blend mode could not be set", SDL_GetError() );
+                    }
+                }
+
+                //Set rendertarget to 'tex'
+                SDL_SetRenderTarget(renderer, tex);
+                //Clear pixels in 'tex' (might be some garbage left over within the pixel data)
+                SDL_RenderClear(renderer);
+
+                //Copy entire 'texCopy' onto entire tex.
+                SDL_Rect rect; rect.x = 0; rect.y = 0; rect.w = texW; rect.h = texH;
+                SDL_RenderCopy(renderer, texCopy, NULL, &rect);
+
+                //Set Render Target back to main screen.
+                SDL_SetRenderTarget(renderer, NULL);
+
+                //Destroy 'texCopy'
+                SDL_DestroyTexture(texCopy);
+            }
+
+            //If both texW and texH are nonpositive (invalid dimensions)
+            if( texW<0 && texH<0 ) {
+                //Destroy 'tex'
+                destroy();
+            }
+
+            //Set render target back to NULL (main window)
+            SDL_SetRenderTarget(renderer, NULL);
+        } break;
+        case SDL_TEXTUREACCESS_STREAMING: {
+            tex = SDL_CreateTexture(sdlHandler->getRenderer(), sdlHandler->getPixelFormat()->format, SDL_TEXTUREACCESS_STREAMING, texW, texH);
             if(tex==NULL) {
-                Log::error( __PRETTY_FUNCTION__, "texture is NULL", SDL_GetError() );
+                Log::errorv(__PRETTY_FUNCTION__, SDL_GetError(), "Error creating streaming texture");
             }
-            //Set BlendMode of 'tex' to SDL_BLENDMODE_BLEND
-            setBlendMode(SDL_BLENDMODE_BLEND);
-            if( SDL_SetTextureBlendMode(tex, SDL_BLENDMODE_BLEND)==-1 ) {
-                Log::error( __PRETTY_FUNCTION__, "Blend mode could not be set", SDL_GetError() );
-            }
-        }
-
-        //Set rendertarget to 'tex'
-        SDL_SetRenderTarget(renderer, tex);
-        //Clear pixels in 'tex' (might be some garbage left over within the pixel data)
-        SDL_RenderClear(renderer);
-
-        //Copy entire 'texCopy' onto entire tex.
-        SDL_Rect rect; rect.x = 0; rect.y = 0; rect.w = texW; rect.h = texH;
-        SDL_RenderCopy(renderer, texCopy, NULL, &rect);
-
-        //Set Render Target back to main screen.
-        SDL_SetRenderTarget(renderer, NULL);
-
-        //Destroy 'texCopy'
-        SDL_DestroyTexture(texCopy);
+        } break;
     }
-
-    //If both texW and texH are nonpositive (invalid dimensions)
-    if( texW<0 && texH<0 ) {
-        //Destroy 'tex'
-        destroy();
-    }
-
-    //Set render target back to NULL (main window)
-    SDL_SetRenderTarget(renderer, NULL);
 
     //Set lock settings to default
-    if( access==SDL_TEXTUREACCESS_TARGET ) {
-        validateLock();
-    } else
-    if( access==SDL_TEXTUREACCESS_STREAMING ) {
-
-    }
+    validateLock();
 }
 
 void Texture::validateLock()

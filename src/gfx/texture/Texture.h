@@ -18,7 +18,7 @@ public:
     virtual ~Texture();
     void init(SDLHandler* sdlHandler);
     void init(SDLHandler* sdlHandler, int texWidth, int texHeight);
-    void init(SDLHandler* sdlHandler, int texWidth, int texHeight, int texScale);
+    void init(SDLHandler* sdlHandler, int texWidth, int texHeight, double texDrawScale);
     void destroy();
     /**/
     bool isInitialized();
@@ -26,14 +26,10 @@ public:
     SDL_Texture* getSDLTexture();
     SDL_Texture* getSDLTextureCopy();
     SDL_Surface* createSurfaceFromTexture();
-    int getTexWidth();
-    int getTexHeight();
-    double getDrawScale();
+    
+    int getTexWidth(); int getTexHeight();
+    int getDrawX(); int getDrawY(); double getDrawScale();
     SDL_BlendMode getBlendMode();
-
-
-    void queryTexInfo(int &texW, int &texH);
-    void queryDrawInfo(int &drawX, int &drawY, double &drawScale);
 
     /**//**/
     /** Texture manipulation */
@@ -48,9 +44,9 @@ public:
         unlock():
             Sets lock data/destination to (0, 0, 0, 0) and frees lockedPixels.
     */
-    virtual void setLock(int lx, int ly, int lw, int lh);
-    virtual void lock(int x, int y, int w, int h);
-    virtual void lock(SDL_Rect* rect);
+    void setLock(int lx, int ly, int lw, int lh);
+    void lock(int x, int y, int w, int h);
+    void lock(SDL_Rect* rect);
     virtual void lock();
     virtual void unlock();
     /*
@@ -91,39 +87,39 @@ public:
             For STREAMING, we access the pixel data directly and set each pixel to a single color.
                 BlendMode has no effect for STREAMING textures
     */
-    virtual void fill(SDL_BlendMode bm);
-    virtual void fill();
-    virtual void rect(int x, int y, int w, int h, uint8_t r, uint8_t g, uint8_t b, uint8_t a, SDL_BlendMode bm);
-    virtual void rect(int x, int y, int w, int h, uint8_t r, uint8_t g, uint8_t b, uint8_t a);
-    virtual void rect(int x, int y, int w, int h, uint8_t r, uint8_t g, uint8_t b);
-	virtual void rect(int x, int y, int w, int h, Color& c);
-    virtual void pixel(int x, int y, uint8_t r, uint8_t g, uint8_t b, uint8_t a, SDL_BlendMode bm);
-    virtual void pixel(int x, int y, uint8_t r, uint8_t g, uint8_t b, uint8_t a);
-    virtual void pixel(int x, int y, uint8_t r, uint8_t g, uint8_t b);
-    virtual void pixel(int x, int y, uint32_t rgba);
+    void fill(SDL_BlendMode bm);
+    void fill();
+    void rect(int x, int y, int w, int h, uint8_t r, uint8_t g, uint8_t b, uint8_t a, SDL_BlendMode bm);
+    void rect(int x, int y, int w, int h, uint8_t r, uint8_t g, uint8_t b, uint8_t a);
+    void rect(int x, int y, int w, int h, uint8_t r, uint8_t g, uint8_t b);
+	void rect(int x, int y, int w, int h, Color& c);
+    void pixel(int x, int y, uint8_t r, uint8_t g, uint8_t b, uint8_t a, SDL_BlendMode bm);
+    void pixel(int x, int y, uint8_t r, uint8_t g, uint8_t b, uint8_t a);
+    void pixel(int x, int y, uint8_t r, uint8_t g, uint8_t b);
+    void pixel(int x, int y, uint32_t rgba);
     /*
         Clears the texture.
             For a TARGET texture we simply call SDL_RenderClear().
             For a STREAMING texture we fill in the pixel data with (0,0,0,0) which gives the same result
     */
-    virtual void clear();
+    void clear();
 
-    virtual void setColorMod();
-    virtual void setColorMod(const Color& c);
-    virtual void setColorMod(uint8_t r, uint8_t g, uint8_t b);
-    virtual void setColorMod(uint8_t r, uint8_t g, uint8_t b, uint8_t a);
-    virtual void setBlendMode(SDL_BlendMode bm);
+    void setColorMod();
+    void setColorMod(const Color& c);
+    void setColorMod(uint8_t r, uint8_t g, uint8_t b);
+    void setColorMod(uint8_t r, uint8_t g, uint8_t b, uint8_t a);
+    void setBlendMode(SDL_BlendMode bm);
 
     /** Texture transformations */
-    virtual void setTexDimensions(int w, int h, bool scale);
-    virtual void setTexDimensions(int w, int h);
-    virtual void setTexWidth(int newWidth, bool scale);
-    virtual void setTexWidth(int newWidth);
-    virtual void setTexHeight(int newHeight, bool scale);
-    virtual void setTexHeight(int newHeight);
+    void setTexDimensions(int w, int h, bool scale);
+    void setTexDimensions(int w, int h);
+    void setTexWidth(int newWidth, bool scale);
+    void setTexWidth(int newWidth);
+    void setTexHeight(int newHeight, bool scale);
+    void setTexHeight(int newHeight);
 
-    virtual void setTexRect(int x, int y, int w, int h);
-    virtual void setTexRect(SDL_Rect* rect);
+    void setTexRect(int x, int y, int w, int h);
+    void setTexRect(SDL_Rect* rect);
 
     virtual void setDrawX(int x);
     virtual void setDrawY(int y);
@@ -171,14 +167,7 @@ protected:
     Color colorMod;
 
     //Texture locking data
-    /**
-    This is used for TARGET textures*/
     SDL_Rect lockArea;
-    /**
-    These three are used for STREAMING textures*/
-    uint32_t* dstPixels = nullptr;
-    int dstPitch;
-    bool keepingLastData = true;                //Keep last pixel data of locked area: If you're filling an entire rectangle with pixels, obviously this can be set to false.
 
     //Texture width and height
     int texW = 0;

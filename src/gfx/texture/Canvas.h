@@ -8,7 +8,6 @@
 class Canvas : public BTEObject, public Loggable
 {
 public:
-    typedef long long t_ll;
     typedef std::map<std::pair<long, long>, Texture*> t_texMap;
     /**/
     void init(SDLHandler* sh, Controls* ctrls, Camera* cam);
@@ -32,10 +31,10 @@ public:
     void putInfo(std::stringstream& ss, int& tabs);
     Camera* getCamera();
     //Get sub position, or position of a region given t_ll (long long) coordinates.
-    void getSubPos(t_ll& x, t_ll& y, t_ll& z);
-    t_ll getSubPos(t_ll c);
-    void getRXYZ(t_ll& x, t_ll& y, t_ll& z);
-    t_ll getRXYZ(t_ll c);
+    void getSubPos(int64_t& x, int64_t& y, int64_t& z);
+    int64_t getSubPos(int64_t c);
+    void getRXYZ(int64_t& x, int64_t& y, int64_t& z);
+    int64_t getRXYZ(int64_t c);
     static float getTexLODBasedOnZoom(double zoom);
 
     /**/
@@ -49,8 +48,8 @@ public:
     void setSourceTex(Texture* src);
     //Canvas blitting (dst)
     void clearCanvas();
-    void rcopyNI(t_ll dx, t_ll dy, t_ll dw, t_ll dh);
-    void rcopy(t_ll dx, t_ll dy, t_ll dw, t_ll dh);
+    void rcopyNI(int64_t dx, int64_t dy, int64_t dw, int64_t dh);
+    void rcopy(int64_t dx, int64_t dy, int64_t dw, int64_t dh);
 
     //Optimization options
     void setMaximumFPS(int fps);
@@ -64,7 +63,7 @@ protected:
 
 private:
     /**/
-    bool shouldRendRect(t_ll dx, t_ll dy, t_ll dw, t_ll dh);
+    bool shouldRendRect(int64_t dx, int64_t dy, int64_t dw, int64_t dh);
     /**/
 
     //Extra information for optimizing render functions.

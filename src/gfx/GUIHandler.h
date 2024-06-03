@@ -47,6 +47,16 @@ public:
         /* Generic UIs with no specific function */
         ttp_GENERIC,
 
+        /* Update prompt */
+        win_UPDATE_PROMPT,
+        btn_UPDATE_PROMPT_not_now,
+        btn_UPDATE_PROMPT_accept,
+        btn_UPDATE_PROMPT_dont_ask,
+
+        /* Updating screen */
+        win_UPDATING_SCREEN,
+        pbr_UPDATING_SCREEN,
+
         /* Titlescreen */
         win_MAIN,
         ttp_MAIN_title,
@@ -58,6 +68,8 @@ public:
         win_SELECT_CAMPAIGN,
             ssr_SELECT_CAMPAIGN_select,
             btn_SELECT_CAMPAIGN_back,
+            btn_SELECT_CAMPAIGN_createNew,
+            btn_SELECT_CAMPAIGN_openSaveDirectory,
 
         /* Main Options */
         win_OPTIONS,
@@ -76,12 +88,11 @@ public:
 
             // Main Options -> Graphics Settings
             win_GRAPHICS_SETTINGS,
-			ttp_GRAPHICS_SETTINGS_maxFps,
-			sdr_GRAPHICS_SETTINGS_maxFps,
-			tbx_GRAPHICS_SETTINGS_maxFps,
+			ttp_GRAPHICS_SETTINGS_maxFps, sdr_GRAPHICS_SETTINGS_maxFps, tbx_GRAPHICS_SETTINGS_maxFps,
             cbx_GRAPHICS_SETTINGS_bteCursor,
             cbx_GRAPHICS_SETTINGS_fullscreen,
-			
+			ttp_GRAPHICS_SETTINGS_maxRLT, sdr_GRAPHICS_SETTINGS_maxRLT, tbx_GRAPHICS_SETTINGS_maxRLT,
+
             // Main Options -> Character Settings
 			win_CHARACTER_SETTINGS,
 			ttp_CHARACTER_SETTINGS_tooltip,
@@ -91,7 +102,11 @@ public:
 
             // Main Options -> Debug Settings
             win_DEBUG_SETTINGS,
-
+            cbx_DEBUG_SETTINGS_debugEnabled,
+            cbx_DEBUG_SETTINGS_logging,
+            cbx_DEBUG_SETTINGS_checkForUpdates,
+            ttp_DEBUG_SETTINGS_debugHacks, tbx_DEBUG_SETTINGS_debugHacks,
+            ttp_DEBUG_SETTINGS_debugTesting, tbx_DEBUG_SETTINGS_debugTesting,
         /* Pause Screen */
         win_PAUSED,
         btn_PAUSED_back,
@@ -123,6 +138,7 @@ public:
             CONTROLS,
             GRAPHICS,
 			CHARACTER,
+			DEBUG,
 
         SELECT_CAMPAIGN,
 

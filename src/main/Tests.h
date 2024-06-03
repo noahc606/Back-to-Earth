@@ -31,12 +31,11 @@ private:
     /**/
     /* Testing */
 
-    Texture tex;
+    STexture tex;
+    SDL_Texture* stex;
 	SDL_Rect lvlImgSrc;
 
     CurlHandler ch;
-    STexture stex;
-    TTexture ttex;
     SpriteSheet spsh;
 
     int counter = 0;

@@ -32,6 +32,7 @@ protected:
 private:
     /**/
     /**/
+    bool updateBTEApp();
     void setGameState(int p_gamestate, std::string extraInfo);
     void setGameState(int p_gamestate);
 	void unload(World*& world);
@@ -49,6 +50,7 @@ private:
         MAIN_MENU,
         SELECT_CAMPAIGN,
         WORLD,
+        UPDATING,
     };
 
     /* MainLoop */
@@ -70,7 +72,10 @@ private:
     /* Debugging, testing */
     DebugScreen debugScreen;
     Tests* tests = nullptr;     //Object that tests everything inside of it
+    int updateProgress = 0;
+    int updateNumFiles = 1;
     bool alwaysTest = 0;
+    bool forceDisableUpdateDLs = true;
     bool testing = 0;          //If true, set gamestate to TESTING (blank screen to draw/tick stuff)
     bool hardTesting = 0;      //If true, disable window + loading of all texture/audio assets
 };

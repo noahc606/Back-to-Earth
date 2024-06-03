@@ -33,8 +33,9 @@ void GUIAligner::alignWindowComponents(std::vector<GUI*>& guis, int align)
     for( GUI* gui : guis ) {
         if( gui->getType()==BTEObject::GUI_button ||
             gui->getType()==BTEObject::GUI_textbox ||
-            gui->getType()==BTEObject::GUI_tooltip
-            ) {
+            gui->getType()==BTEObject::GUI_tooltip ||
+            gui->getType()==BTEObject::GUI_progressbar
+        ) {
             WindowComponent* wc = (WindowComponent*)gui;
             Window* pWin = wc->getParentWindow();
             if( pWin!=nullptr && pWin->getType()==BTEObject::GUI_window ) {
@@ -93,7 +94,7 @@ void GUIAligner::alignWindowComponentsVH(std::vector<GUI*>& guis, int align, std
         for(int thisCoord : compCoords) {
 
             int spacing = 36;
-            int tacw = -16;         //Total aligned components' widths
+            int tacw = -48;         //Total aligned components' widths
             int tach = -spacing;    //Total aligned components' heights
             int tac = 0;            //Total number of aligned components
 
@@ -101,7 +102,9 @@ void GUIAligner::alignWindowComponentsVH(std::vector<GUI*>& guis, int align, std
             for( GUI* gui : guis ) {
                 if (gui->getType()==BTEObject::GUI_button ||
                     gui->getType()==BTEObject::GUI_textbox ||
-                    gui->getType()==BTEObject::GUI_tooltip )
+                    gui->getType()==BTEObject::GUI_tooltip ||
+                    gui->getType()==BTEObject::GUI_progressbar    
+                )
                 {
                     WindowComponent* wc = (WindowComponent*)gui;
                     Window* pWin = wc->getParentWindow();
@@ -133,7 +136,9 @@ void GUIAligner::alignWindowComponentsVH(std::vector<GUI*>& guis, int align, std
 
                 if (gui->getType()==BTEObject::GUI_button ||
                     gui->getType()==BTEObject::GUI_textbox ||
-                    gui->getType()==BTEObject::GUI_tooltip )
+                    gui->getType()==BTEObject::GUI_tooltip ||
+                    gui->getType()==BTEObject::GUI_progressbar
+                )
                 {
                     WindowComponent* wc = (WindowComponent*)gui;
                     Window* pWin = wc->getParentWindow();

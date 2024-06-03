@@ -38,7 +38,7 @@ private:
 	//Get file path information
 	std::string getLsrFilePathFromRxyz(int64_t rX, int64_t rY, int64_t rZ);
 	//Get Header Entry information
-	uint32_t getHeaderEntryDelta(int64_t rX, int64_t rY, int64_t rZ);
+	static uint32_t getHeaderEntryDelta(int64_t rX, int64_t rY, int64_t rZ);
 	uint32_t getHeaderStartPos();
 	uint32_t getRegDataStartPos();
 	
@@ -46,7 +46,7 @@ private:
 	uint8_t getHeaderEntryData2();
 	uint8_t getHeaderEntryData3();
 	//Get Save Section information
-	uint32_t getSaveSectionSizeBytes(uint8_t bitsize);
+	static uint32_t getSaveSectionSizeBytes(uint8_t bitsize);
 	uint32_t getNewAllocationPos(uint8_t bitsize, int64_t rX, int64_t rY, int64_t rZ);
 	/**/
 	//Build base components

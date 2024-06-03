@@ -95,6 +95,7 @@ Settings::Settings()
 		kv(s, "debugTesting", "false");
 		kv(s, "debugHardTesting", "false");
 		kv(s, "logging", "false");
+		kv(s, "checkForUpdates", "true");
 		
 		s = &(defaultSettings[session]);
 		kv(s, "date", MainLoop::getSystemTime() );

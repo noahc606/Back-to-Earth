@@ -9,7 +9,6 @@
 #include "FileHandler.h"
 #include "Loggable.h"
 #include "Planet.h"
-#include "Player.h"
 #include "Texture.h"
 #include "TileRegion.h"
 
@@ -49,7 +48,8 @@ public:
 	static int64_t convRzToLSRz (int64_t rz);
 	static void convRxyzToLSRxyz (int64_t& rx, int64_t& ry, int64_t& rz);
 	
-	bool collides( Box3D &b );
+	bool collides( Box3D b, int64_t& cx, int64_t& cy, int64_t& cz );
+	bool collides( Box3D b );
 
 	/** TileMap manipulation */
 	//Set tile
@@ -71,6 +71,5 @@ private:
 
 	//World objects
 	Planet* planet = nullptr;
-	std::vector<Player>* players;
 	std::string worldDirName = "world_unknown";
 };

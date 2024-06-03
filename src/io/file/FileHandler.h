@@ -17,6 +17,7 @@ public:
     /* File creation/opening, editing, and save/closing */
     int createBTEDir(std::string path);
     int createPNGScreenshot( SDL_Window* w, SDL_Renderer* r, SDL_PixelFormat* pf );
+    void openUserLocalURL(std::string url);
     int openFile(std::string path, int openType, bool binary);
     int openFile(std::string path, int openType);
     int cEditFile(std::string path);
@@ -58,9 +59,9 @@ public:
 	int seekThru(long bytesDelta);		//Seek forward the specified number of bytes
 
     /* Settings */
-    int saveSettings(Settings::t_kvMap kvMap, std::string path);
-    int saveSettings(int index);
-    int saveSettings();
+    void saveSettings(Settings::t_kvMap kvMap, std::string path);
+    void saveSettings(int index);
+    void saveSettings();
     void reloadSettings();
 
     /* Getters */

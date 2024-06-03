@@ -23,6 +23,7 @@ public:
 	/**/
 	void draw(bool debugOn);
 	void tick(bool paused, GUIHandler& guiHandler);
+	void tickWorldObjs();
 	/**/
     void putInfo(std::stringstream& ss, int& tabs);
 	Planet* getPlanet();
