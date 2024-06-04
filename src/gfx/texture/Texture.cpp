@@ -67,7 +67,7 @@ TextureLoader* Texture::getTextureLoader() { return textureLoader; }
 SDL_Texture* Texture::getSDLTexture() { return tex; }
 /**
     This function creates + returns a copy of 'tex' (SDL_Texture*) that will
-    live indefinitely until you free it yourself using destroy().
+    live indefinitely until you free it yourself using SDL_DestroyTexture().
 
     If you just need quick access to 'tex' (no new memory alloc), use getSDLTexture().
 */

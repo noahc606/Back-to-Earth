@@ -33,103 +33,71 @@ void PlayerMenu::init(SDLHandler* sh, GUIHandler* gh, Controls* ctrls, Player* p
 	inventorySlots[6][7] = Items::FOOD_RATION_D;
 	inventorySlots[6][6] = Items::FOOD_RATION_E;
 	uiOverlay.init(sdlHandler, 0, 0);
-	
-	movingItemA.init(sdlHandler, 32, 32);
-	movingItemA.setDrawScale(2);
-	movingItemB.init(sdlHandler, 32, 32);
-	movingItemB.setDrawScale(2);
 }
 
 void PlayerMenu::tick() {
+	//Update menu coords and dimensions
 	updateMenuCoordinates();
+	updateSandboxRGB();
 	
+	//When there is a state change...
 	if(lastState!=state) {
 		lastState = state;
-		
-		if(state==1) {
-			items.putItemInterface(-1);
-		}
-		if(state==2) {
-			items.putItemInterface(Items::SANDBOX);
+		switch(state) {
+			default:	items.putItemInterface(-1); break;		//Default interface
+			case 2: 	items.putItemInterface(Items::SANDBOX); //Sandbox interface
 		}
 	}
 	
-	if(itemMoveTimer>=0) {
-		itemMoveTimer = -1;
-	}
-	
-	//If backpack or engineering is opened
+	//If backpack or engineering is open (state 1 or 2)
 	if(state==1 || state==2) {
-		//Upon click
-		if( controls->isPressed("HARDCODE_LEFT_CLICK") ) {
-			//Get inventory slot that was clicked
-			int imx = (controls->getMouseX()-invScreenX)/64;
-			int imy = (controls->getMouseY()-invScreenY)/64;
-			if( 
-				controls->getMouseX()<invScreenX ||
-				controls->getMouseX()>=invScreenX+invScreenW ||
-				controls->getMouseY()<invScreenY ||
-				controls->getMouseY()>=invScreenY+invScreenH
-			) {
-				imx = -1;
-				imy = -1;
-			}
-			
-			//If we clicked outside of the inventory, do nothing.
-			if( imx!=-1 && imy!=-1 ) {
+		int shx = getSlotHoveringX();
+		int shy = getSlotHoveringY();
+
+		//Upon RIGHT click...
+		if( controls->isPressed("HARDCODE_RIGHT_CLICK") ) {
+			controls->stopPress("HARDCODE_RIGHT_CLICK", __PRETTY_FUNCTION__);	//Stop click
+			if( shx!=-1 || shy!=-1 ) {											//If we clicked outside of the inventory, do nothing.
 				//If the clicked slot was already selected, reset selection
-				if( invSX==imx && invSY==imy && state==1 ) {
+				if( invSX==shx && invSY==shy && state==1 ) {
 					selectInventorySlot(-1, -1);
-					newItemSelected = true;
 				} else {
 					//Set selected inventory slot to the clicked slot
-					selectInventorySlot(imx, imy);
-					newItemSelected = true;
+					selectInventorySlot(shx, shy);
 				}
+				itemUIShouldUpdate = true;
 			}
-			
-			controls->stopPress("HARDCODE_LEFT_CLICK", __PRETTY_FUNCTION__);
-		}
-		
-		//Upon right click
-		if( controls->isPressed("HARDCODE_RIGHT_CLICK") ) {
-			//Deselect item
-			invSX = -1; invSY = -1;
-			invLSX = -1; invLSY = -1;
-			
-			controls->stopPress("HARDCODE_RIGHT_CLICK", __PRETTY_FUNCTION__);
 		}
 	
+		//Upon LEFT click...
+		if( controls->isPressed("HARDCODE_LEFT_CLICK") ) {
+			controls->stopPress("HARDCODE_LEFT_CLICK", __PRETTY_FUNCTION__);
+			
+			//If we clicked inside the inventory...
+			if( shx!=-1 || shy!=-1 ) {
+				if(invHeldID==-1) {		//If no item is being held: pick up the item in this slot and clear the slot
+					invHeldID = inventorySlots[shx][shy];
+					inventorySlots[shx][shy] = -1;
+				} else {				//If an item is being held: put the item in the slot and set the held item to be whatever was in the slot.
+					int temp = inventorySlots[shx][shy];
+					inventorySlots[shx][shy] = invHeldID;
+					invHeldID = temp;
+				}
+
+				itemHeldShouldUpdate = true;
+			}
+		}
+
 		//If item selection has changed
-		if( newItemSelected && state==1 ) {
+		if( itemUIShouldUpdate && state==1 ) {
 			items.putItemInterface( inventorySlots[invSX][invSY] );
-			newItemSelected = false;
+			itemUIShouldUpdate = false;
 		}
 	}
 
+	//If in engineering, set sandboxRGB to match the selection GUI.
 	if( state==2 ) {
-		
-		for( int i = 0; i<3; i++ ){
-			auto tbx = guiHandler->getGUI( BTEObject::GUI_textbox, GUIHandler::tbx_CHARACTER_item, 2000+i );
-			if(tbx!=nullptr) {
-				try {
-					std::string colorString = ((TextBox*)tbx)->getString();
-					int colorInt = std::stoi(colorString);
-					if(colorInt>255) {
-						colorInt = 255;
-					}
-					
-					Color newcolor = items.getSandboxRGB();
-					switch(i) {
-						case 0: newcolor.r = colorInt; break;
-						case 1: newcolor.g = colorInt; break;
-						case 2: newcolor.b = colorInt; break;
-					}
-					items.setSandboxRGB(newcolor.r, newcolor.g, newcolor.b);
-					
-				} catch(...) { }
-			}
-		}
+		updateSandboxRGB();
 	}
 
 }
@@ -139,33 +107,63 @@ void PlayerMenu::draw()
 	double angle = ((SDL_GetTicks()/30)%360)*3.141/180.0;
 	oscillation = 32*std::abs(std::sin(angle));
 	
-	if( state>0 ) {
-	uiOverlay.clear();
-	
-	//Inventory
-	if(state==1) {
-		drawInventory();
-	}
-	
-	if(state==2) {
-		uiOverlay.setTexDimensions(invW*32, invH*32);
-		uiOverlay.setDrawPos(invScreenX-2, invScreenY-2);
-		uiOverlay.setDrawScale(2);
-		
-		uiOverlay.lock();
-		uiOverlay.blit(TextureLoader::WORLD_TILE_type_a);
-		
-		//Selected Slot Outline
-		if( invSX!=-1 && invSY!=-1 ) {
-			uiOverlay.lock(invSX*32, invSY*32, 32, 32);
-			uiOverlay.blit(TextureLoader::GUI_player_interactions, 0, 0 );
-		}
+	if(itemHeldShouldUpdate) {
+		heldItem.init(sdlHandler, 32, 32, 2);
+		heldItem.clear();
+		heldItem.lock();
+		heldItem.blit(TextureLoader::PLAYER_items, getItemTexSrcX(invHeldID), getItemTexSrcY(invHeldID) );
 	}
 
-	uiOverlay.draw();
+	if( state>0 ) {
+		uiOverlay.clear();
+		
+		//Inventory
+		if(state==1) {
+			drawInventory();
+		}
+		
+		if(state==2) {
+			uiOverlay.setTexDimensions(invW*32, invH*32);
+			uiOverlay.setDrawPos(invScreenX-2, invScreenY-2);
+			uiOverlay.setDrawScale(2);
+			
+			uiOverlay.lock();
+			uiOverlay.blit(TextureLoader::WORLD_TILE_type_a);
+			
+			//Selected Slot Outline
+			if( invSX!=-1 && invSY!=-1 ) {
+				uiOverlay.lock(invSX*32, invSY*32, 32, 32);
+				uiOverlay.blit(TextureLoader::GUI_player_interactions, 0, 0 );
+			}
+		}
+
+		uiOverlay.draw();
+
+		//Draw held item
+		if(invHeldID!=-1) {
+			heldItem.setDrawPos(controls->getMouseX()/2*2-32, controls->getMouseY()/2*2-32);
+			heldItem.draw();
+		}
 	}
 	
 }
+
+int PlayerMenu::getSlotHoveringX()
+{
+	if( controls->getMouseX()<invScreenX || controls->getMouseX()>=invScreenX+invScreenW ) {
+		return -1;
+	}
+	return (controls->getMouseX()-invScreenX)/64;
+}
+int PlayerMenu::getSlotHoveringY()
+{
+	if( controls->getMouseY()<invScreenY || controls->getMouseY()>=invScreenY+invScreenH ) {
+		return -1;
+	}
+	return (controls->getMouseY()-invScreenY)/64;
+}
+int PlayerMenu::getItemTexSrcX(int itemID) { return (itemID%8)*32; }
+int PlayerMenu::getItemTexSrcY(int itemID) { return (itemID/8)*32;}
 
 int PlayerMenu::getState() { return state; }
 uint8_t PlayerMenu::getSandboxTexX() { return sandboxTexX; } 
@@ -203,14 +201,7 @@ void PlayerMenu::drawInventory()
 	
 	//Draw inventory elements
 	for( int x = 0; x<invW; x++ ) {
-		for( int y = 0; y<invH; y++ ) {
-			
-			//Skip items that are moving
-			bool drawingItem = true;
-			if( itemMoveTimer>=0 && ((x==invSX&&y==invSY) || (x==invLSX&&y==invLSY)) ) {
-				drawingItem = false;
-			}
-			
+		for( int y = 0; y<invH; y++ ) {			
 			//Rect containing 4 ridges and a 30x30 texture
 			Color box1(16+oscillation, 16+oscillation, 0, 100);
 			Color box2(0, 32+oscillation, 0, 100);
@@ -228,10 +219,10 @@ void PlayerMenu::drawInventory()
 				else { uiOverlay.rect(x*32, y*32, 32, 32, box2); }
 				
 				//Draw item
-				if( drawingItem ) {
-					uiOverlay.lock(x*32, y*32, 32, 32);
-					uiOverlay.blit(TextureLoader::PLAYER_items, (inventorySlots[x][y]%8)*32, (inventorySlots[x][y]/8)*32);
-				}
+				uiOverlay.lock(x*32, y*32, 32, 32);
+				
+				int itemID = inventorySlots[x][y];
+				uiOverlay.blit(TextureLoader::PLAYER_items, getItemTexSrcX(itemID), getItemTexSrcY(itemID));
 			} else {
 				uiOverlay.rect(x*32, y*32, 32, 32, box3);
 			}
@@ -258,89 +249,75 @@ void PlayerMenu::drawInventory()
 			uiOverlay.blit(TextureLoader::GUI_player_interactions, 0, 0 );
 		}
 	}
-	
-	if(itemMoveTimer>=0) {
-		//movingItemA.draw();
-		//movingItemB.draw();
-	}
 }
 
 void PlayerMenu::updateMenuCoordinates()
 {
-	windowW = 0; windowH = 0;
-	windowX = 0; windowY = 0;
-	invScreenW = 0; invScreenH = 0;
-	invScreenX = 0; invScreenY = 0;
+	//Reset window's XYWH and inventory screen's XYWH
+	windowX = 0; windowY = 0; 		windowW = 0; windowH = 0;
+	invScreenX = 0; invScreenY = 0; invScreenW = 0; invScreenH = 0;	
 	
+	//Set XYWH of window and invScreen from parentWindow and invW/invH
 	Window* parentWindow = guiHandler->getWindow(GUIHandler::win_CHARACTER);
 	if( parentWindow!=nullptr ) {
-		windowW = parentWindow->getWidth();
-		windowH = parentWindow->getHeight();
-		windowX = parentWindow->getSX();
-		windowY = parentWindow->getSY();
-		
-		invScreenX = windowX+32*20+2*6;
-		invScreenY = windowY+2*4;
-		invScreenW = invW*32*2;
-		invScreenH = invH*32*2;
+		//Window
+		windowX = parentWindow->getSX(); 	windowY = parentWindow->getSY();
+		windowW = parentWindow->getWidth(); windowH = parentWindow->getHeight();
+		//invScreen
+		invScreenX = windowX+32*20+2*6;		invScreenW = invW*32*2;
+		invScreenY = windowY+2*4;			invScreenH = invH*32*2;
 	}
 }
 
-void PlayerMenu::moveItemsBetween(int x1, int y1, int x2, int y2)
+void PlayerMenu::updateSandboxRGB()
 {
-	//Physically switch items
-	int temp = inventorySlots[x1][y1];
-	inventorySlots[x1][y1] = inventorySlots[x2][y2];
-	inventorySlots[x2][y2] = temp;
-	
-	//Moving item A texture (lastInvSelect)
-	movingItemA.clear();
-	if( invLSX!=-1 && invLSY!=-1 ) {
-		movingItemA.lock();
-		movingItemA.blit( TextureLoader::PLAYER_items, 32*inventorySlots[invLSX][invLSY], 0 );
+	for( int i = 0; i<3; i++ ){
+		auto tbx = guiHandler->getGUI( BTEObject::GUI_textbox, GUIHandler::tbx_CHARACTER_item, 2000+i );
+		if(tbx!=nullptr) {
+			try {
+				std::string colorString = ((TextBox*)tbx)->getString();
+				int colorInt = std::stoi(colorString);
+				if(colorInt>255) {
+					colorInt = 255;
+				}
+				
+				Color newcolor = items.getSandboxRGB();
+				switch(i) {
+					case 0: newcolor.r = colorInt; break;
+					case 1: newcolor.g = colorInt; break;
+					case 2: newcolor.b = colorInt; break;
+				}
+				items.setSandboxRGB(newcolor.r, newcolor.g, newcolor.b);
+				
+			} catch(...) { }
+		}
 	}
-	
-	//Moving item B texture (invSelect)
-	movingItemB.clear();
-	if( invSX!=-1 && invSY!=-1 ) {
-		movingItemB.lock();
-		movingItemB.blit( TextureLoader::PLAYER_items, 32*inventorySlots[invSX][invSY], 0 );
-	}
-	
-	//Set item move timer and invLSX,Y
-	itemMoveTimer = 30;
-	invLSX = x1;
-	invLSY = y1;
 }
-
+/*
+	Select the slot given by (x, y) within the current inventory. This should be called when the user right clicks.
+	Different inventories have different sizes - and a maximum size of 8x8 or (0,0) to (7,7).
+*/
 void PlayerMenu::selectInventorySlot(int x, int y)
 {
-	bool outofbounds = true;
-	if( x>=0 && x<=7 && y>=0 && y<=7 ) {
-		outofbounds = false;
-	}
-	
-	bool itemSelected = false;
-	if( inventorySlots[invSX][invSY]!=-1 ) {
-		itemSelected = true;
-		newItemSelected = true;
-	}
-	
-	
-	if( !outofbounds) {
-		if( state==1 && itemSelected && invSX!=-1 && invSY!=-1 && !(x==invSX && y==invSY) ) {
-			moveItemsBetween(x, y, invSX, invSY);
-		}
-		
-		if( state==2 ) {
-			sandboxTexX = x;
-			sandboxTexY = y;
-		}
-		
-		invSX = x;
-		invSY = y;
-	} else {
+	//If selection is out of bounds
+	if( !(x>=0 && x<=7 && y>=0 && y<=7) ) {
 		invSX = -1;
 		invSY = -1;
+		return;
 	}
+	
+	//If previous selected item slot not empty, we are selecting a new item
+	if( inventorySlots[invSX][invSY]!=-1 ) {
+		itemUIShouldUpdate = true;
+	}
+	
+	//If in sandbox mode, set sandboxTex(X, Y).
+	if( state==2 ) {
+		sandboxTexX = x;
+		sandboxTexY = y;
+	}
+	
+	//Set invSX and invSY to x, y
+	invSX = x;
+	invSY = y;
 }

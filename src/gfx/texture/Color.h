@@ -26,6 +26,7 @@ public:
     static uint32_t getA(uint32_t rgba);
     uint32_t getA();
 	std::tuple<double, double, double> toHSV();
+    double getHSV2();
 	std::string toStringB10();
 	std::string toStringB16(bool transparency);
 	/**/

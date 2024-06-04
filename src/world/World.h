@@ -8,9 +8,11 @@
 #include "Player.h"
 #include "PlayerMenu.h"
 #include "RegTexInfo.h"
+#include "STexture.h"
 #include "Texture.h"
 #include "TileMap.h"
 #include "TileMapScreen.h"
+#include "WorldBackground.h"
 
 class World : public BTEObject, public Loggable
 {
@@ -56,12 +58,12 @@ private:
 	Canvas csInteractions;
 	Canvas csEntities;
 	Canvas csDebug;
-	Canvas csSky;
+	
 	
 	double performanceCounter = 0;
 	
 	Planet planet;
-	Texture skyTex;
+	WorldBackground wbg;
 	
 	std::string worldDirName;
 	std::string worldDirPath;

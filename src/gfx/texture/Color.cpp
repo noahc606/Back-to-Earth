@@ -107,6 +107,21 @@ std::tuple<double, double, double> Color::toHSV()
 }
 
 /**
+ * Get the V in the HSV value
+*/
+double Color::getHSV2()
+{
+	double rp = ((double)r)/255.0;
+	double gp = ((double)g)/255.0;
+	double bp = ((double)b)/255.0;
+	double cmax = std::max(rp, std::max(gp, bp));
+	
+	//Value
+	double v = 100.0*cmax;
+	return v;
+}
+
+/**
  * Return the 32bit RGBA value, interpreted as a base 10 number, as a string.
  */
 std::string Color::toStringB10()

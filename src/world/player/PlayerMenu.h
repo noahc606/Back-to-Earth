@@ -12,6 +12,10 @@ public:
 	void tick();
 	void draw();
 	/**/
+	int getSlotHoveringX();
+	int getSlotHoveringY();
+	int getItemTexSrcX(int itemID);
+	int getItemTexSrcY(int itemID);
 	int getState();
 	uint8_t getSandboxTexX();
 	uint8_t getSandboxTexY();
@@ -33,13 +37,11 @@ private:
 	//Inventory slot and selected inventory slot
 	const int invW = 8; const int invH = 8;
 	int inventorySlots[8][8];
-	int invSX = -1; int invSY = -1;
-	bool newItemSelected = true;
+	int invSX = -1; int invSY = -1;		//X, Y of the currently selected inventory slot
+	int invHeldID = -1;					//ID of the currently held item
 	
-	//Item move animation
-	int itemMoveTimer = -1;
-	Texture movingItemA; Texture movingItemB;
-	int invLSX = -1; int invLSY = -1;
+	bool itemUIShouldUpdate = true;
+	bool itemHeldShouldUpdate = true;
 	
 	int windowX = 0; int windowY = 0; int windowW = 0; int windowH = 0;
 	int invScreenX = 0; int invScreenY = 0; int invScreenW = 0; int invScreenH = 0;
@@ -49,6 +51,7 @@ private:
 
 	
 	Texture uiOverlay;
+	Texture heldItem;
 	Items items;
 
 	/**/
@@ -56,7 +59,7 @@ private:
 	/**/
 	/**/
 	void updateMenuCoordinates();
-	void moveItemsBetween(int x1, int y1, int x2, int y2);
+	void updateSandboxRGB();
 	void selectInventorySlot(int x, int y);
 	/**/
 };

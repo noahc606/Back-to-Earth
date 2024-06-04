@@ -143,7 +143,7 @@ void MainLoop::gameLoop()
     //Track SDL Events
     trackEvents();
 
-    //Tick game objects up to 60 times a second
+    //Tick game objects up to 40 times a second
     if( SDL_GetTicks()%1000>msPerTick*ticksThisSecond ) {
         //Track ticks this second to calculate TPS
         ticksThisSecond++;

@@ -11,6 +11,7 @@
 #include <set>
 #include <sstream>
 #include <SDL2/SDL_net.h>
+#include "Atmosphere.h"
 #include "Color.h"
 #include "DataStream.h"
 #include "Grid.h"
@@ -28,10 +29,7 @@
 
 Tests::Tests(){}
 
-float dist(float x0, float y0, float z0, float x1, float y1, float z1)
-{
-    return std::sqrt( (x1-x0)*(x1-x0) + (y1-y0)*(y1-y0) + (z1-z0)*(z1-z0) );
-}
+
 
 void assetList(FileHandler* fileHandler)
 {
@@ -43,140 +41,10 @@ void assetList(FileHandler* fileHandler)
     }
 }
 
-const float kInfinity = std::numeric_limits<float>::max();
 
-class Atmosphere 
-{ 
-public: 
-    Atmosphere(
-        Vec3F sd = Vec3F(0, 0, 1), 
-        float er = 6360000, float ar = 6420000, 
-        float hr = 7994, float hm = 1200) : 
-        sunDirection(sd), 
-        earthRadius(er), 
-        atmosphereRadius(ar), 
-        Hr(hr), 
-        Hm(hm) 
-    {} 
- 
-    Vec3F computeIncidentLight(const Vec3F& orig, const Vec3F& dir, float tmin, float tmax) const; 
- 
-    Vec3F sunDirection;      //The sun direction (normalized) 
-    float earthRadius;       //In the paper this is usually Rg or Re (radius ground, eart) 
-    float atmosphereRadius;  //In the paper this is usually R or Ra (radius atmosphere) 
-    float Hr;                //Thickness of the atmosphere if density was uniform (Hr) 
-    float Hm;                //Same as above but for Mie scattering (Hm) 
- 
-    static const Vec3F betaR; 
-    static const Vec3F betaM; 
-}; 
- 
-const Vec3F Atmosphere::betaR(3.8e-6f, 13.5e-6f, 33.1e-6f); 
-const Vec3F Atmosphere::betaM(21e-6f);
 
-bool solveQuadratic(float a, float b, float c, float& x1, float& x2)
-{
-    if (b == 0) {
-        // Handle special case where the the two vector ray.dir and V are perpendicular
-        // with V = ray.orig - sphere.centre
-        if (a == 0) return false;
-        x1 = 0; x2 = std::sqrt(-c / a);
-        return true;
-    }
-    float discr = b * b - 4 * a * c;
-
-    if (discr < 0) return false;
-
-    float q = (b < 0.f) ? -0.5f * (b - std::sqrt(discr)) : -0.5f * (b + std::sqrt(discr));
-    x1 = q / a;
-    x2 = c / q;
-
-    return true;
-}
-
-float dot(const Vec3F& va, const Vec3F& vb)
-{
-    return va.x * vb.x + va.y * vb.y + va.z * vb.z;
-}
 
 /*
-    Scale a vector to be length one while preserving its direction
-*/
-void normalize(Vec3F& vec)
-{
-    float len2 = vec.length2();
-    if (len2 > 0) {
-        float invLen = 1 / std::sqrt(len2);
-        vec.x *= invLen, vec.y *= invLen, vec.z *= invLen;
-    }
-}
-
-bool raySphereIntersect(const Vec3F& orig, const Vec3F& dir, const float& radius, float& t0, float& t1)
-{
-    // They ray dir is normalized so A = 1 
-    float A = dir.x * dir.x + dir.y * dir.y + dir.z * dir.z;
-    float B = 2 * (dir.x * orig.x + dir.y * orig.y + dir.z * orig.z);
-    float C = orig.x * orig.x + orig.y * orig.y + orig.z * orig.z - radius * radius;
-
-    if (!solveQuadratic(A, B, C, t0, t1)) return false;
-
-    if (t0 > t1) std::swap(t0, t1);
-
-    return true;
-}
-
-Vec3F Atmosphere::computeIncidentLight(const Vec3F& orig, const Vec3F& dir, float tmin, float tmax) const
-{
-    float t0, t1;
-    if (!raySphereIntersect(orig, dir, atmosphereRadius, t0, t1) || t1 < 0) return 0;
-    if (t0 > tmin && t0 > 0) tmin = t0;
-    if (t1 < tmax) tmax = t1;
-    uint32_t numSamples = 8;
-    uint32_t numSamplesLight = 4;
-    float segmentLength = (tmax - tmin) / numSamples;
-    float tCurrent = tmin;
-    Vec3F sumR(0), sumM(0); // rayleigh and mie contribution
-    float opticalDepthR = 0, opticalDepthM = 0;
-    float mu = dot(dir, sunDirection); // mu in the paper which is the cosine of the angle between the sun direction and the ray direction
-    float phaseR = 3.f/(16.f*M_PI)*(1+mu*mu);
-    float g = 0.76f;
-    float phaseM = 3.f/(8.f*M_PI)*((1.f-g*g)*(1.f+mu*mu))/((2.f+g*g)*pow(1.f+g*g-2.f*g*mu, 1.5f));
-    
-    
-    for (uint32_t i = 0; i<numSamples; ++i) {
-        Vec3F samplePosition = orig + (tCurrent + segmentLength * 0.5f) * dir;
-        float height = samplePosition.length() - earthRadius;
-        // compute optical depth for light
-        float hr = exp(-height / Hr) * segmentLength;
-        float hm = exp(-height / Hm) * segmentLength;
-        opticalDepthR += hr;
-        opticalDepthM += hm;
-        // light optical depth
-        float t0Light, t1Light;
-        raySphereIntersect(samplePosition, sunDirection, atmosphereRadius, t0Light, t1Light);
-        float segmentLengthLight = t1Light / numSamplesLight, tCurrentLight = 0;
-        float opticalDepthLightR = 0, opticalDepthLightM = 0;
-        uint32_t j;
-        for (j = 0; j < numSamplesLight; ++j) {
-            Vec3F samplePositionLight = samplePosition + (tCurrentLight + segmentLengthLight * 0.5f) * sunDirection;
-            float heightLight = samplePositionLight.length() - earthRadius;
-            if (heightLight < 0) break;
-            opticalDepthLightR += exp(-heightLight / Hr) * segmentLengthLight;
-            opticalDepthLightM += exp(-heightLight / Hm) * segmentLengthLight;
-            tCurrentLight += segmentLengthLight;
-        }
-        if (j == numSamplesLight) {
-            Vec3F tau = betaR * (opticalDepthR + opticalDepthLightR) + betaM * 1.1f * (opticalDepthM + opticalDepthLightM);
-            Vec3F attenuation(exp(-tau.x), exp(-tau.y), exp(-tau.z));
-            sumR += attenuation * hr;
-            sumM += attenuation * hm;
-        }
-        tCurrent += segmentLength;
-    }
-
-    return (sumR * betaR * phaseR + sumM * betaM * phaseM) * 20;
-}
-
 void renderSkydomeFisheye(const Vec3F& sunDir, Texture& tex) 
 { 
     Atmosphere atmosphere(sunDir); 
@@ -224,94 +92,7 @@ void renderSkydomeFisheye(const Vec3F& sunDir, Texture& tex)
     } 
     
     delete[] image; 
-}
-
-void renderSkydome(const Vec3F& sunDir, STexture* stex, SDLHandler* sh)
-{
-    Atmosphere atmosphere(sunDir);
-
-    // Params
-    float rHDivisor = 1.0f; // Render Height Divisor
-    unsigned width = stex->getTexWidth();
-    unsigned height = stex->getTexHeight();
-
-    // Render from a normal camera
-    Vec3F* image = new Vec3F[width * height];       // Create 1D array of vectors whose (x,y,z) components will be transformed into (r,g,b).
-    memset(image, 0x0, sizeof(Vec3F)*width*height); // Allocate appropriate amount of memory for 'image' array.
-    Vec3F* p = image;                               // Create accessor for 'image' array.
-
-    float aspectRatio = width / float(height); 
-    float fov = 65; 
-    float angle = std::tan(fov * M_PI / 180 * 0.5f); 
-    unsigned numPixelSamples = 1; 
-    Vec3F orig(0, atmosphere.earthRadius+10*60, 0);  //camera position
-    
-    for (unsigned y = 0; y<height/rHDivisor; y++) { 
-        for (unsigned x = 0; x<width; x++, p++) { 
-            for (unsigned m = 0; m < numPixelSamples; m++) { 
-                for (unsigned n = 0; n < numPixelSamples; n++) { 
-                    float rayX = (2 * (x + (m + 0.5f) / numPixelSamples) / float(width) - 1) * aspectRatio * angle; 
-                    float rayY = (1 - (y + (n + 0.5f) / numPixelSamples) / float(height) * 2) * angle; 
-                    Vec3F dir(rayX, rayY, -1);
-                    normalize(dir);
-                    // Does the ray intersect the planetory body? (the intersection test is against the Earth here
-                    // not against the atmosphere). If the ray intersects the Earth body and that the intersection
-                    // is ahead of us, then the ray intersects the planet in 2 points, t0 and t1. But we
-                    // only want to comupute the atmosphere between t=0 and t=t0 (where the ray hits
-                    // the Earth first). If the viewing ray doesn't hit the Earth, or course, the ray
-                    // is then bounded to the range [0:INF]. In the method computeIncidentLight() we then
-                    // compute where this primary ray intersects the atmosphere, and we limit the max t range 
-                    // of the ray to the point where it leaves the atmosphere.
-                    float t0, t1, tMax = kInfinity;
-                    //float tMax = kInfinity;
-
-
-                    if (raySphereIntersect(orig, dir, atmosphere.earthRadius, t0, t1) && t1 > 0) {
-                        tMax = std::max(0.f, t0); 
-                    }
-
-                    // The *viewing or camera ray* is bounded to the range [0:tMax]
-                    *p += atmosphere.computeIncidentLight(orig, dir, 0, tMax); 
-                }
-            }
-            *p *= 1.f / (numPixelSamples * numPixelSamples); 
-        } 
-        fprintf(stderr, "\b\b\b\b%3d%c", (int)(100 * y / (width - 1)), '%'); 
-    }
-    printf("\n");
-
-    p = image;
-
-    float powval = 1.0f / 2.2f;
-    float tone = 0.38317f;
-
-    {
-        Timer t("texture building", true);
-
-        stex->lock();
-        for (unsigned j = 0; j < height/rHDivisor; ++j) { 
-            for (unsigned i = 0; i < width; ++i, ++p) {
-                // Apply tone mapping function
-                p->x = p->x<1.413f ? pow(p->x*tone, powval) : 1.0f-exp(-p->x); //Red [0-1]
-                p->y = p->y<1.413f ? pow(p->y*tone, powval) : 1.0f-exp(-p->y); //Green [0-1]
-                p->z = p->z<1.413f ? pow(p->z*tone, powval) : 1.0f-exp(-p->z); //Blue [0-1]
-
-
-                uint8_t r = (unsigned char)(std::min(1.f, p->x)*255);
-                uint8_t g = (unsigned char)(std::min(1.f, p->y)*255);
-                uint8_t b = (unsigned char)(std::min(1.f, p->z)*255);
-                
-                stex->pixel(i, j, r, g, b, 255);
-                //Color col(255, 0, 0, 0);
-                //tex.pixel(i, j, r, g, b);
-                //pixels[i + (j*surf->w)] = SDL_MapRGB(surf->format, 255, 0, 0);//col.getRGBA();
-            }
-        }
-        stex->unlock();
-    }
-
-    delete[] image;
-}
+}*/
 
 void Tests::init(SDLHandler* sh, FileHandler* fh, Controls* ctrls)
 {
@@ -319,14 +100,7 @@ void Tests::init(SDLHandler* sh, FileHandler* fh, Controls* ctrls)
 	fileHandler = fh;
 	controls = ctrls;
 
-    int texW = 960/2;
-    int texH = 540/2;
-    tex.init(sdlHandler, texW, texH, 2);
-    {
-        Timer t("sky rendering", true);
-        float thetaY = 80.f*M_PI/180.f;
-        renderSkydome(Vec3F(0, cos(thetaY), -sin(thetaY)), &tex, sdlHandler); 
-    }
+
 }
 
 Tests::~Tests(){}

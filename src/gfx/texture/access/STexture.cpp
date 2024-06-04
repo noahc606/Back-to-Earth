@@ -16,6 +16,7 @@ void STexture::init(SDLHandler* p_sdlHandler, int texWidth, int texHeight, doubl
     access = SDL_TEXTUREACCESS_STREAMING;
     texW = texWidth;
     texH = texHeight;
+    STexture::drawScale = texScale;
     
     tex = SDL_CreateTexture(renderer, pixelFormat, access, texW, texH);
 
@@ -73,7 +74,7 @@ void STexture::unlock()
 void STexture::pixel(int x, int y, uint8_t r, uint8_t g, uint8_t b, uint8_t a)
 {
     if(!locked) return;
-    ((Uint32*)pixels)[x+(y*texW)] = SDL_MapRGB(sdlHandler->getPixelFormat(), r, g, b);
+    ((Uint32*)pixels)[x+(y*texW)] = SDL_MapRGBA(sdlHandler->getPixelFormat(), r, g, b, a);
 }
 
 /*

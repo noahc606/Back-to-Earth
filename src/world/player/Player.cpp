@@ -294,14 +294,8 @@ void Player::collision(TileMap* tm)
 	int64_t cy = 0;
 	int64_t cz = 0;
 	
-	//Determine whether to snap to SOUTH, NORTH (y), EAST, WEST (x), or DOWN (z).
-	if(tm->collides(getBounds(SOUTH), cx, cy, cz)) 	collisionSnap(cy, 10, y, snapS);
-	if(tm->collides(getBounds(NORTH), cx, cy, cz)) 	collisionSnap(cy+1, -10, y, snapN);
-	if(tm->collides(getBounds(EAST), cx, cy, cz)) 	collisionSnap(cx, 10, x, snapE);
-	if(tm->collides(getBounds(WEST), cx, cy, cz)) 	collisionSnap(cx+1, -10, x, snapW);
+	//Determine up/down snap (special case)
 	if(tm->collides(getBounds(LOWER), cx, cy, cz)) 	collisionSnap(cz, 64, z, snapD);
-
-	//Determine up/ceiling snap (special case)
 	if(tm->collides(getBounds(UPPER), cx, cy, cz)) {
 		//If head nearly matches up with the ceiling, teleport player to be right under the ceiling.
 		double headDepth = z+0.125;
@@ -310,6 +304,12 @@ void Player::collision(TileMap* tm)
 			snapU = true;
 		}
 	}
+
+	//Determine whether to snap to SOUTH, NORTH (y), EAST, WEST (x)
+	if(tm->collides(getBounds(SOUTH), cx, cy, cz)) 	collisionSnap(cy, 10, y, snapS);
+	if(tm->collides(getBounds(NORTH), cx, cy, cz)) 	collisionSnap(cy+1, -10, y, snapN);
+	if(tm->collides(getBounds(EAST), cx, cy, cz)) 	collisionSnap(cx, 10, x, snapE);
+	if(tm->collides(getBounds(WEST), cx, cy, cz)) 	collisionSnap(cx+1, -10, x, snapW);
 }
 
 void Player::collisionSnap(int64_t tileCoord, double depthMod, double& playerCoordRef, bool& snapRef)

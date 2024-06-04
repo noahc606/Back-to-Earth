@@ -19,6 +19,8 @@ public:
     float length2();
     float length();
 
+    static void normalize(Vec3F& vec);
+
     float x = 0, y = 0, z = 0;
 protected:
 private:

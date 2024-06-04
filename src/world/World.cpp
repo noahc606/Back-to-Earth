@@ -3,6 +3,7 @@
 #include <time.h>
 #include "TextureBuilder.h"
 #include "Log.h"
+#include "Atmosphere.h"
 #include "MainLoop.h"
 #include "Timer.h"
 
@@ -63,8 +64,9 @@ void World::init(SDLHandler* sh, GUIHandler* gh, FileHandler* fh, Controls* ctrl
 	//Player menu
 	localPlayerMenu.init(sdlHandler, guiHandler, ctrls, &localPlayer);
 	
-	/* INIT 3: Canvases */
+	/* INIT 3: Graphical */
 	initCanvases();
+	wbg.init(sdlHandler);
 
 	/* INIT 4: TileMap and TileMapScreen */
 	tileMap.init(sdlHandler, fileHandler, &planet, worldDirName);
@@ -83,15 +85,6 @@ void World::initCanvases()
 	csTileMap.setMaximumFPS(20);
 	csTileMap.setTexUsingDynamicLOD(true);
 	csTileMap.setTexAllocCount(5);
-
-	//Sky
-	csSky.init(sdlHandler, controls, localPlayer.getCamera());
-	csSky.setMaximumFPS(4);
-	csSky.setTexAllocCount(5);
-	csSky.setMoveWithCamera(false);
-	skyTex.init(sdlHandler, 1024, 1024);
-	skyTex.lock();
-	skyTex.blit(TextureLoader::WORLD_background_space_interstellar);
 
 	//Entities
 	csEntities.init(sdlHandler, controls, localPlayer.getCamera());
@@ -116,7 +109,6 @@ World::~World()
 	fileHandler->saveSettings(wdKVs, worldDataPath);
 
 	// Destroy canvases
-	csSky.destroy();
 	csTileMap.destroy();
 	csInteractions.destroy();
 	csEntities.destroy();
@@ -138,15 +130,7 @@ void World::draw(bool debugOn)
 	*/
 
 	/* Drawing canvases */
-	// 1 - Sky
-	//csSky.setSourceTex(TextureLoader::WORLD_background_space_interstellar, 0, 0);
-	//csSky.rcopy(-32, -32, 64, 64);
-	//csSky.draw();
-
-	double skyScale = 2;
-	skyTex.setDrawScale(skyScale);
-	skyTex.setDrawPos(sdlHandler->getWidth()/2-512*skyScale, sdlHandler->getHeight()/2-512*skyScale);
-	skyTex.draw();
+	wbg.draw();
 
 	// 2 - Tiles
 	tileMapScreen.draw();
@@ -192,11 +176,10 @@ void World::tick(bool paused, GUIHandler& guiHandler)
 	}
 
 	/** Tick canvases */
-	csSky.tick();			// 1 - Sky
-	csTileMap.tick();		// 2 - Tiles
-	csEntities.tick();		// 3 - Entities
-	csInteractions.tick();	// 4 - Interactions
-	csDebug.tick();			// 5 - Debug
+	csTileMap.tick();		// 1 - Tiles
+	csEntities.tick();		// 2 - Entities
+	csInteractions.tick();	// 3 - Interactions
+	csDebug.tick();			// 4 - Debug
 
 	/** Interactions with world */
 	updateMouseAndCamInfo();
