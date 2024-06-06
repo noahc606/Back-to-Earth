@@ -16,8 +16,8 @@ endif (UNIX)
 
 # Project
 project(${PROJ_OUT} VERSION 0.1.1.0 LANGUAGES C CXX)
-set(CMAKE_C_FLAGS "-std=c++17 -o")
-
+set(CMAKE_C_FLAGS "-std=c++17")
+#set(CMAKE_C_FLAGS "-std=c++17 -O3 -DNDEBUG -mwindows -s -flto")
 
 # Get list of sources and headers
 file (GLOB_RECURSE PROJ_SOURCES CONFIGURE_DEPENDS "${CMAKE_SOURCE_DIR}/src/*.cpp")

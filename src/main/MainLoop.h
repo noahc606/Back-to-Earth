@@ -46,6 +46,7 @@ private:
     static double msptThisSec; static double mspfThisSec;
     static uint64_t nextSecond;
 
+    static void crossSleep(int milliseconds);
     static void gameLoop();    //Main game loop (draw and tick)
     static void trackEvents(); //Track SDL_Events to handle keyboard/mouse input, program exit requests, etc.
     static void tick();        //Update game objects at 60 times a second.

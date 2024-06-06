@@ -57,7 +57,7 @@ void PlayerMenu::tick() {
 		//Upon RIGHT click...
 		if( controls->isPressed("HARDCODE_RIGHT_CLICK") ) {
 			controls->stopPress("HARDCODE_RIGHT_CLICK", __PRETTY_FUNCTION__);	//Stop click
-			if( shx!=-1 || shy!=-1 ) {											//If we clicked outside of the inventory, do nothing.
+			if( shx!=-1 && shy!=-1 ) {											//If we clicked outside of the inventory, do nothing.
 				//If the clicked slot was already selected, reset selection
 				if( invSX==shx && invSY==shy && state==1 ) {
 					selectInventorySlot(-1, -1);
@@ -74,7 +74,7 @@ void PlayerMenu::tick() {
 			controls->stopPress("HARDCODE_LEFT_CLICK", __PRETTY_FUNCTION__);
 			
 			//If we clicked inside the inventory...
-			if( shx!=-1 || shy!=-1 ) {
+			if( shx!=-1 && shy!=-1 ) {
 				if(invHeldID==-1) {		//If no item is being held: pick up the item in this slot and clear the slot
 					invHeldID = inventorySlots[shx][shy];
 					inventorySlots[shx][shy] = -1;

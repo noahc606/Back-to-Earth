@@ -2,10 +2,15 @@
 #include <ctime>
 #include <iostream>
 #include <SDL2/SDL.h>
+#include <unistd.h>
 #include "CurlHandler.h"
 #include "Log.h"
 #include "Main.h"
 #include "Timer.h"
+
+#if ( defined(_WIN32) || defined(WIN32) )
+#include <windows.h>
+#endif
 
 bool MainLoop::running = true;
 bool MainLoop::initialized = false;
@@ -138,10 +143,22 @@ void MainLoop::setMaxFPS(std::string settingVal)
 
 void MainLoop::quit() { running = false; }
 
+void MainLoop::crossSleep(int milliseconds)
+{
+    #if ( defined(_WIN32) || defined(WIN32) )
+        Sleep(milliseconds);
+    #elif (defined(__unix__) || defined(__unix) || (defined(__APPLE__) && defined(__MACH__)) )
+        usleep(1000*milliseconds);
+    #else
+        Log::throwException(__PRETTY_FUNCTION__, "Unknown operating system detected");
+    #endif
+
+}
+
 void MainLoop::gameLoop()
 {
-    SDL_Delay(1);
-
+    crossSleep(1);
+    
     //Track SDL Events
     trackEvents();
 
