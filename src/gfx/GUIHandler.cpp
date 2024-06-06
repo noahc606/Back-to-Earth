@@ -383,8 +383,7 @@ GUI* GUIHandler::addGUI(GUI* gui, int extraID)
     //Call init constructor based on its type
     switch(gui->getType()) {
         case BTEObject::GUI_tooltip:
-        case BTEObject::GUI_progressbar:
-        {
+        case BTEObject::GUI_progressbar: {
             gui->init(sdlHandler);
         } break;
         case BTEObject::GUI_textbox: {
@@ -438,6 +437,10 @@ void GUIHandler::setGUIs(int guis)
         /** Campaign Creation/Selection UIs */
         case SELECT_CAMPAIGN: {
             gb.buildSelectCampaign(*this, *fileHandler);
+            setAllWindowsActiveState(true);
+        } break;
+        case SELECT_CAMPAIGN_createNew: {
+            gb.buildSelectCampaignCN(*this, *fileHandler);
             setAllWindowsActiveState(true);
         } break;
 

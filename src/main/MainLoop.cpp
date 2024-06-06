@@ -140,6 +140,8 @@ void MainLoop::quit() { running = false; }
 
 void MainLoop::gameLoop()
 {
+    SDL_Delay(1);
+
     //Track SDL Events
     trackEvents();
 

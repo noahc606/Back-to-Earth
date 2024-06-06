@@ -71,6 +71,19 @@ public:
             btn_SELECT_CAMPAIGN_createNew,
             btn_SELECT_CAMPAIGN_openSaveDirectory,
 
+            win_SELECT_CAMPAIGN_CN,
+            tbx_SELECT_CAMPAIGN_CN_levelName,
+            rbtn_SELECT_CAMPAIGN_CN_gameMode0,
+            rbtn_SELECT_CAMPAIGN_CN_gameMode1,
+            rbtn_SELECT_CAMPAIGN_CN_gameMode2,
+
+            btn_SELECT_CAMPAIGN_CN_showAdditional,
+            cbx_SELECT_CAMPAIGN_CN_sp,
+
+            btn_SELECT_CAMPAIGN_CN_mkdir,
+            btn_SELECT_CAMPAIGN_CN_defaults,
+            btn_SELECT_CAMPAIGN_CN_back,
+
         /* Main Options */
         win_OPTIONS,
         btn_OPTIONS_controls,
@@ -141,6 +154,7 @@ public:
 			DEBUG,
 
         SELECT_CAMPAIGN,
+            SELECT_CAMPAIGN_createNew,
 
         PAUSE, UNPAUSE,
         WORLD,

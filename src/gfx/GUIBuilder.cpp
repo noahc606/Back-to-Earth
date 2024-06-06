@@ -373,11 +373,13 @@ void GUIBuilder::buildColorSelector(GUIHandler& gh, Window* parentWindow, int ex
 
 void GUIBuilder::buildSelectCampaign(GUIHandler& gh, FileHandler& fh)
 {
-    //Remove all title screen elements
+    //Remove all unnecessary elements
     gh.removeGUI(gh.ttp_MAIN_title);
     gh.removeGUI(gh.btn_MAIN_play);
     gh.removeGUI(gh.btn_MAIN_options);
     gh.removeGUI(gh.btn_MAIN_exit);
+    gh.removeGUI(gh.win_SELECT_CAMPAIGN_CN);
+
 
     WindowData* wd = new WindowData(12, 12, "Select Campaign", "");
     wd->setPanelData(0, "tttttttttttt");
@@ -425,6 +427,95 @@ void GUIBuilder::buildSelectCampaign(GUIHandler& gh, FileHandler& fh)
     //gh.addGUI(new Tooltip( gh.getWindow(gh.win_SELECT_CAMPAIGN), 30, 30, "Sandbox Mode", gh.ttp_CHARACTER_tabs_desc ) );
     //gh.addGUI(new RadioButton( gh.getWindow(gh.win_CHARACTER), 30, 60, "Backpack", true, gh.rbtn_CHARACTER_inventory, gh.rbtn_CHARACTER_tabs_1a, gh.rbtn_CHARACTER_tabs_1b ) );
     //gh.addGUI(new RadioButton( gh.getWindow(gh.win_CHARACTER), 30, 100, "Engineering", gh.rbtn_CHARACTER_engineering, gh.rbtn_CHARACTER_tabs_1a, gh.rbtn_CHARACTER_tabs_1b ) );
+}
+
+void GUIBuilder::buildSelectCampaignCN(GUIHandler& gh, FileHandler& fh)
+{
+    gh.removeGUI(gh.win_SELECT_CAMPAIGN);
+
+    WindowData* wd = new WindowData(12, 12, "Create New Campaign", "");
+    wd->setPanelData(0, "tttttttttttt");
+    wd->setPanelData(1, "ssssssssssss");
+    wd->setPanelData(2, "ssssssssssss");
+    wd->setPanelData(3, "ssssssssssss");
+    wd->setPanelData(4, "ssssssssssss");
+    wd->setPanelData(5, "ssssssssssss");
+    wd->setPanelData(6, "ssssssssssss");
+    wd->setPanelData(7, "ssssssssssss");
+    wd->setPanelData(8, "ssssssssssss");
+    wd->setPanelData(9, "ssssssssssss");
+    wd->setPanelData(10,"aaaaaaaaaaaa");
+    wd->setPanelData(11,"bbbbbbbbbbbb");
+    wd->setPanelColor('t', Color(64, 64, 64, 240) );
+    wd->setPanelColor('s', Color(0, 0, 255, 160) );
+    wd->setPanelColor('a', Color(96, 128, 240, 240) );
+    wd->setPanelColor('b', Color(64, 64, 64, 240) );
+
+    Window* w = new Window( ch, cv, wd, gh.win_SELECT_CAMPAIGN_CN );
+    gh.addGUI(w);
+
+    //Save file name input
+    int height = 0;
+    gh.addGUI(new Tooltip( w, ch, 92+32*height, "General", gh.ttp_GENERIC), 0);
+    
+    height += 1;
+    gh.addGUI(new Tooltip(w, 30, 92+32*height, "Save File Name: ", gh.ttp_GENERIC), 0);
+    gh.addGUI(new TextBox(w, 26+32*6, 82+32*height, 32*16, TextBox::LEVELNAME_TEXT, gh.tbx_SELECT_CAMPAIGN_CN_levelName ), 0);
+    
+    //Seed input
+    height += 1;
+    gh.addGUI(new Tooltip(w, 30, 92+32*height, "Seed: ", gh.ttp_GENERIC), 0);
+    
+    int32_t randomSeed = rand();
+    TextBox* seedTbx = new TextBox(w, 26+32*6, 82+32*height, 32*16, TextBox::FREE_TEXT, gh.tbx_SELECT_CAMPAIGN_CN_levelName );
+    gh.addGUI(seedTbx, 0);
+    std::stringstream seedSS; seedSS << randomSeed;
+    seedTbx->setString(seedSS.str());
+
+    //Game mode selection
+    height += 1;
+    int ghGM0 = gh.rbtn_SELECT_CAMPAIGN_CN_gameMode0;
+    int ghGM2 = gh.rbtn_SELECT_CAMPAIGN_CN_gameMode2;
+    gh.addGUI(new Tooltip(      w, 30,          92+32*height, "Game Mode: ", gh.ttp_GENERIC));
+    gh.addGUI(new RadioButton(  w, 26+32*6,     82+32*height, "Sandbox", gh.rbtn_SELECT_CAMPAIGN_CN_gameMode0, ghGM0, ghGM2));
+    gh.addGUI(new RadioButton(  w, 26+32*11,    82+32*height, "Survival", true, gh.rbtn_SELECT_CAMPAIGN_CN_gameMode1, ghGM0, ghGM2));
+    gh.addGUI(new RadioButton(  w, 26+32*16,    82+32*height, "Hardcore", gh.rbtn_SELECT_CAMPAIGN_CN_gameMode2, ghGM0, ghGM2));
+
+    height += 2;
+    gh.addGUI(new Button( w, ch, 82+32*height, 300, "Show Additional Options...", gh.btn_SELECT_CAMPAIGN_CN_showAdditional));
+
+    gh.addGUI(new Button( w, 26, wd->getH64()-38-66, 200, "Create", gh.btn_SELECT_CAMPAIGN_CN_mkdir ));
+    gh.addGUI(new Button( w, ch, wd->getH64()-38-66, 300, "Restore Defaults", gh.btn_SELECT_CAMPAIGN_CN_defaults ));
+
+    gh.addGUI(new Button( w, ch, wd->getH64()-38, 300, "Back", gh.btn_SELECT_CAMPAIGN_CN_back ));
+}
+
+void GUIBuilder::campaignNewShowMore(GUIHandler& gh, FileHandler& fh)
+{
+    Window* w = gh.getWindow(gh.win_SELECT_CAMPAIGN_CN);
+    if(w==nullptr) {
+        Log::warn(__PRETTY_FUNCTION__, "Couldn't fild campaignNew window.");
+        return;
+    }
+
+    int height = 7;
+    height += 2;
+    gh.addGUI(new Tooltip( w, ch, 92+32*height, "Starting Planet", gh.ttp_GENERIC), 0);
+    height += 1;
+    gh.addGUI(new CheckBox(w, 26+32*0, 82+32*height, "In Habitable Zone", CheckBox::CBX_TRUE, false, gh.cbx_SELECT_CAMPAIGN_CN_sp), 0);
+    height += 1;
+    gh.addGUI(new CheckBox(w, 26+32*0, 82+32*height, "Default Terrain Parameters", CheckBox::CBX_TRUE, false, gh.cbx_SELECT_CAMPAIGN_CN_sp), 1);
+    height += 1;
+    gh.addGUI(new CheckBox(w, 26+32*0, 82+32*height, "Default Mineral Distribution", CheckBox::CBX_TRUE, false, gh.cbx_SELECT_CAMPAIGN_CN_sp), 2);
+    height += 1;
+    gh.addGUI(new CheckBox(w, 26+32*0, 82+32*height, "Atmosphere Breathable", CheckBox::CBX_FALSE, false, gh.cbx_SELECT_CAMPAIGN_CN_sp), 3);
+    height += 1;
+    gh.addGUI(new CheckBox(w, 26+32*0, 82+32*height, "Default Colors", CheckBox::CBX_TRUE, false, gh.cbx_SELECT_CAMPAIGN_CN_sp), 4);
+}
+
+void GUIBuilder::campaignNewShowLess(GUIHandler& gh, FileHandler& fh)
+{
+
 }
 
 std::string GUIBuilder::getCtrl(std::string s)

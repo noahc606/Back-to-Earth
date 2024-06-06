@@ -43,10 +43,6 @@ void FileHandler::init( std::string rp, int fsType )
     createBTEDir("saved/screenshots");
     createBTEDir("saved/settings");
 
-    createBTEDir("saved/games/world1");
-    createBTEDir("saved/games/world2");
-    createBTEDir("saved/games/world3");
-
     //Load and save settings files.
     loadSettings();
     saveSettings();

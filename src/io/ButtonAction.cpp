@@ -47,16 +47,17 @@ ButtonAction::ButtonAction(SDLHandler* sh, GUIHandler* gh, FileHandler* fh, Cont
         case GUIHandler::btn_MAIN_options:  { gh->setGUIs(GUIHandler::GUIs::OPTIONS); } break;
 
         /** Options buttons */
-        case GUIHandler::btn_OPTIONS_controls:              { gh->setGUIs(GUIHandler::GUIs::CONTROLS); } break;
-        case GUIHandler::btn_OPTIONS_graphics_settings:     { gh->setGUIs(GUIHandler::GUIs::GRAPHICS); } break;
-		case GUIHandler::btn_OPTIONS_character_settings:    { gh->setGUIs(GUIHandler::GUIs::CHARACTER); } break;
-		case GUIHandler::btn_OPTIONS_debug_settings:        { gh->setGUIs(GUIHandler::GUIs::DEBUG); } break;
+        case GUIHandler::btn_OPTIONS_controls:              { gh->setGUIs(gh->CONTROLS); } break;
+        case GUIHandler::btn_OPTIONS_graphics_settings:     { gh->setGUIs(gh->GRAPHICS); } break;
+		case GUIHandler::btn_OPTIONS_character_settings:    { gh->setGUIs(gh->CHARACTER); } break;
+		case GUIHandler::btn_OPTIONS_debug_settings:        { gh->setGUIs(gh->DEBUG); } break;
 
         /** Campaign Selection buttons */
-        case GUIHandler::btn_SELECT_CAMPAIGN_openSaveDirectory: {
-            fh->openUserLocalURL("saved/games/");
-            
-        } break;
+        case GUIHandler::btn_SELECT_CAMPAIGN_createNew:     { gh->setGUIs(gh->SELECT_CAMPAIGN_createNew); } break;
+        case GUIHandler::btn_SELECT_CAMPAIGN_openSaveDirectory: {   fh->openUserLocalURL("saved/games/"); } break;
+        
+        
+        case GUIHandler::btn_SELECT_CAMPAIGN_CN_back:       { gh->setGUIs(gh->SELECT_CAMPAIGN); } break;
 
         /** Pause menu buttons */
         case GUIHandler::btn_PAUSED_options: {  gh->setGUIs(GUIHandler::GUIs::OPTIONS); } break;

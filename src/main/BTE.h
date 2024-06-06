@@ -30,18 +30,16 @@ public:
 protected:
 
 private:
-    /**/
-    /**/
+
     bool updateBTEApp();
     void setGameState(int p_gamestate, std::string extraInfo);
     void setGameState(int p_gamestate);
 	void unload(World*& world);
 	void unload(Tests*& tests);
-
 	void load(World*& world, std::string dirName);
 	void load(Tests*& tests);
+    void performGUIAction(int guiActionID);
 
-    /**/
 
     enum GameState {
         EXIT = -10000,

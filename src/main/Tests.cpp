@@ -1,31 +1,5 @@
 #include "Tests.h"
-#include <map>
-#include <math.h>
-#include <bitset>
-#include <codecvt>
-#include <fcntl.h>
-#include <fstream>
-#include <iostream>
-#include <math.h>
-#include <random>
-#include <set>
-#include <sstream>
-#include <SDL2/SDL_net.h>
-#include "Atmosphere.h"
-#include "Color.h"
-#include "DataStream.h"
-#include "Grid.h"
-#include "Log.h"
-#include "MainLoop.h"
-#include "Noise.h"
-#include "Terrain.h"
-#include "Real.h"
-#include "TextOld.h"
-#include "TileMap.h"
-#include "TileMapScreen.h"
-#include "Timer.h"
-#include "Vec3F.h"
-#include "Window.h"
+#include "CampaignCreation.h"
 
 Tests::Tests(){}
 
@@ -99,8 +73,6 @@ void Tests::init(SDLHandler* sh, FileHandler* fh, Controls* ctrls)
 	sdlHandler = sh;
 	fileHandler = fh;
 	controls = ctrls;
-
-
 }
 
 Tests::~Tests(){}

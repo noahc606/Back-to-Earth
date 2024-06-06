@@ -22,6 +22,9 @@ public:
 	void buildColorSelector(GUIHandler& gh, Window* parentWindow, int extraID);
 
 	void buildSelectCampaign(GUIHandler& gh, FileHandler& fh);
+	void buildSelectCampaignCN(GUIHandler& gh, FileHandler& fh);
+	void campaignNewShowMore(GUIHandler& gh, FileHandler& fh);
+	void campaignNewShowLess(GUIHandler& gh, FileHandler& fh);
 
 protected:
 

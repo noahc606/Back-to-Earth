@@ -50,6 +50,7 @@ public:
 		FREE_NUMBERS_INTEGERS,  //Integers
         FREE_HEX_BASIC,         //Positive hex integers
         CONTROL_BINDINGS,
+        LEVELNAME_TEXT,         //[ ], [aA-zZ], [0-9], [`~!@#$%^&*-_+=|:;"'<>,.?]
     };
 
 protected:

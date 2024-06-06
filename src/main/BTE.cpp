@@ -2,6 +2,7 @@
 #include <sstream>
 #include <type_traits>
 #include "ButtonAction.h"
+#include "CampaignCreation.h"
 #include "CurlHandler.h"
 #include "GUIBuilder.h"
 #include "Log.h"
@@ -159,60 +160,10 @@ void BTE::tick()
 		//Tick
 		guiHandler.tick();
 
-		//GUI Button Action
+		//GUI Button Action 
 		int gaid = guiHandler.getGUIActionID();
 		if( gaid>-1 ) {
-			//Handle most button action IDs
-			ButtonAction ba(sdlHandler, &guiHandler, fileHandler, controls);
-			
-			//Handle special button action IDs (mostly gamestate switching)
-			switch( gaid ) {
-				/** Update prompt */
-				case GUIHandler::btn_UPDATE_PROMPT_accept: { setGameState(GameState::UPDATING); } break;
-
-				/** Main Menu */
-				case GUIHandler::btn_MAIN_play: { setGameState(GameState::SELECT_CAMPAIGN); } break;
-				case GUIHandler::btn_MAIN_exit: { setGameState(GameState::EXIT); } break;
-
-				/** Campaign select menu */
-				case GUIHandler::ssr_SELECT_CAMPAIGN_select: {
-					std::string selectedWorld = guiHandler.getGUIActionData();
-					Log::log("Opening world \"%s\"", selectedWorld.c_str());
-					setGameState(GameState::WORLD, selectedWorld);
-				} break;
-				
-
-				/** Options menu buttons */
-				case GUIHandler::btn_OPTIONS_back: 
-				case GUIHandler::btn_SELECT_CAMPAIGN_back: {
-					if( gamestate==GameState::WORLD ) {
-						guiHandler.setGUIs(GUIHandler::GUIs::PAUSE);
-					} else {
-						guiHandler.setGUIs(GUIHandler::GUIs::MAIN);
-					}
-				} break;
-
-				/** Pause Menu */
-				case GUIHandler::btn_PAUSED_back: {
-					paused = false;
-					guiHandler.setGUIs(GUIHandler::GUIs::UNPAUSE);
-				} break;
-				case GUIHandler::btn_PAUSED_exit: {
-					setGameState(GameState::MAIN_MENU);
-					paused = false;
-				} break;
-				
-				/* Player Menu */
-				case GUIHandler::rbtn_CHARACTER_inventory:
-				case GUIHandler::rbtn_CHARACTER_engineering:
-				{
-					PlayerMenu* lpm = world->getLocalPlayerMenu();
-					if( lpm!=nullptr ) {
-						lpm->setState( gaid-(GUIHandler::rbtn_CHARACTER_engineering)+2 );
-					}
-				} break;
-			}
-
+			performGUIAction(gaid);
 			//Reset gui action
 			guiHandler.resetGUIAction(__PRETTY_FUNCTION__);
 		}
@@ -524,4 +475,67 @@ void BTE::load(Tests*& tests)
 	unload(tests);
 	tests = new Tests();
 	tests->init(sdlHandler, fileHandler, controls);
+}
+
+void BTE::performGUIAction(int guiActionID)
+{
+	int gaid = guiActionID;
+
+	//Handle most button action IDs
+	ButtonAction ba(sdlHandler, &guiHandler, fileHandler, controls);
+	
+	//Handle special button action IDs (gamestate switching, start/create new campaign, etc.)
+	switch( gaid ) {
+		/** Update prompt */
+		case GUIHandler::btn_UPDATE_PROMPT_accept: { setGameState(GameState::UPDATING); } break;
+
+		/** Main Menu */
+		case GUIHandler::btn_MAIN_play: { setGameState(GameState::SELECT_CAMPAIGN); } break;
+		case GUIHandler::btn_MAIN_exit: { setGameState(GameState::EXIT); } break;
+
+		/** Campaign select menu */
+		case GUIHandler::ssr_SELECT_CAMPAIGN_select: {
+			std::string selectedWorld = guiHandler.getGUIActionData();
+			Log::log("Opening world \"%s\"", selectedWorld.c_str());
+			setGameState(GameState::WORLD, selectedWorld);
+		} break;
+		case GUIHandler::btn_SELECT_CAMPAIGN_CN_mkdir: {
+			if(CampaignCreation::createCampaignDir(&guiHandler, fileHandler)==true) {
+				setGameState(GameState::SELECT_CAMPAIGN);
+			} else {
+				
+			}
+		} break;
+		
+
+		/** Options menu buttons */
+		case GUIHandler::btn_OPTIONS_back: 
+		case GUIHandler::btn_SELECT_CAMPAIGN_back: {
+			if( gamestate==GameState::WORLD ) {
+				guiHandler.setGUIs(GUIHandler::GUIs::PAUSE);
+			} else {
+				guiHandler.setGUIs(GUIHandler::GUIs::MAIN);
+			}
+		} break;
+
+		/** Pause Menu */
+		case GUIHandler::btn_PAUSED_back: {
+			paused = false;
+			guiHandler.setGUIs(GUIHandler::GUIs::UNPAUSE);
+		} break;
+		case GUIHandler::btn_PAUSED_exit: {
+			setGameState(GameState::MAIN_MENU);
+			paused = false;
+		} break;
+		
+		/* Player Menu */
+		case GUIHandler::rbtn_CHARACTER_inventory:
+		case GUIHandler::rbtn_CHARACTER_engineering:
+		{
+			PlayerMenu* lpm = world->getLocalPlayerMenu();
+			if( lpm!=nullptr ) {
+				lpm->setState( gaid-(GUIHandler::rbtn_CHARACTER_engineering)+2 );
+			}
+		} break;
+	}
 }
