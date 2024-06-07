@@ -3,13 +3,14 @@
 #include "Log.h"
 #include "TextOld.h"
 
-SaveSelector::SaveSelector(Window* parentWindow, int index, std::string dir, std::string sizeDesc, int id)
+SaveSelector::SaveSelector(Window* parentWindow, int index, std::string dirName, std::string worldName, std::string sizeDesc, int id)
 : Button::Button(parentWindow, 0, 0, 0, "", id)
 {
     setSubType(BTEObject::Type::GUI_saveselect);
 
     SaveSelector::index = index;
-    SaveSelector::worldDirName = dir;
+    SaveSelector::worldDirName = dirName;
+    SaveSelector::worldName = worldName;
     SaveSelector::worldDirPath = "saved/games/"+worldDirName;
     SaveSelector::worldSizeDesc = sizeDesc;
 
@@ -81,10 +82,10 @@ void SaveSelector::draw()
 
     // Extra info text
     if(extraInfo) {
-        TextOld::draw(sdlHandler, worldDirName, sX+24, sY+20, 3);
+        TextOld::draw(sdlHandler, worldName, sX+24, sY+20, 3);
         TextOld::draw(sdlHandler, worldDirPath+": "+worldSizeDesc, sX+22, sY+54, 1);
     } else {
-        TextOld::draw(sdlHandler, worldDirName, sX+24, sY+28, 3);
+        TextOld::draw(sdlHandler, worldName, sX+24, sY+28, 3);
     }
 }
 

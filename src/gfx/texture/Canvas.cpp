@@ -9,7 +9,7 @@ void Canvas::init(SDLHandler* sh, Controls* ctrls, Camera* cam)
     BTEObject::init(sh, nullptr, ctrls);
     camera = cam;
 
-    setMaximumFPS(200);
+    setMaximumFPS(320);
     setCroppingRendering(false);
 
 	setTexAllocRadiusX(1);

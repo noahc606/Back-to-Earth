@@ -412,8 +412,14 @@ void GUIBuilder::buildSelectCampaign(GUIHandler& gh, FileHandler& fh)
 
         Log::log("Loaded save dir \"%s\"", saveDir.c_str());
 
+        //Get world size description
         std::string sizeDesc = fh.getReadableMemorySize(fh.dirDiskSpaceUsed(s));
-        gh.addGUI(  new SaveSelector(w, index, saveDir, sizeDesc, gh.ssr_SELECT_CAMPAIGN_select )  );
+        
+        //Get world name
+        auto dataFile = fh.readTxtFileKVs("saved/games/"+saveDir+"/data.txt");
+        std::string worldName = Settings::get(dataFile, "worldName");
+
+        gh.addGUI(  new SaveSelector(w, index, saveDir, worldName, sizeDesc, gh.ssr_SELECT_CAMPAIGN_select )  );
 
         index++;
     }

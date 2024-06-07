@@ -500,7 +500,7 @@ void BTE::performGUIAction(int guiActionID)
 			setGameState(GameState::WORLD, selectedWorld);
 		} break;
 		case GUIHandler::btn_SELECT_CAMPAIGN_CN_mkdir: {
-			if(CampaignCreation::createCampaignDir(&guiHandler, fileHandler)==true) {
+			if(CampaignCreation::createWorldDir(&guiHandler, fileHandler)==true) {
 				setGameState(GameState::SELECT_CAMPAIGN);
 			} else {
 				

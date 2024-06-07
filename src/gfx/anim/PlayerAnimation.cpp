@@ -94,8 +94,6 @@ void PlayerAnimation::draw(Canvas* csEntities, bool debugging, bool noclip, doub
 		sst->draw();
 	}
 
-
-
 	/*
 	 *	Rebuild player texture from spritesheet
 	 *	
@@ -113,12 +111,9 @@ void PlayerAnimation::draw(Canvas* csEntities, bool debugging, bool noclip, doub
 		opacity = 150;
 	}	
 
-
+	bool forceDrawRect = false;
 	//Build player texture
-	if(0) {
-		playerTex.clear();
-		playerTex.setTexDimensions(20, 64);
-	} else if(!debugging) {
+	if(!debugging && !forceDrawRect) {
 		playerTex.setColorMod(255, 255, 255, opacity);
 		rebuildPlayerTex(playerTex, cameraHorizontal);
 	} else {
@@ -145,15 +140,9 @@ void PlayerAnimation::draw(Canvas* csEntities, bool debugging, bool noclip, doub
 	//playerTex.rect(0, 0, 32, 64, 255, 0, 0);
 	csEntities->setSourceTex(&playerTex);
 	switch(camera->getAxis()) {
-		case Camera::X: {
-			csEntities->rcopy(y*32-16, z*32, playerTex.getTexWidth(), playerTex.getTexHeight());
-		} break;
-		case Camera::Y: {
-			csEntities->rcopy(x*32-16, z*32, playerTex.getTexWidth(), playerTex.getTexHeight());
-		} break;
-		case Camera::Z: {
-			csEntities->rcopy(x*32-16, y*32-16, playerTex.getTexWidth(), playerTex.getTexHeight());
-		} break;
+		case Camera::X: { csEntities->rcopy(y*32.-16., z*32., playerTex.getTexWidth(), playerTex.getTexHeight()); } break;
+		case Camera::Y: { csEntities->rcopy(x*32.-16., z*32., playerTex.getTexWidth(), playerTex.getTexHeight()); } break;
+		case Camera::Z: { csEntities->rcopy(x*32.-16., y*32.-16., playerTex.getTexWidth(), playerTex.getTexHeight()); } break;
 	}
 }
 
@@ -186,26 +175,22 @@ void PlayerAnimation::drawCharInMenu()
 
 void PlayerAnimation::rebuildPlayerTex(Texture& tex, bool alt)
 {
-	//Get sprite sheet texture
+/* Prelims - Get spritesheet texture, clear 'tex', and set the dimensions of tex depending on 'alt'. */
+//Get spritesheet texture
 	Texture* sst = spsh.getSheetTexture();
-	
-	if(!alt) {
-		tex.clear();
-		tex.setTexDimensions(32, 32);
-	} else {
-		tex.clear();
-		tex.setTexDimensions(32, 64);
-		tex.setDrawScale(4);
-	}
-	
+//Clear 'tex'
+	tex.clear();
+//If alt
+	if(!alt) { tex.setTexDimensions(32, 32); }
+	else { tex.setTexDimensions(32, 64); }
+
+
+/* Build 'tex' depending on 'alt' */
+//Alt==false: top-down view
 	if(!alt) {
 		/* Lower body (legs) */
 		tex.lock();
-		//tex.blitEx(sst, 0, 32*TOP_LOWER_BODY, 32, 32, rotation);
-		//if( anWalkState==0 ) {
 		tex.blitEx(sst, 32*anWalkFrameX, (TOP_LOWER_BODY+1)*32, 32, 32, rotation);
-		//}
-		
 		
 		/* Middle body */
 		tex.lock();
@@ -216,11 +201,11 @@ void PlayerAnimation::rebuildPlayerTex(Texture& tex, bool alt)
 			tex.lock();
 			tex.blitEx(sst, 0, 32*TOP_ARMS, 32, 32, rotation);
 		}
-		
-		
+	
 		/* Head */
 		tex.lock();
 		tex.blitEx(sst, 0, 32*TOP_HAIR, 32, 32, rotation);
+//Alt==true: side view
 	} else {
 		//Head base
 		tex.lock(0, 0, 32, 32);

@@ -1,11 +1,12 @@
 #pragma once
+#include "Camera.h"
 #include "STexture.h"
 #include "Vec3F.h"
 
 class WorldBackground
 {
 public:
-    void init(SDLHandler* sh);
+    void init(SDLHandler* sh, Camera* cam);
     void draw();
 
     void renderAll();
@@ -13,6 +14,7 @@ public:
 
 private:
     SDLHandler* sdlHandler;
+    Camera* camera;
 
     Texture starsTex;   //Stars             - #1
     STexture skyTex;    //Sky               - #2

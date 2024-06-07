@@ -2,8 +2,9 @@
 #include "Atmosphere.h"
 #include "Timer.h"
 
-void WorldBackground::init(SDLHandler* sh) {
+void WorldBackground::init(SDLHandler* sh, Camera* cam) {
     sdlHandler = sh;
+    camera = cam;
 
 	renderAll();
 }
@@ -117,9 +118,11 @@ void WorldBackground::renderSkyWhole(const Vec3F& sunDir)
 }
 
 void WorldBackground::draw() {
-	starsTex.setDrawPos( (sdlHandler->getWidth()/2-starsTex.getTexWidth())/2*2, 0 );
-    starsTex.draw();
-    
-    skyTex.setDrawPos( (sdlHandler->getWidth()/2-skyTex.getTexWidth())/2*2, 0 );
-	skyTex.draw();
+    if(camera->getDirection()!=Camera::DOWN) {
+    	starsTex.setDrawPos( (sdlHandler->getWidth()/2-starsTex.getTexWidth())/2*2, 0 );
+        starsTex.draw();
+
+        skyTex.setDrawPos( (sdlHandler->getWidth()/2-skyTex.getTexWidth())/2*2, 0 );
+	    skyTex.draw();
+    }
 }

@@ -41,6 +41,8 @@ void World::init(SDLHandler* sh, GUIHandler* gh, FileHandler* fh, Controls* ctrl
 	Settings::kv(&lwd, "playerX", "0");
 	Settings::kv(&lwd, "playerY", "0");
 	Settings::kv(&lwd, "playerZ", "-32");
+	Settings::kv(&lwd, "worldSeed", "-0");
+	Settings::kv(&lwd, "worldName", "world1");
 	//Build loaded world settings into worldDataKVs
 	worldDataKVs = fileHandler->readTxtFileKVs(worldDataPath);
 	fh->getSettings()->loadNewMapIntoOld(&lwd, worldDataKVs);
@@ -66,7 +68,7 @@ void World::init(SDLHandler* sh, GUIHandler* gh, FileHandler* fh, Controls* ctrl
 	
 	/* INIT 3: Graphical */
 	initCanvases();
-	wbg.init(sdlHandler);
+	wbg.init(sdlHandler, localPlayer.getCamera());
 
 	/* INIT 4: TileMap and TileMapScreen */
 	tileMap.init(sdlHandler, fileHandler, &planet, worldDirName);
@@ -82,7 +84,7 @@ void World::initCanvases()
 {
 	//TileMap
 	csTileMap.init(sdlHandler, controls, localPlayer.getCamera());
-	csTileMap.setMaximumFPS(20);
+	csTileMap.setMaximumFPS(30);
 	csTileMap.setTexUsingDynamicLOD(true);
 	csTileMap.setTexAllocCount(5);
 
@@ -91,7 +93,7 @@ void World::initCanvases()
 
 	//Interactions canvas
 	csInteractions.init(sdlHandler, controls, localPlayer.getCamera());
-	csInteractions.setMaximumFPS(20);
+	csInteractions.setMaximumFPS(30);
 
 	//Debug stuff
 	csDebug.init(sdlHandler, controls, localPlayer.getCamera());

@@ -4,7 +4,7 @@
 class SaveSelector : public Button
 {
 public:
-    SaveSelector(Window* parentWindow, int index, std::string dir, std::string sizeDesc, int id);
+    SaveSelector(Window* parentWindow, int index, std::string dir, std::string worldName, std::string sizeDesc, int id);
     void init(SDLHandler* sh, Controls* ctrls);
 
     void tick();
@@ -23,8 +23,8 @@ private:
     std::pair<int, std::string> actionInfo = std::make_pair(-1, "");
 
 
-
     std::string worldDirName = "";
+    std::string worldName = "";
     std::string worldDirPath = "";
     std::string worldSizeDesc = "";
     int index = -100;

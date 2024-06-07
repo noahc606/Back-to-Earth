@@ -176,6 +176,7 @@ void Player::tick(TileMap* tm)
 //Player animation
 	//Tick animation
 	plan.tick(vx, vy, vz);
+
 //Camera - keep as last
 	//Tick camera
 	camera.tick();
@@ -188,8 +189,8 @@ void Player::tick(TileMap* tm)
 		case Camera::Y: { dcx = 0.0; dcy = 0.0; dcz = 1.0; } break;
 	}
 	//Camera coordinates
-	double cx = (int)(x*32.0)/32.0;
-	double cy = (int)(y*32.0)/32.0;
+	double cx = ((int)(x*32.0))/32.0;
+	double cy = ((int)(y*32.0))/32.0;
 	double cz = z;
 	//Set camera to appropriate coordinates
 	camera.setXYZ(cx+dcx, cy+dcy, cz+dcz);

@@ -6,14 +6,49 @@
 #include "TextBox.h"
 
 /*
+    Creates a directory within "backtoearth/saved/games" which holds data for an individual world (campaign).
+    The campaign's settings are determined by the values of the GUIs within the current window.
+
+    Returns true on success, false on failure.
+*/
+bool CampaignCreation::createWorldDir(GUIHandler* gh, FileHandler* fh)
+{
+    //Check for campaign-create-new window. If not found, stop.
+    if(gh->getGUI(BTEObject::GUI_window, GUIHandler::win_SELECT_CAMPAIGN_CN)==nullptr) {
+        Log::warn(__PRETTY_FUNCTION__, "Couldn't find the window for creating campaigns");
+        return false;
+    }
+
+    //Get world name textbox
+    GUI* ptbx = gh->getGUI(BTEObject::GUI_textbox, GUIHandler::tbx_SELECT_CAMPAIGN_CN_levelName);
+    if(ptbx!=nullptr) {
+        //Cast GUI to textbox
+        TextBox* tbxLevelName = (TextBox*)ptbx;
+
+        /* LAST STEP: check world name valid -> create directory for it */
+        //Get world name entered, then try to validate it. If 'world' could be validated, create the directory.
+        std::string worldName = validateWorldName(fh, tbxLevelName->getString());
+        if(worldName!="") {
+            Log::log("Creating new campaign with name \"%s\" within the directory: \"%s\".", tbxLevelName->getString().c_str(), worldName.c_str());
+            createWorldData(gh, fh, worldName, tbxLevelName->getString());
+        } else {
+            Log::warn(__PRETTY_FUNCTION__, "Invalid level name entered: \"%s\"", tbxLevelName->getString().c_str());
+            return false;
+        }
+    }
+
+    return true;
+}
+
+/*
     Takes the string 'ln' and returns a suitable name for the directory representing it.
     - Non-alphanumeric characters are turned into '_'s.
-    - If a directory with the name exists, create a copy in the format <previous name>_<# of copy>.
+    - If a directory with the name exists, create a copy in this format: "<previous name>_<# of copy>".
 
     Returns on failure: an empty string.
-    Returns on success: the final level name string.
+    Returns on success: the final world name string which may or may not be a transformed version of 'ln'.
 */
-std::string CampaignCreation::validateLevelName(FileHandler* fh, std::string ln)
+std::string CampaignCreation::validateWorldName(FileHandler* fh, std::string ln)
 {
     //List of characters to not turn into an underscore.
     std::string plainChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-";
@@ -78,38 +113,17 @@ std::string CampaignCreation::validateLevelName(FileHandler* fh, std::string ln)
     return finalLevelName;
 }
 
-/*
-    Creates a directory within "backtoearth/saved/games" which holds data for an individual save game (campaign).
-    The campaign's settings are determined by the values of the GUIs within the current window.
-
-    Returns true on success, false on failure.
-*/
-bool CampaignCreation::createCampaignDir(GUIHandler* gh, FileHandler* fh)
+bool CampaignCreation::createWorldData(GUIHandler* gh, FileHandler* fh, std::string validatedWorldDirName, std::string worldDisplayName)
 {
-    //Check for campaign-create-new window. If not found, stop.
-    if(gh->getGUI(BTEObject::GUI_window, GUIHandler::win_SELECT_CAMPAIGN_CN)==nullptr) {
-        Log::warn(__PRETTY_FUNCTION__, "Couldn't find the window for creating campaigns");
-        return false;
-    }
+    //Create directory
+    std::string path = "saved/games/"+validatedWorldDirName+"/";
+    fh->createBTEDir(path);
 
-    //Get level name textbox
-    GUI* ptbx = gh->getGUI(BTEObject::GUI_textbox, GUIHandler::tbx_SELECT_CAMPAIGN_CN_levelName);
-    if(ptbx!=nullptr) {
-        //Cast GUI to textbox
-        TextBox* tbxLevelName = (TextBox*)ptbx;
-
-
-        /* LAST STEP: check level name valid -> create directory for it */
-        //Get level name entered, then try to validate it. If 'levelName' could be validated, create the directory.
-        std::string levelName = validateLevelName(fh, tbxLevelName->getString());
-        if(levelName!="") {
-            Log::log("Creating new campaign with name \"%s\" within the directory: \"%s\".", tbxLevelName->getString().c_str(), levelName.c_str());
-            fh->createBTEDir("saved/games/"+levelName);
-        } else {
-            Log::warn(__PRETTY_FUNCTION__, "Invalid level name entered: \"%s\"", tbxLevelName->getString().c_str());
-            return false;
-        }
-    }
+    //Create data file
+    fh->cEditFile(path+"data.txt");
+    fh->write("worldSeed=");    fh->write("-1");                  fh->writeln();
+    fh->write("worldName=");    fh->write(worldDisplayName);    fh->writeln();
+    fh->saveCloseFile();
 
     return true;
 }
