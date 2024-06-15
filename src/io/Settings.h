@@ -19,13 +19,14 @@ public:
     void loadNewMapIntoOld(t_kvMap* kvMapOldVals, t_kvMap kvMapValsToAdd);
     void load(int index, t_kvMap kvMap);
 
-    std::string get(int kvMapIndex, std::string key);
     t_kvMap getDefaultSettings(int kvMapIndex);
     t_kvMap getKvMap(int kvMapIndex);
 
     static std::string getKey(t_kvMap kvMap, int index);
     static std::string get(t_kvMap kvMap, std::string key);
+    std::string get(int kvMapIndex, std::string key);
     static double getNum(t_kvMap kvMap, std::string key);
+    double getNum(int kvMapIndex, std::string key);
 
     static int find(t_kvMap kvMap, std::string key);
     static void kv(t_kvMap* kvMap, std::string key, std::string val);

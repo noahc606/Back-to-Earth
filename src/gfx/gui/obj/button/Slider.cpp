@@ -94,19 +94,39 @@ void Slider::syncWithRelatedUIs(GUIHandler* guih)
 {
 	validateSelectorVal();
 	
+	//Get ID, ExtraID, and RelatedID
 	int id = getID();
 	int eid = getExtraID();
-		
+	int rid = -1000;
 	switch(id) {
-		case guih->sdr_GRAPHICS_SETTINGS_maxFps: {
-			TextBox* tbx = (TextBox*)(guih->getGUI(BTEObject::GUI_textbox, guih->tbx_GRAPHICS_SETTINGS_maxFps));
+		case guih->sdr_GRAPHICS_SETTINGS_maxFps: 	rid = guih->tbx_GRAPHICS_SETTINGS_maxFps; 		break;
+		case guih->sdr_GRAPHICS_SETTINGS_maxRLT: 	rid = guih->tbx_GRAPHICS_SETTINGS_maxRLT; 		break;
+		case guih->sdr_AUDIO_SETTINGS_masterVolume: rid = guih->tbx_AUDIO_SETTINGS_masterVolume;	break;
+		case guih->sdr_AUDIO_SETTINGS_musicVolume: 	rid = guih->tbx_AUDIO_SETTINGS_musicVolume; 	break;
+		case guih->sdr_AUDIO_SETTINGS_sfxVolume: 	rid = guih->tbx_AUDIO_SETTINGS_sfxVolume; 		break;
+	}
 
+	switch(id) {
+		case guih->sdr_GRAPHICS_SETTINGS_maxFps:
+		case guih->sdr_GRAPHICS_SETTINGS_maxRLT:
+		case guih->sdr_AUDIO_SETTINGS_masterVolume:
+		case guih->sdr_AUDIO_SETTINGS_musicVolume:
+		case guih->sdr_AUDIO_SETTINGS_sfxVolume:
+		{
+			TextBox* tbx = (TextBox*)(guih->getGUI(BTEObject::GUI_textbox, rid));
 			if( tbx!=nullptr ) {
-				if( tbx->isSelected() ) {
-					setSelectorVal( tbx->getString() );
-				} else {
-					tbx->setString(selectorVal);
-				}
+
+				//
+				std::string selIntStr = "";
+				try {
+					int selInt = std::floor(std::stod(selectorVal));
+					std::stringstream ss;
+					ss << selInt;
+					selIntStr = ss.str();
+				} catch(...) {}
+
+				if( tbx->isSelected() ) { setSelectorVal( tbx->getString() ); }	//If textbox is selected, set slider's value from the textbox.
+				else 					{ tbx->setString(selIntStr); }			//...If not, set textbox's value from the slider.
 			}
 		} break;
 

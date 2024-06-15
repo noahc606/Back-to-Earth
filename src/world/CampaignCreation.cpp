@@ -3,6 +3,7 @@
 #include <set>
 #include <sstream>
 #include "Log.h"
+#include "RadioButton.h"
 #include "TextBox.h"
 
 /*
@@ -20,23 +21,39 @@ bool CampaignCreation::createWorldDir(GUIHandler* gh, FileHandler* fh)
     }
 
     //Get world name textbox
+    std::string worldName = "";
+    TextBox* tbxLevelName = nullptr;
     GUI* ptbx = gh->getGUI(BTEObject::GUI_textbox, GUIHandler::tbx_SELECT_CAMPAIGN_CN_levelName);
     if(ptbx!=nullptr) {
         //Cast GUI to textbox
-        TextBox* tbxLevelName = (TextBox*)ptbx;
+        tbxLevelName = (TextBox*)ptbx;
 
         /* LAST STEP: check world name valid -> create directory for it */
         //Get world name entered, then try to validate it. If 'world' could be validated, create the directory.
-        std::string worldName = validateWorldName(fh, tbxLevelName->getString());
+        worldName = validateWorldName(fh, tbxLevelName->getString());
         if(worldName!="") {
             Log::log("Creating new campaign with name \"%s\" within the directory: \"%s\".", tbxLevelName->getString().c_str(), worldName.c_str());
-            createWorldData(gh, fh, worldName, tbxLevelName->getString());
         } else {
             Log::warn(__PRETTY_FUNCTION__, "Invalid level name entered: \"%s\"", tbxLevelName->getString().c_str());
+            tbxLevelName->errorFlash();
             return false;
         }
+    } else {
+        return false;
     }
 
+    //Get gamemode mode
+    std::string gamemode = "";
+    { RadioButton* rb = gh->getRadioButton(gh->rbtn_SELECT_CAMPAIGN_CN_gameMode0); if(rb!=nullptr && rb->isSelected()) gamemode = "sandbox"; }
+    { RadioButton* rb = gh->getRadioButton(gh->rbtn_SELECT_CAMPAIGN_CN_gameMode1); if(rb!=nullptr && rb->isSelected()) gamemode = "survival"; }
+    { RadioButton* rb = gh->getRadioButton(gh->rbtn_SELECT_CAMPAIGN_CN_gameMode2); if(rb!=nullptr && rb->isSelected()) gamemode = "hardcore"; }
+    if(gamemode=="") {
+        Log::warn(__PRETTY_FUNCTION__, "Failed to get gamemode");
+        return false;
+    }
+
+
+    createWorldData(gh, fh, worldName, tbxLevelName->getString(), gamemode);
     return true;
 }
 
@@ -113,7 +130,7 @@ std::string CampaignCreation::validateWorldName(FileHandler* fh, std::string ln)
     return finalLevelName;
 }
 
-bool CampaignCreation::createWorldData(GUIHandler* gh, FileHandler* fh, std::string validatedWorldDirName, std::string worldDisplayName)
+bool CampaignCreation::createWorldData(GUIHandler* gh, FileHandler* fh, std::string validatedWorldDirName, std::string worldDisplayName, std::string gamemode)
 {
     //Create directory
     std::string path = "saved/games/"+validatedWorldDirName+"/";
@@ -121,8 +138,9 @@ bool CampaignCreation::createWorldData(GUIHandler* gh, FileHandler* fh, std::str
 
     //Create data file
     fh->cEditFile(path+"data.txt");
-    fh->write("worldSeed=");    fh->write("-1");                  fh->writeln();
-    fh->write("worldName=");    fh->write(worldDisplayName);    fh->writeln();
+    fh->write("worldSeed=");        fh->write("-1");                fh->writeln();
+    fh->write("worldName=");        fh->write(worldDisplayName);    fh->writeln();
+    fh->write("playerGameMode=");   fh->write(gamemode);            fh->writeln();
     fh->saveCloseFile();
 
     return true;

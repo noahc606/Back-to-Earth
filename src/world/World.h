@@ -13,6 +13,7 @@
 #include "TileMap.h"
 #include "TileMapScreen.h"
 #include "WorldBackground.h"
+#include "Minimap.h"
 
 class World : public BTEObject, public Loggable
 {
@@ -64,6 +65,7 @@ private:
 	
 	Planet planet;
 	WorldBackground wbg;
+	Minimap minimap;
 	
 	std::string worldDirName;
 	std::string worldDirPath;

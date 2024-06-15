@@ -22,7 +22,7 @@ void RadioButton::init(SDLHandler* sh, Controls* ctrls)
 
     //Build Tex
     btnText.init(sdlHandler);
-    btnText.setString(btnString);
+    btnText.setString(btnInitString);
     width = btnText.getWidth()/2+2*24;
     if(width<2*32) width = 2*32;
 

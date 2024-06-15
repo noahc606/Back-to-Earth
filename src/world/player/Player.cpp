@@ -414,3 +414,17 @@ void Player::setPos(double x, double y, double z)
 	Player::z = z;
 }
 
+void Player::setMode(std::string gameMode)
+{
+	if(gameMode=="sandbox") {
+		godMode = true;
+	} else if(gameMode=="survival") {
+		godMode = false;
+		noclip = false;
+	} else if (gameMode=="hardcore") {
+		godMode = false;
+		noclip = false;
+	} else {
+		Log::warnv(__PRETTY_FUNCTION__, "defaulting to \"survival\"", "Unknown gamemode \"%s\"", gameMode.c_str());
+	}
+}

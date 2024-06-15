@@ -9,6 +9,7 @@ public:
 
     Vec3F operator + (const Vec3F& v) const { return Vec3F(x + v.x, y + v.y, z + v.z); }
     Vec3F operator * (const float& r) const { return Vec3F(x*r, y*r, z*r); }
+    Vec3F operator / (const float& r) const { return Vec3F(x/r, y/r, z/r); }
     Vec3F operator * (const Vec3F& v) const { return Vec3F(x * v.x, y * v.y, z * v.z); }    // not dot product!
     Vec3F& operator += (const Vec3F& v) { x += v.x, y += v.y, z += v.z; return *this; }
     Vec3F& operator *= (const float& r) { x *= r, y *= r, z *= r; return *this; }

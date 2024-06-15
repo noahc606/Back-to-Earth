@@ -1,7 +1,5 @@
 #include "Tooltip.h"
 
-double Tooltip::specialFlicker = 0;
-
 Tooltip::Tooltip(Window* p_parentWindow, int p_x, int p_y, std::string p_text, bool special, int p_id)
 : WindowComponent::WindowComponent(p_parentWindow, p_x, p_y)
 {
@@ -22,6 +20,7 @@ void Tooltip::init(SDLHandler* sh)
 
     TextOld t; t.init(sh);
     t.setString(text);
+
     width = t.getWidth()/2;
     if(special) width *= 2;
 
@@ -36,6 +35,9 @@ void Tooltip::destroy()
 void Tooltip::draw()
 {
     if(special) {
+        double specialFlicker = ((double)SDL_GetTicks()*0.0002);
+        if(specialFlicker>1) specialFlicker = 1;
+
         double sf = specialFlicker;
         double ed = 40*((double)(rand()%10)/10.0); // ED = Extra Darkness
         
@@ -51,10 +53,6 @@ void Tooltip::draw()
 
 void Tooltip::tick()
 {
-    if(special) {
-        if(specialFlicker<1)
-            specialFlicker += 0.005;
-    }
 }
 
 void Tooltip::onWindowUpdate()

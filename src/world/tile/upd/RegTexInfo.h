@@ -10,6 +10,7 @@ public:
     virtual ~RegTexInfo();
 	void init(SDLHandler* sh, TileMapUpdater* tm, Canvas* cs);
 	
+    static std::pair<int64_t, TileType> camTrackedTile(TileIterator& ti, int camDirection, int maxChecks);
     static std::pair<int64_t, TileType> camTrackedTile(TileIterator& ti, int camDirection);
     static std::pair<int64_t, TileType> topTrackedTile(TileIterator& ti);
     static bool isRegOnScreen(Camera* cam, int64_t rX, int64_t rY, int64_t rZ);

@@ -146,26 +146,36 @@ void SDLHandler::renderCopy(int id, SDL_Rect* src, SDL_Rect* dst)
 {
     SDL_RenderCopy(windowRenderer, textureLoader.getTexture(id), src, dst );
 }
-
 void SDLHandler::renderCopy(int id, SDL_Rect* src, SDL_Rect* dst, double angle, SDL_Point* cor)
 {
     SDL_RenderCopyEx(windowRenderer, textureLoader.getTexture(id), src, dst, angle, cor, SDL_FLIP_NONE);
 }
-
+void SDLHandler::renderFillRect(SDL_Rect* dst)
+{
+    SDL_RenderFillRect(windowRenderer, dst);
+}
+void SDLHandler::renderFillRect(int x, int y, int w, int h)
+{
+    SDL_Rect dst;
+    dst.x = x; dst.y = y; dst.w = w; dst.h = h;
+    SDL_RenderFillRect(windowRenderer, &dst);
+}
 void SDLHandler::setColorMod(int id, const Color& c)
 {
     SDL_SetTextureColorMod( textureLoader.getTexture(id), c.r, c.g, c.b );
     SDL_SetTextureAlphaMod( textureLoader.getTexture(id), c.a );
 }
-
 void SDLHandler::setColorMod(int id, uint8_t r, uint8_t g, uint8_t b, uint8_t a)
 {
     setColorMod( id, Color(r, g, b, a) );
 }
-
 void SDLHandler::setColorMod(int id, uint8_t r, uint8_t g, uint8_t b)
 {
     setColorMod(id, r, g, b, 255);
+}
+void SDLHandler::setRenderDrawColor(const Color& c)
+{
+    SDL_SetRenderDrawColor(windowRenderer, c.r, c.g, c.b, c.a);
 }
 
 void SDLHandler::createSubsystems()

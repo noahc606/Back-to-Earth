@@ -9,6 +9,7 @@
 #include "Planet.h"
 #include "Player.h"
 #include "RegTexInfo.h"
+#include "STexture.h"
 #include "TileIterator.h"
 #include "TileMap.h"
 #include "TileMapUpdater.h"
@@ -37,7 +38,6 @@ public:
 
 	
 private:
-	void updateMinimap();
     
 	Camera* cam = nullptr;							//Area of the world shown on screen. Also tracks size of each tile (zoom factor).
 	TileMap* tileMap = nullptr;                     //TileMap we are drawing
@@ -45,7 +45,6 @@ private:
 	
     RegTexInfo regTexInfo;
     TileMapUpdater tileMapUpdater;
-    Texture minimap;
 
 	int camRX = 0; int camRY = 0; int camRZ = 0;	//Coordinates of region which the center of the screen occupies. e.g. As player moves regionSize tiles to the right, cameraRX increases by 1.
 	int camL = 0;                                   //Layer which the camera occupies

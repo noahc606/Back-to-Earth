@@ -1,5 +1,6 @@
 #include "PlayerMenu.h"
 #include <cmath>
+#include "Log.h"
 #include "TextBox.h"
 #include "Tooltip.h"
 
@@ -11,27 +12,32 @@ void PlayerMenu::init(SDLHandler* sh, GUIHandler* gh, Controls* ctrls, Player* p
 
 	items.init(guiHandler, pl);
 
-	for( int x = 0; x<invW; x++ ) {
-		for( int y = 0; y<invH; y++ ) {
-			inventorySlots[x][y] = -1; 
+	for( int x = -10; x<10; x++ ) {
+		for( int y = -10; y<10; y++ ) {
+			if(inventorySlotExists(x, y)) {
+				setInventorySlotItem(x, y, -1);
+			}
 		}
 	}
+
+	setInventorySlotItem(-4, 2, Items::NYLON_EXOSUIT_HELMET);
+	setInventorySlotItem(-4, 3, Items::NYLON_EXOSUIT_BODY);
+	setInventorySlotItem(-4, 4, Items::NYLON_EXOSUIT_LEGGINGS);
+
+	setInventorySlotItem(3, 0, Items::ION_BLASTER);
+	setInventorySlotItem(4, 1, Items::GEOPORTER);
+	setInventorySlotItem(6, 2, Items::SOLID_PLASMA_ANNIHILATOR);
+	setInventorySlotItem(6, 3, Items::ATOM_PRINTER);
+
+	setInventorySlotItem(7, 7, Items::FOOD_RATION_F);
+	setInventorySlotItem(7, 6, Items::FOOD_RATION_F);
+	setInventorySlotItem(7, 5, Items::FOOD_RATION_A);
+	setInventorySlotItem(7, 4, Items::FOOD_RATION_B);
+	setInventorySlotItem(7, 3, Items::FOOD_RATION_C);
+	setInventorySlotItem(6, 7, Items::FOOD_RATION_D);
+	setInventorySlotItem(6, 6, Items::FOOD_RATION_E);
+	setInventorySlotItem(6, 5, Items::FOOD_RATION_E);
 	
-	inventorySlots[3][0] = Items::ION_BLASTER;
-	inventorySlots[4][1] = Items::GEOPORTER;
-	inventorySlots[6][2] = Items::SOLID_PLASMA_ANNIHILATOR;
-	inventorySlots[6][3] = Items::ATOM_PRINTER;
-	inventorySlots[7][0] = Items::NYLON_EXOSUIT_HELMET;
-	inventorySlots[7][1] = Items::NYLON_EXOSUIT_BODY;
-	inventorySlots[7][2] = Items::NYLON_EXOSUIT_LEGGINGS;
-	
-	inventorySlots[7][7] = Items::FOOD_RATION_F;
-	inventorySlots[7][6] = Items::FOOD_RATION_F;
-	inventorySlots[7][5] = Items::FOOD_RATION_A;
-	inventorySlots[7][4] = Items::FOOD_RATION_B;
-	inventorySlots[7][3] = Items::FOOD_RATION_C;
-	inventorySlots[6][7] = Items::FOOD_RATION_D;
-	inventorySlots[6][6] = Items::FOOD_RATION_E;
 	uiOverlay.init(sdlHandler, 0, 0);
 }
 
@@ -57,7 +63,7 @@ void PlayerMenu::tick() {
 		//Upon RIGHT click...
 		if( controls->isPressed("HARDCODE_RIGHT_CLICK") ) {
 			controls->stopPress("HARDCODE_RIGHT_CLICK", __PRETTY_FUNCTION__);	//Stop click
-			if( shx!=-1 && shy!=-1 ) {											//If we clicked outside of the inventory, do nothing.
+			if(inventorySlotExists(shx, shy)) {									//If we clicked outside of the inventory, do nothing.
 				//If the clicked slot was already selected, reset selection
 				if( invSX==shx && invSY==shy && state==1 ) {
 					selectInventorySlot(-1, -1);
@@ -74,13 +80,13 @@ void PlayerMenu::tick() {
 			controls->stopPress("HARDCODE_LEFT_CLICK", __PRETTY_FUNCTION__);
 			
 			//If we clicked inside the inventory...
-			if( shx!=-1 && shy!=-1 ) {
+			if(inventorySlotExists(shx, shy)) {
 				if(invHeldID==-1) {		//If no item is being held: pick up the item in this slot and clear the slot
-					invHeldID = inventorySlots[shx][shy];
-					inventorySlots[shx][shy] = -1;
+					invHeldID = getInventorySlotItem(shx, shy);
+					setInventorySlotItem(shx, shy, -1);
 				} else {				//If an item is being held: put the item in the slot and set the held item to be whatever was in the slot.
-					int temp = inventorySlots[shx][shy];
-					inventorySlots[shx][shy] = invHeldID;
+					int temp = getInventorySlotItem(shx, shy);
+					setInventorySlotItem(shx, shy, invHeldID);
 					invHeldID = temp;
 				}
 
@@ -90,7 +96,7 @@ void PlayerMenu::tick() {
 
 		//If item selection has changed
 		if( itemUIShouldUpdate && state==1 ) {
-			items.putItemInterface( inventorySlots[invSX][invSY] );
+			items.putItemInterface( getInventorySlotItem(invSX, invSY) );
 			itemUIShouldUpdate = false;
 		}
 	}
@@ -148,26 +154,14 @@ void PlayerMenu::draw()
 	
 }
 
-int PlayerMenu::getSlotHoveringX()
-{
-	if( controls->getMouseX()<invScreenX || controls->getMouseX()>=invScreenX+invScreenW ) {
-		return -1;
-	}
-	return (controls->getMouseX()-invScreenX)/64;
-}
-int PlayerMenu::getSlotHoveringY()
-{
-	if( controls->getMouseY()<invScreenY || controls->getMouseY()>=invScreenY+invScreenH ) {
-		return -1;
-	}
-	return (controls->getMouseY()-invScreenY)/64;
-}
+int PlayerMenu::getSlotHoveringX() { return std::floor((controls->getMouseX()-invScreenX)/64.0); }
+int PlayerMenu::getSlotHoveringY() { return std::floor((controls->getMouseY()-invScreenY)/64.0); }
 int PlayerMenu::getItemTexSrcX(int itemID) { return (itemID%8)*32; }
 int PlayerMenu::getItemTexSrcY(int itemID) { return (itemID/8)*32;}
 
 int PlayerMenu::getState() { return state; }
-uint8_t PlayerMenu::getSandboxTexX() { return sandboxTexX; } 
-uint8_t PlayerMenu::getSandboxTexY() { return sandboxTexY; } 
+uint8_t PlayerMenu::getSandboxTexX() { return sandboxTexX; }
+uint8_t PlayerMenu::getSandboxTexY() { return sandboxTexY; }
 uint8_t PlayerMenu::getSandboxTexRed() { return items.getSandboxRGB().r; } 
 uint8_t PlayerMenu::getSandboxTexGreen() { return items.getSandboxRGB().g; } 
 uint8_t PlayerMenu::getSandboxTexBlue() { return items.getSandboxRGB().b; } 
@@ -200,55 +194,77 @@ void PlayerMenu::drawInventory()
 	Color ridge2(128+oscillation, 128+oscillation, 128+oscillation, 100);
 	
 	//Draw inventory elements
-	for( int x = 0; x<invW; x++ ) {
-		for( int y = 0; y<invH; y++ ) {			
-			//Rect containing 4 ridges and a 30x30 texture
-			Color box1(16+oscillation, 16+oscillation, 0, 100);
-			Color box2(0, 32+oscillation, 0, 100);
-			Color box3(0, 0, 0, 100);
-			if(inventorySlots[x][y]!=-1) {
-				//Set box1, box2, box3 to be a different color if this inventory spot is selected
-				if( invSX==x && invSY==y ) {
-					box1.r += 120; box1.b += 120;
-					box2.r += 120; box2.b += 120;
-					box3.r += 120; box3.b += 120;
-				}
+	for(int ix = -10; ix<10; ix++)
+	for(int iy = -10; iy<10; iy++) {
+		if(!inventorySlotExists(ix, iy)) {
+			continue;
+		}
 
-				//Draw box1 or box2 in a checkerboard fashion
-				if((x+y)%2==1) { uiOverlay.rect(x*32, y*32, 32, 32, box1); }
-				else { uiOverlay.rect(x*32, y*32, 32, 32, box2); }
-				
-				//Draw item
-				uiOverlay.lock(x*32, y*32, 32, 32);
-				
-				int itemID = inventorySlots[x][y];
-				uiOverlay.blit(TextureLoader::PLAYER_items, getItemTexSrcX(itemID), getItemTexSrcY(itemID));
-			} else {
-				uiOverlay.rect(x*32, y*32, 32, 32, box3);
+		//Rect containing 4 ridges and a 30x30 texture
+		Color box1(0, 16, 32+oscillation, 100);
+		Color box2(0, 0, 48+oscillation, 100);
+		Color box3(0, 32, 16, 100);
+		if(getInventorySlotItem(ix, iy)!=-1) {
+			//Set box1, box2, box3 to be a different color if this inventory spot is selected
+			if( invSX==ix && invSY==iy ) {
+				box1.r += 120; box1.b += 120;
+				box2.r += 120; box2.b += 120;
+				box3.r += 120; box3.b += 120;
 			}
 
-			//Top left corner: intersect with 2 ridges
-			uiOverlay.rect(x*32, y*32, 1, 32, ridge1);
-			uiOverlay.rect(x*32, y*32, 32, 1, ridge1);
-			//Bottom left corner: intersect with 2 ridges
-			uiOverlay.rect(x*32, y*32+31, 32, 1, ridge2);
-			uiOverlay.rect(x*32+31, y*32, 1, 32, ridge2);
+			//Draw box1 or box2 in a checkerboard fashion
+			if((ix+iy)%2==1) {
+				sdlHandler->setRenderDrawColor(box1);
+				sdlHandler->renderFillRect(invScreenX+ix*64-2, invScreenY+iy*64-2, 64, 64);
+			} else {
+				sdlHandler->setRenderDrawColor(box2);
+				sdlHandler->renderFillRect(invScreenX+ix*64-2, invScreenY+iy*64-2, 64, 64);
+			}
+			
+			int itemID = getInventorySlotItem(ix, iy);
+			
+			SDL_Rect isrc; isrc.x = getItemTexSrcX(itemID)+1; isrc.y = getItemTexSrcY(itemID)+1; isrc.w = 30; isrc.h = 30;
+			SDL_Rect idst; idst.x = (invScreenX+ix*64); idst.y = (invScreenY+iy*64); idst.w = 60; idst.h = 60;
+			sdlHandler->renderCopy(TextureLoader::PLAYER_items, &isrc, &idst);
+		} else {
+			//sdlHandler->renderRect();
+			sdlHandler->setRenderDrawColor(box3);
+			sdlHandler->renderFillRect(invScreenX+ix*64-2, invScreenY+iy*64-2, 64, 64);
 		}
+
+		//Draw ridges
+		sdlHandler->setRenderDrawColor(ridge1);
+		sdlHandler->renderFillRect(invScreenX+ix*64-2, 	invScreenY+iy*64-2, 	2, 64);
+		sdlHandler->renderFillRect(invScreenX+ix*64-2, 	invScreenY+iy*64-2, 	64, 2);
+		sdlHandler->setRenderDrawColor(ridge2);
+		if(iy!=7) sdlHandler->renderFillRect(invScreenX+ix*64-2, 	invScreenY+iy*64+60, 	64, 2);
+		if(ix!=7) sdlHandler->renderFillRect(invScreenX+ix*64+60, invScreenY+iy*64-2,		2, 64);
 	}
-	
-	//Inventory Slot Outline
-	uiOverlay.rect(0, 0, invW*32, 1, 0, 0, 0, 0);
-	uiOverlay.rect(0, 0, 1, invH*32, 0, 0, 0, 0);
-	uiOverlay.rect(0, invH*32-1, invW*32, 1, 0, 0, 0, 0);
-	uiOverlay.rect(invW*32-1, 0, 1, invH*32, 0, 0, 0, 0);
 	
 	//Selected Slot Outline
-	if( invSX!=-1 && invSY!=-1 ) {
-		if( inventorySlots[invSX][invSY]!=-1 ) {
-			uiOverlay.lock(invSX*32, invSY*32, 32, 32);
-			uiOverlay.blit(TextureLoader::GUI_player_interactions, 0, 0 );
+	if( inventorySlotExists(invSX, invSY) ) {
+		if( getInventorySlotItem(invSX, invSY)!=-1 ) {
+			SDL_Rect ssrc; ssrc.x = 0; ssrc.y = 0; ssrc.w = 32; ssrc.h = 32;
+			SDL_Rect sdst; sdst.x = invScreenX+invSX*64-2; sdst.y = invScreenY+invSY*64-2; sdst.w = 64; sdst.h = 64;
+			sdlHandler->renderCopy(TextureLoader::GUI_player_interactions, &ssrc, &sdst);
 		}
 	}
+}
+
+bool PlayerMenu::inventorySlotExists(int x, int y)
+{
+	if(x>=0 && x<=7 && y>=0 && y<=7) 	return true;	//Main slots
+	if(x==-4 && y>=2 && y<=4)			return true;	//Clothing/spacesuit slots
+	return false;
+}
+
+int PlayerMenu::getInventorySlotItem(int x, int y)
+{
+	if( inventorySlots.find(std::make_pair(x, y))!=inventorySlots.end() && inventorySlotExists(x, y) ) {
+		return inventorySlots.at(std::make_pair(x, y));
+	}
+
+	return -1;
 }
 
 void PlayerMenu::updateMenuCoordinates()
@@ -300,14 +316,14 @@ void PlayerMenu::updateSandboxRGB()
 void PlayerMenu::selectInventorySlot(int x, int y)
 {
 	//If selection is out of bounds
-	if( !(x>=0 && x<=7 && y>=0 && y<=7) ) {
+	if(!inventorySlotExists(x, y)) {
 		invSX = -1;
 		invSY = -1;
 		return;
 	}
 	
 	//If previous selected item slot not empty, we are selecting a new item
-	if( inventorySlots[invSX][invSY]!=-1 ) {
+	if( getInventorySlotItem(invSX, invSY)!=-1 ) {
 		itemUIShouldUpdate = true;
 	}
 	
@@ -320,4 +336,18 @@ void PlayerMenu::selectInventorySlot(int x, int y)
 	//Set invSX and invSY to x, y
 	invSX = x;
 	invSY = y;
+}
+
+void PlayerMenu::setInventorySlotItem(int x, int y, int i)
+{
+	if(!inventorySlotExists(x, y)) {
+		Log::warn(__PRETTY_FUNCTION__, "Invalid inventory slot (%d, %d)", x, y);
+		return;
+	}
+
+	if(inventorySlots.find(std::make_pair(x, y))!=inventorySlots.end()) {
+		inventorySlots.at(std::make_pair(x, y)) = i;
+	} else {
+		inventorySlots.insert( std::make_pair(std::make_pair(x, y), i) );
+	}
 }

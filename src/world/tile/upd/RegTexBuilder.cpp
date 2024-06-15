@@ -161,7 +161,6 @@ void RegTexBuilder::detailDepth0Tiles(TileIterator& ti, int camDirection)
 	//Get total # of shadows
 	int shadows = sh[0]+sh[1]+sh[2]+sh[3];
 	bool special2Shadow = false;
-
 	if( shadows==2 ) {
 		if( (sh[0]&&sh[1]) || (sh[1]&&sh[3]) || (sh[2]&&sh[3]) || (sh[0]&&sh[2]) ) {
 			special2Shadow = true;

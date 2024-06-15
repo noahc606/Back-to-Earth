@@ -13,7 +13,7 @@ public:
 	CURLcode cURLAsString(std::string* str, std::string url);
 	CURLcode cURLIntoFile(std::string out, std::string url);
 	bool v1NewerThanV2(std::string v1, std::string v2);
- 	bool newBTEVersionAvailable(std::string* newVersion);
+ 	std::string newBTEVersionAvailable(std::string* newVersion);
 	std::vector<std::string> getBTEAssetPathList();
 	std::vector<std::string> getBTEDirList(std::vector<std::string> assetPathList);
 

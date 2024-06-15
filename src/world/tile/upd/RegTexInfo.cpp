@@ -22,7 +22,7 @@ RegTexInfo::~RegTexInfo(){}
 /*
  * Depending on the TileIterator's (ti) position, find the top tile that is visible by the camera assuming it is looking in the 'camDirection' direction.
  */
-std::pair<int64_t, TileType> RegTexInfo::camTrackedTile(TileIterator& ti, int camDirection)
+std::pair<int64_t, TileType> RegTexInfo::camTrackedTile(TileIterator& ti, int camDirection, int maxChecks)
 {
 	int sign = 1;
 	if( camDirection%2==0 ) {
@@ -35,7 +35,7 @@ std::pair<int64_t, TileType> RegTexInfo::camTrackedTile(TileIterator& ti, int ca
 	//Find top-most tile at current x, y
 	int depth = -1;
 	TileType topTileFromCam;
-	for(int i = 0; i<32; i++) {
+	for(int i = 0; i<maxChecks; i++) {
 		
 		switch( axis ) {
 			case Camera::X: topTileFromCam = ti.peekTrackedTile(sign*i, 0, 0); break;
@@ -54,6 +54,12 @@ std::pair<int64_t, TileType> RegTexInfo::camTrackedTile(TileIterator& ti, int ca
 	//2nd object: TileType which represents the top tile from the camera.
 	return std::make_pair( depth, topTileFromCam );
 }
+
+std::pair<int64_t, TileType> RegTexInfo::camTrackedTile(TileIterator& ti, int camDirection)
+{
+	return camTrackedTile(ti, camDirection, 32);
+}
+
 
 /*
  * Depending on the TileIterator's (ti) position (x/y), find the top tile visible from the camera as if it were looking down.

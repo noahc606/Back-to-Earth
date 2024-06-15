@@ -73,7 +73,7 @@ private:
     int updateProgress = 0;
     int updateNumFiles = 1;
     bool alwaysTest = 0;
-    bool forceDisableUpdateDLs = true;
+    bool forceDisableUpdateDLs = false;
     bool testing = 0;          //If true, set gamestate to TESTING (blank screen to draw/tick stuff)
     bool hardTesting = 0;      //If true, disable window + loading of all texture/audio assets
 };

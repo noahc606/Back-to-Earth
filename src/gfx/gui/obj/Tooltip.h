@@ -19,5 +19,4 @@ protected:
 private:
     std::string text;
     bool special = false;
-    static double specialFlicker;
 };

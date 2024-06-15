@@ -24,6 +24,7 @@ public:
     void setString(std::string s);
     void unclick();
     void deselect();
+    void errorFlash();
     
 protected:
     /* Button textures */
@@ -35,6 +36,8 @@ protected:
     int shineAnimation = -1;
     Texture texBtnShine0;           //Shine when mouse is hovering
     Texture texBtnShine1;           //Shine when mouse is hovering
+    int errFlashAnimation = -1;
+    Texture texBtnErrFlash;
 
     /* Button draw properties */
     bool hovering = false;
@@ -42,7 +45,7 @@ protected:
     bool selected = false;
 
     TextOld btnText;
-    std::string btnString;
+    std::string btnInitString;
 
 private:
 };

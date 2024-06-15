@@ -19,7 +19,7 @@ const float Atmosphere::inf = std::numeric_limits<float>::max();
 Atmosphere::Atmosphere(Vec3F sundir, float plntRad, float atmRad, float tr, float tm)
 {
     sunDirection = sundir;
-    earthRadius = plntRad;
+    planetRadius = plntRad;
     atmosphereRadius = atmRad;
     thickR = tr;
     thickM = tm;
@@ -58,7 +58,7 @@ bool solveQuadratic(float a, float b, float c, float& x1, float& x2)
 
 float dot(const Vec3F& va, const Vec3F& vb)
 {
-    return va.x * vb.x + va.y * vb.y + va.z * vb.z;
+    return va.x*vb.x + va.y*vb.y + va.z*vb.z;
 }
 
 /*
@@ -103,7 +103,7 @@ Vec3F Atmosphere::computeIncidentLight(const Vec3F& orig, const Vec3F& dir, floa
     
     for (uint32_t i = 0; i<numSamples; ++i) {
         Vec3F samplePosition = orig + (tCurrent + segmentLength * 0.5f) * dir;
-        float height = samplePosition.length() - earthRadius;
+        float height = samplePosition.length() - planetRadius;
         
         // compute optical depth for light
         float hr = std::exp(-height/thickR) * segmentLength;
@@ -120,7 +120,7 @@ Vec3F Atmosphere::computeIncidentLight(const Vec3F& orig, const Vec3F& dir, floa
         uint32_t j;
         for (j = 0; j < numSamplesLight; ++j) {
             Vec3F samplePositionLight = samplePosition + (tCurrentLight + segmentLengthLight * 0.5f) * sunDirection;
-            float heightLight = samplePositionLight.length() - earthRadius;
+            float heightLight = samplePositionLight.length() - planetRadius;
             if (heightLight < 0) break;
             opticalDepthLightR += std::exp(-heightLight/thickR) * segmentLengthLight;
             opticalDepthLightM += std::exp(-heightLight/thickM) * segmentLengthLight;

@@ -9,35 +9,21 @@ AudioLoader::AudioLoader(){}
 
 AudioLoader::~AudioLoader()
 {
-    if(!initialized) return;
-    initialized = false;
-
     Mix_CloseAudio();
     timesOpened = Mix_QuerySpec( &frequency, &format, &channels );
 
-    //Seems to cause a crash in some cases. Not really worth fixing anyway since application already exited by this point.
-    //for(Mix_Chunk mc : mixChunks)
-        //Mix_FreeChunk(&mc);
-    audioChunks.clear();
+    sfxChunks.clear();
 }
 
-void AudioLoader::init(std::string resourcePath)
-{
-    AudioLoader::resourcePath = resourcePath;
-    //22.050KHz frequency
-    //MIX default format = signed 16 bit
-    //2 channels (Stereo)
-    //1024 byte chunks
-    init( 22050, MIX_DEFAULT_FORMAT, 2 );
-}
-
-void AudioLoader::init(int p_frequency, uint16_t p_format, int p_channels)
+void AudioLoader::init(std::string resourcePath, int p_frequency, uint16_t p_format, int p_channels)
 {
     //Initialization check
     if(initialized) return;
     initialized = true;
 
-    //Mix open audio
+    AudioLoader::resourcePath = resourcePath;
+
+    //SDL_Mixer open audio
     if( Mix_OpenAudio(p_frequency, p_format, p_channels, 1024)==-1 ) {
         Log::warn( __PRETTY_FUNCTION__, "SDL_Mixer audio failed to open" );
     }
@@ -53,6 +39,21 @@ void AudioLoader::init(int p_frequency, uint16_t p_format, int p_channels)
     Log::trbshoot(__PRETTY_FUNCTION__, ss2.str());
 }
 
+void AudioLoader::init(std::string resourcePath)
+{
+    //22.050KHz frequency
+    //MIX default format = signed 16 bit
+    //2 channels (Stereo)
+    //1024 byte chunks
+    init(resourcePath, 22050, MIX_DEFAULT_FORMAT, 2);
+}
+
+void AudioLoader::tick()
+{
+	//Set volume of all music (single channel)
+	Mix_VolumeMusic(masterVolumeFactor*musicVolumeFactor*MIX_MAX_VOLUME);
+}
+
 void AudioLoader::querySpecs(int& frequency, uint16_t& format, int& channels)
 {
 	if( !Mix_QuerySpec(&frequency, &format, &channels) ) {
@@ -60,11 +61,11 @@ void AudioLoader::querySpecs(int& frequency, uint16_t& format, int& channels)
 	}
 }
 
-Mix_Chunk* AudioLoader::getMixAudioChunk(int id)
+Mix_Chunk* AudioLoader::getMixSfxChunk(int id)
 {
 	//Try to find audio chunk in the map 'audioChunks'. If non-existent, log warning and return missingChunk.
-	auto chunk = audioChunks.find(id);
-	if( chunk==audioChunks.end() ) {
+	auto chunk = sfxChunks.find(id);
+	if( chunk==sfxChunks.end() ) {
 		std::stringstream ss;
 		
 		if( isMusic(id) ) {
@@ -77,9 +78,8 @@ Mix_Chunk* AudioLoader::getMixAudioChunk(int id)
 	}
 	
 	//If we found the audio chunk, return it from the map entry.
-	return &chunk->second;
+	return chunk->second;
 }
-
 Mix_Music* AudioLoader::getMixMusicChunk(int id)
 {
 	auto chunk = musicChunks.find(id);
@@ -92,25 +92,37 @@ Mix_Music* AudioLoader::getMixMusicChunk(int id)
 	
 	return chunk->second;
 }
-
-uint32_t AudioLoader::getMixAudioChunkDurationMS(int id)
+uint32_t AudioLoader::getAudioDurationMS(int id)
 {
 	//Get audio device specs
-	int freq = 0;
-	uint16_t fmt = 0;
-	int channels = 0;
+	int freq = 0; uint16_t fmt = 0; int channels = 0;
 	querySpecs(freq, fmt, channels);
-	
-	//Get audio length in MS
-	uint32_t points = getMixAudioChunk(id)->alen/((fmt&0xFF)/8);		//bytes/samplesize == points
-	uint32_t frames = points/channels;							//points/channels == frames
-	return ((frames*1000)/freq);								//(frames*1000)/freq == audio length in MS
-}
+		
+	//If we are dealing with a sound effect...
+	if(!isMusic(id) && getMixSfxChunk(id)!=nullptr) {
+		//Get audio length in MS
+		Mix_Chunk* mc = getMixSfxChunk(id);
+		uint32_t points = mc->alen/((fmt&0xFF)/8);	//bytes/samplesize == points
+		uint32_t frames = points/channels;			//points/channels == frames
+		return ((frames*1000)/freq);				//(frames*1000)/freq == audio length in MS
 
-uint32_t AudioLoader::getMixLastPlayedMS(int index)
+	//If we are dealing with a music track...
+	} else if(isMusic(id) && getMixMusicChunk(id)!=nullptr) {
+		//Get music length in MS
+		Mix_Music* mm = getMixMusicChunk(id);
+		uint32_t mlen = (Mix_MusicDuration(mm)*1000.0);
+		return mlen;
+	
+	//If neither...
+	} else {
+		Log::warnv(__PRETTY_FUNCTION__, "returning -1", "Bad audio chunk ID %d", id);
+		return -1;
+	}
+}
+uint32_t AudioLoader::getAudioLastPlayedMS(int index)
 {
-	auto aclpItr = audioChunksLastPlayed.find(index);
-	if( aclpItr!=audioChunksLastPlayed.end() ) {
+	auto aclpItr = audioLastPlayed.find(index);
+	if( aclpItr!=audioLastPlayed.end() ) {
 		return aclpItr->second;
 	}
 	return -1;
@@ -121,59 +133,39 @@ bool AudioLoader::isMusic(int index)
 	return (index>=MUSIC_kc_50_million_year_trip && index<=MUSIC_space_travel);
 }
 
-void AudioLoader::play(int index, int channel, int loops, int ticks, float volume)
+void AudioLoader::play(int index, int channel, int loops, int ticks)
 {
 	//Add pair(index, [current time in MS]) to map
 	setMixLastPlayedMS(index, SDL_GetTicks());
 	
 	int res = 0;
 	if( isMusic(index) ) {
-		musicChannel = res;
-		
-		Mix_Music* pChunk = getMixMusicChunk(index);
-		int currentVol = Mix_VolumeMusic(-1);
-		int newVol = (int)((float)(MIX_MAX_VOLUME)*volume/9); 
-		Mix_VolumeMusic(newVol);
-		
-		int res = Mix_PlayMusic(pChunk, loops);
-		
+		//Try to play music
+		Mix_Music* pChunk = getMixMusicChunk(index);								//Get music chunk
+		res = Mix_PlayMusic(pChunk, loops);											//Play music chunk
 	} else {
-		//Try to play audio. If mix chunk doesn't exist, log warning
-		Mix_Chunk* pChunk = getMixAudioChunk(index);
-		int currentVol = Mix_Volume(channel, -1);
-		int newVol = (int)((float)(MIX_MAX_VOLUME)*volume);
-		//Mix_Volume(channel, newVol);
-		int res = Mix_PlayChannelTimed(channel, pChunk, loops, ticks);
+		//Try to play audio
+		Mix_Chunk* pChunk = getMixSfxChunk(index);									//Get SFX chunk
+		Mix_VolumeChunk(pChunk, masterVolumeFactor*sfxVolumeFactor*MIX_MAX_VOLUME);	//Set volume of chunk
+		res = Mix_PlayChannelTimed(channel, pChunk, loops, ticks);					//Play SFX chunk
 	}
 
+	//If something went wrong with playing sfx or music...
 	if( res==-1 ) {
 		Log::errorv(__PRETTY_FUNCTION__, Mix_GetError(), "SDL_mixer error");
 	}
 	
 }
 
-void AudioLoader::play(int index, int channel, int loops, int ticks)
-{
-	play(index, channel, loops, ticks, 1.0f);
-}
-
-void AudioLoader::play(int index, float volume)
-{
-	play(index, -1, 0, -1, volume);
-}
-
-void AudioLoader::play(int index)
-{
-	play(index, -1, 0, -1);
-}
+void AudioLoader::play(int index) { play(index, -1, 0, -1); }
 
 bool AudioLoader::playOnce(int index)
 {
-	uint32_t duration = getMixAudioChunkDurationMS(index);
-	uint32_t sinceAudioStarted = SDL_GetTicks()-getMixLastPlayedMS(index); 
+	uint32_t duration = getAudioDurationMS(index);
+	uint32_t sinceAudioStarted = SDL_GetTicks()-getAudioLastPlayedMS(index); 
 	
 	//If sound effect is not still playing: play it again.
-	if( sinceAudioStarted>duration || getMixLastPlayedMS(index)==-1 ) {
+	if( sinceAudioStarted>duration || getAudioLastPlayedMS(index)==-1 ) {
 		play(index);
 		return true;
 	}
@@ -193,6 +185,30 @@ bool AudioLoader::playMusicTitleTheme()
 	return false;
 }
 
+void AudioLoader::setMasterVolumeFactor(double masvf)
+{
+	if(masvf<0.0){masvf = 0.0;} if(masvf>1.0){masvf = 1.0;} //Truncate value to be in [0, 1]
+	masterVolumeFactor = masvf;								//Set masterVolumeFactor
+}
+
+void AudioLoader::setMusicVolumeFactor(double musvf)
+{
+	if(musvf<0.0){musvf = 0.0;} if(musvf>1.0){musvf = 1.0;} //Truncate value to be in [0, 1]
+	musicVolumeFactor = musvf;								//Set musicVolumeFactor
+}
+
+void AudioLoader::setSfxVolumeFactor(double sfxvf)
+{
+	if(sfxvf<0.0){sfxvf = 0.0;} if(sfxvf>1.0){sfxvf = 1.0;}	//Truncate value to be in [0, 1]
+	sfxVolumeFactor = sfxvf;								//Set sfxVolumeFactor
+}
+
+void AudioLoader::test()
+{
+	//Mix_VolumeChunk(getMixSfxChunk(SFX_TITLE_beam), 100);
+	//Mix_PlayChannel(0, getMixSfxChunk(SFX_TITLE_beam), 0);
+}
+
 bool AudioLoader::stopPlayingMusic()
 {
 	for(int i = MUSIC_blender_engine; i<=MUSIC_space_travel; i++) {
@@ -210,9 +226,9 @@ void AudioLoader::addMixChunks()
 
     missingChunk = addMixChunk(missing, "missing");
 
-    addMixChunk(TITLE_beam, "title/beam");
-    addMixChunk(TITLE_button, "title/button");
-    addMixChunk(TITLE_impact, "title/impact");
+    addMixChunk(SFX_TITLE_beam, "title/beam");
+    addMixChunk(SFX_TITLE_button, "title/button");
+    addMixChunk(SFX_TITLE_impact, "title/impact");
 	
 	addMixChunk(MUSIC_kc_50_million_year_trip, "music/kc/50_million_year_trip", "mp3", true);
 	addMixChunk(MUSIC_kc_alien_ruins, "music/kc/alien_ruins", "mp3", true);
@@ -228,10 +244,11 @@ void AudioLoader::addMixChunks()
 	addMixChunk(MUSIC_mercury, "music/mercury", "mp3", true);
 	addMixChunk(MUSIC_space_travel, "music/space_travel", "mp3", true);
 	
-	addMixChunk(WORLD_distant_explosion, "world/distant_explosion", "mp3");
-	addMixChunk(WORLD_heartbeat, "world/heartbeat");
-	addMixChunk(WORLD_implosion, "world/implosion", "mp3");
-	addMixChunk(WORLD_plasma_cannon, "world/plasma_cannon", "mp3");
+	addMixChunk(SFX_WORLD_distant_explosion, "world/distant_explosion", "mp3");
+	addMixChunk(SFX_WORLD_heartbeat, "world/heartbeat");
+	addMixChunk(SFX_WORLD_implosion, "world/implosion", "mp3");
+	addMixChunk(SFX_WORLD_plasma_cannon, "world/plasma_cannon", "mp3");
+	addMixChunk(SFX_WORLD_air_release_1, "world/air_release_1", "ogg");
 }
 
 /**
@@ -271,7 +288,7 @@ Mix_Chunk* AudioLoader::addMixChunk(int index, std::string path, std::string ext
 		}
 		
 		//Insert new element into its map
-		audioChunks.insert(std::make_pair(index, *audioChunk));
+		sfxChunks.insert(std::make_pair(index, audioChunk));
 		soundsLoaded++;
 	}
 
@@ -292,9 +309,9 @@ Mix_Chunk* AudioLoader::addMixChunk(int index, std::string path)
 
 void AudioLoader::setMixLastPlayedMS(int index, uint32_t lastPlayed)
 {
-	auto aclpItr = audioChunksLastPlayed.find(index);
-	if( aclpItr!=audioChunksLastPlayed.end() ) {
-		audioChunksLastPlayed.erase(aclpItr);
+	auto aclpItr = audioLastPlayed.find(index);
+	if( aclpItr!=audioLastPlayed.end() ) {
+		audioLastPlayed.erase(aclpItr);
 	}
-	audioChunksLastPlayed.insert( std::make_pair(index, lastPlayed) );
+	audioLastPlayed.insert( std::make_pair(index, lastPlayed) );
 }

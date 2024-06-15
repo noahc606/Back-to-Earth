@@ -155,22 +155,23 @@ std::string Color::toStringB16(bool transparency)
  * A weight close to 0.0 would return a color "closer to" this object.
  * A weight close to 1.0 would return a color "closer to" the specified color (within the parameters).
  */ 
-Color Color::getInterpolColor(uint8_t p_r, uint8_t p_g, uint8_t p_b, double weight)
+Color Color::getInterpolColor(uint8_t p_r, uint8_t p_g, uint8_t p_b, uint8_t p_a, double weight)
 {
-	uint8_t r1 = r; uint8_t g1 = g; uint8_t b1 = b;
-	uint8_t r2 = p_r; uint8_t g2 = p_g; uint8_t b2 = p_b;
+	uint8_t r1 = r; 	uint8_t g1 = g; 	uint8_t b1 = b;		uint8_t a1 = a;
+	uint8_t r2 = p_r; 	uint8_t g2 = p_g; 	uint8_t b2 = p_b;	uint8_t a2 = p_a;
 	
 	double dR = ((double)(r1-r2))*weight;
 	double dG = ((double)(g1-g2))*weight;
 	double dB = ((double)(b1-b2))*weight;
+	double dA = ((double)(a1-a2))*weight;
 	
 	Color res;
 	
-	return Color(r1-dR, g1-dG, b1-dB);
+	return Color(r1-dR, g1-dG, b1-dB, a1-dA);
 }
 Color Color::getInterpolColor(Color& c, double weight)
 {
-	return getInterpolColor(c.r, c.g, c.b, weight);
+	return getInterpolColor(c.r, c.g, c.b, c.a, weight);
 }
 
 /**

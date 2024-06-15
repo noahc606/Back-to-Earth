@@ -23,12 +23,6 @@ void TileMapScreen::init(SDLHandler* sh, FileHandler* fh, TileMap* tm, Canvas* c
 	csTileMap = cs;
 	cam = csTileMap->getCamera();
 
-	minimap.init(sdlHandler, 128, 128);
-	minimap.lock();
-	minimap.setColorMod(0, 0, 128);
-	minimap.fill();
-	minimap.setDrawScale(2);
-
 	//TileMapUpdater: Governs the addition/removal of tile updates and region updates. Also reponsible for loading and unloading of regions.
 	tileMapUpdater.init(sdlHandler, tileMap, csTileMap);
 	//RegTexInfo: This object tracks useful information
@@ -116,7 +110,7 @@ void TileMapScreen::tick()
 			// Update camL
 			camL = cL;
 			doUpdMapVisible = true;
-			doMapBlackout = true;
+			doMapBlackout = false;
 		}
 		
 		//If camera direction has changed...
@@ -181,21 +175,14 @@ void TileMapScreen::draw()
 
 	//Increment drawsThisSecond
 	drawsThisSecond++;
-	//When SDL_GetTicks() exceeds nextSecond
+	
+	//Run every second
 	if( SDL_GetTicks()>nextSecond ) {
 		regTexInfo.updateTimeAvg(drawsThisSecond);
-
-		//Update minimap
-		//updateMinimap();
-
-		//regTexProcessor.buildRegionArea( cam->getRX(), cam->getRY() );
 
 		nextSecond += 1000;             //Update when the nextSecond is
 		drawsThisSecond = 0;            //Reset drawsThisSecond
 	}
-
-	minimap.setDrawPos( sdlHandler->getWidth()-minimap.getTexWidth()*2, 0 );
-	minimap.draw();
 }
 
 void TileMapScreen::drawDebugOverlay(Canvas* csInteractions)
@@ -318,56 +305,4 @@ void TileMapScreen::putInfo(std::stringstream& ss, int& tabs)
 TileMapUpdater* TileMapScreen::getUpdater()
 {
 	return &tileMapUpdater;
-}
-
-void TileMapScreen::updateMinimap()
-{
-	minimap.lock();
-	minimap.setColorMod(0, 0, 0);
-	minimap.fill();
-
-	TileIterator ti(tileMap);
-	ti.setTrackerMode(TileIterator::RegionTrackingModes::FULL);
-
-	int rad = 64;
-	int64_t cMinX = cam->getLayer(0)-rad;
-	int64_t cMinY = cam->getLayer(1)-rad;
-	int64_t cMaxX = cam->getLayer(0)+rad;
-	int64_t cMaxY = cam->getLayer(1)+rad;
-
-	//Set bounds
-	int status = ti.setBounds(
-		cMinX, cMinY, cam->getLayer(2),
-		cMaxX, cMaxY, cam->getLayer(2)
-	);
-	if(status==-1) {
-		return;
-	}
-
-	//Loop through every region within bounds
-	for(TileRegion* tr = ti.peekRegion(); !ti.atEnd(); ti.nextRegion()) {
-		if(tr==nullptr) {
-			continue;
-		}
-
-		//Loop through 32x32x1 area, using tracker to get the upmost tile at each pos
-		for(int sx = 0; sx<32; sx++) {
-			for(int sy = 0; sy<32; sy++) {
-				ti.setTrackerSub(sx, sy, TileMap::getRegSubPos(cam->getLayer(2)));
-
-				auto ctt = RegTexInfo::topTrackedTile(ti);
-				int64_t depth = ctt.first;
-				TileType tt = ctt.second;
-				auto ttRGB = tt.getRGB();
-
-				minimap.pixel(
-					ti.getItrReg(0)*32-cMinX+sx,
-					ti.getItrReg(1)*32-cMinY+sy,
-					std::get<0>(ttRGB),
-					std::get<1>(ttRGB),
-					std::get<2>(ttRGB)
-				);
-			}
-		}
-	}
 }

@@ -21,8 +21,8 @@ Terrain::Terrain()
     tt.setVisionBlocking(true); tt.setTextureXY(2, 1); tt.setRGB(190, 150, 100); tt.setSolid(true);
     worldTiles.push_back(tt);
 
-    //Water
-    tt.setVisionBlocking(false); tt.setTextureXY(0, 4); tt.setRGB(10, 80, 180); tt.setSolid(false);
+    //Gravel
+    tt.setVisionBlocking(true); tt.setTextureXY(2, 5); tt.setRGB(110, 90, 40); tt.setSolid(true);
     worldTiles.push_back(tt);
 
     //Magma
@@ -55,7 +55,7 @@ void Terrain::genericRegion(TileRegion& tr, int rX, int rY, int rZ, bool natural
     int regolith = tr.addToPalette(worldTiles[1], natural);
     int soil = tr.addToPalette(worldTiles[2], natural);
     int rock = tr.addToPalette(worldTiles[3], natural);
-    int water = tr.addToPalette(worldTiles[4], natural);
+    int gravel = tr.addToPalette(worldTiles[4], natural);
     int magma = tr.addToPalette(worldTiles[5], natural);
 
     float tNoise = 0.0;
@@ -103,20 +103,21 @@ void Terrain::genericRegion(TileRegion& tr, int rX, int rY, int rZ, bool natural
                 } else {
 
                     if( z+sz>-20 ) {
-                        tr.setTile(sx, sy, sz, water);
+                        tr.setTile(sx, sy, sz, gravel);
                     } else {
                         tr.setTile(sx, sy, sz, air);
                     }
                 }
             }
 
+            /*
             for(int sz = 0; sz<16; sz++) {
                 noise3d = vScale0 * n.clampedSNoise3D( (x+sx)/tZoom, (y+sy)/tZoom, (z+2*sz)/tZoom );
                 if(noise3d<8) {
-                    tr.setTile(sx, sy, sz*2+1, air);
-                    tr.setTile(sx, sy, sz*2, air);
+                    tr.setTile(sx, sy, sz*2+1, gravel);
+                    tr.setTile(sx, sy, sz*2, gravel);
                 }
-            }
+            }*/
         }
     }
 }

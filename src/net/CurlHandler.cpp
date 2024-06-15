@@ -70,25 +70,38 @@ bool CurlHandler::v1NewerThanV2(std::string v1, std::string v2)
     try {
         v1sm = std::stoi(vs[0][0]); v1ma = std::stoi(vs[0][1]); v1mi = std::stoi(vs[0][2]);
         v2sm = std::stoi(vs[1][0]); v2ma = std::stoi(vs[1][1]); v2mi = std::stoi(vs[1][2]);
-    } catch(...) {}
+    } catch(...) {
+        Log::warn(__PRETTY_FUNCTION__, "bad conversion");
+    }
 
     //Compare
     if(vs[0][3]=="c" && (vs[1][3]=="a"||vs[1][3]=="b")) { return true; }    //Release newer than alpha/beta
     if(vs[0][3]=="b" && (vs[1][3]=="a"))                { return true; }    //Beta newer than alpha
-    if(v1sm>v2sm)   { return true; }  //Compare supermajor
-    if(v1ma>v2ma)   { return true; }  //Compare major
-    if(v1mi>v2mi)   { return true; }  //Compare minor
-    return false;
+
+    if(v1sm>v2sm)   { return true; }    //Compare supermajor greater
+    if(v1sm<v2sm)   { return false; }   //Compare supermajor less
+    if(v1ma>v2ma)   { return true; }    //Compare major greater
+    if(v1ma<v2ma)   { return false; }   //Compare major less
+    if(v1mi>v2mi)   { return true; }    //Compare minor greater
+    if(v1mi<v2mi)   { return false; }   //Compare minor less
+    return false;                       //At this point, two versions are equal
 }
 
 /*
     Go to noahc606.github.io/nch/bte/versions.txt and see if a newer version is listed there (higher than the current version defined by Main::VERSION_LABEL)
+    Upon successful execution, the maximum version will be passed into 'newVersion' and "true"/"false" will be returned depending on if that version is newer.
+    If there is an error, the error description will be returned as a string.
 */
-bool CurlHandler::newBTEVersionAvailable(std::string* newVersion)
+std::string CurlHandler::newBTEVersionAvailable(std::string* newVersion)
 {
     //Get version list as a split string
     std::string versionList;
-    cURLAsString(&versionList, "https://noahc606.github.io/nch/bte/versions.txt");
+    CURLcode cc = cURLAsString(&versionList, "https://noahc606.github.io/nch/bte/versions.txt");
+    if(cc!=0) {
+        std::stringstream ss;
+        ss << curl_easy_strerror(cc);
+        return ss.str();
+    }
     auto svl = FileHandler::split(versionList, "\n");   //'svl': 'split versionList'
 
     //Find maximum version within list
@@ -103,11 +116,11 @@ bool CurlHandler::newBTEVersionAvailable(std::string* newVersion)
     if(v1NewerThanV2(max, Main::VERSION_LABEL)) {
         *newVersion = max;
         Log::log("Found newer version \"%s\" at noahc606.github.io/nch/bte/versions.txt. Maybe you should update.", max.c_str());
-        return true;
+        return "true";
     }
 
-    *newVersion = "";
-    return false;
+    *newVersion = max;
+    return "false";
 }
 
 std::vector<std::string> CurlHandler::getBTEAssetPathList()
@@ -179,8 +192,6 @@ size_t CurlHandler::curlWriteCallbackData(void* contents, size_t size, size_t nm
 
 /*
     cURLAsString(T)o(B)e(R)eturned
-    User might pass in a raw c string ("https://google.com" as opposed to std::string test = "https://google.com") as the url.
-    If the user does the former we get a segfault (curl was made for C)
 */
 CURLcode CurlHandler::cURLAsStringTBR(std::string* str, std::string url)
 {

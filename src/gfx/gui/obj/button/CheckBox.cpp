@@ -9,7 +9,7 @@ CheckBox::CheckBox(Window* p_parentWindow, int p_x, int p_y, std::string p_text,
 	largerButton = p_largerButton;
 	state = p_checkBoxState;
 
-	btnString = p_text;
+	btnInitString = p_text;
 
 	if(p_text=="") {
 		width = 10;
@@ -41,9 +41,9 @@ void CheckBox::init(SDLHandler* sh, Controls* ctrls)
 	GUI::init(sh, ctrls);
 
 	btnText.init(sh);
-	btnText.setString(btnString);
+	btnText.setString(btnInitString);
 
-	if(btnString!="") {
+	if(btnInitString!="") {
 		width = btnText.getWidth()/2+49;
 	} else {
 		if(!largerButton) {

@@ -91,11 +91,14 @@ Settings::Settings()
 		kv(s, "maxFps", "Vsync");
 		kv(s, "bteCursor", "true");
 		kv(s, "debugEnabled", "false");
+		kv(s, "debugOverlayEnabled", "false");
 		kv(s, "debugHacks", "typeincorrectpassword");
 		kv(s, "debugTesting", "false");
 		kv(s, "debugHardTesting", "false");
 		kv(s, "logging", "false");
-		kv(s, "checkForUpdates", "true");
+		kv(s, "masterVolume", "50");
+		kv(s, "musicVolume", "75");
+		kv(s, "sfxVolume", "75");
 		
 		s = &(defaultSettings[session]);
 		kv(s, "date", MainLoop::getSystemTime() );
@@ -182,17 +185,6 @@ void Settings::load(int index, t_kvMap kvMap)
 	}
 }
 
-std::string Settings::get(int kvMapIndex, std::string key)
-{
-	t_settingsMap::iterator itr = settingsMap.find(kvMapIndex);
-	if( itr!=settingsMap.end() ) {
-		return get(itr->second, key);
-	}
-	
-	Log::warn(__PRETTY_FUNCTION__, "Tried to find a key-value pair in a nonexistent file index", "returning \"null\"");
-	return "null";
-}
-
 Settings::t_kvMap Settings::getDefaultSettings(int kvMapIndex) { return Settings::defaultSettings[kvMapIndex]; }
 
 Settings::t_kvMap Settings::getKvMap(int index)
@@ -240,6 +232,17 @@ std::string Settings::get(t_kvMap kvMap, std::string key)
 	return "null";
 }
 
+std::string Settings::get(int kvMapIndex, std::string key)
+{
+	t_settingsMap::iterator itr = settingsMap.find(kvMapIndex);
+	if( itr!=settingsMap.end() ) {
+		return get(itr->second, key);
+	}
+	
+	Log::warn(__PRETTY_FUNCTION__, "Tried to find a key-value pair in a nonexistent file index", "returning \"null\"");
+	return "null";
+}
+
 double Settings::getNum(t_kvMap kvMap, std::string key)
 {
 	std::string val = get(kvMap, key);
@@ -252,6 +255,17 @@ double Settings::getNum(t_kvMap kvMap, std::string key)
 	}
 
 	return res;
+}
+
+double Settings::getNum(int kvMapIndex, std::string key)
+{
+	t_settingsMap::iterator itr = settingsMap.find(kvMapIndex);
+	if( itr!=settingsMap.end() ) {
+		return getNum(itr->second, key);
+	}
+	
+	Log::warn(__PRETTY_FUNCTION__, "Tried to find a key-value pair in a nonexistent file index", "returning -1");
+	return -1;
 }
 
 int Settings::find(t_kvMap kvMap, std::string key)

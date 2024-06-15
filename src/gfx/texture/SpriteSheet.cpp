@@ -6,6 +6,16 @@
 SpriteSheet::SpriteSheet(){}
 SpriteSheet::~SpriteSheet(){}
 
+/*
+    Initializes a SpriteSheet, which is a single texture holding multiple similar textures (usually for animation) in a grid formation.
+    These individual textures are "sprites".
+
+    Parameters:
+    - sh:               sdlHandler object
+    - sdlTex:           The individual Texture which will be used entirely as a spritesheet. If not specified, 'sheet' will start out as a 0x0 texture.
+    - spriteWidth:      The width, in pixels, of an individual sprite. Defaults to 32 if not specified.
+    - spriteHeight:     The height, in pixels, of an individual sprite. Defaults to 32 if not specified.
+*/
 void SpriteSheet::init(SDLHandler* sh, SDL_Texture* sdlTex, int spriteWidth, int spriteHeight)
 {
     //Init 'sdlHandler' and Texture 'sheet'
@@ -17,11 +27,11 @@ void SpriteSheet::init(SDLHandler* sh, SDL_Texture* sdlTex, int spriteWidth, int
     src.x = 0; src.y = 0; src.w = 0; src.h = 0;
     dst.x = 0; dst.y = 0; dst.w = 0; dst.h = 0;
 
-    //If sdlTex is nullptr just set sprite dims to 32x32
+    //If sdlTex is nullptr, the spritesheet will be initialized to 0x0.
     if( sdlTex==nullptr ) {
         sheetWidth = 0;
         sheetHeight = 0;
-        setSpriteDimensions(32, 32);
+        setSpriteDimensions(spriteWidth, spriteHeight);
     //If sdlTex isn't nullptr
     } else {
         //Query tex info
@@ -157,6 +167,10 @@ void SpriteSheet::addSpriteToRow(int imgID, int srcX, int srcY, int spriteY)
     addSprite(imgID, srcX, srcY, spritesThisRow[spriteY], spriteY);
 }
 
+/*
+    Call addSpriteToRow 'num' times, with the image's srcX starting at 0, then 1*spriteWidth, 2*spriteWidth, ..., then finally (num-1)*spriteWidth.
+    'srcY' and 'spriteY' stay constant throughout the 'num' calls.
+*/
 void SpriteSheet::addSpritesToRow(int imgID, int num, int srcY, int spriteY)
 {
     for( int i = 0; i<num; i++ ) {

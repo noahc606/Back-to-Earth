@@ -3,6 +3,7 @@
 #include "GUIHandler.h"
 #include "Items.h"
 #include "Player.h"
+#include <map>
 
 class PlayerMenu {
 public:
@@ -36,7 +37,11 @@ private:
 	
 	//Inventory slot and selected inventory slot
 	const int invW = 8; const int invH = 8;
-	int inventorySlots[8][8];
+	
+	std::map<std::pair<int, int>, int> inventorySlots;
+	//int inventorySlots[8][8];
+	//int clothingSlots[0][3];
+
 	int invSX = -1; int invSY = -1;		//X, Y of the currently selected inventory slot
 	int invHeldID = -1;					//ID of the currently held item
 	
@@ -57,9 +62,12 @@ private:
 	/**/
 	void drawInventory();
 	/**/
+	bool inventorySlotExists(int x, int y);
+	int getInventorySlotItem(int x, int y);
 	/**/
 	void updateMenuCoordinates();
 	void updateSandboxRGB();
 	void selectInventorySlot(int x, int y);
+	void setInventorySlotItem(int x, int y, int i);
 	/**/
 };

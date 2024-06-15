@@ -9,5 +9,5 @@ public:
     
 private:
     static std::string validateWorldName(FileHandler* fh, std::string ln);
-    static bool createWorldData(GUIHandler* gh, FileHandler* fh, std::string validatedWorldName, std::string worldDisplayName);
+    static bool createWorldData(GUIHandler* gh, FileHandler* fh, std::string validatedWorldName, std::string worldDisplayName, std::string gamemode);
 };

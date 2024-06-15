@@ -73,6 +73,12 @@ void Tests::init(SDLHandler* sh, FileHandler* fh, Controls* ctrls)
 	sdlHandler = sh;
 	fileHandler = fh;
 	controls = ctrls;
+
+    assetList(fileHandler);
+    al = sdlHandler->getAudioLoader();
+
+    CurlHandler curlh;
+    curlh.init(sdlHandler);
 }
 
 Tests::~Tests(){}
@@ -131,6 +137,13 @@ void drawlevel()
 
 void Tests::draw()
 {
+    std::stringstream ss;
+    ss << "To get back to the main screen:\n";
+    ss << "1) [RSHIFT] + [F12] to open console.\n";
+    ss << "2) Type in \"gs 0\"\n";
+    ss << "3) Press [ENTER].";
+    TextOld::draw(sdlHandler, ss.str(), sdlHandler->getWidth()/2-180, sdlHandler->getHeight()/2-36, 2);
+
     //tex.draw();
     SDL_RenderCopy(sdlHandler->getRenderer(), tex.getSDLTexture(), NULL, NULL);
     
@@ -142,10 +155,7 @@ void Tests::draw()
     //tex.setDrawPos(sdlHandler->getWidth()/2-tex.getTexWidth()*scale/2, sdlHandler->getHeight()/2-tex.getTexHeight()*scale/2);
 }
 
-void Tests::tick()
-{
-	
-}
+void Tests::tick(){}
 
 /**/
 

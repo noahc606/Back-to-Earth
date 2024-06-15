@@ -11,6 +11,7 @@
 #include "Tests.h"
 #include "TextOld.h"
 #include "TextBox.h"
+#include "Tooltip.h"
 
 /**/
 
@@ -22,6 +23,7 @@ void BTE::preinit(SDLHandler* sh, FileHandler* fh, Controls* ctrls)
 	fileHandler = fh;
 	controls = ctrls;
 	settings = fileHandler->getSettings();
+	AudioLoader* al = sdlHandler->getAudioLoader();
 	
 	
 	/* Configure app to match saved settings */
@@ -29,6 +31,10 @@ void BTE::preinit(SDLHandler* sh, FileHandler* fh, Controls* ctrls)
 		sdlHandler->toggleFullScreen();
 	}
 	MainLoop::setMaxFPS( settings->get(Settings::options, "maxFps") );	// Max FPS?
+	al->setMasterVolumeFactor   ( settings->getNum(Settings::options, "masterVolume")/100.0 );	//Master Volume?
+	al->setMusicVolumeFactor    ( settings->getNum(Settings::options, "musicVolume")/100.0 );	//Music Volume?
+	al->setSfxVolumeFactor      ( settings->getNum(Settings::options, "sfxVolume")/100.0 );		//SFX Volume?
+
 	if( settings->get(Settings::options, "bteCursor")=="true" ) {	// Custom cursor?
 		sdlHandler->toggleBTECursor();
 		lastBTECursorState = "true";
@@ -37,6 +43,7 @@ void BTE::preinit(SDLHandler* sh, FileHandler* fh, Controls* ctrls)
 		debugScreen.setHaxEnabled(true);
 	}
 	if( alwaysTest || settings->get(Settings::options, "debugTesting")==Main::PASSWORD ) {	// Testing?
+		debugScreen.setHaxEnabled(true);
 		testing = true;
 	}
 	if( alwaysTest || settings->get(Settings::options, "debugHardTesting")==Main::PASSWORD ) {	// Hard testing?
@@ -60,25 +67,6 @@ void BTE::init()
 		setGameState(GameState::MAIN_MENU);
 	} else {
 		setGameState(GameState::TESTING);
-	}
-
-	//Test for new version
-	std::string cfu = settings->get(Settings::options, "checkForUpdates");
-	Log::debug("checkForUpdates==%s...", cfu.c_str());
-	if(cfu=="true") {
-		CurlHandler ch;
-		ch.init(sdlHandler);
-		std::string potentialNewVersion = "";
-
-		if(ch.newBTEVersionAvailable(&potentialNewVersion)) {
-			Window* titleWindow = guiHandler.getWindow(GUIHandler::win_MAIN);
-			if(titleWindow!=nullptr) {
-				GUIBuilder gb;
-				gb.buildUpdatePrompt(guiHandler, titleWindow, potentialNewVersion);
-			} else {
-				Log::warnv(__PRETTY_FUNCTION__, "skipping update prompt GUI", "Didn't find title window (are you in gamestate MAIN?)");
-			}
-		}
 	}
 }
 
@@ -104,7 +92,7 @@ void BTE::draw()
 		case GameState::WORLD: {
 			if( world==nullptr ) break;
 			
-			world->draw( debugScreen.getVisible() );
+			world->draw( debugScreen.getVisible() && settings->get(Settings::options, "debugOverlayEnabled")=="true" );
 		} break;
 	}
 
@@ -153,6 +141,8 @@ void BTE::tick()
 		lastBTECursorState = bteCursorState;
 		sdlHandler->toggleBTECursor();
 	}
+	AudioLoader* al = sdlHandler->getAudioLoader();
+	al->tick();
 
 	/** GUIHandler/DebugScreen */
 	if( guiHandler.exists() ) {
@@ -207,6 +197,20 @@ void BTE::tick()
 
 				//Tick world
 				world->tick(paused, guiHandler);
+			}
+		} break;
+
+		case GameState::UPDATING: {
+			GUI* pgui = guiHandler.getGUI(BTEObject::GUI_progressbar, GUIHandler::pbr_UPDATING_SCREEN);
+			Window* pwin = guiHandler.getWindow(GUIHandler::win_UPDATING_SCREEN);
+			if(pgui!=nullptr && pwin!=nullptr) {
+				ProgressBar* usPbr = (ProgressBar*)pgui;
+				if(usPbr->isWorkFinished()) {
+					guiHandler.addGUI(new Tooltip(pwin, GUIAlignable::CENTER_H, 92+32*5, "Assets finished downloading. You should now exit and restart.", GUIHandler::ttp_GENERIC));
+					guiHandler.addGUI(new Button(pwin, GUIAlignable::CENTER_H, 448-38, 300, "Exit", GUIHandler::btn_MAIN_exit));
+					onWindowUpdate();
+					usPbr->resetWorkFinished();
+				}
 			}
 		} break;
 	}
@@ -320,18 +324,28 @@ bool BTE::updateBTEApp()
 		Log::warn(__PRETTY_FUNCTION__, "Within invalid gamestate");
 		return false;
 	}
+	ProgressBar* pbr = nullptr;
+	GUI* pgui = guiHandler.getGUI(BTEObject::GUI_progressbar, GUIHandler::pbr_UPDATING_SCREEN);
+	if(pgui!=nullptr) {
+		pbr = (ProgressBar*)pgui;
+	} else {
+		Log::warn(__PRETTY_FUNCTION__, "Could not find progress bar");
+		return false;
+	}
 
 	/* Update app */
-	CurlHandler ch;
-	ch.init(sdlHandler);
+	CurlHandler* ch = new CurlHandler();
+	ch->init(sdlHandler);
 
 	std::string newVersion = "";
-	if(ch.newBTEVersionAvailable(&newVersion)) {
+	std::string nbvaRes = ch->newBTEVersionAvailable(&newVersion);
+	if( nbvaRes=="true" || nbvaRes=="false" ) {
 		Log::log("================================");
 		Log::log("Preparing to download assets for version \"%s\".", newVersion.c_str());
 
-		auto assets = ch.getBTEAssetPathList(); updateNumFiles = assets.size();
-		auto dirs = ch.getBTEDirList(assets);
+		std::vector<std::string>* assets = new std::vector<std::string>(ch->getBTEAssetPathList());
+		updateNumFiles = assets->size();
+		auto dirs = ch->getBTEDirList(*assets);
 
 		//Make the necessary dirs
 		Log::log("CREATING DIRECTORIES:");
@@ -348,27 +362,9 @@ bool BTE::updateBTEApp()
 			}
 		}
 
-		//Update the necessary asset files
-		Log::log("DOWNLOADING/UPDATING ASSET FILES:");
-		for(std::string s : assets) {
-			if(!forceDisableUpdateDLs) {
-				ch.cURLIntoFile(s, "https://noahc606.github.io/nch/bte/assets/"+s);
-			}
+		pbr->initWorkTypeA(ch, assets, forceDisableUpdateDLs);
 
-			GUI* gui = guiHandler.getGUI(BTEObject::GUI_progressbar, GUIHandler::pbr_UPDATING_SCREEN);
-			if(gui!=nullptr) {
-				ProgressBar* pbr = (ProgressBar*)gui;
-				pbr->onWindowUpdate();
-				pbr->tick();
-				pbr->draw();
-			}
-
-			SDL_Delay(100);
-
-			Log::log(s);
-		}
-
-		Log::log("DOWNLOADS COMPLETE");
+		Log::log("STARTING DOWNLOADS:");
 		Log::log("================================");
 		return true;
 	}
@@ -408,7 +404,7 @@ void BTE::setGameState(int p_gamestate, std::string extraInfo)
 			al->playMusicTitleTheme();
 			
 			if( !playedImpact ) {
-				al->play(AudioLoader::TITLE_impact);
+				al->play(AudioLoader::SFX_TITLE_impact);
 				playedImpact = true;
 			}
 		} break;
@@ -516,6 +512,12 @@ void BTE::performGUIAction(int guiActionID)
 			} else {
 				guiHandler.setGUIs(GUIHandler::GUIs::MAIN);
 			}
+		} break;
+		case GUIHandler::btn_DEBUG_SETTINGS_checkForUpdates:
+		case GUIHandler::btn_DEBUG_SETTINGS_forceUpdate: {
+			//Try to build update prompt
+			CurlHandler ch;		ch.init(sdlHandler);
+			GUIBuilder gb;		gb.buildUpdatePrompt(guiHandler, ch, gaid);
 		} break;
 
 		/** Pause Menu */

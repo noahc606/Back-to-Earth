@@ -9,31 +9,36 @@ class AudioLoader
 public:
     AudioLoader();
     virtual ~AudioLoader();
+    void init(std::string resourcePath, int p_frequency, uint16_t p_format, int p_channels);
     void init(std::string resourcePath);
-    void init(int p_frequency, uint16_t p_format, int p_channels);
+    void tick();
 
     void querySpecs(int& frequency, uint16_t& format, int& channels);
-	Mix_Chunk* getMixAudioChunk(int index);
+	Mix_Chunk* getMixSfxChunk(int index);
 	Mix_Music* getMixMusicChunk(int index);
-	uint32_t getMixAudioChunkDurationMS(int index);
-	uint32_t getMixLastPlayedMS(int index);
+	uint32_t getAudioDurationMS(int index);
+	uint32_t getAudioLastPlayedMS(int index);
 	bool isMusic(int index);
 
-    void play(int index, int channel, int loops, int ticks, float volume);
     void play(int index, int channel, int loops, int ticks);
-    void play(int index, float volume);
     void play(int index);
     bool playOnce(int index);
 	bool playMusicTitleTheme();
+
+    void setMasterVolumeFactor(double masvf);
+    void setMusicVolumeFactor(double musvf);
+    void setSfxVolumeFactor(double sfxvf);
+
+    void test();
 	
 	bool stopPlayingMusic();
 
     enum Chunks {
         missing,    //Always keep missing first
 
-		TITLE_beam,
-		TITLE_button,
-        TITLE_impact,
+		SFX_TITLE_beam,
+		SFX_TITLE_button,
+        SFX_TITLE_impact,
 		
 		MUSIC_kc_50_million_year_trip,
 		MUSIC_kc_alien_ruins,
@@ -48,11 +53,12 @@ public:
 		MUSIC_mercury,
 		MUSIC_space_travel,
 		
-		WORLD_distant_explosion,
-		WORLD_heartbeat,
-		WORLD_implosion,
-		WORLD_plasma_cannon,
-		
+		SFX_WORLD_distant_explosion,
+		SFX_WORLD_heartbeat,
+		SFX_WORLD_implosion,
+		SFX_WORLD_plasma_cannon,
+        SFX_WORLD_air_release_1,
+
 		LAST_INDEX, //Keep this last
 	};
 
@@ -64,17 +70,19 @@ private:
 
     unsigned int soundsLoaded = 0;
     bool initialized = false;
-    int frequency = 22050;
-    uint16_t format = MIX_DEFAULT_FORMAT;
-    int channels = 2;
+    int frequency = 22050; uint16_t format = MIX_DEFAULT_FORMAT; int channels = 2;
+    
     static int timesOpened;
-	int musicChannel = 0;
 	
-    std::map<int, Mix_Chunk> audioChunks;
+    //Store audio within two maps: one for sound, one for music
+    std::map<int, Mix_Chunk*> sfxChunks;
     std::map<int, Mix_Music*> musicChunks;
 	
-    std::map<int, uint64_t> audioChunksLastPlayed;
-    std::map<int, bool> audioChunkStates;
+    std::map<int, uint64_t> audioLastPlayed;    //Track the last time a particular audio track was played
+
+    double masterVolumeFactor = 0.5;
+    double musicVolumeFactor = 0.75;
+    double sfxVolumeFactor = 0.25;
 
     Mix_Chunk* missingChunk;
 

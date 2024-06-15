@@ -16,7 +16,7 @@ WindowComponent::WindowComponent(p_parentWindow, p_x, p_y, p_width)
     setID(p_id);
 
     //Take in p_s
-    btnString = p_s;
+    btnInitString = p_s;
 }
 Button::Button(int p_x, int p_y, int p_width, std::string p_s, int p_id):
 Button(nullptr, p_x, p_y, p_width, p_s, p_id){}
@@ -35,7 +35,7 @@ void Button::init(SDLHandler* sh, Controls* ctrls)
 		case GUI_textbox: {
 			tb.buildButton(texBtn, 82, 0, texW);
 			tb.buildButton(texBtnHovering, 123, 0, texW);
-			if( ((TextBox*)this)->getInputType()==TextBox::CONTROL_BINDINGS ) {
+            if( ((TextBox*)this)->getInputType()==TextBox::CONTROL_BINDINGS ) {
 				tb.buildButton(texTbxSelected, 123, 17, texW);
 			} else {
 				tb.buildButton(texTbxSelected, 41, 17, texW);
@@ -54,10 +54,11 @@ void Button::init(SDLHandler* sh, Controls* ctrls)
 	
 	tb.buildButtonShine(texBtnShine0);
 	tb.buildButtonShine(texBtnShine1);
+    tb.buildButton(texBtnErrFlash, 0, 17, texW);
 
     //Build text
     btnText.init(sdlHandler);
-    btnText.setString(btnString);
+    btnText.setString(btnInitString);
 
     onWindowUpdate();
 }
@@ -72,6 +73,7 @@ void Button::destroy()
     texBtnSelected.destroy();
     texBtnShine0.destroy();
     texBtnShine1.destroy();
+    texBtnErrFlash.destroy();
 }
 
 /**/
@@ -92,7 +94,7 @@ void Button::draw()
 			getType()==GUI_textbox ||
 			getType()==GUI_slider
 		) {
-			texBtn.draw();
+            texBtn.draw();
         }
     }
 
@@ -115,6 +117,16 @@ void Button::draw()
         texBtnShine1.draw();
     }
 
+    //During error flash animation
+    if( errFlashAnimation>0 ) {
+        SDL_SetTextureAlphaMod(texBtnErrFlash.getSDLTexture(), errFlashAnimation);
+        SDL_SetTextureColorMod(texBtnErrFlash.getSDLTexture(), 255, 255, 255);
+        texBtnErrFlash.draw();
+    } else {
+        SDL_SetTextureAlphaMod(texBtnErrFlash.getSDLTexture(), 255);
+        SDL_SetTextureColorMod(texBtnErrFlash.getSDLTexture(), 255, 255, 255);
+    }
+
     //Draw button's text (for textboxes there is a custom implementation)
     if( getType()!=GUI_textbox ) {
         btnText.draw();
@@ -123,6 +135,11 @@ void Button::draw()
 
 void Button::tick()
 {
+    //Error flash
+    if(errFlashAnimation>0) {
+        errFlashAnimation -= 10;
+    }
+
     //Test if mouse is hovering over or not
     int mX = controls->getMouseX();
     int mY = controls->getMouseY();
@@ -151,38 +168,41 @@ void Button::tick()
     bool btnInteractable = false;
     if(parentWindow==nullptr || parentWindow->isActive()) btnInteractable = true;
 
-    //If button is interactable and the mouse is hovering on the button...
-    if( btnInteractable && hovering ) {
-        //If mouse is left clicked
-        if( controls->isPressed("HARDCODE_LEFT_CLICK") ) {
-            //If this is a textbox
-            if( getType()==GUI_textbox ) {
-                btnText.setInsertionPointByPx( mX-sX );
-            }
-            //If this is a checkbox
-            if( getType()==GUI_checkbox ) {
-                CheckBox* cbObj = (CheckBox*)this;
-                cbObj->cycleState();
-            }
+    //If button is interactable...
+    if(btnInteractable) {
+        //If the mouse is hovering on the button...
+        if( hovering ) {
+            //If mouse is left clicked
+            if( controls->isPressed("HARDCODE_LEFT_CLICK") ) {
+                //If this is a textbox
+                if( getType()==GUI_textbox ) {
+                    btnText.setInsertionPointByPx( mX-sX );
+                }
+                //If this is a checkbox
+                if( getType()==GUI_checkbox ) {
+                    CheckBox* cbObj = (CheckBox*)this;
+                    cbObj->cycleState();
+                }
 
-            //Stop pressing, set clicked+selected
-            controls->stopPress("HARDCODE_LEFT_CLICK", __PRETTY_FUNCTION__);
-            clicked = true;
-            selected = true;
-            btnText.setSelected(true);
-        }
-    }
-
-    //If the button is interactable and the mouse is NOT hovering on the button...
-    if( btnInteractable && !hovering) {
-        //If mouse is left clicked
-        if( controls->isPressed("HARDCODE_LEFT_CLICK") ) {
-            //If this is not a radio button
-            if(selected && getType()!=GUI_radiobutton) {
-                //Stop pressing and end selection
+                //Stop pressing, set clicked+selected
                 controls->stopPress("HARDCODE_LEFT_CLICK", __PRETTY_FUNCTION__);
-                selected = false;
-                btnText.setSelected(false);
+                clicked = true;
+                selected = true;
+                btnText.setSelected(true);
+            }
+        }
+
+        //If    q1the mouse is NOT hovering on the button...
+        if( !hovering) {
+            //If mouse is left clicked
+            if( controls->isPressed("HARDCODE_LEFT_CLICK") ) {
+                //If this is not a radio button
+                if(selected && getType()!=GUI_radiobutton) {
+                    //Stop pressing and end selection
+                    controls->stopPress("HARDCODE_LEFT_CLICK", __PRETTY_FUNCTION__);
+                    selected = false;
+                    btnText.setSelected(false);
+                }
             }
         }
     }
@@ -202,6 +222,7 @@ void Button::onWindowUpdate()
     texBtnSelected.setDrawPos(sX, sY);
     texBtnShine0.setDrawPos(sX, sY);
     texBtnShine1.setDrawPos(sX, sY);
+    texBtnErrFlash.setDrawPos(sX, sY);
 
 
     int txtX = 0;
@@ -226,3 +247,4 @@ std::string Button::getString() { return btnText.getString(); }
 void Button::setString(std::string s) { btnText.setString(s); }
 void Button::unclick() { clicked = false; }
 void Button::deselect() { selected = false; }
+void Button::errorFlash() { errFlashAnimation = 255; }

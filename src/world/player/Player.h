@@ -56,6 +56,7 @@ public:
 	bool inGodMode();
 	/**/
 	void setPos(double, double, double);
+	void setMode(std::string gameMode);
 
 	static const double unit;
 protected:

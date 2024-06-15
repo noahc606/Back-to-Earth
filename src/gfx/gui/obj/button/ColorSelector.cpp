@@ -13,7 +13,7 @@ ColorSelector::ColorSelector(Window* parentWindow, int x, int y, Color col, int 
     sat = std::get<1>(hsv);
     val = std::get<2>(hsv);
 
-	btnString = "";
+	btnInitString = "";
     width = 32;
     height = 32;
 }

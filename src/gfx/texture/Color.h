@@ -33,7 +33,7 @@ public:
 	
 	/* Color setting & combining */
 	//Linear interpolation between two colors
-	Color getInterpolColor(uint8_t p_r, uint8_t p_g, uint8_t p_b, double weight);
+	Color getInterpolColor(uint8_t p_r, uint8_t p_g, uint8_t p_b, uint8_t p_a, double weight);
 	Color getInterpolColor(Color& c, double weight);
 	//Additional blending: formulas found at https://wiki.libsdl.org/SDL2/SDL_BlendMode
 	void add(uint8_t p_r, uint8_t p_g, uint8_t p_b, uint8_t p_a);

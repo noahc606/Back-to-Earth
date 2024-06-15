@@ -51,9 +51,12 @@ public:
     
     void renderCopy(int id, SDL_Rect* src, SDL_Rect* dst);
     void renderCopy(int id, SDL_Rect* src, SDL_Rect* dst, double angle, SDL_Point* cor);
+    void renderFillRect(SDL_Rect* dst);
+    void renderFillRect(int x, int y, int w, int h);
     void setColorMod(int id, const Color& c);
     void setColorMod(int id, uint8_t r, uint8_t g, uint8_t b, uint8_t a);
     void setColorMod(int id, uint8_t r, uint8_t g, uint8_t b);
+    void setRenderDrawColor(const Color& c);
 
 protected:
 

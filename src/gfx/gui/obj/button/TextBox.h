@@ -9,6 +9,7 @@ class TextBox : public Button
 {
 public:
     /**/
+    TextBox(Window* parentWindow, int x, int y, int width, int inputType, std::string text, int id);
     TextBox(Window* parentWindow, int x, int y, int width, int inputType, int id);
     TextBox(Window* parentWindow, int x, int y, int width, int id);
     TextBox(int x, int y, int width, int id);
@@ -44,19 +45,19 @@ public:
     };
 
     enum InputType {
-        LOCKED = -1,
-        FREE_TEXT = 0,
+        LOCKED = -1,            //Cannot enter text
+        FREE_TEXT = 0,          //Any character
 		FREE_NUMBERS_BASIC,     //Positive integers
 		FREE_NUMBERS_INTEGERS,  //Integers
         FREE_HEX_BASIC,         //Positive hex integers
-        CONTROL_BINDINGS,
+        CONTROL_BINDINGS,       //Control inputs
         LEVELNAME_TEXT,         //[ ], [aA-zZ], [0-9], [`~!@#$%^&*-_+=|:;"'<>,.?]
     };
 
 protected:
 
 private:
-    int inputType = NONE;
+    int inputType = LOCKED;
     bool colorInput = false;
     int actionID = 0;
     bool entered = false;

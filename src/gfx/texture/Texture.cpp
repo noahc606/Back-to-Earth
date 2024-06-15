@@ -279,7 +279,7 @@ void Texture::blit(int id)
 */
 void Texture::fill(SDL_BlendMode newBlending)
 {
-    //Pixel's color at missing.png(16, 16) will always = (255, 255, 255, 255), making it perfect for color/alpha modding.
+    //Pixel's color at missing.png(23, 8) will always = (255, 255, 255, 255), making it perfect for color/alpha modding.
     //1x1 pixel can easily be stretched to a rectangle of any size.
 
     //Store blend setting
@@ -287,7 +287,7 @@ void Texture::fill(SDL_BlendMode newBlending)
 
     //Set blend setting to NONE + blit
     setBlendMode(newBlending);
-    blit(TextureLoader::missing, 16, 16, 1, 1);
+    blit(TextureLoader::missing, 23, 8, 1, 1);
 
     //Reset blend setting
     setBlendMode(oldBlending);
@@ -415,8 +415,6 @@ void Texture::draw()
     SDL_SetRenderTarget(renderer, NULL);
     SDL_Rect dst; dst.x = drawX; dst.y = drawY; dst.w = texW*drawScale; dst.h = texH*drawScale;
     SDL_RenderCopy( renderer, tex, NULL, &dst );
-
-    //Log::coords( "rect", dst.x, dst.y, dst.w, dst.h );
 }
 
 void Texture::draw(SDL_Rect* src, SDL_Rect* dst)

@@ -37,32 +37,90 @@ void ProgressBar::init(SDLHandler* sh)
     onWindowUpdate();
 }
 
+void ProgressBar::initWorkTypeA(CurlHandler* ch, std::vector<std::string>* assetList, bool forceDisableUpdateDLs)
+{
+    ProgressBar::ch = ch;
+    ProgressBar::assetList = assetList;
+    ProgressBar::forceDisableUpdateDLs = forceDisableUpdateDLs;
+
+    workType = 'a';
+    workToDo = true;
+
+    currentTask = 0;
+    totalTasks = (*assetList).size();
+}
+
 void ProgressBar::destroy()
 {
     BTEObject::destroy();
-
     pbrTex.destroy();
     pbrTexOverlay.destroy();
 }
 
+void ProgressBar::rebuildTexOverlay()
+{
+/* Rebuild pbrTexOverlay */
+    //Set new tex width based on current progress
+    double prog = ((double)currentTask)/(double)totalTasks;
+    int texWidth = (double)(width/2-4)*prog;
+    pbrTexOverlay.setTexWidth(texWidth);
+    //Build newly sized pbrTexOverlay
+    for(int i = 0; i<pbrTexOverlay.getTexWidth(); i += 32) {
+        pbrTexOverlay.lock(i, 0, 32, 8);
+        pbrTexOverlay.blit(TextureLoader::GUI_misc, 3, 13);
+    }
+}
+
 void ProgressBar::draw()
 {
-    if(numTasksDoneLast!=numTasksDone) {
-        numTasksDoneLast = numTasksDone;
+    pbrTex.draw();
 
+    if(workToDo) rebuildTexOverlay();
+    pbrTexOverlay.draw();
 
-
-        
-        //pbrTex.lock()
+    int percentage = (100*currentTask)/totalTasks;
+    int doneTasks = currentTask;
+    if(!workToDo) {
+        percentage = 100;
+        doneTasks = totalTasks;
     }
 
-    pbrTex.draw();
-    pbrTexOverlay.draw();
+    //Build work descriptions
+    std::stringstream ss1;
+    ss1 << percentage << "% ";
+    ss1 << "(" << doneTasks << "/" << totalTasks <<  ")";
+    TextOld::draw(sdlHandler, ss1.str(), sX+2, sY-48, 2);
+    TextOld::draw(sdlHandler, currentTaskDesc, sX+2, sY-24, 2);
 }
 
 void ProgressBar::tick()
 {
+    if(workToDo && currentTask>=totalTasks) {
+        Log::log("Finished work.");
+        workFinished = true;
+        currentTask = -1;
+        workToDo = false;
+    }
 
+    if(!workToDo) { return; }
+
+    switch (workType) {
+    case 'a': {
+        if(ch==nullptr) break;
+        if(assetList==nullptr) break;
+        
+        std::string s = (*assetList)[currentTask];
+    
+        if(!forceDisableUpdateDLs) {
+            ch->cURLIntoFile(s, "https://noahc606.github.io/nch/bte/assets/"+s);
+        }
+        currentTaskDesc = s;
+        Log::log("Downloaded file: %s", s.c_str());
+    } break;
+    default: {} break;
+    }
+
+    currentTask++;
 }
 
 void ProgressBar::onWindowUpdate()
@@ -74,11 +132,8 @@ void ProgressBar::onWindowUpdate()
     pbrTexOverlay.setDrawPos(sX+4, sY+4);
 }
 
-void ProgressBar::setProgress(int numTasksDone)
-{
-    if(numTasksDone>numTasksTotal) {
-        numTasksDone = numTasksTotal;
-    }
-    ProgressBar::numTasksDone = numTasksDone;
-}
-void ProgressBar::setProgressTotal(int numTasksTotal) { ProgressBar::numTasksTotal = numTasksTotal; }
+void ProgressBar::resetWorkFinished() { workFinished = false; }
+
+bool ProgressBar::hasWorkToDo() { return workToDo; }
+
+bool ProgressBar::isWorkFinished() { return workFinished; }

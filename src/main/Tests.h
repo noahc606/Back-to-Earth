@@ -31,6 +31,8 @@ private:
     /**/
     /* Testing */
 
+    AudioLoader* al = nullptr;
+
     STexture tex;
     SDL_Texture* stex;
 	SDL_Rect lvlImgSrc;

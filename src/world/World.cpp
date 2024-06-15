@@ -32,12 +32,12 @@ void World::init(SDLHandler* sh, GUIHandler* gh, FileHandler* fh, Controls* ctrl
 		fh->cEditFile(worldDataPath);
 		fh->saveCloseFile();
 	}
-	
 
 	/* INIT 0b: world saved settings */
 	//Build default world settings
 	Settings::t_kvMap lwd;	//LWD = loaded world data
-	Settings::kv(&lwd, "planetRotation", 1000);
+	Settings::kv(&lwd, "planetRotation", 19200);
+	Settings::kv(&lwd, "playerGameMode", "sandbox");
 	Settings::kv(&lwd, "playerX", "0");
 	Settings::kv(&lwd, "playerY", "0");
 	Settings::kv(&lwd, "playerZ", "-32");
@@ -49,6 +49,7 @@ void World::init(SDLHandler* sh, GUIHandler* gh, FileHandler* fh, Controls* ctrl
 	worldDataKVs = lwd;
 		
 	//Store information in variables
+	std::string pMode = Settings::get(worldDataKVs, "playerGameMode");
 	double px = Settings::getNum(worldDataKVs, "playerX");
 	double py = Settings::getNum(worldDataKVs, "playerY");
 	double pz = Settings::getNum(worldDataKVs, "playerZ");
@@ -62,17 +63,19 @@ void World::init(SDLHandler* sh, GUIHandler* gh, FileHandler* fh, Controls* ctrl
 	/* INIT 2: Player */
 	//Player
 	localPlayer.init(sh, guiHandler, fileHandler->getSettings(), ctrls);
+	localPlayer.setMode(pMode);
 	localPlayer.setPos(px-0.5, py-0.5, pz);
-	//Player menu
+	//Player menus
 	localPlayerMenu.init(sdlHandler, guiHandler, ctrls, &localPlayer);
 	
 	/* INIT 3: Graphical */
 	initCanvases();
-	wbg.init(sdlHandler, localPlayer.getCamera());
+	wbg.init(sdlHandler, localPlayer.getCamera(), &planet);
 
-	/* INIT 4: TileMap and TileMapScreen */
+	/* INIT 4: TileMap, TileMapScreen, Minimap */
 	tileMap.init(sdlHandler, fileHandler, &planet, worldDirName);
 	tileMapScreen.init(sdlHandler, fileHandler, &tileMap, &csTileMap);
+	minimap.init(sdlHandler, localPlayer.getCamera(), &tileMap);
 
 	/* INIT 5: Miscellaneous */
 	//Build textures
@@ -132,6 +135,7 @@ void World::draw(bool debugOn)
 	*/
 
 	/* Drawing canvases */
+	// 1 - World Background
 	wbg.draw();
 
 	// 2 - Tiles
@@ -161,6 +165,7 @@ void World::draw(bool debugOn)
 	/* Drawing misc. */
 	// 1 - HUDs
 	localPlayer.drawHUD();
+	minimap.draw();
 }
 
 void World::tick(bool paused, GUIHandler& guiHandler)
@@ -198,6 +203,7 @@ void World::tickWorldObjs()
 {
 	/** World objects */
 	planet.tick();
+	wbg.tick();
 	
 	int pt = playTime;
 	if( pt==200 || pt==60*60*10 || pt==60*60*20 ) {
@@ -381,11 +387,6 @@ void World::playerInteractions(GUIHandler& guiHandler, bool paused)
 void World::playerTryPlaceTile(TileType tt, bool force)
 {
 	Camera* cam = localPlayer.getCamera();
-	/*
-	int64_t mouseCsXL = Camera::getCsXFromXYZ(cam, mouseXL, mouseYL, mouseZL);
-	int64_t mouseCsXL = Camera::getCsYFromXYZ(cam, mouseXL, mouseYL, mouseZL);
-	int64_t mouseCsXL = Camera::getCsZFromXYZ(cam, mouseXL, mouseYL, mouseZL);
-	*/
 	
 	int64_t mouseCsXL = mouseXL;
 	int64_t mouseCsYL = mouseYL;

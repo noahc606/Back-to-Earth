@@ -4,12 +4,17 @@
 #include "TextureBuilder.h"
 #include "Log.h"
 
-TextBox::TextBox(Window* p_parentWindow, int p_x, int p_y, int p_width, int p_inputType, int p_id)
+TextBox::TextBox(Window* p_parentWindow, int p_x, int p_y, int p_width, int p_inputType, std::string text, int p_id)
 : Button::Button(p_parentWindow, p_x, p_y, p_width, "", p_id)
 {
 	inputType = p_inputType;
 	setSubType(BTEObject::Type::GUI_textbox);
+
+	btnInitString = text;
 }
+
+TextBox::TextBox(Window* p_parentWindow, int p_x, int p_y, int p_width, int p_inputType, int p_id)
+: TextBox::TextBox(p_parentWindow, p_x, p_y, p_width, p_inputType, "", p_id){}
 
 TextBox::TextBox(Window* p_parentWindow, int p_x, int p_y, int p_width, int p_id)
 : TextBox::TextBox(p_parentWindow, p_x, p_y, p_width, FREE_TEXT, p_id){}
@@ -28,7 +33,7 @@ void TextBox::init(SDLHandler* sh, FileHandler* fh, Controls* ctrls)
 			inputType = FREE_NUMBERS_BASIC;
 		} break;
 	}
-	
+
     Button::init(sh, ctrls);
     fileHandler = fh;
 	
@@ -253,60 +258,62 @@ bool TextBox::validateString()
 	bool res = true;
 	std::string old = btnText.getString();
 
-	//Find allowedChars
-	std::string allowedChars = "";
-	switch(inputType) {
-		case FREE_NUMBERS_BASIC:	allowedChars = "0123456789"; break;
-		case FREE_NUMBERS_INTEGERS: allowedChars = "-0123456789"; break;
-		case FREE_HEX_BASIC:		allowedChars = "#0123456789abcdefABCDEF"; break;
-		case LEVELNAME_TEXT:		allowedChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 `~!@#$%^&*()-_=+[{]}|;:'\",<.>?"; break;
-	}
-
 	//Find newString, which will be btnText.getString() but with all invalid characters removed
-	std::stringstream newStream;
-	std::string newString = "";
-	for( int i = 0; i<old.size(); i++ ) {
-		if( allowedChars.find(old[i])!=std::string::npos ) {
-			newStream << old[i];
-		} else {
-			res = false;
+	if(inputType!=FREE_TEXT) {
+		//Find allowedChars
+		std::string allowedChars = "";
+		switch(inputType) {
+			case FREE_NUMBERS_BASIC:	allowedChars = "0123456789"; break;
+			case FREE_NUMBERS_INTEGERS: allowedChars = "-0123456789"; break;
+			case FREE_HEX_BASIC:		allowedChars = "#0123456789abcdefABCDEF"; break;
+			case LEVELNAME_TEXT:		allowedChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 `~!@#$%^&*()-_=+[{]}|;:'\",<.>?"; break;
 		}
-	}
-	newString = newStream.str();
 
-	//Little more work for hex input validation
-	if(inputType==FREE_HEX_BASIC) {
-		//Remove all #'s and add a # at the beginning
-		std::stringstream hexStream;
-		hexStream << "#";
-		for(int i = 0; i<newString.size(); i++) {
-			if(newString[i]!='#') {
-				hexStream << newString[i];
+		std::stringstream newStream;
+		std::string newString = "";
+		for( int i = 0; i<old.size(); i++ ) {
+			if( allowedChars.find(old[i])!=std::string::npos ) {
+				newStream << old[i];
+			} else {
+				res = false;
 			}
 		}
-		newString = hexStream.str();
-		
-		//Capitalize all lowercase letters
-		for(int i = 0; i<newString.size(); i++) {
-			if(newString[i]>='a' && newString[i]<='f') {
-				newString[i] = newString[i]-32;
+		newString = newStream.str();
+
+		//Little more work for hex input validation
+		if(inputType==FREE_HEX_BASIC) {
+			//Remove all #'s and add a # at the beginning
+			std::stringstream hexStream;
+			hexStream << "#";
+			for(int i = 0; i<newString.size(); i++) {
+				if(newString[i]!='#') {
+					hexStream << newString[i];
+				}
+			}
+			newString = hexStream.str();
+			
+			//Capitalize all lowercase letters
+			for(int i = 0; i<newString.size(); i++) {
+				if(newString[i]>='a' && newString[i]<='f') {
+					newString[i] = newString[i]-32;
+				}
+			}
+
+			//Limit input to 7 chars (including the #)
+			if(newString.size()>7) {
+				newString = newString.substr(0, 7);
+				res = false;
 			}
 		}
-
-		//Limit input to 7 chars (including the #)
-		if(newString.size()>7) {
-			newString = newString.substr(0, 7);
-			res = false;
-		}
+	
+		//Set btnText's string and insertion point from newStirng
+		btnText.setString(newString);
 	}
-
-	//Set btnText's string and insertion point from newStirng
-	btnText.setString(newString);
 
 	//Make sure insertion point does not exceed new string length
 	if(res==false) {
-		if(btnText.getInsertionPoint()>newString.size())
-			btnText.setInsertionPoint(newString.size());
+		if(btnText.getInsertionPoint()>btnText.getString().size())
+			btnText.setInsertionPoint(btnText.getString().size());
 	}
 
 	return res;

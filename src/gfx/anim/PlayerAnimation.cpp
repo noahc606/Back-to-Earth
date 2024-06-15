@@ -31,7 +31,7 @@ void PlayerAnimation::tick(double vx, double vy, double vz)
 {
 	//Determine player flip + rotation
 	flip = Texture::Flip::NONE;
-	if(facing==Camera::WEST) {
+	if( facing==Camera::WEST || facing==Camera::NORTH ) {
 		flip = Texture::Flip::H;
 	}
 	rotation = 0;
@@ -87,10 +87,11 @@ void PlayerAnimation::draw(Canvas* csEntities, bool debugging, bool noclip, doub
 	//Get sprite sheet texture
 	Texture* sst = spsh.getSheetTexture();
 	
-	//Render spritesheet on screen if it should be shown (debug feature)
+	//Render spritesheet on screen if it should be shown
 	int* show_ss = Commands::getInt("player.show_ss");
 	if( show_ss!=nullptr && *show_ss!=0 ) {
 		sst->setDrawPos(0, 0);
+		sst->setDrawScale(1);
 		sst->draw();
 	}
 
@@ -168,7 +169,7 @@ void PlayerAnimation::drawCharInMenu()
 	
 	int ptaX = sdlHandler->getWidth()/2+(-32+2)*4;
 	int ptaY = sdlHandler->getHeight()/2+(-64+10)*4;
-	playerTexAlt.setDrawPos(ptaX, ptaY);
+	playerTexAlt.setDrawPos(ptaX, ptaY-4*4);
 	playerTexAlt.setDrawScale(4);
 	playerTexAlt.draw();
 }
@@ -188,77 +189,67 @@ void PlayerAnimation::rebuildPlayerTex(Texture& tex, bool alt)
 /* Build 'tex' depending on 'alt' */
 //Alt==false: top-down view
 	if(!alt) {
-		/* Lower body (legs) */
+		//Legs
 		tex.lock();
 		tex.blitEx(sst, 32*anWalkFrameX, (TOP_LOWER_BODY+1)*32, 32, 32, rotation);
-		
-		/* Middle body */
+		//Middle body
 		tex.lock();
 		tex.blitEx(sst, 0, 32*TOP_MIDDLE_BODY, 32, 32, rotation);
-		
-		/* Arms (if player is walking) */
+		//Arms
 		if(walkSpeed>0) {
 			tex.lock();
 			tex.blitEx(sst, 0, 32*TOP_ARMS, 32, 32, rotation);
 		}
-	
-		/* Head */
+		//Head
 		tex.lock();
 		tex.blitEx(sst, 0, 32*TOP_HAIR, 32, 32, rotation);
 //Alt==true: side view
 	} else {
 		//Head base
-		tex.lock(0, 0, 32, 32);
+		tex.lock(0, 3, 32, 32);
 		tex.blitEx(sst, 0, 32*SIDE_HEAD_BASE, 32, 32, flip);
-
 		//Eyes layer 1
 		if(anBlinkTimer<0) {
-			tex.lock(0, 0, 32, 32);
+			tex.lock(0, 3, 32, 32);
 			tex.blitEx(sst, 0, 32*SIDE_HEAD_EYES, 32, 32, flip);
 		}
-
 		//Eyes layer 2
 		if(anBlinkTimer<0) {
-			tex.lock(0, 0, 32, 32);
+			tex.lock(0, 3, 32, 32);
 			tex.blitEx(sst, 0, 32*SIDE_HEAD_PUPILS, 32, 32, flip);
 		}
-
 		//Lips
-		tex.lock(0, 0, 32, 32);
-		tex.blitEx(sst, 0, 32*SIDE_HEAD_MOUTH, 32, 32, flip);
+		tex.lock(0, 3, 32, 32);
+		tex.blitEx(sst, 0, 32*SIDE_HEAD_MOUTH, 32, 32, flip);		
 
-		/** Arms */
-		//Arms
-		int aTX = (anWalkFrameX%2);
-		tex.lock(0+aTX, 16, 32+aTX, 32);
-		tex.blitEx(sst, 0, 32*SIDE_ARMS, flip);
-
-		/** Body */
 		//Legs
-		tex.lock(0, 29, 32, 32);
-		if( anWalkState!=0 ) {
-			int dy = 1;
-			if( facing==Camera::SOUTH || facing==Camera::NORTH ) {
-				dy = 2;
-			}
-			tex.blitEx(sst, 32*anWalkFrameX, (SIDE_LOWER_BODY+dy)*32, 32, 32, flip);
-		} else {
-			tex.blitEx(sst, 32*anWalkFrameX, (SIDE_LOWER_BODY)*32, 32, 32, flip);
-		}
-		//Middle body
-		{
-			tex.lock(0+aTX, 9, 32+aTX, 32);
+		tex.lock(0, 32, 32, 32);
+		tex.blitEx(sst, 32*anWalkFrameX, (SIDE_LOWER_BODY+1)*32, 32, 32, flip);
 
-			tex.blitEx(sst, 0, (SIDE_MIDDLE_BODY)*32, 32, 32, flip);
+		//Feet/Shoes
+		tex.lock(0, 32, 32, 32);
+		tex.blitEx(sst, 32*anWalkFrameX, (SIDE_FEET)*32, 32, 32, flip);
+
+		//Shirt
+		{
+			tex.lock(0, 12, 32, 32);
+			if(anWalkFrameX>6) {
+				tex.blitEx(sst, 32*(12-anWalkFrameX), (SIDE_MB_WALKING)*32, 32, 32, flip);
+			} else {
+				tex.blitEx(sst, 32*anWalkFrameX, (SIDE_MB_WALKING)*32, 32, 32, flip);
+			}
 		}
-		
-		/** Extra */
-		//Shoes
-		//tex.lock(1, 48, 32, 32);
-		//tex.blitEx(sst, 0, FEET*32, 31, 32, flip);
+
+		//Arms
+		tex.lock(0, 12, 32, 32);
+		if(anWalkFrameX>6) {
+			tex.blitEx(sst, 32*(12-anWalkFrameX), (SIDE_ARMS)*32, 32, 32, flip);
+		} else {
+			tex.blitEx(sst, 32*anWalkFrameX, (SIDE_ARMS)*32, 32, 32, flip);
+		}
 
 		//Hair
-		tex.lock(0, 0, 32, 32);
+		tex.lock(0, 3, 32, 32);
 		tex.blitEx(sst, 0, 32*SIDE_HAIR, 32, 32, flip);
 	}
 }
