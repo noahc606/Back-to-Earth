@@ -30,8 +30,10 @@ int main(int argc, char *argv[])
 /*
  * 	WinMain() is called for Windows GUI applications instead of main() - this is needed for cross-platform compatibility.
  */
-
-//int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, int nCmdShow) {
-////int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd) {
-	//return main(0, new char*);
-//}
+#if ( defined(_WIN32) || defined(WIN32) )
+int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
+{
+    char** x = new char*[1];
+    return main(0, x);
+}
+#endif
