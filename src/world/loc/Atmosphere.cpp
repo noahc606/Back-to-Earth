@@ -31,11 +31,6 @@ Atmosphere(sundir, 6360000, 6420000, 7994, 1200){}
 Atmosphere::Atmosphere():
 Atmosphere(Vec3F(0, 0, 1)){}
 
-float dist(float x0, float y0, float z0, float x1, float y1, float z1)
-{
-    return std::sqrt( (x1-x0)*(x1-x0) + (y1-y0)*(y1-y0) + (z1-z0)*(z1-z0) );
-}
-
 bool solveQuadratic(float a, float b, float c, float& x1, float& x2)
 {
     if (b == 0) {

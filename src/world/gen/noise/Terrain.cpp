@@ -1,11 +1,13 @@
 #include "Terrain.h"
 #include "Noise.h"
 
-Terrain::Terrain()
+Terrain::Terrain(int64_t seed)
 {
     TileType tt;
     tt.init();
     
+    Terrain::seed = seed;
+
     //Air
     worldTiles.push_back(tt);
 	
@@ -70,7 +72,7 @@ void Terrain::genericRegion(TileRegion& tr, int rX, int rY, int rZ, bool natural
     //LD: Local depth. Based on noise depth but within a region.
     int ld = 0;
 
-    Noise n(0);
+    Noise n(seed);
 
     for( char sx = 0; sx<32; sx++ ) {
         for( char sy = 0; sy<32; sy++ ) {

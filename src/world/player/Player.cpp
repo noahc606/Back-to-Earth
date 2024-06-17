@@ -84,6 +84,16 @@ void Player::drawHUD()
 		hud.blit( TextureLoader::GUI_player_interactions, 0, 145 );
 		hud.lock( 32, hudH-32+21, 253.0*oxygen/maxOxygen, 9 );
 		hud.blit( TextureLoader::GUI_player_interactions, 0, 136 );
+
+		//Oxygen tank icons
+		if(spaceSuitState!=NO_SUIT) {
+			hud.lock( 0, hudH-128, 32, 64 );
+			hud.blit( TextureLoader::GUI_player_interactions, 160, 0 );
+			hud.lock( 32, hudH-128, 32, 64 );
+			hud.blit( TextureLoader::GUI_player_interactions, 160, 0 );
+		}
+
+		//Draw HUD
 		hud.draw();
 	}
 }
@@ -98,8 +108,6 @@ void Player::tick(TileMap* tm)
 		z = (*Commands::cmdIntResult("tele.z"));
 		Commands::resetCMDEntered(__PRETTY_FUNCTION__);
 	}
-	
-
 
 /** Player's body state */
 //Incrementers
@@ -107,11 +115,20 @@ void Player::tick(TileMap* tm)
 	age++;
 //Decrementers
 	//Losing oxygen - 100 points. Losing 0.015/tick = lasts 2min 46sec. May be shorter depending on sprinting/swimming/etc.
-	oxygen -= 0.015;
+	if(spaceSuitState!=SpaceSuitStates::STABLE) {
+		oxygen -= 0.015;
+	} else {
+		oxygen += 0.1;
+	}
 	//Losing water - 100 points. 0.0006/tick = lasts 69.4min = 2.89 earth days. May be shorter depending on heat
 	water -=  0.0006;
 	//Losing food - 100 points. 0.0000375/tick = lasts 1111.1min = 46.29 earth days. May be shorter depending on body activity
 	nutrition -= 0.0000375;
+
+	if(oxygen<20) {
+		health--;
+	}
+
 //Limiters (handle things out of range)
 	//Less than 0
 	if(defense<0) defense = 0;
@@ -138,6 +155,12 @@ void Player::tick(TileMap* tm)
 			action = Action::GM_Place_Tile;
 		} else if( controls->isHeld("HARDCODE_LEFT_CLICK") ) {
 			action = Action::GM_Destroy_Tile;
+		}
+	} else {
+		if( controls->isHeld("HARDCODE_RIGHT_CLICK") ) {
+			action = Action::SURV_Place_Tile;
+		} else if( controls->isHeld("HARDCODE_LEFT_CLICK") ) {
+			action = Action::SURV_Destroy_Tile;
 		}
 	}
 //Set whether player is controllable
@@ -406,6 +429,7 @@ std::tuple<double, double, double> Player::getVelComponents() { return std::make
 double Player::getVel() { return sqrt( vx*vx + vy*vy + vz*vz ); }
 Camera* Player::getCamera() { return &camera; }
 bool Player::inGodMode() { return godMode; }
+int Player::getGameMode() { return gameMode; }
 
 void Player::setPos(double x, double y, double z)
 {
@@ -414,17 +438,31 @@ void Player::setPos(double x, double y, double z)
 	Player::z = z;
 }
 
-void Player::setMode(std::string gameMode)
+void Player::setMode(int newGameMode)
 {
-	if(gameMode=="sandbox") {
+	gameMode = newGameMode;
+	if(gameMode==SANDBOX) {
 		godMode = true;
-	} else if(gameMode=="survival") {
-		godMode = false;
-		noclip = false;
-	} else if (gameMode=="hardcore") {
-		godMode = false;
-		noclip = false;
 	} else {
-		Log::warnv(__PRETTY_FUNCTION__, "defaulting to \"survival\"", "Unknown gamemode \"%s\"", gameMode.c_str());
+		godMode = false;
+		noclip = false;
 	}
+}
+
+void Player::setModeFromStr(std::string newGameMode)
+{
+	if(newGameMode=="sandbox") {
+		setMode(SANDBOX);
+	} else if(newGameMode=="survival") {
+		setMode(SURVIVAL);
+	} else if (newGameMode=="hardcore") {
+		setMode(HARDCORE);
+	} else {
+		Log::warnv(__PRETTY_FUNCTION__, "defaulting to \"sandbox\"", "Unknown gamemode \"%s\"", newGameMode.c_str());
+	}
+}
+
+void Player::setSpaceSuitState(int sss)
+{
+	Player::spaceSuitState = sss;
 }

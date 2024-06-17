@@ -272,6 +272,12 @@ std::string BTE::getInfo()
 		DebugScreen::indentLine(ss, tabs);
 		ss << "Window(w, h)=(" << sdlHandler->getWidth() << ", " << sdlHandler->getHeight() << "); ";
 		DebugScreen::newLine(ss);
+
+		DebugScreen::indentLine(ss, tabs);
+		uint8_t r; uint8_t g; uint8_t b; uint8_t a;
+		SDL_GetRenderDrawColor(sdlHandler->getRenderer(), &r, &g, &b, &a);
+		ss << "SDL_GetRenderDrawColor()=(" << (int)r << ", " << (int)g << ", " << (int)b << ", " << (int)a << ");"; 
+		DebugScreen::newLine(ss);
 	DebugScreen::endGroup(tabs);
 
 	//Controls
@@ -505,7 +511,7 @@ void BTE::performGUIAction(int guiActionID)
 		
 
 		/** Options menu buttons */
-		case GUIHandler::btn_OPTIONS_back: 
+		case GUIHandler::btn_OPTIONS_back:
 		case GUIHandler::btn_SELECT_CAMPAIGN_back: {
 			if( gamestate==GameState::WORLD ) {
 				guiHandler.setGUIs(GUIHandler::GUIs::PAUSE);

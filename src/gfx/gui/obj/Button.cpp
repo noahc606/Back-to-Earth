@@ -24,6 +24,9 @@ Button(nullptr, p_x, p_y, p_width, p_s, p_id){}
 void Button::init(SDLHandler* sh, Controls* ctrls)
 {
     GUI::init(sh, ctrls);
+    
+    //Reset draw color
+    sdlHandler->setRenderDrawColor(Color(0, 0, 0, 0));
 
     int texW = width/2;
     int texH = height/2;

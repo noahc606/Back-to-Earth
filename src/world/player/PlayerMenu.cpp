@@ -11,6 +11,7 @@ void PlayerMenu::init(SDLHandler* sh, GUIHandler* gh, Controls* ctrls, Player* p
 	controls = ctrls;
 
 	items.init(guiHandler, pl);
+	playerGamemode = pl->getGameMode();
 
 	for( int x = -10; x<10; x++ ) {
 		for( int y = -10; y<10; y++ ) {
@@ -20,23 +21,21 @@ void PlayerMenu::init(SDLHandler* sh, GUIHandler* gh, Controls* ctrls, Player* p
 		}
 	}
 
-	setInventorySlotItem(-4, 2, Items::NYLON_EXOSUIT_HELMET);
-	setInventorySlotItem(-4, 3, Items::NYLON_EXOSUIT_BODY);
-	setInventorySlotItem(-4, 4, Items::NYLON_EXOSUIT_LEGGINGS);
+	setInventorySlotItem(-4, 2, Items::QUANTUM_EXOSUIT_HELMET);
+	setInventorySlotItem(-4, 3, Items::QUANTUM_EXOSUIT_BODY);
+	setInventorySlotItem(-4, 4, Items::QUANTUM_EXOSUIT_LEGGINGS);
 
 	setInventorySlotItem(3, 0, Items::ION_BLASTER);
 	setInventorySlotItem(4, 1, Items::GEOPORTER);
 	setInventorySlotItem(6, 2, Items::SOLID_PLASMA_ANNIHILATOR);
 	setInventorySlotItem(6, 3, Items::ATOM_PRINTER);
 
-	setInventorySlotItem(7, 7, Items::FOOD_RATION_F);
-	setInventorySlotItem(7, 6, Items::FOOD_RATION_F);
-	setInventorySlotItem(7, 5, Items::FOOD_RATION_A);
-	setInventorySlotItem(7, 4, Items::FOOD_RATION_B);
-	setInventorySlotItem(7, 3, Items::FOOD_RATION_C);
-	setInventorySlotItem(6, 7, Items::FOOD_RATION_D);
-	setInventorySlotItem(6, 6, Items::FOOD_RATION_E);
-	setInventorySlotItem(6, 5, Items::FOOD_RATION_E);
+	setInventorySlotItemStack(7, 7, InvItemStack(Items::FOOD_RATION_A, 19));
+	setInventorySlotItemStack(7, 5, InvItemStack(Items::FOOD_RATION_B, 20));
+	setInventorySlotItemStack(7, 4, InvItemStack(Items::FOOD_RATION_C, 14));
+	setInventorySlotItemStack(7, 3, InvItemStack(Items::FOOD_RATION_D, 17));
+	setInventorySlotItemStack(6, 7, InvItemStack(Items::FOOD_RATION_E, 29));
+	setInventorySlotItemStack(6, 5, InvItemStack(Items::FOOD_RATION_F, 31));
 	
 	uiOverlay.init(sdlHandler, 0, 0);
 }
@@ -70,6 +69,7 @@ void PlayerMenu::tick() {
 				} else {
 					//Set selected inventory slot to the clicked slot
 					selectInventorySlot(shx, shy);
+					invSelectedStack = getInventorySlotItemStack(shx, shy);
 				}
 				itemUIShouldUpdate = true;
 			}
@@ -81,13 +81,13 @@ void PlayerMenu::tick() {
 			
 			//If we clicked inside the inventory...
 			if(inventorySlotExists(shx, shy)) {
-				if(invHeldID==-1) {		//If no item is being held: pick up the item in this slot and clear the slot
-					invHeldID = getInventorySlotItem(shx, shy);
-					setInventorySlotItem(shx, shy, -1);
+				if(invHeldStack.getType()==-1) {		//If no item is being held: pick up the item in this slot and clear the slot
+					invHeldStack = getInventorySlotItemStack(shx, shy);
+					setInventorySlotItemStack(shx, shy, InvItemStack(-1, 0));
 				} else {				//If an item is being held: put the item in the slot and set the held item to be whatever was in the slot.
-					int temp = getInventorySlotItem(shx, shy);
-					setInventorySlotItem(shx, shy, invHeldID);
-					invHeldID = temp;
+					InvItemStack temp = getInventorySlotItemStack(shx, shy);
+					setInventorySlotItemStack(shx, shy, invHeldStack);
+					invHeldStack = temp;
 				}
 
 				itemHeldShouldUpdate = true;
@@ -96,7 +96,7 @@ void PlayerMenu::tick() {
 
 		//If item selection has changed
 		if( itemUIShouldUpdate && state==1 ) {
-			items.putItemInterface( getInventorySlotItem(invSX, invSY) );
+			items.putItemInterface( getInventorySlotItemType(invSX, invSY) );
 			itemUIShouldUpdate = false;
 		}
 	}
@@ -117,7 +117,7 @@ void PlayerMenu::draw()
 		heldItem.init(sdlHandler, 32, 32, 2);
 		heldItem.clear();
 		heldItem.lock();
-		heldItem.blit(TextureLoader::PLAYER_items, getItemTexSrcX(invHeldID), getItemTexSrcY(invHeldID) );
+		heldItem.blit(TextureLoader::PLAYER_items, getItemTexSrcX(invHeldStack.getType()), getItemTexSrcY(invHeldStack.getType()) );
 	}
 
 	if( state>0 ) {
@@ -146,9 +146,13 @@ void PlayerMenu::draw()
 		uiOverlay.draw();
 
 		//Draw held item
-		if(invHeldID!=-1) {
-			heldItem.setDrawPos(controls->getMouseX()/2*2-32, controls->getMouseY()/2*2-32);
+		if(invHeldStack.getType()!=-1) {
+			int drawX = controls->getMouseX()/2*2-32;
+			int drawY = controls->getMouseY()/2*2-32;
+			
+			heldItem.setDrawPos(drawX, drawY);
 			heldItem.draw();
+			invHeldStack.drawCount(sdlHandler, drawX+2, drawY+2);
 		}
 	}
 	
@@ -166,6 +170,66 @@ uint8_t PlayerMenu::getSandboxTexRed() { return items.getSandboxRGB().r; }
 uint8_t PlayerMenu::getSandboxTexGreen() { return items.getSandboxRGB().g; } 
 uint8_t PlayerMenu::getSandboxTexBlue() { return items.getSandboxRGB().b; } 
 
+InvItemStack PlayerMenu::getSelectedItemStack()
+{
+	return invSelectedStack;
+}
+
+void PlayerMenu::decrementSelectedItemStack()
+{
+	InvItemStack iss = getInventorySlotItemStack(invSX, invSY);
+	if(iss.getType()==-1 || iss.getCount()==0) {
+		return;
+	}
+
+	if(iss.getCount()>1) {
+		setInventorySlotItemStack(invSX, invSY, InvItemStack(iss.getType(), iss.getCount()-1, iss.getExtraData()));
+	} else if(iss.getCount()==1) {
+		setInventorySlotItemStack(invSX, invSY, InvItemStack(-1, 0, 0));
+	} else {
+		setInventorySlotItemStack(invSX, invSY, InvItemStack(iss.getType(), -1, iss.getExtraData()));
+	}
+
+	invSelectedStack = getInventorySlotItemStack(invSX, invSY);
+	if(getInventorySlotItemStack(invSX, invSY).getCount()==0) {
+		invSelectedStack = InvItemStack(-1, 0, 0);
+		invSX = -1;
+		invSY = -1;
+	}
+}
+
+void PlayerMenu::giveItemStack(InvItemStack iis)
+{
+	//TODO account for IIS counts other than 1
+	if(iis.getType()==-1) {
+		return;
+	}
+
+	//Try to find the same item type
+	for(int x = 0; x<8; x++)
+	for(int y = 0; y<8; y++) {
+		InvItemStack tempIIS = getInventorySlotItemStack(x, y);
+		if(
+			tempIIS.getType()==iis.getType() &&
+			tempIIS.getExtraData()==iis.getExtraData() &&
+			tempIIS.getCount()<1024)
+		{
+			setInventorySlotItemStack(x, y, InvItemStack(iis.getType(), tempIIS.getCount()+1, iis.getExtraData()));
+			return;
+		}
+	}
+
+	//Try to find an empty slot
+	for(int x = 0; x<8; x++)
+	for(int y = 0; y<8; y++) {
+		InvItemStack tempIIS = getInventorySlotItemStack(x, y);
+		if(tempIIS.getType()==-1) {
+			setInventorySlotItemStack(x, y, InvItemStack(iis.getType(), 1, iis.getExtraData()));
+			return;
+		}
+	}
+}
+
 void PlayerMenu::setState(int newState)
 {
 	state = newState;
@@ -176,7 +240,7 @@ void PlayerMenu::setState(int newState)
 	}
 	
 	if(state>0) {
-		guiHandler->setGUIs(GUIHandler::GUIs::WORLD_characterMenu_open);
+		guiHandler->setGUIs(GUIHandler::GUIs::WORLD_characterMenu_open, playerGamemode);
 		updateMenuCoordinates();
 	}
 }
@@ -204,7 +268,7 @@ void PlayerMenu::drawInventory()
 		Color box1(0, 16, 32+oscillation, 100);
 		Color box2(0, 0, 48+oscillation, 100);
 		Color box3(0, 32, 16, 100);
-		if(getInventorySlotItem(ix, iy)!=-1) {
+		if(getInventorySlotItemType(ix, iy)!=-1) {
 			//Set box1, box2, box3 to be a different color if this inventory spot is selected
 			if( invSX==ix && invSY==iy ) {
 				box1.r += 120; box1.b += 120;
@@ -221,13 +285,18 @@ void PlayerMenu::drawInventory()
 				sdlHandler->renderFillRect(invScreenX+ix*64-2, invScreenY+iy*64-2, 64, 64);
 			}
 			
-			int itemID = getInventorySlotItem(ix, iy);
+			int itemID = getInventorySlotItemType(ix, iy);
 			
 			SDL_Rect isrc; isrc.x = getItemTexSrcX(itemID)+1; isrc.y = getItemTexSrcY(itemID)+1; isrc.w = 30; isrc.h = 30;
 			SDL_Rect idst; idst.x = (invScreenX+ix*64); idst.y = (invScreenY+iy*64); idst.w = 60; idst.h = 60;
-			sdlHandler->renderCopy(TextureLoader::PLAYER_items, &isrc, &idst);
+			if(getInventorySlotItemType(ix, iy)!=Items::WORLDTILE) {
+				sdlHandler->renderCopy(TextureLoader::PLAYER_items, &isrc, &idst);
+			} else {
+				getInventorySlotItemStack(ix, iy).drawEDTileType(sdlHandler, idst.x, idst.y);
+			}
+			
+			getInventorySlotItemStack(ix, iy).drawCount(sdlHandler, invScreenX+ix*64, invScreenY+iy*64);
 		} else {
-			//sdlHandler->renderRect();
 			sdlHandler->setRenderDrawColor(box3);
 			sdlHandler->renderFillRect(invScreenX+ix*64-2, invScreenY+iy*64-2, 64, 64);
 		}
@@ -243,7 +312,7 @@ void PlayerMenu::drawInventory()
 	
 	//Selected Slot Outline
 	if( inventorySlotExists(invSX, invSY) ) {
-		if( getInventorySlotItem(invSX, invSY)!=-1 ) {
+		if( getInventorySlotItemType(invSX, invSY)!=-1 ) {
 			SDL_Rect ssrc; ssrc.x = 0; ssrc.y = 0; ssrc.w = 32; ssrc.h = 32;
 			SDL_Rect sdst; sdst.x = invScreenX+invSX*64-2; sdst.y = invScreenY+invSY*64-2; sdst.w = 64; sdst.h = 64;
 			sdlHandler->renderCopy(TextureLoader::GUI_player_interactions, &ssrc, &sdst);
@@ -258,13 +327,18 @@ bool PlayerMenu::inventorySlotExists(int x, int y)
 	return false;
 }
 
-int PlayerMenu::getInventorySlotItem(int x, int y)
+int PlayerMenu::getInventorySlotItemType(int x, int y)
+{
+	return getInventorySlotItemStack(x, y).getType();
+}
+
+InvItemStack PlayerMenu::getInventorySlotItemStack(int x, int y)
 {
 	if( inventorySlots.find(std::make_pair(x, y))!=inventorySlots.end() && inventorySlotExists(x, y) ) {
 		return inventorySlots.at(std::make_pair(x, y));
 	}
 
-	return -1;
+	return InvItemStack(-1, 0);
 }
 
 void PlayerMenu::updateMenuCoordinates()
@@ -323,7 +397,7 @@ void PlayerMenu::selectInventorySlot(int x, int y)
 	}
 	
 	//If previous selected item slot not empty, we are selecting a new item
-	if( getInventorySlotItem(invSX, invSY)!=-1 ) {
+	if( getInventorySlotItemType(invSX, invSY)!=-1 ) {
 		itemUIShouldUpdate = true;
 	}
 	
@@ -340,14 +414,19 @@ void PlayerMenu::selectInventorySlot(int x, int y)
 
 void PlayerMenu::setInventorySlotItem(int x, int y, int i)
 {
+	setInventorySlotItemStack(x, y, InvItemStack(i, 1));
+}
+
+void PlayerMenu::setInventorySlotItemStack(int x, int y, InvItemStack iis)
+{
 	if(!inventorySlotExists(x, y)) {
 		Log::warn(__PRETTY_FUNCTION__, "Invalid inventory slot (%d, %d)", x, y);
 		return;
 	}
 
 	if(inventorySlots.find(std::make_pair(x, y))!=inventorySlots.end()) {
-		inventorySlots.at(std::make_pair(x, y)) = i;
+		inventorySlots.at(std::make_pair(x, y)) = iis;
 	} else {
-		inventorySlots.insert( std::make_pair(std::make_pair(x, y), i) );
+		inventorySlots.insert( std::make_pair(std::make_pair(x, y), iis) );
 	}
 }

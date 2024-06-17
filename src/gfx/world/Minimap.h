@@ -21,4 +21,6 @@ private:
     int64_t lastTerrainPartDrawMS = 0;
     int64_t numTerrainPartDraws = 10;
     int64_t currTerrainPartDraw = 0;
+
+    int64_t camLX = 0, camLY = 0, camLZ = 0;
 };

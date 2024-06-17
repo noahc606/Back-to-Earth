@@ -3,6 +3,7 @@
 #include <set>
 #include <sstream>
 #include "Log.h"
+#include "Noise.h"
 #include "RadioButton.h"
 #include "TextBox.h"
 
@@ -31,9 +32,7 @@ bool CampaignCreation::createWorldDir(GUIHandler* gh, FileHandler* fh)
         /* LAST STEP: check world name valid -> create directory for it */
         //Get world name entered, then try to validate it. If 'world' could be validated, create the directory.
         worldName = validateWorldName(fh, tbxLevelName->getString());
-        if(worldName!="") {
-            Log::log("Creating new campaign with name \"%s\" within the directory: \"%s\".", tbxLevelName->getString().c_str(), worldName.c_str());
-        } else {
+        if(worldName=="") {
             Log::warn(__PRETTY_FUNCTION__, "Invalid level name entered: \"%s\"", tbxLevelName->getString().c_str());
             tbxLevelName->errorFlash();
             return false;
@@ -52,8 +51,24 @@ bool CampaignCreation::createWorldDir(GUIHandler* gh, FileHandler* fh)
         return false;
     }
 
+    //Get world seed
+    int64_t worldSeed = -1;
+    TextBox* tbxWorldSeed = nullptr;
+    GUI* ptbx2 = gh->getGUI(BTEObject::GUI_textbox, GUIHandler::tbx_SELECT_CAMPAIGN_CN_worldSeed);
+    if(ptbx2!=nullptr) {
+        //Cast GUI to textbox
+        tbxWorldSeed = (TextBox*)ptbx2;
+        try {
+            worldSeed = std::stoll(tbxWorldSeed->getString());
+        } catch(...) {
+            worldSeed = Noise::stringSeedToI64Seed(tbxWorldSeed->getString());
+        }
+    } else {
+        return false;
+    }
 
-    createWorldData(gh, fh, worldName, tbxLevelName->getString(), gamemode);
+    Log::log("Creating new campaign with name \"%s\", seed %d within the directory: \"%s\".", tbxLevelName->getString().c_str(), worldSeed, worldName.c_str());
+    createWorldData(gh, fh, worldName, tbxLevelName->getString(), worldSeed, gamemode);
     return true;
 }
 
@@ -130,7 +145,7 @@ std::string CampaignCreation::validateWorldName(FileHandler* fh, std::string ln)
     return finalLevelName;
 }
 
-bool CampaignCreation::createWorldData(GUIHandler* gh, FileHandler* fh, std::string validatedWorldDirName, std::string worldDisplayName, std::string gamemode)
+bool CampaignCreation::createWorldData(GUIHandler* gh, FileHandler* fh, std::string validatedWorldDirName, std::string worldDisplayName, int64_t worldSeed, std::string gamemode)
 {
     //Create directory
     std::string path = "saved/games/"+validatedWorldDirName+"/";
@@ -138,7 +153,10 @@ bool CampaignCreation::createWorldData(GUIHandler* gh, FileHandler* fh, std::str
 
     //Create data file
     fh->cEditFile(path+"data.txt");
-    fh->write("worldSeed=");        fh->write("-1");                fh->writeln();
+
+
+    std::stringstream ssws; ssws << worldSeed;
+    fh->write("worldSeed=");        fh->write(ssws.str());          fh->writeln();
     fh->write("worldName=");        fh->write(worldDisplayName);    fh->writeln();
     fh->write("playerGameMode=");   fh->write(gamemode);            fh->writeln();
     fh->saveCloseFile();

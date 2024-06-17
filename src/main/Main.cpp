@@ -5,10 +5,10 @@
 #include "MainLoop.h"
 
 //Constants
-const std::string Main::VERSION_LABEL = "1.0.1a";
-const std::string Main::VERSION_DATE = "16 June 2024";
+const std::string Main::VERSION_LABEL = "1.0.2a";
+const std::string Main::VERSION_DATE = "17 June 2024";
 const std::string Main::TITLE = "Back to Earth";
-const std::string Main::PASSWORD = "lockpick";
+const std::string Main::PASSWORD = "opensesame";
 const bool Main::DEBUG = true;
 const bool Main::TROUBLESHOOTING = false;
 
@@ -28,7 +28,7 @@ int main(int argc, char *argv[])
 }
 
 /*
- * 	WinMain() is called for Windows GUI applications instead of main() - this is needed for cross-platform compatibility.
+ * 	WinMain() is called for Windows GUI applications instead of main()
  */
 #if ( defined(_WIN32) || defined(WIN32) )
 int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)

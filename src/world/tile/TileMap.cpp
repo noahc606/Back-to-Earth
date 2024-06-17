@@ -7,12 +7,13 @@
 #include "TileIterator.h"
 #include "TileType.h"
 
-void TileMap::init(SDLHandler* sh, FileHandler* fh, Planet* pt, std::string wdn)
+void TileMap::init(SDLHandler* sh, FileHandler* fh, Planet* pt, std::string wdn, int64_t worldSeed)
 {
 	sdlHandler = sh;
 	fileHandler = fh;
 	planet = pt;
 	worldDirName = wdn;
+	TileMap::worldSeed = worldSeed;
 }
 
 void TileMap::destroy()
@@ -189,7 +190,7 @@ int TileMap::loadRegion(FileHandler* fileHandler, int64_t rX, int64_t rY, int64_
 	//If no region was found, create the region and process it.
 	if( itr==regionMap.end() ) {
 		//Create Terrain and TileRegion objects
-		Terrain terra;
+		Terrain terra(worldSeed);
 		TileRegion tr;
 		
 		//Populate region's terrain

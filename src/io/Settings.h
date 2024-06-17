@@ -27,6 +27,8 @@ public:
     std::string get(int kvMapIndex, std::string key);
     static double getNum(t_kvMap kvMap, std::string key);
     double getNum(int kvMapIndex, std::string key);
+    static int64_t getI64(t_kvMap kvMap, std::string key);
+
 
     static int find(t_kvMap kvMap, std::string key);
     static void kv(t_kvMap* kvMap, std::string key, std::string val);

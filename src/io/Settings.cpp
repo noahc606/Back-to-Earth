@@ -268,6 +268,21 @@ double Settings::getNum(int kvMapIndex, std::string key)
 	return -1;
 }
 
+int64_t Settings::getI64(t_kvMap kvMap, std::string key)
+{
+	std::string val = get(kvMap, key);
+	
+	int64_t res = 0;
+	try {
+		res = std::stoll(val);
+	} catch(...) {
+		Log::warnv(__PRETTY_FUNCTION__, "returning 0", "Failed to convert value \"%s\" to a number", val.c_str());
+	}
+
+	return res;
+}
+
+
 int Settings::find(t_kvMap kvMap, std::string key)
 {
 	unsigned int index = 0;

@@ -31,6 +31,7 @@ public:
     void setWindowActiveState(Window* win, bool isActive);
     GUI* addGUI(GUI* gui, int extraID);
     GUI* addGUI(GUI* gui);
+    void setGUIs(int guis, int param);
     void setGUIs(int guis);
     void resetGUIs(int extraID);
     void removeGUI(int id);
@@ -76,6 +77,7 @@ public:
 
             win_SELECT_CAMPAIGN_CN,
             tbx_SELECT_CAMPAIGN_CN_levelName,
+            tbx_SELECT_CAMPAIGN_CN_worldSeed,
             rbtn_SELECT_CAMPAIGN_CN_gameMode0,
             rbtn_SELECT_CAMPAIGN_CN_gameMode1,
             rbtn_SELECT_CAMPAIGN_CN_gameMode2,
@@ -136,8 +138,12 @@ public:
         /* Pause Screen */
         win_PAUSED,
         btn_PAUSED_back,
+        btn_PAUSED_howto,
         btn_PAUSED_options,
         btn_PAUSED_exit,
+
+        /* How-to tutorial screen */
+        win_PAUSED_howto,
 
         /* Character */
         win_CHARACTER,
@@ -170,7 +176,9 @@ public:
         SELECT_CAMPAIGN,
             SELECT_CAMPAIGN_createNew,
 
-        PAUSE, UNPAUSE,
+        PAUSE,
+            UNPAUSE,
+            PAUSE_HOWTO,
         WORLD,
             WORLD_characterMenu_open,
             WORLD_characterMenu_close,

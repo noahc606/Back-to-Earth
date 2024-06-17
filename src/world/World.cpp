@@ -40,8 +40,8 @@ void World::init(SDLHandler* sh, GUIHandler* gh, FileHandler* fh, Controls* ctrl
 	Settings::kv(&lwd, "playerGameMode", "sandbox");
 	Settings::kv(&lwd, "playerX", "0");
 	Settings::kv(&lwd, "playerY", "0");
-	Settings::kv(&lwd, "playerZ", "-32");
-	Settings::kv(&lwd, "worldSeed", "-0");
+	Settings::kv(&lwd, "playerZ", "-64");
+	Settings::kv(&lwd, "worldSeed", "0");
 	Settings::kv(&lwd, "worldName", "world1");
 	//Build loaded world settings into worldDataKVs
 	worldDataKVs = fileHandler->readTxtFileKVs(worldDataPath);
@@ -53,9 +53,11 @@ void World::init(SDLHandler* sh, GUIHandler* gh, FileHandler* fh, Controls* ctrl
 	double px = Settings::getNum(worldDataKVs, "playerX");
 	double py = Settings::getNum(worldDataKVs, "playerY");
 	double pz = Settings::getNum(worldDataKVs, "playerZ");
+	int64_t worldSeed = Settings::getI64(worldDataKVs, "worldSeed");
 	double plntRot = Settings::getNum(worldDataKVs, "planetRotation");
 	Log::log("Loaded save data: player(%f, %f, %f); planetRotation=%f\n", px, py, pz, plntRot);
-	
+	std::cout << "Seed: " << worldSeed << "\n";
+
 	/* INIT 1: Planet */
 	//Planet
 	planet.init(plntRot);
@@ -63,7 +65,7 @@ void World::init(SDLHandler* sh, GUIHandler* gh, FileHandler* fh, Controls* ctrl
 	/* INIT 2: Player */
 	//Player
 	localPlayer.init(sh, guiHandler, fileHandler->getSettings(), ctrls);
-	localPlayer.setMode(pMode);
+	localPlayer.setModeFromStr(pMode);
 	localPlayer.setPos(px-0.5, py-0.5, pz);
 	//Player menus
 	localPlayerMenu.init(sdlHandler, guiHandler, ctrls, &localPlayer);
@@ -73,7 +75,7 @@ void World::init(SDLHandler* sh, GUIHandler* gh, FileHandler* fh, Controls* ctrl
 	wbg.init(sdlHandler, localPlayer.getCamera(), &planet);
 
 	/* INIT 4: TileMap, TileMapScreen, Minimap */
-	tileMap.init(sdlHandler, fileHandler, &planet, worldDirName);
+	tileMap.init(sdlHandler, fileHandler, &planet, worldDirName, worldSeed);
 	tileMapScreen.init(sdlHandler, fileHandler, &tileMap, &csTileMap);
 	minimap.init(sdlHandler, localPlayer.getCamera(), &tileMap);
 
@@ -131,7 +133,7 @@ void World::draw(bool debugOn)
 		- 5) Debugging (region texture state overlay)
 
 		THEN we draw:
-		- 1) HUDs (player health/defense/etc.)
+		- 1) HUDs (player bars, minimap, etc.)
 	*/
 
 	/* Drawing canvases */
@@ -144,6 +146,9 @@ void World::draw(bool debugOn)
 	// 3 - Entities
 	csEntities.clearCanvas();
 	localPlayer.draw(&csEntities, debugOn);
+	
+	//csEntities.setSourceTex(TextureLoader::missing, 0, 0);
+	//csEntities.rcopy(mouseXL*32, mouseYL*32, 32, 32);
 	csEntities.draw();
 
 	// 4 - Interactions
@@ -225,6 +230,15 @@ void World::tickWorldObjs()
 	localPlayer.tick(&tileMap);
 
 	localPlayerMenu.tick();
+
+	if( localPlayerMenu.getInventorySlotItemType(-4, 2)==Items::QUANTUM_EXOSUIT_HELMET &&
+		localPlayerMenu.getInventorySlotItemType(-4, 3)==Items::QUANTUM_EXOSUIT_BODY &&
+		localPlayerMenu.getInventorySlotItemType(-4, 4)==Items::QUANTUM_EXOSUIT_LEGGINGS
+	) {
+		localPlayer.setSpaceSuitState(Player::SpaceSuitStates::STABLE);
+	} else {
+		localPlayer.setSpaceSuitState(Player::SpaceSuitStates::NO_SUIT);
+	}
 }
 
 void World::putInfo(std::stringstream& ss, int& tabs)
@@ -264,10 +278,11 @@ void World::putInfo(std::stringstream& ss, int& tabs)
 	DebugScreen::endGroup(tabs);
 
 	//Canvas
-	DebugScreen::newGroup(ss, tabs, "CanvasTileMap");
-	csTileMap.putInfo(ss, tabs);
-	DebugScreen::endGroup(tabs);
-
+	if(!true) {
+		DebugScreen::newGroup(ss, tabs, "CanvasTileMap");
+		csTileMap.putInfo(ss, tabs);
+		DebugScreen::endGroup(tabs);
+	}
 }
 
 Planet* World::getPlanet() { return &planet; }
@@ -358,6 +373,7 @@ void World::playerInteractions(GUIHandler& guiHandler, bool paused)
 		}
 	}
 
+	//Player actions
 	if( !lpMenuState ) {		
 		bool audio = false;
 		AudioLoader* al = sdlHandler->getAudioLoader();
@@ -371,7 +387,6 @@ void World::playerInteractions(GUIHandler& guiHandler, bool paused)
 				playerTryDestroyTile();
 			}; break;
 			case Player::Action::GM_Place_Tile: {
-
 				TileType tt;
 				tt.init();
 				tt.setRGB(localPlayerMenu.getSandboxTexRed(), localPlayerMenu.getSandboxTexGreen(), localPlayerMenu.getSandboxTexBlue());
@@ -380,6 +395,19 @@ void World::playerInteractions(GUIHandler& guiHandler, bool paused)
 				tt.setVisionBlocking(true);
 				playerTryPlaceTile(tt, false);
 			}; break;
+
+			case Player::Action::SURV_Destroy_Tile: {
+				playerTryDestroyTile();
+			} break;
+			case Player::Action::SURV_Place_Tile: {
+				InvItemStack iis = localPlayerMenu.getSelectedItemStack();
+				if( iis.getType()==Items::WORLDTILE ) {
+					TileType tt;
+					tt.init();
+					tt.setVal(iis.getExtraData());
+					playerTryPlaceTile(tt, false);
+				}
+			} break;
 		}
 	}
 }
@@ -404,11 +432,41 @@ void World::playerTryPlaceTile(TileType tt, bool force)
 		} break;
 	}
 
+	//TODO LATER: clean up everything below - it was rushed when I wrote it on 16 June 2024 (release date)
+
 	//Try to place tile
-	if (localPlayer.inGodMode() || force ||
-		!tileMap.getTileByCsXYZ(cam, mouseCsXL, mouseCsYL, cam->getLayer()).isSolid() )
-	{
+	TileType ttLast = tileMap.getTileByCsXYZ(cam, mouseCsXL, mouseCsYL, cam->getLayer());
+	bool canPlace = false;
+	if( localPlayer.inGodMode() || force ) {
+		canPlace = true;
+	} else {
+		if( !ttLast.isSolid() ) {
+			canPlace = true;
+		}
+	}
+
+	double placeDist = 0;
+	if(localPlayer.getAction()==Player::SURV_Destroy_Tile || localPlayer.getAction()==Player::SURV_Place_Tile) {
+		Point3D canvasCam(localPlayer.getCamera()->getCsX(), localPlayer.getCamera()->getCsY(), localPlayer.getCamera()->getCsZ());
+		Point3D canvasMouse(mouseCsXL, mouseCsYL, mouseCsZL);
+		placeDist = Vec3F::dist(canvasCam.x, canvasCam.y, canvasCam.z, canvasMouse.x, canvasMouse.y, canvasMouse.z);
+	}
+	if(placeDist>4.) {
+		canPlace = false;
+	}
+
+	if(canPlace) {
 		tileMap.setTileByCsXYZ(cam, mouseCsXL, mouseCsYL, cam->getLayer(), tt);
+		
+		if(localPlayer.getAction()==Player::SURV_Place_Tile) {
+			localPlayerMenu.decrementSelectedItemStack();
+		}
+	}
+
+	//If we are destroying a tile in survival mode
+	if(canPlace && !localPlayer.inGodMode() && ttLast.isSolid() && !ttLast.isNull() && force) {
+		InvItemStack iis(Items::WORLDTILE, 1, ttLast.getVal());
+		localPlayerMenu.giveItemStack(iis);
 	}
 
 	//Add a 3x3 of tile updates regardless of tile placed or not

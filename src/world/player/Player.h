@@ -20,6 +20,8 @@ public:
 		NONE,
 		GM_Place_Tile,
 		GM_Destroy_Tile,
+		SURV_Place_Tile,
+		SURV_Destroy_Tile,
 	};
 
 	enum BoundingBoxType {
@@ -28,6 +30,20 @@ public:
 		SOUTH, NORTH,
 		LOWER, UPPER,
 	};
+
+	enum SpaceSuitStates {
+		NO_SUIT,
+		EMPTYING,
+		LEAKING,
+		STABLE,
+	};
+
+	enum GameModes {
+		SANDBOX,
+		SURVIVAL,
+		HARDCORE,
+	};
+
 	/**/
 	Player();
 	void init(SDLHandler* sh, GUIHandler* guih, Settings* stngs, Controls* ctrls);
@@ -54,9 +70,12 @@ public:
 	double getVel();
 	Camera* getCamera();
 	bool inGodMode();
+	int getGameMode();
 	/**/
 	void setPos(double, double, double);
-	void setMode(std::string gameMode);
+	void setModeFromStr(std::string gameMode);
+	void setMode(int gameMode);
+	void setSpaceSuitState(int sss);
 
 	static const double unit;
 protected:
@@ -81,7 +100,10 @@ private:
 	double nutrition = 100; double maxNutrition = 100;
 	double water = 100; double maxWater = 100;
 	double oxygen = 100; double maxOxygen = 100;
+	int spaceSuitState = 0;
+
 	//Supernatural properties
+	int gameMode = SANDBOX;
 	bool godMode = true;
 	bool noclip = false;
 	bool controllable = false;

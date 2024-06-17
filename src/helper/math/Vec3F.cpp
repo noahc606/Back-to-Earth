@@ -25,3 +25,8 @@ void Vec3F::normalize(Vec3F& vec)
         vec.x *= invLen, vec.y *= invLen, vec.z *= invLen;
     }
 }
+
+float Vec3F::dist(float x0, float y0, float z0, float x1, float y1, float z1)
+{
+    return std::sqrt( (x1-x0)*(x1-x0) + (y1-y0)*(y1-y0) + (z1-z0)*(z1-z0) );
+}

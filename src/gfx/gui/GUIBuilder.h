@@ -20,7 +20,8 @@ public:
 	void buildMainDebug(GUIHandler& gh, FileHandler& fh);
 
 	void buildWorldPause(GUIHandler& gh);
-	void buildCharacterMenu(GUIHandler& gh);
+	void buildWorldPauseHowto(GUIHandler& gh);
+	void buildCharacterMenu(GUIHandler& gh, int gamemode);
 	void buildColorSelector(GUIHandler& gh, Window* parentWindow, int extraID);
 
 	void buildSelectCampaign(GUIHandler& gh, FileHandler& fh);

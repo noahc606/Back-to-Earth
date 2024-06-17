@@ -5,6 +5,7 @@
 #include "ColorSelector.h"
 #include "GUIAlignable.h"
 #include "Log.h"
+#include "Player.h"
 #include "ProgressBar.h"
 #include "RadioButton.h"
 #include "SaveSelector.h"
@@ -209,8 +210,9 @@ void GUIBuilder::buildMainGraphics(GUIHandler& gh, FileHandler& fh)
 	    //Fullscreen on Startup
         gh.addGUI(new CheckBox( w, 26, 92+32*3, "Force Fullscreen on Startup", settings->get(Settings::TextFiles::options, "fullscreen"), gh.cbx_GRAPHICS_SETTINGS_fullscreen ));
 	//World
-    gh.addGUI(new Tooltip(w, ch, 92+32*5, "World", gh.ttp_GENERIC));
+    //gh.addGUI(new Tooltip(w, ch, 92+32*5, "World", gh.ttp_GENERIC));
         //Sky Quality
+        /*
 	    gh.addGUI(new Tooltip( w, 30, 92+32*6, "Sky Quality:", gh.ttp_GRAPHICS_SETTINGS_maxRLT));
 	    gh.addGUI(new Slider( w, 406, 82+32*6, 0, 20, settings->get(Settings::TextFiles::options, "maxFps") , gh.sdr_GRAPHICS_SETTINGS_maxRLT ) );
 	    gh.addGUI(new TextBox(w, 664, 82+32*6, 72, gh.tbx_GRAPHICS_SETTINGS_maxRLT ) );
@@ -219,7 +221,7 @@ void GUIBuilder::buildMainGraphics(GUIHandler& gh, FileHandler& fh)
 	    gh.addGUI(new Tooltip( w, 30, 92+32*7, "Maximum Time to Load Regions (ms):", gh.ttp_GRAPHICS_SETTINGS_maxRLT));
 	    gh.addGUI(new Slider( w, 406, 82+32*7, 0, 20, settings->get(Settings::TextFiles::options, "maxFps") , gh.sdr_GRAPHICS_SETTINGS_maxRLT ) );
 	    gh.addGUI(new TextBox(w, 664, 82+32*7, 72, gh.tbx_GRAPHICS_SETTINGS_maxRLT ) );
-	    gh.addGUI(new CheckBox(w, 738, 82+32*7, "", CheckBox::CBX_RESET, true, gh.cbx_CONTROLS_set_defaults), 123456);
+	    gh.addGUI(new CheckBox(w, 738, 82+32*7, "", CheckBox::CBX_RESET, true, gh.cbx_CONTROLS_set_defaults), 123456);*/
 
 
     //Back button
@@ -368,17 +370,51 @@ void GUIBuilder::buildMainDebug(GUIHandler& gh, FileHandler& fh)
 
 void GUIBuilder::buildWorldPause(GUIHandler& gh)
 {
-    
-
 	gh.removeGUI(gh.win_OPTIONS);
+    gh.removeGUI(gh.win_PAUSED_howto);
 
 	gh.addGUI(new Window( ch, cv, 600, 500, "Paused", "", gh.win_PAUSED ));
 	gh.addGUI(new Button( gh.getWindow(gh.win_PAUSED), ch, cv, 300, "Back to Game", gh.btn_PAUSED_back ));
+	gh.addGUI(new Button( gh.getWindow(gh.win_PAUSED), ch, cv, 300, "Help", gh.btn_PAUSED_howto ));
 	gh.addGUI(new Button( gh.getWindow(gh.win_PAUSED), ch, cv, 300, "Options", gh.btn_PAUSED_options ));
 	gh.addGUI(new Button( gh.getWindow(gh.win_PAUSED), ch, cv, 300, "Save & Exit", gh.btn_PAUSED_exit ));
 }
 
-void GUIBuilder::buildCharacterMenu(GUIHandler& gh)
+void GUIBuilder::buildWorldPauseHowto(GUIHandler& gh)
+{
+    gh.removeGUI(gh.win_PAUSED);
+
+    Window* w = new Window( ch, cv, 800, 800, "Help", "", gh.win_PAUSED_howto );
+    gh.addGUI(w);
+
+    int uiY = 0;
+    gh.addGUI(new Tooltip(w, ch, 92+32*uiY, "Gameplay", gh.ttp_GENERIC));
+    uiY++;
+    gh.addGUI(new Tooltip(w, 30, 92+32*uiY, "-Use WASD to move up/left/down/right from the camera's perspective.", gh.ttp_GENERIC));
+    uiY++;
+    gh.addGUI(new Tooltip(w, 30, 92+32*uiY, "-Use UP or DOWN to go forward/backward from the camera's perspective.", gh.ttp_GENERIC));
+    uiY++;
+    gh.addGUI(new Tooltip(w, 30, 92+32*uiY, "-Use CTRL + scroll to change the camera's zoom.", gh.ttp_GENERIC));
+    uiY++;
+    gh.addGUI(new Tooltip(w, 30, 92+32*uiY, "-Selected tiles can be placed down with RIGHT MOUSE.", gh.ttp_GENERIC));
+    uiY++;
+    gh.addGUI(new Tooltip(w, 30, 92+32*uiY, "-Tiles can be destroyed with LEFT MOUSE.", gh.ttp_GENERIC));
+    uiY += 2;
+
+    gh.addGUI(new Tooltip(w, ch, 92+32*uiY, "Inventory", gh.ttp_GENERIC));
+    uiY++;
+    gh.addGUI(new Tooltip(w, 30, 92+32*uiY, "-Use SHIFT to open/close the inventory menu.", gh.ttp_GENERIC));
+    uiY++;
+    gh.addGUI(new Tooltip(w, 30, 92+32*uiY, "-Use LEFT MOUSE to move an item stack.", gh.ttp_GENERIC));
+    uiY++;
+    gh.addGUI(new Tooltip(w, 30, 92+32*uiY, "-Use RIGHT MOUSE to select an item slot/stack.", gh.ttp_GENERIC));
+    uiY++;
+ 
+
+    gh.addGUI(new Button( w, ch, 730, 300, "Back", gh.btn_OPTIONS_back ));
+}
+
+void GUIBuilder::buildCharacterMenu(GUIHandler& gh, int gamemode)
 {
     if( gh.getGUI(BTEObject::GUI_window, gh.win_CHARACTER)==nullptr ) {
         int w = 18;
@@ -415,9 +451,21 @@ void GUIBuilder::buildCharacterMenu(GUIHandler& gh)
         wd->setPanelColor('b', Color(130, 210, 180, 240) );
 
         gh.addGUI(new Window( ch, cv, wd, gh.win_CHARACTER ));
-        gh.addGUI(new Tooltip( gh.getWindow(gh.win_CHARACTER), 30, 30, "Sandbox Mode", gh.ttp_CHARACTER_tabs_desc ) );
-        gh.addGUI(new RadioButton( gh.getWindow(gh.win_CHARACTER), 30, 60, "Backpack", true, gh.rbtn_CHARACTER_inventory, gh.rbtn_CHARACTER_tabs_1a, gh.rbtn_CHARACTER_tabs_1b ) );
-        gh.addGUI(new RadioButton( gh.getWindow(gh.win_CHARACTER), 30, 100, "Engineering", gh.rbtn_CHARACTER_engineering, gh.rbtn_CHARACTER_tabs_1a, gh.rbtn_CHARACTER_tabs_1b ) );
+
+        if(gamemode==Player::SURVIVAL) {
+            gh.addGUI(new Tooltip( gh.getWindow(gh.win_CHARACTER), 30, 30, "Survival Mode", gh.ttp_CHARACTER_tabs_desc ) );
+        } else if(gamemode==Player::HARDCORE) {
+            gh.addGUI(new Tooltip( gh.getWindow(gh.win_CHARACTER), 30, 30, "Hardcore Mode", gh.ttp_CHARACTER_tabs_desc ) );
+        } else {
+            gh.addGUI(new Tooltip( gh.getWindow(gh.win_CHARACTER), 30, 30, "Sandbox Mode", gh.ttp_CHARACTER_tabs_desc ) );
+        }
+
+        if(gamemode==Player::SURVIVAL || gamemode==Player::HARDCORE) {
+            gh.addGUI(new RadioButton( gh.getWindow(gh.win_CHARACTER), 30, 60, "Backpack", true, gh.rbtn_CHARACTER_inventory, gh.rbtn_CHARACTER_tabs_1a, gh.rbtn_CHARACTER_tabs_1b ) );
+        } else {
+            gh.addGUI(new RadioButton( gh.getWindow(gh.win_CHARACTER), 30, 60, "Backpack", true, gh.rbtn_CHARACTER_inventory, gh.rbtn_CHARACTER_tabs_1a, gh.rbtn_CHARACTER_tabs_1b ) );
+            gh.addGUI(new RadioButton( gh.getWindow(gh.win_CHARACTER), 30, 100, "Engineering", gh.rbtn_CHARACTER_engineering, gh.rbtn_CHARACTER_tabs_1a, gh.rbtn_CHARACTER_tabs_1b ) );
+        }
     }
 }
 
@@ -568,8 +616,8 @@ void GUIBuilder::buildSelectCampaignCN(GUIHandler& gh, FileHandler& fh)
     height += 1;
     gh.addGUI(new Tooltip(w, 30, 92+32*height, "Seed: ", gh.ttp_GENERIC), 0);
     
-    int32_t randomSeed = rand();
-    TextBox* seedTbx = new TextBox(w, 26+32*6, 82+32*height, 32*16, TextBox::FREE_TEXT, gh.tbx_SELECT_CAMPAIGN_CN_levelName );
+    int64_t randomSeed = ( ((int64_t)rand())<<32)+(int64_t)rand();
+    TextBox* seedTbx = new TextBox(w, 26+32*6, 82+32*height, 32*16, TextBox::FREE_TEXT, gh.tbx_SELECT_CAMPAIGN_CN_worldSeed );
     gh.addGUI(seedTbx, 0);
     std::stringstream seedSS; seedSS << randomSeed;
     seedTbx->setString(seedSS.str());
@@ -584,10 +632,10 @@ void GUIBuilder::buildSelectCampaignCN(GUIHandler& gh, FileHandler& fh)
     gh.addGUI(new RadioButton(  w, 26+32*16,    82+32*height, "Hardcore", gh.rbtn_SELECT_CAMPAIGN_CN_gameMode2, ghGM0, ghGM2));
 
     height += 2;
-    gh.addGUI(new Button( w, ch, 82+32*height, 300, "Show Additional Options...", gh.btn_SELECT_CAMPAIGN_CN_showAdditional));
+    //gh.addGUI(new Button( w, ch, 82+32*height, 300, "Show Additional Options...", gh.btn_SELECT_CAMPAIGN_CN_showAdditional));
 
     gh.addGUI(new Button( w, 26, wd->getH64()-38-66, 200, "Create", gh.btn_SELECT_CAMPAIGN_CN_mkdir ));
-    gh.addGUI(new Button( w, ch, wd->getH64()-38-66, 300, "Restore Defaults", gh.btn_SELECT_CAMPAIGN_CN_defaults ));
+    //gh.addGUI(new Button( w, ch, wd->getH64()-38-66, 300, "Restore Defaults", gh.btn_SELECT_CAMPAIGN_CN_defaults ));
 
     gh.addGUI(new Button( w, ch, wd->getH64()-38, 300, "Back", gh.btn_SELECT_CAMPAIGN_CN_back ));
 }

@@ -1,6 +1,7 @@
 #include "Minimap.h"
 #include "Log.h"
 #include "RegTexInfo.h"
+#include "TextOld.h"
 #include "TileIterator.h"
 
 void Minimap::init(SDLHandler* sh, Camera* cam, TileMap* tm)
@@ -10,6 +11,12 @@ void Minimap::init(SDLHandler* sh, Camera* cam, TileMap* tm)
     tileMap = tm;
 
 	terrain.init(sdlHandler, 128, 128,  2);
+	terrain.lock();
+	for(int x = 0; x<128; x++)
+	for(int y = 0; y<128; y++) {
+		terrain.pixel(x, y, 0, 0, 0);
+	}
+	terrain.unlock();
 }
 
 void Minimap::draw()
@@ -28,9 +35,13 @@ void Minimap::draw()
             updateTerrainPartial(pds, 127);
         }
 
-		//Increment currTerrainPartDraw or reset it if neederd
+		//Increment currTerrainPartDraw or reset it if needed
         currTerrainPartDraw++;
 		if(currTerrainPartDraw==numTerrainPartDraws) {
+
+			camLX = camera->getLayer(0);
+			camLY = camera->getLayer(1);
+			camLZ = camera->getLayer(2);
 			currTerrainPartDraw = 0;
 
 			//Update terrain appearance
@@ -41,6 +52,12 @@ void Minimap::draw()
 
 	terrain.setDrawPos( sdlHandler->getWidth()-terrain.getTexWidth()*2, 0 );
 	terrain.draw();
+
+	//helper text
+	
+	std::stringstream desc;
+	desc << "Camera facing " << camera->getDirectionString() << "\n" << "Press [TAB] to cycle";
+	TextOld::draw(sdlHandler, desc.str(), sdlHandler->getWidth()-terrain.getTexWidth()*2, terrain.getTexHeight()*2, 2);
 }
 
 /*
@@ -63,14 +80,12 @@ void Minimap::updateTerrainPartial(int64_t startX, int64_t endX)
 
 	//Set bounds of tileiterator
 	int rad = 64;
-	int64_t cMinX = camera->getLayer(0)+startX-64;
-	int64_t cMaxX = camera->getLayer(0)+endX-64;
-	int64_t cMinY = camera->getLayer(1)-rad;
-	int64_t cMaxY = camera->getLayer(1)+rad;
-	int64_t tEast = cMinX - (camera->getLayer(0)-64);
+	int64_t cMinX = camLX+startX-64;	int64_t cMaxX = camLX+endX-64;
+	int64_t cMinY = camLY-rad;			int64_t cMaxY = camLY+rad;
+	int64_t tEast = cMinX - (camLX-64);
 	int status = ti.setBounds(
-		cMinX, cMinY, camera->getLayer(2),
-		cMaxX, cMaxY, camera->getLayer(2)
+		cMinX, cMinY, camLZ,
+		cMaxX, cMaxY, camLZ
 	);
 	if(status==-1) {
 		return;
@@ -85,7 +100,7 @@ void Minimap::updateTerrainPartial(int64_t startX, int64_t endX)
 		//Loop through 32x32x1 area, using tracker to get the upmost tile at each pos
 		for(int sx = ti.gbs(0); sx<=ti.ges(0); sx++) {
 			for(int sy = ti.gbs(1); sy<=ti.ges(1); sy++) {
-				ti.setTrackerSub(sx, sy, TileMap::getRegSubPos(camera->getLayer(2)));
+				ti.setTrackerSub(sx, sy, TileMap::getRegSubPos(camLZ));
 
 				auto ctt = RegTexInfo::camTrackedTile(ti, Camera::DOWN, 16);
 				int64_t depth = ctt.first;

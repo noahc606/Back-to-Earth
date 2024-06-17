@@ -40,9 +40,12 @@ void TileRegion::putInfo(std::stringstream& ss, int& tabs, int subX, int subY, i
 	DebugScreen::indentLine(ss, tabs);
 	ss << "palette.size()=" << (int)palette.size() << ", " << "natural=" << getPaletteSizeNatural() << ", artificial=" << getArtificialPaletteSize() << "; ";
 	ss << "paletteSizeBucket=" << getArtificialPaletteSizeBucket() << "; ";
-	ss << "palette={ ";
-	putPaletteInfo(ss, tabs, true);
-	ss << "}; ";
+	
+	if(!true) {
+		ss << "palette={ ";
+		putPaletteInfo(ss, tabs, true);
+		ss << "}; ";
+	}
 	DebugScreen::newLine(ss);
 	DebugScreen::indentLine(ss, tabs);
 	ss << "modifiedSinceLoad=" << modifiedSinceLoad << ";";

@@ -68,8 +68,10 @@ ButtonAction::ButtonAction(SDLHandler* sh, GUIHandler* gh, FileHandler* fh, Cont
         case GUIHandler::btn_SELECT_CAMPAIGN_CN_back:       { gh->setGUIs(gh->SELECT_CAMPAIGN); } break;
 
         /** Pause menu buttons */
+        case GUIHandler::btn_PAUSED_howto:   { gh->setGUIs(GUIHandler::GUIs::PAUSE_HOWTO); } break;
         case GUIHandler::btn_PAUSED_options: {  gh->setGUIs(GUIHandler::GUIs::OPTIONS); } break;
 		
+
 		/** World buttons */
 		case GUIHandler::btn_CHARACTER_item: {
 			

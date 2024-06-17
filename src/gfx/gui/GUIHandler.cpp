@@ -408,7 +408,7 @@ GUI* GUIHandler::addGUI(GUI* gui, int extraID)
 
 GUI* GUIHandler::addGUI(GUI* gui) { return addGUI(gui, -1); }
 
-void GUIHandler::setGUIs(int guis)
+void GUIHandler::setGUIs(int guis, int param)
 {
     GUIBuilder gb;
 
@@ -447,18 +447,31 @@ void GUIHandler::setGUIs(int guis)
 			removeGUI(win_CONTROLS);
 			removeGUI(win_GRAPHICS_SETTINGS);
 			removeGUI(win_DEBUG_SETTINGS);
+			removeGUI(win_AUDIO_SETTINGS);
+			removeGUI(win_COLORSELECTOR);
+			removeGUI(win_PAUSED_howto);
+			removeGUI(win_CHARACTER_SETTINGS);
+			removeGUI(win_UPDATE_PROMPT);
+        } break;
+        case PAUSE_HOWTO: {
+            gb.buildWorldPauseHowto(*this);
         } break;
 
         /** Active World UIs */
         case WORLD:                     { removeAllUserGUIs(); } break;
-        case WORLD_characterMenu_open:  { gb.buildCharacterMenu(*this); } break;
         case WORLD_characterMenu_close: { removeGUI(win_CHARACTER); } break;
+        case WORLD_characterMenu_open: { gb.buildCharacterMenu(*this, param); } break;
     }
 
     setAllWindowsActiveState(true);
 
     //Window is updated whenever new GUIs are set
     onWindowUpdate();
+}
+
+void GUIHandler::setGUIs(int guis)
+{
+    setGUIs(guis, 0);
 }
 
 void GUIHandler::resetGUIs(int extraID)

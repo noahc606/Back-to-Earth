@@ -2,6 +2,7 @@
 #include "SDLHandler.h"
 #include "GUIHandler.h"
 #include "Items.h"
+#include "InvItemStack.h"
 #include "Player.h"
 #include <map>
 
@@ -13,8 +14,9 @@ public:
 	void tick();
 	void draw();
 	/**/
-	int getSlotHoveringX();
-	int getSlotHoveringY();
+	bool inventorySlotExists(int x, int y);
+	int getInventorySlotItemType(int x, int y);
+	InvItemStack getInventorySlotItemStack(int x, int y);
 	int getItemTexSrcX(int itemID);
 	int getItemTexSrcY(int itemID);
 	int getState();
@@ -23,7 +25,10 @@ public:
 	uint8_t getSandboxTexRed();
 	uint8_t getSandboxTexGreen();
 	uint8_t getSandboxTexBlue();
+	InvItemStack getSelectedItemStack();
 	/**/
+	void giveItemStack(InvItemStack iis);
+	void decrementSelectedItemStack();
 	void setState(int newState);
 	/**/
 private:
@@ -38,12 +43,13 @@ private:
 	//Inventory slot and selected inventory slot
 	const int invW = 8; const int invH = 8;
 	
-	std::map<std::pair<int, int>, int> inventorySlots;
+	std::map<std::pair<int, int>, InvItemStack> inventorySlots;
 	//int inventorySlots[8][8];
 	//int clothingSlots[0][3];
 
 	int invSX = -1; int invSY = -1;		//X, Y of the currently selected inventory slot
-	int invHeldID = -1;					//ID of the currently held item
+	InvItemStack invHeldStack;			//Currently held item stack
+	InvItemStack invSelectedStack;		//Currently selected item stack (right click)
 	
 	bool itemUIShouldUpdate = true;
 	bool itemHeldShouldUpdate = true;
@@ -59,15 +65,18 @@ private:
 	Texture heldItem;
 	Items items;
 
+	int playerGamemode = 0;
+
 	/**/
 	void drawInventory();
 	/**/
-	bool inventorySlotExists(int x, int y);
-	int getInventorySlotItem(int x, int y);
+	int getSlotHoveringX();
+	int getSlotHoveringY();
 	/**/
 	void updateMenuCoordinates();
 	void updateSandboxRGB();
 	void selectInventorySlot(int x, int y);
 	void setInventorySlotItem(int x, int y, int i);
+	void setInventorySlotItemStack(int x, int y, InvItemStack iis);
 	/**/
 };

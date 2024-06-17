@@ -241,7 +241,7 @@ bool LevelSave::loadTileRegion(TileRegion& tr, int64_t rX, int64_t rY, int64_t r
 						tr.setTile(sx, sy, sz, tt);
 					}
 
-					if(true) {
+					if(!true) {
 						Log::throwException(__PRETTY_FUNCTION__, "Throwing exception to prevent re-saving of bad region...");
 					}
 				}

@@ -78,7 +78,7 @@ void WorldBackground::renderSkyPartial(int pxCol)
         if (Atmosphere::raySphereIntersect(orig, dir, atmosphere.planetRadius, t0, t1) && t1 > 0) {
             //Compute light from planet surface
             tMax = std::max(0.f, t0);
-            *p = Vec3F(0.25, 0.18, 0);  //Ground color at this point
+            *p = Vec3F(0.25, 0.10, 0.05);  //Ground color at this point
         //If ray does NOT intersect with planet...
         } else {
             //Compute light from atmosphere

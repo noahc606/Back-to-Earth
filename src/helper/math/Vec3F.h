@@ -20,6 +20,8 @@ public:
     float length2();
     float length();
 
+    static float dist(float x0, float y0, float z0, float x1, float y1, float z1);
+
     static void normalize(Vec3F& vec);
 
     float x = 0, y = 0, z = 0;

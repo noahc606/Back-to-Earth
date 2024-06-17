@@ -22,7 +22,7 @@ public:
 	typedef std::tuple<int64_t, int64_t, int64_t>				t_v3d;
 	typedef std::map<t_v3d, TileRegion>							t_regionMap;
 	/**/
-	void init(SDLHandler* sh, FileHandler* fh, Planet* pt, std::string wdn);
+	void init(SDLHandler* sh, FileHandler* fh, Planet* pt, std::string wdn, int64_t worldSeed);
 	void destroy();
 	/**/
 	void putInfo(std::stringstream& ss, int& tabs);
@@ -72,4 +72,5 @@ private:
 	//World objects
 	Planet* planet = nullptr;
 	std::string worldDirName = "world_unknown";
+	int64_t worldSeed = 0;
 };
