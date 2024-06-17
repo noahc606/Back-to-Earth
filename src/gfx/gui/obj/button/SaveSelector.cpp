@@ -11,7 +11,10 @@ SaveSelector::SaveSelector(Window* parentWindow, int index, std::string dirName,
     SaveSelector::index = index;
     SaveSelector::worldDirName = dirName;
     SaveSelector::worldName = worldName;
+
     SaveSelector::worldDirPath = "saved/games/"+worldDirName;
+    
+    
     SaveSelector::worldSizeDesc = sizeDesc;
 
     width = 340*2;

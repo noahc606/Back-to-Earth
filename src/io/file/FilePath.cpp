@@ -30,6 +30,15 @@ std::string FilePath::getConvertedPath(std::string path, int fsType)
                 res[i] = '\\';
             }
         }
+
+        //Replace all double-backslashes with a single backslash
+        size_t start = 0;
+        while((start = res.find("\\\\", start)) != std::string::npos)
+        {
+            res.replace(start, 2, "\\");
+            start += 1;
+        }
+
     } else if(fsType==SDLHandler::LINUX) {
         //Convert any type of slash to frontslash ('/')
         for( unsigned int i = 0; i<res.size(); i++ ) {

@@ -550,7 +550,7 @@ void GUIBuilder::buildSelectCampaign(GUIHandler& gh, FileHandler& fh)
     int index = 0;
     for(std::string s : saveList) {
         std::string saveDir = s;
-        if(saveDir.substr(0, 12).compare("saved/games/")==0) {
+        if(saveDir.substr(0, 12).compare("saved/games/")==0 || saveDir.substr(0, 12).compare("saved\\games\\")==0) {
             saveDir = saveDir.substr(12);
         }
 

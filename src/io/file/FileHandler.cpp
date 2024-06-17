@@ -298,6 +298,7 @@ std::vector<std::string> FileHandler::listDirContents(std::string parentDir, boo
         for (const auto& dir : dev) {
             std::stringstream ss; ss << dir;
             std::string withoutQuotes = ss.str().substr(1, ss.str().length()-2);
+            withoutQuotes = FilePath::getConvertedPath(withoutQuotes, filesystemType);
             std::string umfp = getUnmodifiedPath(withoutQuotes);
 
             if(listOnlyDirs) {
@@ -630,9 +631,12 @@ std::string FileHandler::getModifiedPath(FilePath fp)
 }
 std::string FileHandler::getUnmodifiedPath(std::string mfp)
 {
-    int len = resourcePath.length();
-    if(mfp.substr(0, len)==resourcePath) {
-        return mfp.substr(len);
+    int len = resourcePath.length()-1;
+    //FilePath fp(mfp, filesystemType);
+    mfp = FilePath::getConvertedPath(mfp, filesystemType);
+
+    if(mfp.substr(0, len)==resourcePath.substr(0, len)) {
+        return mfp.substr(len+1);
     } else {
         //Log::warnv(__PRETTY_FUNCTION__, "returning itself", "Path \"%s\" is not a full path", mfp.c_str());
         return mfp;

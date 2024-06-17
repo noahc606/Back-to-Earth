@@ -79,6 +79,22 @@ void Tests::init(SDLHandler* sh, FileHandler* fh, Controls* ctrls)
 
     CurlHandler curlh;
     curlh.init(sdlHandler);
+
+    std::string s = "C:\\\\Users\\\\noahc\\\\Desktop\\\\Git\\\\BTE\\\\Back-to-Earth\\\\bin\\\\backtoearth\\resources\\\\textures\\\\world\\\\tile\\\\overlay\\\\wall.png";
+    
+    std::cout << "\n\n\n";
+
+    std::cout << s << "\n";
+
+    size_t start = 0;
+    while((start = s.find("\\\\", start)) != std::string::npos)
+    {
+        s.replace(start, 2, "\\");
+        start += 1;
+    }
+
+    //s.replace(s.begin(), s.end(), "\\\\", "\\");
+    std::cout << "new: " << s << "\n";
 }
 
 Tests::~Tests(){}
