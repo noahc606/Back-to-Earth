@@ -26,7 +26,7 @@ void renderSkydomeFisheye(const Vec3F& sunDir, Texture& tex)
     const unsigned width = tex.getTexWidth(), height = tex.getTexHeight();
 
 
-    Vec3F* image = new Vec3F[width * height];
+    Vec3F* image = new Vec3F[width * heigh;t];
     Vec3F* p = image; 
     memset(image, 0x0, sizeof(Vec3F) * width * height); 
     for (unsigned j = 0; j < height; ++j) { 

@@ -399,6 +399,11 @@ void GUIBuilder::buildWorldPauseHowto(GUIHandler& gh)
     gh.addGUI(new Tooltip(w, 30, 92+32*uiY, "-Selected tiles can be placed down with RIGHT MOUSE.", gh.ttp_GENERIC));
     uiY++;
     gh.addGUI(new Tooltip(w, 30, 92+32*uiY, "-Tiles can be destroyed with LEFT MOUSE.", gh.ttp_GENERIC));
+    uiY++;
+    gh.addGUI(new Tooltip(w, 30, 92+32*uiY, "-Use SPACE to jump.", gh.ttp_GENERIC));
+    uiY++;
+    gh.addGUI(new Tooltip(w, 30, 92+32*uiY, "-Use X to sprint in Survival mode or Fly in Sandbox mode.", gh.ttp_GENERIC));
+    uiY++;
     uiY += 2;
 
     gh.addGUI(new Tooltip(w, ch, 92+32*uiY, "Inventory", gh.ttp_GENERIC));
