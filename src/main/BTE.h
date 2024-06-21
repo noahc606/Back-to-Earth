@@ -18,6 +18,7 @@ public:
     void init();
     virtual ~BTE();
     /**/
+    void drawCursor();
     void draw();
     void tick();
     void onWindowUpdate();

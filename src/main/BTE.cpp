@@ -78,9 +78,29 @@ BTE::~BTE()
 
 /**/
 
+void BTE::drawCursor()
+{
+	if(!sdlHandler->usingBTECursor()) return;
+
+	SDL_Rect dst;
+	dst.x = controls->getMouseX()/2*2-2; dst.y = controls->getMouseY()/2*2-2; dst.w = 24; dst.h = 24;
+	SDL_Rect src;
+	src.x = 0; src.y = 0; src.w = 12; src.h = 12;
+
+	if( controls->isPressed("HARDCODE_LEFT_CLICK") ) {
+		src.y = 36;
+	}
+
+	if( controls->isHeld("HARDCODE_LEFT_CLICK") ) {
+		src.y = 24;
+	}
+
+	sdlHandler->renderCopy( TextureLoader::GUI_cursor, &src, &dst );
+}
+
 void BTE::draw()
 {
-	//Gamestate specific objects
+	//Draw gamestate specific objects
 	switch(gamestate) {
 
 		case TESTING:
@@ -96,9 +116,10 @@ void BTE::draw()
 		} break;
 	}
 
-	//GUI handler and debug screen exists for all gamestates
+	//Draw GUIHandler
 	guiHandler.draw();
 	
+	//Draw player within world
 	if(world!=nullptr) {
 		Player* localPlayer = world->getLocalPlayer();
 		PlayerMenu* localPlayerMenu = world->getLocalPlayerMenu();
@@ -113,25 +134,9 @@ void BTE::draw()
 		}
 	}
 	
-	debugScreen.draw();
-
-	if( sdlHandler->usingBTECursor() ) {
-
-		SDL_Rect dst;
-		dst.x = controls->getMouseX()/2*2-2; dst.y = controls->getMouseY()/2*2-2; dst.w = 24; dst.h = 24;
-		SDL_Rect src;
-		src.x = 0; src.y = 0; src.w = 12; src.h = 12;
-
-		if( controls->isPressed("HARDCODE_LEFT_CLICK") ) {
-			src.y = 36;
-		}
-
-		if( controls->isHeld("HARDCODE_LEFT_CLICK") ) {
-			src.y = 24;
-		}
-
-		sdlHandler->renderCopy( TextureLoader::GUI_cursor, &src, &dst );
-	}
+	debugScreen.drawMain();		//Draw debugscreen if applicable
+	debugScreen.drawProfiler();	//Draw debugscreen profiler if applicable
+	drawCursor();				//Draw cursor if applicable
 }
 
 void BTE::tick()

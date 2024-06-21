@@ -18,7 +18,7 @@ DebugScreen::~DebugScreen(){}
 
 /**/
 
-void DebugScreen::draw()
+void DebugScreen::drawMain()
 {
     if( debugDrawTimeLeft>0 ) {
         TextureLoader* tl = sdlHandler->getTextureLoader();
@@ -55,6 +55,11 @@ void DebugScreen::draw()
     if(visible) {
         TextOld::draw(sdlHandler, debugString, 2, 2, 2, fg, bg, TextureLoader::GUI_FONT_robot);
     }
+}
+
+void DebugScreen::drawProfiler()
+{
+
 }
 
 void DebugScreen::tick()

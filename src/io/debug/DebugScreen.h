@@ -11,7 +11,8 @@ public:
     void init(SDLHandler* sH, GUIHandler* guis, Controls* ctrls);
     virtual ~DebugScreen();
     /**/
-    void draw();
+    void drawMain();
+    void drawProfiler();
     void tick();
     /**/
     bool getVisible();

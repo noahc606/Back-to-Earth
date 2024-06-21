@@ -6,6 +6,8 @@
 #include "Main.h"
 #include "MainLoop.h"
 
+const std::vector<std::string> Settings::visibleOptions = {};
+
 Settings::Settings()
 {
 	t_kvMap* s = &(defaultSettings[controls]);

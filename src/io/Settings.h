@@ -49,6 +49,8 @@ public:
         LAST_INDEX,
     };
 
+    static const std::vector<std::string> visibleOptions;
+
 private:
     void loadMap(int index, t_kvMap kvMap);
 
