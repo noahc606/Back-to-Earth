@@ -157,7 +157,6 @@ void TileMapUpdater::updateMapVisible(int loadDist) { updateMapVisible(false, lo
 
 /**
 	Load a given region as fast as the computer can handle it (based on loadCountMax, infoRegLoadTime).
-	Note: Camera direction has no effect on the loadDistH and loadDistV, this is intended.
 */
 void TileMapUpdater::regPillarGenAttempt(FileHandler* fileHandler, int64_t csRX, int64_t csRY, int64_t camCsRZ, int loadDepth)
 {
@@ -168,6 +167,7 @@ void TileMapUpdater::regPillarGenAttempt(FileHandler* fileHandler, int64_t csRX,
 	for(int64_t neg = -1; neg<=1; neg += 2) {
 		for(int64_t diff = 0; diff<=loadDepth; diff++) {
 			int64_t icsRZ = camCsRZ+neg*diff;
+			
 			//If new region load was successful (regions already loaded are not == 0)
 			if( tileMap->loadRegionByCsRXYZ(fileHandler, cam->getAxis(), csRX, csRY, icsRZ)==0 ) {
 				//Increment loadCount
@@ -190,18 +190,25 @@ void TileMapUpdater::updateMapToFINISHED_GENERATING(FileHandler* fileHandler, in
 	//Reset loadCount
 	loadCount = 0;
 
-	for(int i = 0; i<loadCountMax; i++)
-	if(loadCount<=loadCountMax) {
-		Grid grid;
-		grid.updateOrderFinder(sdlHandler, tileMap, cam, loadDist, -1);
-		std::pair<int, int> leXY = grid.getLowestElementXY();
-		if(leXY.first!=-1) {
-			int64_t csRX = cam->getCsRX()-loadDist+leXY.first;
-			int64_t csRY = cam->getCsRY()-loadDist+leXY.second;
-			
-			regPillarGenAttempt(fileHandler, csRX, csRY, cam->getCsRZ(), loadDist);
+	Grid grid0;
+	grid0.updateOrderFinder(sdlHandler, tileMap, cam, loadDist, -1);
+	std::pair<int, int> leXY = grid0.getLowestElementXY();
+	if(leXY.first!=-1) {
+		for(int i = 0; i<loadCountMax; i++)
+		if(loadCount<=loadCountMax) {
+			Grid grid;
+			grid.updateOrderFinder(sdlHandler, tileMap, cam, loadDist, -1);
+			std::pair<int, int> leXY = grid.getLowestElementXY();
+			if(leXY.first!=-1) {
+				int64_t csRX = cam->getCsRX()-loadDist+leXY.first;
+				int64_t csRY = cam->getCsRY()-loadDist+leXY.second;
+				
+				regPillarGenAttempt(fileHandler, csRX, csRY, cam->getCsRZ(), loadDist);
+			}
 		}
 	}
+
+
 
 	/** Performance gauging */
 	if(infoRegLoadCount>infoRegLoadDivisor) {
@@ -215,7 +222,7 @@ void TileMapUpdater::updateMapToFINISHED_GENERATING(FileHandler* fileHandler, in
 	//Regulate loadCountMax depending on performance
 	loadCountMax = std::ceil(allowedLoadTimeMS/infoRegLoadTimeAvg);	//allowedLoadTimeMS => a max of that # of ms on average that we should allow for loading of regions
 	if(loadCountMax<1) loadCountMax = 1;
-	if(loadCountMax>20) loadCountMax = 20;
+	if(loadCountMax>15) loadCountMax = 15;
 }
 
 void TileMapUpdater::updateMapToSHOULD_UPDATE(int loadDist)

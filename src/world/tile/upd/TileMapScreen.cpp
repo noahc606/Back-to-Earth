@@ -133,9 +133,6 @@ void TileMapScreen::tick()
 			doUpdMapVisible = true;
 		}
 
-			// Calculate screen width and screen height
-			//regTexUpdates->setScreenInfo();
-
 		// Check if idle map updates should be done
 		if( true ) {
 			umiTicks++;
