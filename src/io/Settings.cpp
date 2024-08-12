@@ -34,8 +34,7 @@ Settings::Settings()
 		kv(s, "PLAYER_MOVE_SOUTH", SDLK_s);
 		kv(s, "PLAYER_MOVE_WEST", SDLK_a);
 		kv(s, "PLAYER_MOVE_EAST", SDLK_d);
-		kv(s, "PLAYER_MOVE_UP", SDLK_UP);
-		kv(s, "PLAYER_MOVE_DOWN", SDLK_DOWN);
+		kv(s, "PLAYER_NOCLIP", SDLK_LCTRL);
 		kv(s, "PLAYER_MOVE_VERTICAL", SDLK_SPACE);
 
 		//Advanced Movement

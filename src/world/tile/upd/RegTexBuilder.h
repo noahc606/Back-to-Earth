@@ -1,13 +1,14 @@
 #pragma once
 #include <sstream>
 #include "Color.h"
+#include "Planet.h"
 #include "Texture.h"
 #include "TileIterator.h"
 
 class RegTexBuilder
 {
 public:
-	RegTexBuilder(Texture* tex, TileIterator& ti, int camDirection, int blitScale, TileType ttfc, int ttdfc);
+	RegTexBuilder(Texture* tex, Planet* plnt, TileIterator& ti, int camDirection, int blitScale, TileType ttfc, int ttdfc);
 	virtual ~RegTexBuilder();
 	
 	static void info(std::stringstream& ss, int& tabs, TileIterator& ti, int ttdfc);
@@ -38,6 +39,7 @@ private:
 	void drawTypeA(TileIterator& ti, int srcX, int srcY);
 	void drawWallOverlay(int srcX, int srcY);
 	
+	Planet* plnt = nullptr;
 	Texture* tex = nullptr;
 	int dstX = 0;
 	int dstY = 0;

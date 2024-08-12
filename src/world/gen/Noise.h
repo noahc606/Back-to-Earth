@@ -19,7 +19,8 @@ public:
     static int64_t stringSeedToI64Seed(std::string s);
     static float interpolate(float a0, float a1, float w);
     //Hashing functions
-    unsigned hash2ToUint(int ix, int iy);
+    uint32_t hash2ToUint32(int ix, int iy);
+    uint32_t hash3ToUint32(int ix, int iy, int iz);
     uint8_t hash1ToUint8(int val);
     static float hashedGI3dToF(int32_t hash, float x, float y, float z);
     //Gradient generation

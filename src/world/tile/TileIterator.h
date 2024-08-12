@@ -2,6 +2,7 @@
 #include <map>
 #include <tuple>
 #include <vector>
+#include "Defs.h"
 #include "Texture.h"
 #include "TileMap.h"
 #include "TileRegion.h"
@@ -10,10 +11,9 @@
 class TileIterator
 {
 public:
+    TileIterator(std::map<Defs::t_tripleI64, TileRegion>* regMap);
     TileIterator(TileMap* tileMap);
     virtual ~TileIterator();
-
-	Planet* getPlanet();
 
     TileType nextTile();
     TileType prevTile();
@@ -83,7 +83,7 @@ private:
     int testSelectionLoaded();
 
     //TileMap data structure being used
-    TileMap* tileMap = nullptr;
+    std::map<Defs::t_tripleI64, TileRegion>* regMap;
 
     //Iterator info
     int64_t itrIndex = 0;

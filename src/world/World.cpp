@@ -74,8 +74,9 @@ void World::init(SDLHandler* sh, GUIHandler* gh, FileHandler* fh, Controls* ctrl
 	initCanvases();
 	wbg.init(sdlHandler, localPlayer.getCamera(), &planet);
 
-	/* INIT 4: TileMap, TileMapScreen, Minimap */
-	tileMap.init(sdlHandler, fileHandler, &planet, worldDirName, worldSeed);
+	/* INIT 4: StructureMap, TileMap, TileMapScreen, Minimap */
+	struMap.init(worldSeed, localPlayer.getCamera(), 6);
+	tileMap.init(sdlHandler, fileHandler, &planet, &struMap, worldDirName, worldSeed);
 	tileMapScreen.init(sdlHandler, fileHandler, &tileMap, &csTileMap);
 	minimap.init(sdlHandler, localPlayer.getCamera(), &tileMap);
 
@@ -181,7 +182,6 @@ void World::tick(bool paused, GUIHandler& guiHandler)
 	/** Tick world objects if not paused */
 	if( !paused ) {
 		tickWorldObjs();
-		tileMapScreen.tick();
 	} else {
 		//Force-disable character menu when paused
 		lpMenuState = 0;
@@ -209,7 +209,15 @@ void World::tickWorldObjs()
 	/** World objects */
 	planet.tick();
 	wbg.tick();
-	
+	struMap.tick();
+	tileMapScreen.tick();
+
+	//Music, player collision+animation+logic, player menu
+	tickWorldPlayer();
+}
+
+void World::tickWorldPlayer()
+{
 	int pt = playTime;
 	if( pt==200 || pt==60*60*10 || pt==60*60*20 ) {
 		AudioLoader* al = sdlHandler->getAudioLoader();
@@ -229,8 +237,10 @@ void World::tickWorldObjs()
 	localPlayer.collision(&tileMap);
 	localPlayer.tick(&tileMap);
 
+	//Tick player menu
 	localPlayerMenu.tick();
 
+	//Control player state based on menu items
 	if( localPlayerMenu.getInventorySlotItemType(-4, 2)==Items::QUANTUM_EXOSUIT_HELMET &&
 		localPlayerMenu.getInventorySlotItemType(-4, 3)==Items::QUANTUM_EXOSUIT_BODY &&
 		localPlayerMenu.getInventorySlotItemType(-4, 4)==Items::QUANTUM_EXOSUIT_LEGGINGS
@@ -247,39 +257,44 @@ void World::putInfo(std::stringstream& ss, int& tabs)
 
 	//Mouse Info
 	DebugScreen::indentLine(ss, tabs);
-	ss << "Mouse(XYZ)=(" << mouseXL << ", " << mouseYL << ", " << mouseZL << "); ";
+	//ss << "Mouse(XYZ)=(" << mouseXL << ", " << mouseYL << ", " << mouseZL << "); ";
 	ss << "Mouse(xyz)=(" << mouseX << ", " << mouseY << ", " << mouseZ << "); ";
-
 	DebugScreen::newLine(ss);
+	
 	DebugScreen::indentLine(ss, tabs);
 	ss << "World tick=" << performanceCounter << "ms; ";
 	DebugScreen::newLine(ss);
 	
 	if(!true) {
-		DebugScreen::newGroup(ss, tabs, "World::planet");
+		DebugScreen::newGroup(ss, tabs, "planet");
 			planet.putInfo(ss, tabs);
 		DebugScreen::endGroup(tabs);
 	}
 	
 	//Player
-	DebugScreen::newGroup(ss, tabs, "World::player");
+	DebugScreen::newGroup(ss, tabs, "player");
 	localPlayer.putInfo(ss, tabs);
 	DebugScreen::endGroup(tabs);
 
 	//TileMap
-	DebugScreen::newGroup(ss, tabs, "World::tileMap");
+	DebugScreen::newGroup(ss, tabs, "tileMap");
 	if(localPlayer.getCamera()!=nullptr)
 		tileMap.putInfo(ss, tabs);
 	DebugScreen::endGroup(tabs);
+	
+	//StructureMap
+	DebugScreen::newGroup(ss, tabs, "struMap");
+		struMap.putInfo(ss, tabs);
+	DebugScreen::endGroup(tabs);
 
 	//TileMapScreen
-	DebugScreen::newGroup(ss, tabs, "World::tileMapScreen");
+	DebugScreen::newGroup(ss, tabs, "tileMapScreen");
 	tileMapScreen.putInfo(ss, tabs, mouseXL, mouseYL, mouseZL);
 	DebugScreen::endGroup(tabs);
 
 	//Canvas
 	if(!true) {
-		DebugScreen::newGroup(ss, tabs, "CanvasTileMap");
+		DebugScreen::newGroup(ss, tabs, "csTileMap");
 		csTileMap.putInfo(ss, tabs);
 		DebugScreen::endGroup(tabs);
 	}
@@ -447,8 +462,8 @@ void World::playerTryPlaceTile(TileType tt, bool force)
 
 	double placeDist = 0;
 	if(localPlayer.getAction()==Player::SURV_Destroy_Tile || localPlayer.getAction()==Player::SURV_Place_Tile) {
-		Point3D canvasCam(localPlayer.getCamera()->getCsX(), localPlayer.getCamera()->getCsY(), localPlayer.getCamera()->getCsZ());
-		Point3D canvasMouse(mouseCsXL, mouseCsYL, mouseCsZL);
+		Point3X<double> canvasCam(localPlayer.getCamera()->getCsX(), localPlayer.getCamera()->getCsY(), localPlayer.getCamera()->getCsZ());
+		Point3X<double> canvasMouse(mouseCsXL, mouseCsYL, mouseCsZL);
 		placeDist = Vec3F::dist(canvasCam.x, canvasCam.y, canvasCam.z, canvasMouse.x, canvasMouse.y, canvasMouse.z);
 	}
 	if(placeDist>4.) {

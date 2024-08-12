@@ -132,7 +132,7 @@ void RegTexProcessor::processTileArea(TileIterator& ti, Texture* tex, int blitSc
 	TileType topTileFromCam = std::get<1>(tttData); 						//TileType of top tile from camera
 
 	//Create RegTexBuilder
-	RegTexBuilder rtb(tex, ti, cam->getDirection(), blitScale, topTileFromCam, dZ);
+	RegTexBuilder rtb(tex, tileMap->getPlanet(), ti, cam->getDirection(), blitScale, topTileFromCam, dZ);
 }
 
 /*
@@ -174,7 +174,7 @@ void RegTexProcessor::buildRegionArea(int64_t csRX, int64_t csRY)
 			int64_t depth = ctt.first;
 			TileType tt = ctt.second;
 			int blitScale = 32.0*Canvas::getTexLODBasedOnZoom(cam->getZoom());
-			RegTexBuilder rtb(tex, ti, cam->getDirection(), blitScale, tt, depth);
+			RegTexBuilder rtb(tex, tileMap->getPlanet(), ti, cam->getDirection(), blitScale, tt, depth);
 		}
 	}
 }

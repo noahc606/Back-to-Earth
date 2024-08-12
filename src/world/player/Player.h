@@ -3,7 +3,6 @@
 #include "BTEObject.h"
 #include "Canvas.h"
 #include "Camera.h"
-#include "CollidingVolume.h"
 #include "ColorPalette.h"
 #include "GUIHandler.h"
 #include "Loggable.h"
@@ -62,8 +61,8 @@ public:
 	void putInfo(std::stringstream& ss, int& tabs);
 	/**/
 	int getAction();
-	Box3D getBounds(int bbt);
-	Box3D getBounds();
+	Box3X<double> getBounds(int bbt);
+	Box3X<double> getBounds();
 	bool getCollideState();
 	std::tuple<double, double, double> getPos();
 	std::tuple<double, double, double> getVelComponents();

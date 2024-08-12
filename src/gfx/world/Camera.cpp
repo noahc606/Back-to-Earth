@@ -13,22 +13,6 @@ void Camera::init(SDLHandler* sh, Controls* ctrls)
 
 void Camera::tick()
 {
-	if( freecam ) {
-		float flySpeed = 0.05;
-		if( controls->isHeld("PLAYER_SPRINT") ) flySpeed = 0.5;
-		if( controls->isHeld("PLAYER_CROUCH") ) flySpeed = 0.01;
-		if( controls->isHeld("PLAYER_CROUCH") && controls->isHeld("PLAYER_SPRINT") ) {
-			flySpeed = 10;
-		}
-		
-		if( controls->isHeld("PLAYER_MOVE_WEST" ) ) x=x-flySpeed;
-		if( controls->isHeld("PLAYER_MOVE_EAST" ) ) x=x+flySpeed;
-		if( controls->isHeld("PLAYER_MOVE_SOUTH") ) y=y+flySpeed;
-		if( controls->isHeld("PLAYER_MOVE_NORTH") ) y=y-flySpeed;
-		if( controls->isHeld("PLAYER_MOVE_DOWN" ) ) z=z-flySpeed;
-		if( controls->isHeld("PLAYER_MOVE_UP"   ) ) z=z+flySpeed;
-	}
-
     if(!focused) {
 		/* Control zoom */
 		if(controls->isHeld("MAP_USE_ZOOM")) {

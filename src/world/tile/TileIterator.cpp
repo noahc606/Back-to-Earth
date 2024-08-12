@@ -5,9 +5,9 @@
 #include <SDL2/SDL.h>
 #include "Log.h"
 
-TileIterator::TileIterator(TileMap* p_tileMap)
+TileIterator::TileIterator(std::map<Defs::t_tripleI64, TileRegion>* regMap)
 {
-    tileMap = p_tileMap;
+    TileIterator::regMap = regMap;
 
     logWarnings(false);
     resetRegionPtrs();
@@ -15,15 +15,9 @@ TileIterator::TileIterator(TileMap* p_tileMap)
     setTrackerMode(FULL);
 }
 
-TileIterator::~TileIterator(){}
+TileIterator::TileIterator(TileMap* tileMap): TileIterator(tileMap->getRegionMap()){}
 
-Planet* TileIterator::getPlanet()
-{
-	if( tileMap!=nullptr ) {
-		return tileMap->getPlanet();
-	}
-	return nullptr;
-}
+TileIterator::~TileIterator(){}
 
 /**
     Advances iterator by 1 tile.
@@ -463,32 +457,32 @@ void TileIterator::updateRegionPtrs()
     switch(trackingMode)
     {
         case RegionTrackingModes::SINGLE: {
-            nearbyTileRegions[1][1][1] = tileMap->getRegByRXYZ( itrReg[0], itrReg[1], itrReg[2] );
+            nearbyTileRegions[1][1][1] = TileMap::getRegByRXYZ(regMap, itrReg[0], itrReg[1], itrReg[2]);
         } break;
         case RegionTrackingModes::DOWN_1: {
-            nearbyTileRegions[1][1][1] = tileMap->getRegByRXYZ( itrReg[0], itrReg[1], itrReg[2] );
-            nearbyTileRegions[1][1][0] = tileMap->getRegByRXYZ( itrReg[0], itrReg[1], itrReg[2]-1 );
+            nearbyTileRegions[1][1][1] = TileMap::getRegByRXYZ(regMap, itrReg[0], itrReg[1], itrReg[2]);
+            nearbyTileRegions[1][1][0] = TileMap::getRegByRXYZ(regMap, itrReg[0], itrReg[1], itrReg[2]-1);
         } break;
         case RegionTrackingModes::ADJACENT: {
-            nearbyTileRegions[1][1][1] = tileMap->getRegByRXYZ( itrReg[0], itrReg[1], itrReg[2] );
+            nearbyTileRegions[1][1][1] = TileMap::getRegByRXYZ(regMap, itrReg[0], itrReg[1], itrReg[2]);
             for( int x = -1; x<=1; x += 2 )
-                nearbyTileRegions[x+1][1][1] = tileMap->getRegByRXYZ( itrReg[0]+x, itrReg[1], itrReg[2] );
+                nearbyTileRegions[x+1][1][1] = TileMap::getRegByRXYZ(regMap, itrReg[0]+x, itrReg[1], itrReg[2]);
             for( int y = -1; y<=1; y += 2 )
-                nearbyTileRegions[1][y+1][1] = tileMap->getRegByRXYZ( itrReg[0], itrReg[1]+y, itrReg[2] );
+                nearbyTileRegions[1][y+1][1] = TileMap::getRegByRXYZ(regMap, itrReg[0], itrReg[1]+y, itrReg[2]);
             for( int z = -1; z<=1; z += 2 )
-                nearbyTileRegions[1][1][z+1] = tileMap->getRegByRXYZ( itrReg[0], itrReg[1], itrReg[2]+z );
+                nearbyTileRegions[1][1][z+1] = TileMap::getRegByRXYZ(regMap, itrReg[0], itrReg[1], itrReg[2]+z);
         } break;
         case RegionTrackingModes::FULL: {
             for( int x = -1; x<2; x++ ) {
                 for( int y = -1; y<2; y++ ) {
                     for( int z = -1; z<2; z++ ) {
-                        nearbyTileRegions[x+1][y+1][z+1] = tileMap->getRegByRXYZ( itrReg[0]+x, itrReg[1]+y, itrReg[2]+z );
+                        nearbyTileRegions[x+1][y+1][z+1] = TileMap::getRegByRXYZ(regMap, itrReg[0]+x, itrReg[1]+y, itrReg[2]+z);
                     }
                 }
             }
         } break;
         default: {
-            nearbyTileRegions[1][1][1] = tileMap->getRegByRXYZ( itrReg[0], itrReg[1], itrReg[2] );
+            nearbyTileRegions[1][1][1] = TileMap::getRegByRXYZ(regMap, itrReg[0], itrReg[1], itrReg[2]);
         } break;
     }
 }
@@ -505,7 +499,7 @@ int TileIterator::testSelectionLoaded()
     for( int x = begReg[0]; x<=endReg[0]; x++ ) {
         for( int y = begReg[1]; y<=endReg[1]; y++ ) {
             for( int z = begReg[2]; z<=endReg[2]; z++ ) {
-                if( tileMap->getRegByRXYZ(x, y, z)==nullptr ) {
+                if( TileMap::getRegByRXYZ(regMap, x, y, z)==nullptr ) {
 
                     boundsInvalid = true;
 

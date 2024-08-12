@@ -117,6 +117,8 @@ void Player::tick(TileMap* tm)
 	//Losing oxygen - 100 points. Losing 0.015/tick = lasts 2min 46sec. May be shorter depending on sprinting/swimming/etc.
 	if(spaceSuitState!=SpaceSuitStates::STABLE) {
 		oxygen -= 0.015;
+		AudioLoader* al = sdlHandler->getAudioLoader();
+		al->playOnce(AudioLoader::SFX_WORLD_air_release_1);
 	} else {
 		oxygen += 0.1;
 	}
@@ -183,6 +185,9 @@ void Player::tick(TileMap* tm)
 	if(!noclip && !snapD) {
 		az = 9.81/1600.;	//9.81m/(40ticks)^2 = 9.81m/sec^2
 	}
+	if(noclip) {
+		az = 0;
+	}
 //Based on snap calculated last tick cancel certain acceleration and velocity if necessary.
 	if( (snapE && (vx>0||ax>0)) || (snapW && (vx<0||ax<0)) ) { 	vx = 0; ax = 0; }	//If snapped East/West
 	if( (snapS && (vy>0||ay>0)) || (snapN && (vy<0||ay<0)) ) {	vy = 0; ay = 0;	}	//If snapped South/North
@@ -227,11 +232,13 @@ void Player::tickControls()
 	if( controls->isHeld("PLAYER_CROUCH") ) speed = 0.009;
 	if( godMode ) {
 		if( controls->isHeld("PLAYER_SPRINT") ) {
-			noclip = true;
 			speed = runSpeed;
 			if ( controls->isHeld("PLAYER_CROUCH") ) {
 				speed = 1000;
 			}
+		}
+		if(controls->isHeld("PLAYER_NOCLIP")) {
+			noclip = true;
 		}
 	}
 
@@ -255,32 +262,25 @@ void Player::tickControls()
 	double mv1 = 0;
 	double mv2 = 0;
 	double mv3 = 0;
-	if( controls->isHeld("PLAYER_MOVE_NORTH")	) mv2 = -speed;		//-mv2: Move 'up' from this perspective
-	if( controls->isHeld("PLAYER_MOVE_SOUTH")	) mv2 =  speed;		// mv2: Move 'down' from this perspective
+	if( controls->isHeld("PLAYER_MOVE_NORTH")	) mv2 = -speed;		//-mv2: Move 'forward' from this perspective
+	if( controls->isHeld("PLAYER_MOVE_SOUTH")	) mv2 =  speed;		// mv2: Move 'backward' from this perspective
 	if( controls->isHeld("PLAYER_MOVE_WEST")	) mv1 = -speed;		//-mv1: Move 'left' from this perspective
 	if( controls->isHeld("PLAYER_MOVE_EAST")	) mv1 =  speed;		// v1: Move 'right' from this perspective
-	if( controls->isHeld("PLAYER_MOVE_UP")		) mv3 = -speed;		//-v3: Move 'backward' from this perspective
-	if( controls->isHeld("PLAYER_MOVE_DOWN")	) mv3 =  speed;		// v3: Move 'forward' from this perspective
+	if( controls->isHeld("PLAYER_JUMP")			) mv3 = -speed;		//-v3: Move vertically up
 
 	//Depending on camera direction, apply velocity in the appropriate direction.
 	switch(camera.getDirection()) {
-		case Camera::NORTH: case Camera::SOUTH: {
-			vx = mv1;
-			vy = mv3;
-			if(noclip) vz = mv2;
-		} break;
-		
-		case Camera::EAST: case Camera::WEST: {
-			vx = mv3;
-			vy = mv1;
-			if(noclip) vz = mv2;
-		} break;
-		
-		case Camera::DOWN: case Camera::UP: {
+		default: {
 			vx = mv1;
 			vy = mv2;
-			if(noclip) vz = mv3;
 		} break;
+		case Camera::EAST: case Camera::WEST: {
+			vx = mv2;
+			vy = mv1;
+		} break;
+	}
+	if(noclip) {
+		vz = mv3;
 	}
 }
 
@@ -351,7 +351,7 @@ void Player::putInfo(std::stringstream& ss, int& tabs)
 	ss << "XYZ=(" << x << ", " << y << ", " << z << "); ";
 	DebugScreen::newLine(ss);
 
-	if(true) {
+	if(!true) {
 		DebugScreen::indentLine(ss, tabs);
 		ss << "vXYZ=(" << vx << ", " << vy << ", " << vz << "); ";
 		DebugScreen::newLine(ss);
@@ -360,7 +360,7 @@ void Player::putInfo(std::stringstream& ss, int& tabs)
 		DebugScreen::newLine(ss);
 	}
 
-	if(true) {
+	if(!true) {
 		DebugScreen::indentLine(ss, tabs);
 		ss << "snap(NESWUD)=(" << snapN << ", " << snapE << ", " << snapS << ", " << snapW << ", " << snapU << ", " << snapD << ")";
 	}
@@ -378,9 +378,9 @@ void Player::putInfo(std::stringstream& ss, int& tabs)
 
 int Player::getAction() { return action; }
 
-Box3D Player::getBounds(int bbt)
+Box3X<double> Player::getBounds(int bbt)
 {
-	Box3D b3d;
+	Box3X<double> b3d;
 	b3d.c1.x = x-unit*11.;	b3d.c2.x = x+unit*11.;
 	b3d.c1.y = y-unit*11.;	b3d.c2.y = y+unit*11.;
 	b3d.c1.z = z+4.*unit;	b3d.c2.z = z+2;
@@ -421,7 +421,7 @@ Box3D Player::getBounds(int bbt)
 
 	return b3d;
 }
-Box3D Player::getBounds() { return getBounds(MAIN); }
+Box3X<double> Player::getBounds() { return getBounds(MAIN); }
 
 
 std::tuple<double, double, double> Player::getPos() { return std::make_tuple(x, y, z); }

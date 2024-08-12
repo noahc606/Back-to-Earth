@@ -7,11 +7,14 @@
 #include "TileIterator.h"
 #include "TileType.h"
 
-void TileMap::init(SDLHandler* sh, FileHandler* fh, Planet* pt, std::string wdn, int64_t worldSeed)
+void TileMap::init(SDLHandler* sh, FileHandler* fh, Planet* pt, StructureMap* struMap, std::string wdn, int64_t worldSeed)
 {
 	sdlHandler = sh;
 	fileHandler = fh;
 	planet = pt;
+
+	TileMap::struMap = struMap;
+
 	worldDirName = wdn;
 	TileMap::worldSeed = worldSeed;
 }
@@ -78,13 +81,15 @@ TileRegion* TileMap::getRegByXYZ(int64_t x, int64_t y, int64_t z)
     return getRegByRXYZ(x, y, z);
 }
 
-TileRegion* TileMap::getRegByRXYZ(int64_t rX, int64_t rY, int64_t rZ)
+TileRegion* TileMap::getRegByRXYZ(t_regionMap* regMap, int64_t rX, int64_t rY, int64_t rZ)
 {
-    t_regionMap::iterator itr = regionMap.find( std::make_tuple(rX, rY, rZ) );
-    if ( itr!=regionMap.end() )
+    t_regionMap::iterator itr = regMap->find( std::make_tuple(rX, rY, rZ) );
+    if ( itr!=regMap->end() )
         return &itr->second;
     return nullptr;
 }
+
+TileRegion* TileMap::getRegByRXYZ(int64_t rX, int64_t rY, int64_t rZ) { return getRegByRXYZ(&regionMap, rX, rY, rZ); }
 
 /*
 	Get region given a canvas region location.
@@ -113,7 +118,7 @@ void TileMap::convRxyzToLSRxyz(int64_t& rx, int64_t& ry, int64_t& rz) { rx = con
 /*
 	Do any tiles in the TileMap collide with Box 'b'?
 */
-bool TileMap::collides(Box3D b, int64_t& cx, int64_t& cy, int64_t& cz)
+bool TileMap::collides(Box3X<double> b, int64_t& cx, int64_t& cy, int64_t& cz)
 {
     TileIterator ti(this);
 
@@ -140,8 +145,8 @@ bool TileMap::collides(Box3D b, int64_t& cx, int64_t& cy, int64_t& cz)
 					int64_t y = ti.getItrReg(1)*32+sy;
 					int64_t z = ti.getItrReg(2)*32+sz;
 					//Build tileBox and check for collision against it
-					Box3D tileBox(x, y, z, x+1, y+1, z+1);
-					if(b.intersects(tileBox)) {
+					Box3X<double> tileBox(x, y, z, x+1, y+1, z+1);
+					if(b.collides(tileBox)) {
 						cx = x; cy = y; cz = z;
 						return true;
 					}
@@ -153,7 +158,7 @@ bool TileMap::collides(Box3D b, int64_t& cx, int64_t& cy, int64_t& cz)
 	return false;
 }
 
-bool TileMap::collides(Box3D b)
+bool TileMap::collides(Box3X<double> b)
 {
 	int64_t x, y, z = 0;
 	return collides(b, x, y, z);
@@ -179,6 +184,37 @@ int TileMap::setTileByCsXYZ(Camera* cam, int64_t csX, int64_t csY, int64_t csZ, 
 	return setTile(csX, csY, csZ, tt);
 }
 
+void TileMap::setStructureWithinReg(Structure* stru, TileRegion& tr, int64_t rX, int64_t rY, int64_t rZ)
+{
+	//Log::log("Building structure within RXYZ(%d, %d, %d)", rX, rY, rZ);
+
+	//Get relevant structure bounds and world bounds
+	Box3X sb = stru->getBounds();
+	Box3X<int64_t> wb(rX*32, rY*32, rZ*32, rX*32+31, rY*32+31, rZ*32+31);
+	
+	//TileIterator thru Structure (tiS).
+	//Set bounds within tiS to be the part of the structure to be generated (32x32x32 regardless of whether near an edge or not)
+	TileIterator tiS(stru->getRegionMap());
+	tiS.setBounds(
+		wb.c1.x-sb.c1.x, wb.c1.y-sb.c1.y, wb.c1.z-sb.c1.z,
+		wb.c2.x-sb.c1.x, wb.c2.y-sb.c1.y, wb.c2.z-sb.c1.z
+	);
+	// ^ 
+	//Some regions may not be loaded within the TileIterator bounds(). Make TileIterator work when some regions are unloaded
+	//Could make unloaded regions simply refer to an empty TileRegion?
+
+	tiS.setTrackerMode(tiS.FULL);
+	for(int sx = 0; sx<32; sx++)
+	for(int sy = 0; sy<32; sy++)
+	for(int sz = 0; sz<32; sz++) {
+		TileType tisTile = tiS.peekTrackedTile(sx, sy, sz);
+		if(tisTile.getVal()!=0x0) {
+			int16_t idx = tr.addToPalette(tisTile, true);
+			tr.setTile(sx, sy, sz, idx);
+		}
+	}
+}
+
 /*
 	Given a nonexistent region (rX, rY, rZ), create the region, generate its terrain, and load its artificial tiles from file.
 	Returns: 0 if successful, -1 if region already existed.
@@ -198,6 +234,12 @@ int TileMap::loadRegion(FileHandler* fileHandler, int64_t rX, int64_t rY, int64_
 		terra.populateRegion(tr, rX, rY, rZ);
 		tr.setRegTexState(tr.FINISHED_GENERATING);
 		
+		//Place tiles that are part of structures
+		std::vector<Structure*> regStructures = struMap->getStructuresInRXYZ(rX, rY, rZ);
+		for(Structure* stru : regStructures) {
+			setStructureWithinReg(stru, tr, rX, rY, rZ);
+		}
+
 		//Place region's artificial tiles
 		tr.load(fileHandler, worldDirName, rX, rY, rZ);
 		

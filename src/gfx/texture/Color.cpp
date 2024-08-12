@@ -103,6 +103,7 @@ std::tuple<double, double, double> Color::toHSV()
 	//Value
 	double v = 100.0*cmax;
 	
+	if(std::isnan(h)) { h = 0; }
 	return std::make_tuple(h, s, v);
 }
 

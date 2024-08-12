@@ -9,6 +9,7 @@ cmake_minimum_required(VERSION 3.5)
 
 if (WIN32)
     set(PROJ_OUT "Back-to-Earth-windows")
+    set(CMAKE_WIN32_EXECUTABLE TRUE)
 endif (WIN32)
 if (UNIX)
     set(PROJ_OUT "Back-to-Earth-unix")

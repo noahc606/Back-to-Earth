@@ -9,6 +9,7 @@
 #include "PlayerMenu.h"
 #include "RegTexInfo.h"
 #include "STexture.h"
+#include "StructureMap.h"
 #include "Texture.h"
 #include "TileMap.h"
 #include "TileMapScreen.h"
@@ -27,6 +28,7 @@ public:
 	void draw(bool debugOn);
 	void tick(bool paused, GUIHandler& guiHandler);
 	void tickWorldObjs();
+	void tickWorldPlayer();
 	/**/
     void putInfo(std::stringstream& ss, int& tabs);
 	Planet* getPlanet();
@@ -50,6 +52,7 @@ private:
 	double mouseX = 0; double mouseY = 0; double mouseZ = 0;
 	int64_t mouseXL = 0; int64_t mouseYL = 0; int64_t mouseZL = 0;
 	
+	StructureMap struMap;
 	TileMap tileMap;
 	TileMapScreen tileMapScreen;
 	RegTexInfo regTexInfo;

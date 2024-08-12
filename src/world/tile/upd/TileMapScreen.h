@@ -5,7 +5,6 @@
 #include <vector>
 #include "BTEObject.h"
 #include "Canvas.h"
-#include "Defs.h"
 #include "Planet.h"
 #include "Player.h"
 #include "RegTexInfo.h"

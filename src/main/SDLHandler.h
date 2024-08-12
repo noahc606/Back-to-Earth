@@ -3,7 +3,6 @@
 #include <string>
 #include "AudioLoader.h"
 #include "Color.h"
-#include "Settings.h"
 #include "TextureLoader.h"
 
 class SDLHandler

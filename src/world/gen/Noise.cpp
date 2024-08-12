@@ -24,11 +24,11 @@ static const uint8_t perm[256] = {
     138, 236, 205, 93, 222, 114, 67, 29, 24, 72, 243, 141, 128, 195, 78, 66, 215, 61, 156, 180
 };
 
-Noise::Noise(int64_t p_seed)
+Noise::Noise(int64_t seed)
 {
     //Set randGradientFactor based on seed
-    if(p_seed!=0) {
-        srand(p_seed);
+    if(seed!=0) {
+        srand(seed);
         gHashSeed = rand();
         if(gHashSeed==0) {
             gHashSeed = 1;
@@ -36,8 +36,8 @@ Noise::Noise(int64_t p_seed)
     }
 }
 
-Noise::Noise(std::string p_seed):
-Noise( stringSeedToI64Seed(p_seed) ){}
+Noise::Noise(std::string seed):
+Noise( stringSeedToI64Seed(seed) ){}
 Noise::~Noise(){}
 
 inline int32_t Noise::fastfloor(float fp) {
@@ -62,16 +62,16 @@ float Noise::interpolate(float a0, float a1, float w) {
     return (a1-a0)*(3.0-w*2.0)*(w*w)+a0;
 }
 
-unsigned Noise::hash2ToUint(int ix, int iy)
+uint32_t Noise::hash2ToUint32(int ix, int iy)
 {
     //Copy ix, iy into a, b
-    unsigned a = ix;
-    unsigned b = iy;
+    uint32_t a = ix;
+    uint32_t b = iy;
 
     //Return random unsigned value (a) based on ix, iy, and gHashSeed.
     //For any input (ix, iy, gHashSeed), the same output will be returned every single time. 
-    const unsigned w = 8*sizeof(unsigned);
-    const unsigned s = w/2; //rotation width
+    const uint32_t w = 8*sizeof(uint32_t);
+    const uint32_t s = w/2; //rotation width
     a *= 3284157443; b ^= a<<s|a>>(w-s);
     b *= 1911520717; a ^= b<<s|b>>(w-s);
     a *= 2048419325;
@@ -81,9 +81,13 @@ unsigned Noise::hash2ToUint(int ix, int iy)
     return a;
 }
 
+uint32_t Noise::hash3ToUint32(int ix, int iy, int iz)
+{
+    return hash2ToUint32((int)hash2ToUint32(ix, iy), iz);
+}
+
 uint8_t Noise::hash1ToUint8(int val) {
     return perm[static_cast<uint8_t>(val)];
-    //return hash2ToUint(val, val);
 }
 
 float Noise::hashedGI3dToF(int32_t hash, float x, float y, float z) {
@@ -95,7 +99,7 @@ float Noise::hashedGI3dToF(int32_t hash, float x, float y, float z) {
 
 Noise::vec2D Noise::gradient2D(int ix, int iy) {    
     //Generate random value within [0, 2*Pi]
-    double random = hash2ToUint(ix, iy)*(3.14159265/~(~0u>>1));
+    double random = hash2ToUint32(ix, iy)*(3.14159265/~(~0u>>1));
     
     //Take random value as an angle, return corresponding 2D vector
     vec2D v;

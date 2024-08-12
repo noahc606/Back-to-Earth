@@ -2,10 +2,11 @@
 #include "DebugScreen.h"
 #include <math.h>
 
-RegTexBuilder::RegTexBuilder(Texture* tex, TileIterator& ti, int camDirection, int blitScale, TileType ttfc, int ttdfc)
+RegTexBuilder::RegTexBuilder(Texture* tex, Planet* plnt, TileIterator& ti, int camDirection, int blitScale, TileType ttfc, int ttdfc)
 {
-	//Store blit's texture, size and destination
+	//Store blit's texture, size and destinationo
 	RegTexBuilder::tex = tex;
+	RegTexBuilder::plnt = plnt;
 	RegTexBuilder::blitScale = blitScale;
 
 	switch (Camera::getAxisFromDirection(camDirection)) {
@@ -269,10 +270,9 @@ void RegTexBuilder::drawTypeA(TileIterator& ti, int srcX, int srcY, Color c)
 			depth = 6;
 		}
 		
-		Planet* pt = ti.getPlanet();
 		Color skyColor;
-		if( pt!=nullptr ) {
-			skyColor = pt->getSkyColor();
+		if( plnt!=nullptr ) {
+			skyColor = plnt->getSkyColor();
 		}
 		
 		tex->rect( dstX, dstY, blitScale, blitScale, skyColor.r/5, skyColor.g/5, skyColor.b/5, 40*(depth-1), SDL_BLENDMODE_BLEND);

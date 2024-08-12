@@ -196,7 +196,7 @@ void SDLHandler::createSubsystems()
     }
 	
     //Init SDL_mixer
-    flags = MIX_INIT_MP3;
+    flags = MIX_INIT_MP3 | MIX_INIT_OGG;
     if( (Mix_Init(flags)&flags)!=flags ) {
         Log::error( __PRETTY_FUNCTION__, "Failed to Mix_Init()!", Mix_GetError() );
     }

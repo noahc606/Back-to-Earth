@@ -62,7 +62,7 @@ private:
 	};
 	
 	enum TechnicalTiles {
-		PLACED_SPACE =  0x8000000000000000,		//Same as space vacuum (0x0). However, this gets saved as an artificial tile whereas space vacuum can never be artificial.
+		PLACED_SPACE =  0x8000000000000000,		//Acts the same as space vacuum (0x0). However, this gets saved as an artificial tile whereas space vacuum can never be artificial.
 	};
 
 	bool null = true;

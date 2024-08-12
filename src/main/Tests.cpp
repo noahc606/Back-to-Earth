@@ -68,6 +68,62 @@ void renderSkydomeFisheye(const Vec3F& sunDir, Texture& tex)
     delete[] image; 
 }*/
 
+#undef get16bits
+#if (defined(__GNUC__) && defined(__i386__)) || defined(__WATCOMC__) \
+  || defined(_MSC_VER) || defined (__BORLANDC__) || defined (__TURBOC__)
+#define get16bits(d) (*((const uint16_t *) (d)))
+#endif
+
+#if !defined (get16bits)
+#define get16bits(d) ((((uint32_t)(((const uint8_t *)(d))[1])) << 8)\
+                       +(uint32_t)(((const uint8_t *)(d))[0]) )
+#endif
+
+uint32_t SuperFastHash (const char * data, int len) {
+    uint32_t hash = len, tmp;
+    int rem;
+
+    if (len <= 0 || data == NULL) return 0;
+
+    rem = len & 3;
+    len >>= 2;
+
+    /* Main loop */
+    for (;len > 0; len--) {
+        hash  += get16bits (data);
+        tmp    = (get16bits (data+2) << 11) ^ hash;
+        hash   = (hash << 16) ^ tmp;
+        data  += 2*sizeof (uint16_t);
+        hash  += hash >> 11;
+    }
+
+    /* Handle end cases */
+    switch (rem) {
+        case 3: hash += get16bits (data);
+                hash ^= hash << 16;
+                hash ^= ((signed char)data[sizeof (uint16_t)]) << 18;
+                hash += hash >> 11;
+                break;
+        case 2: hash += get16bits (data);
+                hash ^= hash << 11;
+                hash += hash >> 17;
+                break;
+        case 1: hash += (signed char)*data;
+                hash ^= hash << 10;
+                hash += hash >> 1;
+    }
+
+    /* Force "avalanching" of final 127 bits */
+    hash ^= hash << 3;
+    hash += hash >> 5;
+    hash ^= hash << 4;
+    hash += hash >> 17;
+    hash ^= hash << 25;
+    hash += hash >> 6;
+
+    return hash;
+}
+
 void Tests::init(SDLHandler* sh, FileHandler* fh, Controls* ctrls)
 {
 	sdlHandler = sh;
@@ -77,24 +133,23 @@ void Tests::init(SDLHandler* sh, FileHandler* fh, Controls* ctrls)
     assetList(fileHandler);
     al = sdlHandler->getAudioLoader();
 
-    CurlHandler curlh;
-    curlh.init(sdlHandler);
+    int64_t seed = 0xFFFFFFFFFFFFFFFF;
 
-    std::string s = "C:\\\\Users\\\\noahc\\\\Desktop\\\\Git\\\\BTE\\\\Back-to-Earth\\\\bin\\\\backtoearth\\resources\\\\textures\\\\world\\\\tile\\\\overlay\\\\wall.png";
-    
-    std::cout << "\n\n\n";
-
-    std::cout << s << "\n";
-
-    size_t start = 0;
-    while((start = s.find("\\\\", start)) != std::string::npos)
-    {
-        s.replace(start, 2, "\\");
-        start += 1;
+    char* data = (char*)malloc(sizeof(char)*16 + sizeof(int64_t));
+    for(int i = 0; i<16; i++) {
+        data[i] = 0b00000000;
     }
 
-    //s.replace(s.begin(), s.end(), "\\\\", "\\");
-    std::cout << "new: " << s << "\n";
+    uint64_t kings = 0xffffffffffffffffULL; 
+    kings = kings << 4;
+    //std::cout << kings << "\n";
+
+    printf("%" PRIx64 "\n", kings);
+    
+    uint32_t x = SuperFastHash(data, 24);
+    delete[] data;
+
+    printf("hashed: %" PRIu32 "\n", x);
 }
 
 Tests::~Tests(){}

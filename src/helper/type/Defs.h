@@ -7,8 +7,10 @@
 class Defs
 {
 public:
-    typedef std::map<int, std::vector<SDL_Texture*>> t_textureAtlasesMap;
+    typedef std::map<int, std::vector<SDL_Texture*>>    t_textureAtlasesMap;
     typedef std::map<int, Mix_Chunk*> t_audioChunkMap;
+
+    typedef std::tuple<int64_t, int64_t, int64_t>       t_tripleI64;
 
 protected:
 
