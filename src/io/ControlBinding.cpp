@@ -1,7 +1,7 @@
 #include "ControlBinding.h"
+#include <nch/cpp-utils/io/Log.h>
 #include <sstream>
 #include <string>
-#include <Log.h>
 
 ControlBinding::ControlBinding(){}
 
@@ -42,7 +42,7 @@ ControlBinding::ControlBinding(int p_type, std::string p_id)
             ss << "ControlBinding type " << p_type << " ";
             ss << "and string ID \"" << p_id << "\" ";
             ss << "are not compatible!";
-            Log::warn(__PRETTY_FUNCTION__, ss.str(), "setting every ControlBinding property to defaults");
+            NCH_Log::warn(__PRETTY_FUNCTION__, ss.str(), "setting every ControlBinding property to defaults");
 
             reset();
         } break;

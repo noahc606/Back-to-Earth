@@ -1,9 +1,9 @@
 #include "StructureMap.h"
+#include <nch/cpp-utils/io/Log.h>
+#include <nch/sdl-utils/Timer.h>
 #include "CollectionUtils.h"
 #include "DebugScreen.h"
-#include "Log.h"
 #include "Noise.h"
-#include "Timer.h"
 
 const int64_t StructureMap::msrs = 4;
 
@@ -55,8 +55,8 @@ std::vector<Structure*> StructureMap::getStructuresInRXYZ(int64_t rX, int64_t rY
     std::vector<Structure*> res;
     for(Structure* stru : structures) {
         Box3X<int64_t> regBox;
-        regBox.c1 = Point3X(rX*32, rY*32, rZ*32);
-        regBox.c2 = Point3X(rX*32+31, rY*32+31, rZ*32+31);
+        regBox.c1 = Point3X<int64_t>(rX*32, rY*32, rZ*32);
+        regBox.c2 = Point3X<int64_t>(rX*32+31, rY*32+31, rZ*32+31);
 
         if(stru->getBounds().intersects(regBox)) {
             res.push_back(stru);
@@ -74,7 +74,7 @@ void StructureMap::populateRegionsNear(int64_t stRX, int64_t stRY, int64_t stRZ,
         return;
     }
 
-    Timer t("poptime", false);
+    NCH_Timer t("poptime", false);
 
     Noise n(gSeed);
     CollectionUtils cu;
@@ -90,12 +90,18 @@ void StructureMap::populateRegionsNear(int64_t stRX, int64_t stRY, int64_t stRZ,
                 int64_t rX = iStRX*4+iDRX, rY = iStRY*4+iDRY, rZ = iStRZ*4+iDRZ;
                 int64_t x = rX*32, y = rY*32, z = rZ*32;
 
+                if(rX==0 && rY==0 && rZ==-2) {
+                    NCH_Log::log("Generated ship @ (%d, %d, %d)", rX, rY, rZ);
+                    Point3X<int64_t> shipOrigin(x, y, z);
+                    structures.push_back(new Structure(Structure::CRASHED_SHIP, shipOrigin));
+                }
+
                 uint32_t miniseed = n.hash3ToUint32(rX, rY, rZ);
                 srand(miniseed);
                 if(std::abs(rand())%1==0) {
-                    Log::log("Generated structure @ (%d, %d, %d)", rX, rY, rZ);
-                    Point3X<int64_t> origin(x, y, z);
-                    structures.push_back( new Structure(0, origin) );
+                    //Log::log("Generated structure @ (%d, %d, %d)", rX, rY, rZ);
+                    //Point3X<int64_t> origin(x, y, z);
+                    //structures.push_back( new Structure(0, origin) );
                 }
             }
 

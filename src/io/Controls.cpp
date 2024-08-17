@@ -1,9 +1,9 @@
 #include "Controls.h"
 #include <iostream>
+#include <nch/cpp-utils/io/Log.h>
 #include <sstream>
 #include <string>
 #include "FileHandler.h"
-#include "Log.h"
 #include "Main.h"
 #include "MainLoop.h"
 
@@ -102,7 +102,7 @@ bool Controls::is(std::string action, std::string id)
     } else {
         ss << "Control binding '" << id << "' doesn't exist";
     }
-    Log::warn(__PRETTY_FUNCTION__, ss.str(), "returning false");
+    NCH_Log::warn(__PRETTY_FUNCTION__, ss.str(), "returning false");
     return false;
 }
 
@@ -187,14 +187,14 @@ void Controls::stop(std::string action, std::string id, std::string methodName)
     if( !foundAction ) {
         std::stringstream ss;
         ss << "Action \"" << action << "\" doesn't exist";
-        Log::warn( __PRETTY_FUNCTION__, ss.str() );
+        NCH_Log::warn( __PRETTY_FUNCTION__, ss.str() );
         return;
     }
 
     if(!value) {
         std::stringstream ss;
         ss << "Tried to stop " << action << "ing keybind ID '" << id << "' that is not " << action << "ed";
-        Log::warn( __PRETTY_FUNCTION__, ss.str() );
+        NCH_Log::warn( __PRETTY_FUNCTION__, ss.str() );
     }
 }
 
@@ -206,7 +206,7 @@ void Controls::resetWheel(std::string methodName)
     if( wheel==0 ) {
         std::stringstream ss;
         ss << "Tried to reset mouse wheel that already = 0";
-        Log::warn(methodName, ss.str());
+        NCH_Log::warn(methodName, ss.str());
     }
 
     wheel = 0;
@@ -217,7 +217,7 @@ void Controls::resetSpecialInput(std::string methodName)
     if( cbSpecialInput.getType()==ControlBinding::NOTHING ) {
         std::stringstream ss;
         ss << "Tried to reset special input that is already reset";
-        Log::warn(methodName, ss.str());
+        NCH_Log::warn(methodName, ss.str());
     }
 
     cbSpecialInput.reset();

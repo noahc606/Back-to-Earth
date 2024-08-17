@@ -1,7 +1,7 @@
 #include "RegTexProcessor.h"
+#include <nch/cpp-utils/io/Log.h>
 #include "RegTexBuilder.h"
 #include "RegTexInfo.h"
-#include "Log.h"
 
 void RegTexProcessor::init(SDLHandler* sh, Canvas* cs, TileMapUpdater* tmu)
 {
@@ -151,7 +151,7 @@ void RegTexProcessor::buildRegionArea(int64_t csRX, int64_t csRY)
 	}
 	
 	if( tileMap==nullptr ) {
-		Log::throwException();
+		NCH_Log::throwException();
 		return;
 	}
 	TileIterator ti(tileMap);

@@ -1,5 +1,5 @@
 #include "ProgressBar.h"
-#include "Log.h"
+#include <nch/cpp-utils/io/Log.h>
 
 ProgressBar::ProgressBar(Window* parentWindow, int x, int y, int width, int id)
 : WindowComponent::WindowComponent(parentWindow, x, y)
@@ -96,7 +96,7 @@ void ProgressBar::draw()
 void ProgressBar::tick()
 {
     if(workToDo && currentTask>=totalTasks) {
-        Log::log("Finished work.");
+        NCH_Log::log("Finished work.");
         workFinished = true;
         currentTask = -1;
         workToDo = false;
@@ -115,7 +115,7 @@ void ProgressBar::tick()
             ch->cURLIntoFile(s, "https://noahc606.github.io/nch/bte/assets/"+s);
         }
         currentTaskDesc = s;
-        Log::log("Downloaded file: %s", s.c_str());
+        NCH_Log::log("Downloaded file: %s", s.c_str());
     } break;
     default: {} break;
     }

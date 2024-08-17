@@ -1,11 +1,11 @@
 #include "BTE.h"
+#include <nch/cpp-utils/io/Log.h>
 #include <sstream>
 #include <type_traits>
 #include "ButtonAction.h"
 #include "CampaignCreation.h"
 #include "CurlHandler.h"
 #include "GUIBuilder.h"
-#include "Log.h"
 #include "ProgressBar.h"
 #include "MainLoop.h"
 #include "Tests.h"
@@ -63,8 +63,8 @@ void BTE::init()
 	//Init debugScreen
 	debugScreen.init(sdlHandler, &guiHandler, controls);
 
-	if( !(testing) ) {
-		setGameState(GameState::MAIN_MENU);
+	if( !testing ) {
+		setGameState(GameState::INTRO);
 	} else {
 		setGameState(GameState::TESTING);
 	}
@@ -102,11 +102,28 @@ void BTE::draw()
 {
 	//Draw gamestate specific objects
 	switch(gamestate) {
-
-		case TESTING:
-		case TEXTURES: {
+		case GameState::TESTING:
+		case GameState::TEXTURES: {
 			if( tests!=nullptr )
 				tests->draw();
+		} break;
+
+		case GameState::INTRO: {
+			SDL_Rect r;
+			r.w = 512; r.h = 512;
+			r.x = sdlHandler->getWidth()/2 - r.w/2;
+			r.y = sdlHandler->getHeight()/2 - r.h/2;
+
+			NCH_Color cmod(255, 255, 255, 255);
+			if(introTimer<80) {
+				cmod.a = introTimer*3;
+			}
+
+			SDL_Texture* stex = sdlHandler->getTextureLoader()->getTexture(TextureLoader::ootws);
+			SDL_SetTextureBlendMode(stex, SDL_BLENDMODE_BLEND);
+			SDL_SetTextureAlphaMod(stex, cmod.a);
+			sdlHandler->renderCopy(TextureLoader::ootws, NULL, &r);
+			TextOld::draw(sdlHandler, "presents...", sdlHandler->getWidth()/2-400/2, r.y+r.h-32, 8, cmod, NCH_Color());
 		} break;
 
 		case GameState::WORLD: {
@@ -183,6 +200,13 @@ void BTE::tick()
 		case TEXTURES: {
 			if( tests!=nullptr ) {
 				tests->tick();
+			}
+		} break;
+
+		case INTRO: {
+			introTimer++;
+			if(introTimer>=40*5) {
+				setGameState(GameState::MAIN_MENU);
 			}
 		} break;
 
@@ -332,7 +356,7 @@ bool BTE::updateBTEApp()
 {
 	//Prevent update sequence if not in the correct gamestate
 	if(gamestate!=GameState::UPDATING) {
-		Log::warn(__PRETTY_FUNCTION__, "Within invalid gamestate");
+		NCH_Log::warn(__PRETTY_FUNCTION__, "Within invalid gamestate");
 		return false;
 	}
 	ProgressBar* pbr = nullptr;
@@ -340,7 +364,7 @@ bool BTE::updateBTEApp()
 	if(pgui!=nullptr) {
 		pbr = (ProgressBar*)pgui;
 	} else {
-		Log::warn(__PRETTY_FUNCTION__, "Could not find progress bar");
+		NCH_Log::warn(__PRETTY_FUNCTION__, "Could not find progress bar");
 		return false;
 	}
 
@@ -351,32 +375,32 @@ bool BTE::updateBTEApp()
 	std::string newVersion = "";
 	std::string nbvaRes = ch->newBTEVersionAvailable(&newVersion);
 	if( nbvaRes=="true" || nbvaRes=="false" ) {
-		Log::log("================================");
-		Log::log("Preparing to download assets for version \"%s\".", newVersion.c_str());
+		NCH_Log::log("================================");
+		NCH_Log::log("Preparing to download assets for version \"%s\".", newVersion.c_str());
 
 		std::vector<std::string>* assets = new std::vector<std::string>(ch->getBTEAssetPathList());
 		updateNumFiles = assets->size();
 		auto dirs = ch->getBTEDirList(*assets);
 
 		//Make the necessary dirs
-		Log::log("CREATING DIRECTORIES:");
+		NCH_Log::log("CREATING DIRECTORIES:");
         FileHandler fh;
         fh.init(sdlHandler->getResourcePath(), sdlHandler->getFilesystemType());
 		for(std::string s : dirs) {
 			if(s.substr(0,12).compare("backtoearth/")!=0) {
-				Log::error(__PRETTY_FUNCTION__, "Invalid directory \"%s\" found", s.c_str());
+				NCH_Log::error(__PRETTY_FUNCTION__, "Invalid directory \"%s\" found", s.c_str());
 			} else {
 				if(!forceDisableUpdateDLs) {
 					fh.createBTEDir(s.substr(12));
 				}
-				Log::log(s.substr(12));
+				NCH_Log::log(s.substr(12));
 			}
 		}
 
 		pbr->initWorkTypeA(ch, assets, forceDisableUpdateDLs);
 
-		Log::log("STARTING DOWNLOADS:");
-		Log::log("================================");
+		NCH_Log::log("STARTING DOWNLOADS:");
+		NCH_Log::log("================================");
 		return true;
 	}
 
@@ -393,7 +417,7 @@ void BTE::setGameState(int p_gamestate, std::string extraInfo)
 
 	// Set gamestate
 	gamestate = p_gamestate;
-	Log::log("Switching to gamestate %d...", gamestate);
+	NCH_Log::log("Switching to gamestate %d...", gamestate);
 
 	// Actions depending on new gamestate value
 	switch(p_gamestate) {
@@ -407,27 +431,30 @@ void BTE::setGameState(int p_gamestate, std::string extraInfo)
 			load(tests);
 		} break;
 
-		// Go to main menu
-		case MAIN_MENU: {
-			guiHandler.setGUIs(GUIHandler::GUIs::MAIN);
-			AudioLoader* al = sdlHandler->getAudioLoader();
-			al->stopPlayingMusic();
-			al->playMusicTitleTheme();
-			
+		case INTRO: {
 			if( !playedImpact ) {
+				AudioLoader* al = sdlHandler->getAudioLoader();
 				al->play(AudioLoader::SFX_TITLE_impact);
 				playedImpact = true;
 			}
 		} break;
 
+		// Go to main menu
+		case MAIN_MENU: {
+			guiHandler.setGUIs(GUIHandler::GUIs::MAIN_MENU);
+			AudioLoader* al = sdlHandler->getAudioLoader();
+			al->stopPlayingMusic();
+			al->playMusicTitleTheme();
+		} break;
+
 		case UPDATING: {
-			Log::log("Started updating...");
+			NCH_Log::log("Started updating...");
 			GUIBuilder gb;
 			gb.buildUpdatingScreen(guiHandler);
 
 			updateBTEApp();
 
-			Log::log("Finished updating.");
+			NCH_Log::log("Finished updating.");
 
 		} break;
 
@@ -447,7 +474,7 @@ void BTE::setGameState(int p_gamestate, std::string extraInfo)
 
 		// Go to unknown gamestate (testing)
 		default: {
-			Log::warn(__PRETTY_FUNCTION__, "Tried to switch to invalid gamestate", "going to TESTING (-1)");
+			NCH_Log::warn(__PRETTY_FUNCTION__, "Tried to switch to invalid gamestate", "going to TESTING (-1)");
 			setGameState(TESTING);
 		} break;
 	}
@@ -503,7 +530,7 @@ void BTE::performGUIAction(int guiActionID)
 		/** Campaign select menu */
 		case GUIHandler::ssr_SELECT_CAMPAIGN_select: {
 			std::string selectedWorld = guiHandler.getGUIActionData();
-			Log::log("Opening world \"%s\"", selectedWorld.c_str());
+			NCH_Log::log("Opening world \"%s\"", selectedWorld.c_str());
 			setGameState(GameState::WORLD, selectedWorld);
 		} break;
 		case GUIHandler::btn_SELECT_CAMPAIGN_CN_mkdir: {
@@ -521,7 +548,7 @@ void BTE::performGUIAction(int guiActionID)
 			if( gamestate==GameState::WORLD ) {
 				guiHandler.setGUIs(GUIHandler::GUIs::PAUSE);
 			} else {
-				guiHandler.setGUIs(GUIHandler::GUIs::MAIN);
+				guiHandler.setGUIs(GUIHandler::GUIs::MAIN_MENU);
 			}
 		} break;
 		case GUIHandler::btn_DEBUG_SETTINGS_checkForUpdates:

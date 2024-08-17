@@ -1,6 +1,6 @@
 #include "WorldBackground.h"
+#include <nch/cpp-utils/io/Log.h>
 #include "Atmosphere.h"
-#include "Log.h"
 #include "Timer.h"
 
 void WorldBackground::init(SDLHandler* sh, Camera* cam, Planet* plnt) {
@@ -91,8 +91,8 @@ void WorldBackground::renderSkyPartial(int pxCol)
     p = image;
 
     //Create color column
-    Color* clrs = new Color[height];
-    Color* c = clrs;
+    NCH_Color* clrs = new NCH_Color[height];
+    NCH_Color* c = clrs;
 
     float powval = 1.0f / 2.2f;
     float tone = 0.38317f;
@@ -105,13 +105,13 @@ void WorldBackground::renderSkyPartial(int pxCol)
         uint8_t r = (unsigned char)(std::min(1.f, p->x)*255);
         uint8_t g = (unsigned char)(std::min(1.f, p->y)*255);
         uint8_t b = (unsigned char)(std::min(1.f, p->z)*255);
-        int val = Color(r, g, b).getHSV2();
+        int val = NCH_Color(r, g, b).getHSV2();
         uint8_t a = 255;
         if(val<25) {
             a = val*10;
         }
 
-        *c = Color(r, g, b, a);
+        *c = NCH_Color(r, g, b, a);
     }
 
     //Interpolate pixel colors within color column

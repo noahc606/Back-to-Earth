@@ -6,7 +6,7 @@ WindowData::WindowData(int w, int h)
     width = w;
     height = h;
 
-    setBorderColor(Color(40, 40, 180));
+    setBorderColor(NCH_Color(40, 40, 180));
 
     std::string line = "";
     for( int x = 0; x<w; x++ ) line += "x";
@@ -56,16 +56,16 @@ char WindowData::getPanelData(int x, int y)
     }
     return '\0';
 }
-Color WindowData::getPanelColor(char ch) {
+NCH_Color WindowData::getPanelColor(char ch) {
     auto obj = colors.find(ch);
     if( obj!=colors.end() ) {
         return obj->second;
     }
 
-    return Color(80, 80, 80);
+    return NCH_Color(80, 80, 80);
 }
-Color WindowData::getPanelColor(int x, int y) { return getPanelColor( getPanelData(x, y) ); }
-Color WindowData::getBorderColor() { return borderColor; }
+NCH_Color WindowData::getPanelColor(int x, int y) { return getPanelColor( getPanelData(x, y) ); }
+NCH_Color WindowData::getBorderColor() { return borderColor; }
 int WindowData::getSpecialType() { return specialType; }
 GUI* WindowData::getRelatedUI() { return relatedUI; }
 
@@ -90,7 +90,7 @@ void WindowData::setPanelData(int line, std::string data)
     panelData.insert(std::make_pair(line, data));
 }
 
-void WindowData::setPanelColor(char ch, const Color& col)
+void WindowData::setPanelColor(char ch, const NCH_Color& col)
 {
     auto obj = colors.find(ch);
     if( obj!=colors.end() ) {
@@ -100,7 +100,7 @@ void WindowData::setPanelColor(char ch, const Color& col)
     colors.insert(std::make_pair(ch, col));
 }
 
-void WindowData::setBorderColor(const Color& col) { borderColor = col; }
+void WindowData::setBorderColor(const NCH_Color& col) { borderColor = col; }
 
 void WindowData::setSpecialType(int st, GUI* relatedUI)
 {

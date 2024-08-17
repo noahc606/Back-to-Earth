@@ -1,9 +1,9 @@
 #include "TileMapUpdater.h"
+#include <nch/cpp-utils/io/Log.h>
+#include <nch/sdl-utils/Timer.h>
 #include "DebugScreen.h"
 #include "Grid.h"
-#include "Log.h"
 #include "RegTexInfo.h"
-#include "Timer.h"
 
 void TileMapUpdater::init(SDLHandler* sh, TileMap* tm, Canvas* cs)
 {
@@ -161,7 +161,7 @@ void TileMapUpdater::updateMapVisible(int loadDist) { updateMapVisible(false, lo
 void TileMapUpdater::regPillarGenAttempt(FileHandler* fileHandler, int64_t csRX, int64_t csRY, int64_t camCsRZ, int loadDepth)
 {
 	//Timer for debugging
-	Timer rlt;
+	NCH_Timer rlt;
 
 	//Check pillar of regions at (rX, rY)
 	for(int64_t neg = -1; neg<=1; neg += 2) {

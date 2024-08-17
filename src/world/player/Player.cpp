@@ -1,10 +1,10 @@
 #include "Player.h"
 #include <cmath>
 #include <math.h>
+#include <nch/cpp-utils/io/Log.h>
 #include <iomanip>
 #include <iostream>
 #include "DebugScreen.h"
-#include "Log.h"
 #include "SpriteSheetBuilder.h"
 #include "TextureLoader.h"
 #include "TileMap.h"
@@ -415,7 +415,7 @@ Box3X<double> Player::getBounds(int bbt)
 		b3d.c1.z = z+unit*3.;	b3d.c2.z = z+unit*3.;
 	} break;
 	default:
-		Log::warnv(__PRETTY_FUNCTION__, "returning default Box3D", "Invalid bounding box type %d", bbt);
+		NCH_Log::warnv(__PRETTY_FUNCTION__, "returning default Box3D", "Invalid bounding box type %d", bbt);
 		break;
 	}
 
@@ -458,7 +458,7 @@ void Player::setModeFromStr(std::string newGameMode)
 	} else if (newGameMode=="hardcore") {
 		setMode(HARDCORE);
 	} else {
-		Log::warnv(__PRETTY_FUNCTION__, "defaulting to \"sandbox\"", "Unknown gamemode \"%s\"", newGameMode.c_str());
+		NCH_Log::warnv(__PRETTY_FUNCTION__, "defaulting to \"sandbox\"", "Unknown gamemode \"%s\"", newGameMode.c_str());
 	}
 }
 

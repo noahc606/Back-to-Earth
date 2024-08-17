@@ -17,12 +17,11 @@ endif (UNIX)
 
 # Project
 project(${PROJ_OUT} VERSION 0.1.1.0 LANGUAGES C CXX)
-#set(CMAKE_C_FLAGS "-std=c++17")
-set(CMAKE_C_FLAGS "-std=c++17 -O3 -DNDEBUG -mwindows -s -flto")
+set(CMAKE_C_FLAGS "-std=c++11 -O3 -DNDEBUG -mwindows -s -flto")
 
 # Get list of sources and headers
-file (GLOB_RECURSE PROJ_SOURCES CONFIGURE_DEPENDS "${CMAKE_SOURCE_DIR}/src/*.cpp")
-file (GLOB_RECURSE PROJ_HEADERS CONFIGURE_DEPENDS "${CMAKE_SOURCE_DIR}/src/*.h")
+file (GLOB_RECURSE PROJ_SOURCES FOLLOW_SYMLINKS CONFIGURE_DEPENDS "${CMAKE_SOURCE_DIR}/src/*.cpp" "${CMAKE_SOURCE_DIR}/include/*.cpp")
+file (GLOB_RECURSE PROJ_HEADERS FOLLOW_SYMLINKS CONFIGURE_DEPENDS "${CMAKE_SOURCE_DIR}/src/*.h" "${CMAKE_SOURCE_DIR}/include/*.h")
 
 # Build list of includes
 set (PROJ_SRC_DIRS "")
@@ -43,3 +42,4 @@ target_link_libraries(${PROJ_OUT} PRIVATE "-lcurl -lSDL2 -lSDL2_image -lSDL2_mix
 
 # Add include directories (everywhere there is a header file: libraries and BTE src dirs)
 target_include_directories(${PROJ_OUT} PRIVATE ${PROJ_SRC_DIRS})
+target_include_directories(${PROJ_OUT} PRIVATE "include")

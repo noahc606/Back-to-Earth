@@ -1,10 +1,10 @@
 #include "TextureLoader.h"
 #include <iostream>
+#include <nch/cpp-utils/io/Log.h>
+#include <nch/sdl-utils/Timer.h>
 #include <sstream>
 #include "Controls.h"
-#include "Log.h"
 #include "SDLHandler.h"
-#include "Timer.h"
 #include "Texture.h"
 
 TextureLoader::TextureLoader(){}
@@ -29,7 +29,7 @@ SDL_Surface* TextureLoader::getSurface(int index)
 	}
 	catch (const std::out_of_range &err) {
 		std::stringstream ss; ss << "index '" << index << "' out of range";
-		Log::warn(__PRETTY_FUNCTION__, ss.str(), "using 'missing' surface");
+		NCH_Log::warn(__PRETTY_FUNCTION__, ss.str(), "using 'missing' surface");
 		return surfaces.at(Textures::missing);
 	}
 
@@ -47,7 +47,7 @@ SDL_Texture* TextureLoader::getTexture(std::vector<SDL_Texture*>& texCollection,
 		std::stringstream ss;
 		//Size of 0: Return missing texture
 		if( texCollection.size()==0 ) {
-			Log::warn(__PRETTY_FUNCTION__, "No elements in this texCollection", "using 'missing' texture");
+			NCH_Log::warn(__PRETTY_FUNCTION__, "No elements in this texCollection", "using 'missing' texture");
 			if( index==0 ) {
 				errorFailedTexLoad();
 			}
@@ -61,13 +61,13 @@ SDL_Texture* TextureLoader::getTexture(std::vector<SDL_Texture*>& texCollection,
 		}
 
 		//Log warning
-		Log::warn(__PRETTY_FUNCTION__, ss.str(), "using texture at index 0");
+		NCH_Log::warn(__PRETTY_FUNCTION__, ss.str(), "using texture at index 0");
 		//Return texture at index 0
 		return texCollection.at(0);
 	}
 
 	//Unknown access error
-	Log::warn(__PRETTY_FUNCTION__, "Unknown texture get error", "returning NULL");
+	NCH_Log::warn(__PRETTY_FUNCTION__, "Unknown texture get error", "returning NULL");
 	return NULL;
 }
 
@@ -89,16 +89,16 @@ SDL_Texture* TextureLoader::getTexture(int index, int scaledSheetIndex)
 		//Return missing texture
 		std::stringstream ss;
 		ss << "Texture with ID '" << index << "' doesn't exist";
-		Log::warn(__PRETTY_FUNCTION__, ss.str(), "using missing texture");
+		NCH_Log::warn(__PRETTY_FUNCTION__, ss.str(), "using missing texture");
 		return getTexture( 0, 0 );
 	//If we couldn't find it and the index IS 0:
 	} else if( tamItr==textureAtlasesMap.end() && index==0 ) {
 		//Major load error: stop program since even the missing texture is missing
-		Log::error(__PRETTY_FUNCTION__, "Failed to get textureAtlasesMap.find(0)", "which should be the 'missing' texture at resources/textures/missing");
+		NCH_Log::error(__PRETTY_FUNCTION__, "Failed to get textureAtlasesMap.find(0)", "which should be the 'missing' texture at resources/textures/missing");
 		errorFailedTexLoad();
 	}
 
-	Log::warn(__PRETTY_FUNCTION__, "Unknown texture get error", "returning nullptr");
+	NCH_Log::warn(__PRETTY_FUNCTION__, "Unknown texture get error", "returning nullptr");
 	return nullptr;
 }
 
@@ -110,7 +110,7 @@ int TextureLoader::getHeight(int index) { SDL_Surface* s = getSurface(index); re
 void TextureLoader::reload()
 {
 	//Reload images and track how much time it takes
-	Timer t("reloading images");
+	NCH_Timer t("reloading images");
 
 	unload();
 	load();
@@ -118,7 +118,7 @@ void TextureLoader::reload()
 
 	std::stringstream ss;
 	ss << "Finished reloading " << textureAtlasesMap.size() << " assets in " << time << "ms.";
-	Log::log(ss.str());
+	NCH_Log::log(ss.str());
 }
 
 SDL_Surface* TextureLoader::loadSurface(std::string path)
@@ -133,13 +133,13 @@ SDL_Surface* TextureLoader::loadSurface(std::string path)
 
 	if( surf==NULL ) {
 		if(filename=="missing.png") {
-			Log::errorv(__PRETTY_FUNCTION__, "unable to load default image '"+path+"'", "Failed to load image resources");
-			Log::errorv(__PRETTY_FUNCTION__, IMG_GetError(), "IMG_Error: ");
+			NCH_Log::errorv(__PRETTY_FUNCTION__, "unable to load default image '"+path+"'", "Failed to load image resources");
+			NCH_Log::errorv(__PRETTY_FUNCTION__, IMG_GetError(), "IMG_Error: ");
 			errorFailedTexLoad();
 			return nullptr;
 		} else {
-			Log::warnv(__PRETTY_FUNCTION__, "using default 'missing.png' image", "Unable to load image '"+path+"'");
-			Log::error(__PRETTY_FUNCTION__, IMG_GetError(), "IMG_Error: ");
+			NCH_Log::warnv(__PRETTY_FUNCTION__, "using default 'missing.png' image", "Unable to load image '"+path+"'");
+			NCH_Log::error(__PRETTY_FUNCTION__, IMG_GetError(), "IMG_Error: ");
 			return missingSurf;
 		}
 	}
@@ -249,6 +249,7 @@ void TextureLoader::load()
 			//Main directory
 			missingSurf = addSurface("missing");
 			addSurface("icon");
+			addSurface("ootws");
 			//GUI
 			addSurface("gui/font/bte");
 			addSurface("gui/font/robot");
@@ -284,7 +285,7 @@ void TextureLoader::load()
 		addScaledTextures();
 	//If resources have already been loaded
 	} else {
-		Log::warn(__PRETTY_FUNCTION__, "Resources have already been loaded");
+		NCH_Log::warn(__PRETTY_FUNCTION__, "Resources have already been loaded");
 	}
 
 	//Set resourcesLoaded flag
@@ -303,7 +304,7 @@ void TextureLoader::unload()
 
 	//If resources have not been loaded yet
 	} else {
-		Log::warn(__PRETTY_FUNCTION__, "Resources haven't been loaded yet");
+		NCH_Log::warn(__PRETTY_FUNCTION__, "Resources haven't been loaded yet");
 	}
 
 	//Set resourcesLoaded flag
@@ -312,6 +313,6 @@ void TextureLoader::unload()
 
 void TextureLoader::errorFailedTexLoad()
 {
-	Log::log("Is the \"backtoearth\" folder in the same directory as the main executable file? If not, move file(s) around so that it is.");
-	Log::throwException();
+	NCH_Log::log("Is the \"backtoearth\" folder in the same directory as the main executable file? If not, move file(s) around so that it is.");
+	NCH_Log::throwException();
 }

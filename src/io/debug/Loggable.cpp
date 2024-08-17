@@ -1,7 +1,7 @@
 #include "Loggable.h"
 #include <algorithm>
+#include <nch/cpp-utils/io/Log.h>
 #include <vector>
-#include "Log.h"
 
 void Loggable::putInfo(std::stringstream& ss, int& tabs)
 {
@@ -34,6 +34,6 @@ void Loggable::logInfo()
 	
 	//Log each individual line of the string.
 	for(int i = 0; i<lines.size()-1; i++) {
-		Log::log(lines[i]);
+		NCH_Log::log(lines[i]);
 	}
 }

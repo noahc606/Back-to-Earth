@@ -1,7 +1,7 @@
 #include "SpriteSheet.h"
 #include <iostream>
+#include <nch/cpp-utils/io/Log.h>
 #include <sstream>
-#include "Log.h"
 
 SpriteSheet::SpriteSheet(){}
 SpriteSheet::~SpriteSheet(){}
@@ -44,8 +44,8 @@ void SpriteSheet::init(SDLHandler* sh, SDL_Texture* sdlTex, int spriteWidth, int
             updateSheetPixels();
         //If texAccess is something else...
         } else {
-            Log::error(__PRETTY_FUNCTION__, "Cannot init SpriteSheet textures with texture access other than SDL_TEXTUREACCESS_TARGET");
-            Log::throwException();
+            NCH_Log::error(__PRETTY_FUNCTION__, "Cannot init SpriteSheet textures with texture access other than SDL_TEXTUREACCESS_TARGET");
+            NCH_Log::throwException();
         }
     }
 }
@@ -106,7 +106,7 @@ void SpriteSheet::setSpriteDimensions(int w, int h)
     spriteHeight = h;
 }
 
-void SpriteSheet::setSpriteColor(const Color& c)
+void SpriteSheet::setSpriteColor(const NCH_Color& c)
 {
     spriteColor = c;
 }
@@ -216,7 +216,7 @@ void SpriteSheet::loadTextureAsSpriteSheet(SDL_Texture* sdlTex, int spriteWidth,
         std::stringstream ss;
         ss << "SpriteSheet dimensions (" << sheetWidth << ", " << sheetHeight << ") ";
         ss << "must be divisible by the dimensions of a single sprite (" << spriteWidth << ", " << spriteHeight << ")";
-        Log::warn(__PRETTY_FUNCTION__, ss.str(), "setting restrictSpriteSize to false");
+        NCH_Log::warn(__PRETTY_FUNCTION__, ss.str(), "setting restrictSpriteSize to false");
         restrictingSpriteSize(false);
     }
 

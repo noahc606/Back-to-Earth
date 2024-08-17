@@ -12,6 +12,7 @@ void DebugScreen::init(SDLHandler* sh, GUIHandler* guis, Controls* ctrls)
     guiHandler = guis;
     controls = ctrls;
 
+    fg.set(255, 255, 255);
     bg.set(255, 255, 255, 0);
 }
 DebugScreen::~DebugScreen(){}

@@ -46,6 +46,7 @@ private:
         EXIT = -10000,
         TEXTURES = -2,
         TESTING = -1,
+        INTRO,
         MAIN_MENU,
         SELECT_CAMPAIGN,
         WORLD,
@@ -59,7 +60,7 @@ private:
     Settings* settings;
 
     /* Back to Earth */
-    int gamestate = 0;
+    int gamestate = -10000;
     GUIHandler guiHandler;
     Commands commands;
 
@@ -67,6 +68,7 @@ private:
     bool paused = false;
     std::string lastBTECursorState = "false";
 	bool playedImpact = false;
+    int introTimer = 0;
 
     /* Debugging, testing */
     DebugScreen debugScreen;

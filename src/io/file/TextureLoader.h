@@ -33,6 +33,7 @@ public:
 	{
 		missing, //Always keep missing first
 		icon,
+		ootws,
 
 		GUI_FONT_bte,
 		GUI_FONT_robot,

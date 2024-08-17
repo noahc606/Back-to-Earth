@@ -1,6 +1,6 @@
 #include "Planet.h"
+#include <nch/cpp-utils/io/Log.h>
 #include "DebugScreen.h"
-#include "Log.h"
 
 /**
  * https://en.wikipedia.org/wiki/Peirce_quincuncial_projection
@@ -22,7 +22,7 @@ void Planet::init(int rotation)
 
 	std::stringstream ss;
 	ss << "Initialized planet id " << id << "...";
-	Log::log(ss.str());
+	NCH_Log::log(ss.str());
 }
 
 void Planet::init()
@@ -90,4 +90,4 @@ int Planet::getPartOfDay(int segments)
 {
 	return time*(double)segments;
 }
-Color Planet::getSkyColor() { return skyColor; }
+NCH_Color Planet::getSkyColor() { return skyColor; }

@@ -2,17 +2,17 @@
 #include <iomanip>
 #include <iostream>
 #include <math.h>
+#include <nch/cpp-utils/io/Log.h>
+#include <nch/sdl-utils/Timer.h>
 #include <sstream>
 #include "Controls.h"
 #include "DebugScreen.h"
 #include "LevelSave.h"
-#include "Log.h"
 #include "Main.h"
 #include "RegTexBuilder.h"
 #include "RegTexInfo.h"
 #include "SDLHandler.h"
 #include "TileIterator.h"
-#include "Timer.h"
 
 void TileMapScreen::init(SDLHandler* sh, FileHandler* fh, TileMap* tm, Canvas* cs)
 {
@@ -34,7 +34,7 @@ void TileMapScreen::init(SDLHandler* sh, FileHandler* fh, TileMap* tm, Canvas* c
 
 void TileMapScreen::destroy()
 {
-	Log::log("Destroying tileMapScreen...");
+	NCH_Log::log("Destroying tileMapScreen...");
 	
 	//Build a list of all tile region locations
 	std::vector<std::tuple<uint64_t, uint64_t, uint64_t>> regs;
@@ -87,7 +87,7 @@ void TileMapScreen::tick()
 
 	// Track tick time (start at 0.0)
 	infoTickTime = 0.0;
-	Timer localTimer;
+	NCH_Timer localTimer;
 	{
 		// Update cam and regTexUpdates
 		// Get camera info
@@ -159,7 +159,7 @@ void TileMapScreen::draw()
 {
 	// Keep track of draw time
 	infoDrawTime = 0.0;
-	Timer localTimer;
+	NCH_Timer localTimer;
 	{
 		//draw: RegTexUpdater
 		regTexInfo.draw(camRX, camRY, camRZ, loadDist);

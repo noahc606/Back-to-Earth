@@ -1,4 +1,5 @@
 #include "SDLHandler.h"
+#include <nch/cpp-utils/io/Log.h>
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_mixer.h>
 #include <SDL2/SDL_net.h>
@@ -66,13 +67,13 @@ int SDLHandler::getDisplayRefreshRate()
 	int fallback = 60;
 	
 	if( numDisplayModes<1 ) {
-		Log::error(__PRETTY_FUNCTION__, "SDL_GetNumDisplayModes() failed: ", SDL_GetError());
+		NCH_Log::error(__PRETTY_FUNCTION__, "SDL_GetNumDisplayModes() failed: ", SDL_GetError());
 		return fallback;
 	}
 	
 	for( int i = 0; i<numDisplayModes; i++ ) {
 		if( SDL_GetDisplayMode(thisDisplayId, i, &thisDisplayMode)!=0 ) {
-			Log::error(__PRETTY_FUNCTION__, "SDL_GetDisplayMode() failed: ", SDL_GetError());
+			NCH_Log::error(__PRETTY_FUNCTION__, "SDL_GetDisplayMode() failed: ", SDL_GetError());
 			return fallback;
 		}
 	}
@@ -102,13 +103,13 @@ AudioLoader* SDLHandler::getAudioLoader() { return &audioLoader; }
 
 void SDLHandler::toggleFullScreen()
 {
-    Log::trbshoot(__PRETTY_FUNCTION__, "Toggling fullscreen");
+    NCH_Log::debug(__PRETTY_FUNCTION__, "Toggling fullscreen...");
 
     if( fullscreen ) {
         fullscreen = false;
 	
         if ( SDL_SetWindowFullscreen(window, SDL_WINDOW_RESIZABLE | SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN)!=0 ) {
-            Log::error(__PRETTY_FUNCTION__, "Failed to turn fullscreen off", SDL_GetError());
+            NCH_Log::error(__PRETTY_FUNCTION__, "Failed to turn fullscreen off", SDL_GetError());
 			SDL_SetWindowPosition(window, maxWidth/2, maxHeight/2 );
 			SDL_SetWindowSize(window, SDL_WINDOWPOS_UNDEFINED_DISPLAY(lastDisplayID), SDL_WINDOWPOS_UNDEFINED_DISPLAY(lastDisplayID));
         } else {
@@ -121,7 +122,7 @@ void SDLHandler::toggleFullScreen()
         fullscreen = true;
 
         if( SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN_DESKTOP | SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN)!=0 ) {
-            Log::error(__PRETTY_FUNCTION__, "Failed to turn fullscreen on", SDL_GetError());
+            NCH_Log::error(__PRETTY_FUNCTION__, "Failed to turn fullscreen on", SDL_GetError());
         }
 		SDL_SetWindowResizable(window, SDL_FALSE);
     }
@@ -131,7 +132,7 @@ void SDLHandler::toggleFullScreen()
 
 void SDLHandler::toggleBTECursor()
 {
-	Log::trbshoot(__PRETTY_FUNCTION__, "Toggling BTE cursor");
+	NCH_Log::debug(__PRETTY_FUNCTION__, "Toggling BTE cursor...");
 	
 	if(bteCursor) {
 		SDL_ShowCursor(SDL_ENABLE);
@@ -160,20 +161,20 @@ void SDLHandler::renderFillRect(int x, int y, int w, int h)
     dst.x = x; dst.y = y; dst.w = w; dst.h = h;
     SDL_RenderFillRect(windowRenderer, &dst);
 }
-void SDLHandler::setColorMod(int id, const Color& c)
+void SDLHandler::setColorMod(int id, const NCH_Color& c)
 {
     SDL_SetTextureColorMod( textureLoader.getTexture(id), c.r, c.g, c.b );
     SDL_SetTextureAlphaMod( textureLoader.getTexture(id), c.a );
 }
 void SDLHandler::setColorMod(int id, uint8_t r, uint8_t g, uint8_t b, uint8_t a)
 {
-    setColorMod( id, Color(r, g, b, a) );
+    setColorMod( id, NCH_Color(r, g, b, a) );
 }
 void SDLHandler::setColorMod(int id, uint8_t r, uint8_t g, uint8_t b)
 {
     setColorMod(id, r, g, b, 255);
 }
-void SDLHandler::setRenderDrawColor(const Color& c)
+void SDLHandler::setRenderDrawColor(const NCH_Color& c)
 {
     SDL_SetRenderDrawColor(windowRenderer, c.r, c.g, c.b, c.a);
 }
@@ -186,37 +187,37 @@ void SDLHandler::createSubsystems()
     //Init SDL
     flags = SDL_INIT_AUDIO|SDL_INIT_VIDEO|SDL_INIT_JOYSTICK|SDL_INIT_GAMECONTROLLER;
     if( SDL_Init(flags)!=0 ) {
-        Log::error( __PRETTY_FUNCTION__, "Failed to SDL_Init()!", SDL_GetError() );
+        NCH_Log::error( __PRETTY_FUNCTION__, "Failed to SDL_Init()!", SDL_GetError() );
     }
 	
     //Init SDL_img
     flags = IMG_INIT_PNG;
     if( (IMG_Init(flags)&flags)!=flags ) {
-        Log::error( __PRETTY_FUNCTION__, "Failed to IMG_Init()!", IMG_GetError() );
+        NCH_Log::error( __PRETTY_FUNCTION__, "Failed to IMG_Init()!", IMG_GetError() );
     }
 	
     //Init SDL_mixer
     flags = MIX_INIT_MP3 | MIX_INIT_OGG;
     if( (Mix_Init(flags)&flags)!=flags ) {
-        Log::error( __PRETTY_FUNCTION__, "Failed to Mix_Init()!", Mix_GetError() );
+        NCH_Log::error( __PRETTY_FUNCTION__, "Failed to Mix_Init()!", Mix_GetError() );
     }
 	
 	//Init SDL_net
 	if( SDLNet_Init()==-1 ) {
-		Log::error( __PRETTY_FUNCTION__, "Failed to SDLNet_Init()!", SDLNet_GetError() );
+		NCH_Log::error( __PRETTY_FUNCTION__, "Failed to SDLNet_Init()!", SDLNet_GetError() );
 	}
 
     //Find game controllers/joysticks
     if( SDL_NumJoysticks()>=1 ) {
         joystick = SDL_JoystickOpen(0);
         if( joystick==NULL ) {
-            Log::error( __PRETTY_FUNCTION__, "Failed to open joystick!", SDL_GetError() );
+            NCH_Log::error( __PRETTY_FUNCTION__, "Failed to open joystick!", SDL_GetError() );
         } else {
             std::stringstream ss;
             ss << "Successfully found joystick '"; ss << SDL_JoystickName(joystick);
             ss << "' with "; ss << SDL_JoystickNumAxes(joystick) << " axes ";
             ss << "and "; ss << SDL_JoystickNumButtons(joystick) << " buttons...";
-            Log::log(ss.str());
+            NCH_Log::log(ss.str());
         }
     }
 
@@ -227,7 +228,7 @@ void SDLHandler::createSubsystems()
     //Done to prevent graphical issues when rendering to SDL_TEXTUREACCESS_TARGET textures.
     if(true) {
         if( SDL_SetHint(SDL_HINT_RENDER_DRIVER, "opengl")==SDL_FALSE ) {
-            Log::error( __PRETTY_FUNCTION__, "Failed to set hint", SDL_GetError() );
+            NCH_Log::error( __PRETTY_FUNCTION__, "Failed to set hint", SDL_GetError() );
         }
     }
 
@@ -235,22 +236,20 @@ void SDLHandler::createSubsystems()
     //If this function somehow fails, the application should not continue running.
     char* path = SDL_GetBasePath();
     if( path==NULL ) {
-        Log::error(__PRETTY_FUNCTION__, "Failed to get resource path", "SDL_GetBasePath()==NULL");
-        Log::throwException();
+        NCH_Log::error(__PRETTY_FUNCTION__, "Failed to get resource path", "SDL_GetBasePath()==NULL");
+        NCH_Log::throwException();
     } else {
         resourcePath = (std::string)path+"backtoearth/";
-        Log::trbshoot(__PRETTY_FUNCTION__, "Got path as: "+resourcePath);
     }
     SDL_free(path);
 
     /* Get OS of this device and set filesystem type */
     const char* platform = SDL_GetPlatform();
     if( platform==NULL ) {
-        Log::error(__PRETTY_FUNCTION__, "Failed to get operating system", "SDL_GetPlatform()==NULL");
-        Log::throwException();
+        NCH_Log::error(__PRETTY_FUNCTION__, "Failed to get operating system", "SDL_GetPlatform()==NULL");
+        NCH_Log::throwException();
     } else {
         devicePlatform = (std::string)platform+"";
-        Log::trbshoot(__PRETTY_FUNCTION__, "Got OS as: "+devicePlatform);
     }
     validateDevicePlatform();
 
@@ -259,7 +258,7 @@ void SDLHandler::createSubsystems()
 	if( SDL_GetCurrentDisplayMode(0, &dm)!=0 ) {
 		std::stringstream ss;
 		ss << "Failed to get screen resolution, defaulting to " << maxWidth << "x" << maxHeight;
-		Log::error(__PRETTY_FUNCTION__, ss.str(), SDL_GetError());
+		NCH_Log::error(__PRETTY_FUNCTION__, ss.str(), SDL_GetError());
 	} else {
 		maxWidth = dm.w;
 		maxHeight = dm.h;
@@ -267,7 +266,6 @@ void SDLHandler::createSubsystems()
 		//print out screen resolution
 		std::stringstream ss;
 		ss << "Got screen size as: " << maxWidth << "x" << maxHeight << ".";
-		Log::trbshoot(__PRETTY_FUNCTION__, ss.str());
 	}
 }
 
@@ -299,8 +297,8 @@ void SDLHandler::createWindowAndRenderer()
     //If window failed to be created, the program should stop
     if( window==NULL ) {
         //Print error, stop program
-        Log::error(__PRETTY_FUNCTION__, "Window is null");
-        Log::throwException();
+        NCH_Log::error(__PRETTY_FUNCTION__, "Window is null");
+        NCH_Log::throwException();
     }
 
     //Initialize width and height.
@@ -312,8 +310,8 @@ void SDLHandler::createWindowAndRenderer()
     //If renderer failed to be created, the program should stop
     if( windowRenderer==NULL ) {
         //Print error, stop program.
-        Log::error(__PRETTY_FUNCTION__, "Renderer is null");
-        Log::throwException();
+        NCH_Log::error(__PRETTY_FUNCTION__, "Renderer is null");
+        NCH_Log::throwException();
     }
 
 
@@ -323,8 +321,8 @@ void SDLHandler::createWindowAndRenderer()
     //If pixel format failed to be allocated, the program should stop
     if( windowPixelFormat==NULL ) {
         //Print error, stop program.
-        Log::error(__PRETTY_FUNCTION__, "Pixel format is null");
-        Log::throwException();
+        NCH_Log::error(__PRETTY_FUNCTION__, "Pixel format is null");
+        NCH_Log::throwException();
     }
 }
 
@@ -338,7 +336,7 @@ void SDLHandler::validateDevicePlatform()
         filesystemType = Platforms::LINUX;
     // If SDL says anything else
     } else {
-        Log::warn(__PRETTY_FUNCTION__, "Unknown operating system '"+devicePlatform+"' detected", "using Linux filesystem functions");
+        NCH_Log::warn(__PRETTY_FUNCTION__, "Unknown operating system '"+devicePlatform+"' detected", "using Linux filesystem functions");
         filesystemType = Platforms::UNKNOWN;
     }
 }

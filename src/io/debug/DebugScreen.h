@@ -27,8 +27,8 @@ public:
     static void newLine(std::stringstream& ss);
     /**/
     //Foreground and Background colors
-    Color fg;
-    Color bg;
+    NCH_Color fg;
+    NCH_Color bg;
 protected:
 
 private:

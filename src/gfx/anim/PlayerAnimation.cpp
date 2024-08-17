@@ -167,7 +167,7 @@ void PlayerAnimation::drawCharInMenu()
 	//Build player texture
 	rebuildPlayerTex(playerTexAlt, true);
 	
-	int ptaX = sdlHandler->getWidth()/2+(-32+2)*4;
+	int ptaX = sdlHandler->getWidth()/2+(-64+2)*4;
 	int ptaY = sdlHandler->getHeight()/2+(-64+10)*4;
 	playerTexAlt.setDrawPos(ptaX, ptaY-4*4);
 	playerTexAlt.setDrawScale(4);

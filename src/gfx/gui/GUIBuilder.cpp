@@ -1,10 +1,10 @@
 #include "GUIBuilder.h"
+#include <nch/cpp-utils/io/Log.h>
 #include <vector>
 #include "Button.h"
 #include "CheckBox.h"
 #include "ColorSelector.h"
 #include "GUIAlignable.h"
-#include "Log.h"
 #include "Player.h"
 #include "ProgressBar.h"
 #include "RadioButton.h"
@@ -28,7 +28,7 @@ void GUIBuilder::buildUpdatePrompt(GUIHandler& gh, CurlHandler& cuha, int guiAct
     //Get previous open window (should be win_DEBUG_SETTINGS)
     Window* prevWindow = gh.getWindow(GUIHandler::win_DEBUG_SETTINGS);
     if(prevWindow==nullptr) {
-        Log::warnv(__PRETTY_FUNCTION__, "skipping update prompt GUI", "Didn't find debug settings window (are you there?)");
+        NCH_Log::warnv(__PRETTY_FUNCTION__, "skipping update prompt GUI", "Didn't find debug settings window (are you there?)");
         return;
     }
 
@@ -298,7 +298,7 @@ void GUIBuilder::buildMainCharacter(GUIHandler& gh, FileHandler& fh)
         }
 
         //Get color from setting
-        Color color; color.setFromB10Str(settings->get(Settings::character, stng));
+        NCH_Color color; color.setFromB10Str(settings->get(Settings::character, stng));
 
         //Add GUIs
 		gh.addGUI(new Tooltip(w, xPos, yPos+10, name+":", gh.ttp_CHARACTER_SETTINGS_tooltip), i);
@@ -421,8 +421,8 @@ void GUIBuilder::buildWorldPauseHowto(GUIHandler& gh)
 void GUIBuilder::buildCharacterMenu(GUIHandler& gh, int gamemode)
 {
     if( gh.getGUI(BTEObject::GUI_window, gh.win_CHARACTER)==nullptr ) {
-        int w = 18;
-        int h = 11;
+        int w = 16;
+        int h = 10;
 
         /*
             's': Scroll through buttons representing other menu options
@@ -435,24 +435,23 @@ void GUIBuilder::buildCharacterMenu(GUIHandler& gh, int gamemode)
 
         */
         WindowData* wd = new WindowData(w, h);
-        wd->setPanelData(0, "ssssssddddcccccccc");
-        wd->setPanelData(1, "ssssssxxxxcccccccc");
-        wd->setPanelData(2, "ssssssxxxxcccccccc");
-        wd->setPanelData(3, "ssssssxxxxcccccccc");
-        wd->setPanelData(4, "ssssssxxxxcccccccc");
-        wd->setPanelData(5, "ssssssxxxxcccccccc");
-        wd->setPanelData(6, "ssssssddddcccccccc");
-        wd->setPanelData(7, "ssssssddddcccccccc");
-        wd->setPanelData(8, "eeeeeeeeeeeeeeeeee");
-        wd->setPanelData(9, "eeeeeeeeeeeeeeeeee");
-        wd->setPanelData(10,"bbbbbbbbbbbbbbbbbb");
+        wd->setPanelData(0, "sssddddiiiiiiiiw");
+        wd->setPanelData(1, "ssscccciiiiiiiiw");
+        wd->setPanelData(2, "ssscccciiiiiiiiw");
+        wd->setPanelData(3, "ssscccciiiiiiiiw");
+        wd->setPanelData(4, "ssscccciiiiiiiiw");
+        wd->setPanelData(5, "ssscccciiiiiiiiw");
+        wd->setPanelData(6, "sssddddiiiiiiiiw");
+        wd->setPanelData(7, "sssddddiiiiiiiiw");
+        wd->setPanelData(8, "aaaaaaaaaaaaaaaa");
+        wd->setPanelData(9, "aaaaaaaaaaaaaaaa");
 
-        wd->setPanelColor('s', Color(0, 0, 200, 240) );
-        wd->setPanelColor('d', Color(150, 105, 55, 240) );
-        wd->setPanelColor('c', Color(0, 255, 0, 240) );
-        wd->setPanelColor('x', Color(0, 0, 0, 240) );
-        wd->setPanelColor('e', Color(100, 0, 0, 240) );
-        wd->setPanelColor('b', Color(130, 210, 180, 240) );
+        wd->setPanelColor('s', NCH_Color(0, 0, 200, 240) );     //[S]idebar
+        wd->setPanelColor('d', NCH_Color(150, 105, 55, 240) );  //[D]etails about character
+        wd->setPanelColor('i', NCH_Color(0, 255, 0, 240) );     //[I]nventory
+        wd->setPanelColor('c', NCH_Color(0, 0, 0, 240) );       //[C]haracter
+        wd->setPanelColor('a', NCH_Color(100, 0, 0, 240) );     //[A]ctions from items
+        wd->setPanelColor('w', NCH_Color(130, 210, 180, 240) ); //[W]orkstation tabs (crafting, assembling, etc.)
 
         gh.addGUI(new Window( ch, cv, wd, gh.win_CHARACTER ));
 
@@ -487,8 +486,8 @@ void GUIBuilder::buildColorSelector(GUIHandler& gh, Window* parentWindow, int ex
     wd->setPanelData(6, "oooooooooo");
     wd->setPanelData(7, "oooooooooo");
     wd->setPanelData(8, "xxxxxxxxxx");
-    wd->setPanelColor('x', Color(0, 0, 200, 240) );
-    wd->setPanelColor('o', Color(150, 105, 55, 240) );
+    wd->setPanelColor('x', NCH_Color(0, 0, 200, 240) );
+    wd->setPanelColor('o', NCH_Color(150, 105, 55, 240) );
 
     int width = 300;
     Window* win = new Window(ch, cv, wd, GUIHandler::win_COLORSELECTOR);
@@ -504,17 +503,17 @@ void GUIBuilder::buildColorSelector(GUIHandler& gh, Window* parentWindow, int ex
     sdr->setNumSpaces(128);
     
     //Get textbox's color in HSV
-    Color c;
+    NCH_Color c;
     c.setFromB16Str(tbx->getString()+"00");
-    auto hsv = c.toHSV();
+    auto hsv = c.getHSV();
 
     //Set slider value
     std::stringstream ss;
-    ss << std::get<0>(hsv);
+    ss << hsv[0];
     sdr->setSelectorVal(ss.str());
 
-    csr->setSat(std::get<1>(hsv));
-    csr->setVal(std::get<2>(hsv));
+    csr->setSat(hsv[1]);
+    csr->setVal(hsv[2]);
 
     gh.onWindowUpdate();
 }
@@ -542,10 +541,10 @@ void GUIBuilder::buildSelectCampaign(GUIHandler& gh, FileHandler& fh)
     wd->setPanelData(9, "ssssssssssss");
     wd->setPanelData(10,"aaaaaaaaaaaa");
     wd->setPanelData(11,"bbbbbbbbbbbb");
-    wd->setPanelColor('t', Color(64, 64, 64, 240) );
-    wd->setPanelColor('s', Color(0, 0, 255, 160) );
-    wd->setPanelColor('a', Color(96, 128, 240, 240) );
-    wd->setPanelColor('b', Color(64, 64, 64, 240) );
+    wd->setPanelColor('t', NCH_Color(64, 64, 64, 240) );
+    wd->setPanelColor('s', NCH_Color(0, 0, 255, 160) );
+    wd->setPanelColor('a', NCH_Color(96, 128, 240, 240) );
+    wd->setPanelColor('b', NCH_Color(64, 64, 64, 240) );
 
     Window* w = new Window( ch, cv, wd, gh.win_SELECT_CAMPAIGN );
     gh.addGUI(w);
@@ -558,7 +557,7 @@ void GUIBuilder::buildSelectCampaign(GUIHandler& gh, FileHandler& fh)
             saveDir = saveDir.substr(12);
         }
 
-        Log::log("Loaded save dir \"%s\"", saveDir.c_str());
+        NCH_Log::log("Loaded save dir \"%s\"", saveDir.c_str());
 
         //Get world size description
         std::string sizeDesc = fh.getReadableMemorySize(fh.dirDiskSpaceUsed(s));
@@ -600,10 +599,10 @@ void GUIBuilder::buildSelectCampaignCN(GUIHandler& gh, FileHandler& fh)
     wd->setPanelData(9, "ssssssssssss");
     wd->setPanelData(10,"aaaaaaaaaaaa");
     wd->setPanelData(11,"bbbbbbbbbbbb");
-    wd->setPanelColor('t', Color(64, 64, 64, 240) );
-    wd->setPanelColor('s', Color(0, 0, 255, 160) );
-    wd->setPanelColor('a', Color(96, 128, 240, 240) );
-    wd->setPanelColor('b', Color(64, 64, 64, 240) );
+    wd->setPanelColor('t', NCH_Color(64, 64, 64, 240) );
+    wd->setPanelColor('s', NCH_Color(0, 0, 255, 160) );
+    wd->setPanelColor('a', NCH_Color(96, 128, 240, 240) );
+    wd->setPanelColor('b', NCH_Color(64, 64, 64, 240) );
 
     Window* w = new Window( ch, cv, wd, gh.win_SELECT_CAMPAIGN_CN );
     gh.addGUI(w);
@@ -648,7 +647,7 @@ void GUIBuilder::campaignNewShowMore(GUIHandler& gh, FileHandler& fh)
 {
     Window* w = gh.getWindow(gh.win_SELECT_CAMPAIGN_CN);
     if(w==nullptr) {
-        Log::warn(__PRETTY_FUNCTION__, "Couldn't fild campaignNew window.");
+        NCH_Log::warn(__PRETTY_FUNCTION__, "Couldn't fild campaignNew window.");
         return;
     }
 

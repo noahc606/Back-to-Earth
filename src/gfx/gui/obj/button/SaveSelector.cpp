@@ -1,6 +1,6 @@
 #include "SaveSelector.h"
+#include <nch/cpp-utils/io/Log.h>
 #include "GUIHandler.h"
-#include "Log.h"
 #include "TextOld.h"
 
 SaveSelector::SaveSelector(Window* parentWindow, int index, std::string dirName, std::string worldName, std::string sizeDesc, int id)
@@ -101,6 +101,6 @@ void SaveSelector::resetActionID(std::string methodName)
         actionID = -1;
         actionInfo = std::make_pair(-1, "");
     } else {
-        Log::warn(methodName, "Tried to reset SaveSelector's action which was already reset");
+        NCH_Log::warn(methodName, "Tried to reset SaveSelector's action which was already reset");
     }
 }

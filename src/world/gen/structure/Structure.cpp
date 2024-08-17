@@ -1,8 +1,9 @@
 #include "Structure.h"
+#include <nch/cpp-utils/io/Log.h>
 #include "CollectionUtils.h"
-#include "Log.h"
+#include "TileIterator.h"
 
-bool Structure::suppressWarnings = true;
+bool Structure::suppressWarnings = false;
 
 Structure::Structure(int id, Point3X<int64_t> origin)
 {
@@ -18,8 +19,12 @@ Structure::Structure(int id, Point3X<int64_t> origin)
     int64_t oz = origin.z;
     //Based on origin, set the 'hard' bounds of the structure
     switch(id) {
+        case CRASHED_SHIP: {
+            bounds.c1 = Point3X<int64_t>(ox, oy, oz);
+            bounds.c2 = Point3X<int64_t>(ox+63, oy+47, oz+23);
+        } break;
         default: {
-            if(!suppressWarnings) Log::warnv(__PRETTY_FUNCTION__, "using placeholder", "Tried to build bounds of structure with unknown ID '%d'", id);
+            NCH_Log::warnv(__PRETTY_FUNCTION__, "using placeholder", "Tried to build bounds of structure with unknown ID '%d'", id);
             bounds.c1 = Point3X<int64_t>(ox, oy, oz);
             bounds.c2 = Point3X<int64_t>(ox, oy+3, oz+8);
         } break;
@@ -44,13 +49,21 @@ Structure::Structure(int id, Point3X<int64_t> origin)
     //Based on structure ID, populate the regions with the proper tiles
     switch(id) {
         //Crash-landed ship
-        case 2: {
-
-        }
+        case CRASHED_SHIP: {
+            TileType tt0; tt0.init(); tt0.setRGB(255, 255, 255); tt0.setSolid(true); tt0.setTextureXY(1, 3); tt0.setVisionBlocking(true);
+            TileType tt1; tt1.init(); tt1.setRGB(0, 0, 255); tt1.setSolid(false); tt0.setVisionBlocking(false);
+            //TileMap::setTile(regMap, 0, 0, 0, tt)
+            //fill(0, 0, 23, 63, 47, 23)
+            TileRegion* tr0 = cu.findInMap(regMap, std::make_tuple((int64_t)0, (int64_t)0, (int64_t)0));
+            int16_t id0 = tr0->addToPalette(tt0, true); //Metal tiling
+            int16_t id1 = tr0->addToPalette(tt1, true); //Air
+            tr0->setTiles(15, 15, 11, 31, 31, 15, id0);
+            tr0->setTiles(16, 16, 12, 30, 30, 14, id1);
+        } break;
 
         //Unknown structure - causes a Monolith to spawn
         default: {
-            if(!suppressWarnings) Log::warnv(__PRETTY_FUNCTION__, "using placeholder", "Tried to build structure with unknown ID '%d'", id);
+            if(!suppressWarnings) NCH_Log::warnv(__PRETTY_FUNCTION__, "using placeholder", "Tried to build structure with unknown ID '%d'", id);
 
             TileRegion* tr = cu.findInMap(regMap, std::make_tuple((int64_t)0, (int64_t)0, (int64_t)0));
             if(tr!=nullptr) {
@@ -76,7 +89,6 @@ Structure::~Structure()
     }
 }
 
-
+int Structure::getID() { return id; }
 Box3X<int64_t> Structure::getBounds() { return bounds; }
-
 std::map<Defs::t_tripleI64, TileRegion>* Structure::getRegionMap() { return &regMap; }

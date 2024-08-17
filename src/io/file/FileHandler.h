@@ -3,7 +3,7 @@
 #include <SDL2/SDL.h>
 #include <string>
 #include <vector>
-#include "FilePath.h"
+#include "BTEPath.h"
 #include "Settings.h"
 
 class FileHandler
@@ -47,7 +47,7 @@ public:
 	uint8_t readHexStay(bool half);
 	uint8_t readHex1Stay();
 	uint8_t readHex2Stay();
-	Settings::t_kvMap readTxtFileKVs(FilePath fp);
+	Settings::t_kvMap readTxtFileKVs(BTEPath fp);
 	Settings::t_kvMap readTxtFileKVs(std::string path);
 	bool checkMagicNumber(uint64_t mnPart1, uint64_t mnPart2);
 	//Seek thru files
@@ -68,7 +68,7 @@ public:
     FILE* getFilePtr();
     Settings* getSettings();
     std::string getResourcePath();
-    std::string getModifiedPath(FilePath fp);
+    std::string getModifiedPath(BTEPath fp);
     std::string getUnmodifiedPath(std::string mfp);
     static std::vector<std::string> split(std::string toSplit, std::string delim);
     static std::string getFileOpenTypeStr(int fot);
@@ -97,7 +97,7 @@ private:
 
     /* Settings handler and files that hold settings */
     Settings settings;
-    FilePath* files[Settings::LAST_INDEX];
+    BTEPath* files[Settings::LAST_INDEX];
 
     /* Create new folder ("unsafe" version of createBteDir()) */
     int createDir(std::string path);

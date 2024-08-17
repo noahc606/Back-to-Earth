@@ -1,11 +1,11 @@
 #include "GUIHandler.h"
+#include <nch/cpp-utils/io/Log.h>
 #include <set>
 #include "CheckBox.h"
 #include "Color.h"
 #include "ColorSelector.h"
 #include "GUIAligner.h"
 #include "GUIBuilder.h"
-#include "Log.h"
 #include "MainLoop.h"
 #include "RadioButton.h"
 #include "SaveSelector.h"
@@ -18,9 +18,6 @@ GUIHandler::GUIHandler(){}
 void GUIHandler::init(SDLHandler* sh, FileHandler* fh, Controls* ctrls, bool testing)
 {
     BTEObject::init(sh, fh, ctrls);
-    if(!testing) {
-        setGUIs(MAIN);
-    }
 }
 GUIHandler::~GUIHandler()
 {
@@ -353,7 +350,7 @@ void GUIHandler::resetGUIAction(std::string methodName)
     if( guiActionID==-1 ) {
         std::stringstream ss;
         ss << "Tried to reset GUI Action that already == -1.";
-        Log::warn(methodName, ss.str());
+        NCH_Log::warn(methodName, ss.str());
     }
 
     guiActionID = -1;
@@ -414,7 +411,7 @@ void GUIHandler::setGUIs(int guis, int param)
 
     switch(guis) {
         /** Main UIs */
-        case MAIN:      { gb.buildTitleScreen(*this); } break;
+        case MAIN_MENU: { gb.buildTitleScreen(*this); } break;
         case OPTIONS:   { gb.buildMainOptions(*this); } break;
         case CONTROLS:  { gb.buildMainControls(*this, *fileHandler); } break;
         case GRAPHICS:  { gb.buildMainGraphics(*this, *fileHandler); } break;
@@ -509,7 +506,7 @@ void GUIHandler::removeGUIs(int idMin, int idMax)
         }
 
         //Log message
-        Log::trbshoot(__PRETTY_FUNCTION__, ss.str());
+        //Log::warn(__PRETTY_FUNCTION__, ss.str());
     }
 }
 

@@ -1,6 +1,6 @@
 #include "Canvas.h"
 #include <math.h>
-#include "Log.h"
+#include <nch/cpp-utils/io/Log.h>
 #include "MainLoop.h"
 #include "TileMap.h"
 
@@ -29,7 +29,7 @@ void Canvas::destroy()
 void Canvas::tick()
 {
     if(camera==nullptr) {
-        Log::warnv(__PRETTY_FUNCTION__, "skipping tick", "camera is nullptr!");
+        NCH_Log::warnv(__PRETTY_FUNCTION__, "skipping tick", "camera is nullptr!");
         return;
     }
 
@@ -308,7 +308,7 @@ void Canvas::rcopy(int64_t dx, int64_t dy, int64_t dw, int64_t dh)
     if(sh==-1) { sh = dh; }
 
     if( dw<=0 || dh<=0 || dw>defaultTexSize || dh>defaultTexSize ) {
-        Log::warn(__PRETTY_FUNCTION__, "invalid args for Canvas blit");
+        NCH_Log::warn(__PRETTY_FUNCTION__, "invalid args for Canvas blit");
         return;
     }
 

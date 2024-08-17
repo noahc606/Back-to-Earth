@@ -1,6 +1,7 @@
 #include "GUI.h"
+#include <nch/cpp-utils/io/Log.h>
 #include "GUIHandler.h"
-#include "Log.h"
+
 
 GUI::GUI(){}
 void GUI::init(SDLHandler* sh, FileHandler* fh, Controls* ctrls)
@@ -32,7 +33,7 @@ int GUI::getExtraID() { return extraID; }
 void GUI::setExtraID(int p_exid)
 {
     if( exists() ) {
-        Log::warn(__PRETTY_FUNCTION__, "Tried to set the extraID of an object after it was initialized");
+        NCH_Log::warn(__PRETTY_FUNCTION__, "Tried to set the extraID of an object after it was initialized");
     } else {
         extraID = p_exid;
     }

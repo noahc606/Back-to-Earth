@@ -2,16 +2,16 @@
 #include "TextureBuilder.h"
 #include "Log.h"
 
-ColorSelector::ColorSelector(Window* parentWindow, int x, int y, Color col, int id)
+ColorSelector::ColorSelector(Window* parentWindow, int x, int y, NCH_Color col, int id)
 : Button::Button(parentWindow, x, y, 0, "", id)
 {
 	setSubType(BTEObject::Type::GUI_colorselect);
 
     color = col;
-    auto hsv = col.toHSV();
-    hue = std::get<0>(hsv);
-    sat = std::get<1>(hsv);
-    val = std::get<2>(hsv);
+    auto hsv = col.getHSV();
+    hue = hsv[0];
+    sat = hsv[1];
+    val = hsv[2];
 
 	btnInitString = "";
     width = 32;
@@ -19,7 +19,7 @@ ColorSelector::ColorSelector(Window* parentWindow, int x, int y, Color col, int 
 }
 
 ColorSelector::ColorSelector(Window* parentWindow, int x, int y, int id):
-ColorSelector(parentWindow, x, y, Color(), id){}
+ColorSelector(parentWindow, x, y, NCH_Color(), id){}
 
 void ColorSelector::init(SDLHandler* sh, Controls* ctrls)
 {
@@ -60,7 +60,7 @@ void ColorSelector::buildTexes()
     wd.setPanelData(1, "aaaa");
     wd.setPanelData(2, "aaaa");
     wd.setPanelData(3, "aaaa");
-    wd.setPanelColor('a', Color(0, 0, 0, 0));
+    wd.setPanelColor('a', NCH_Color(0, 0, 0, 0));
     tb.buildWindow(texSelectorEdges, &wd, 128, 128);
 }
 
@@ -122,7 +122,7 @@ void ColorSelector::draw()
         //Horizontal + vertical bars built from pixels whose color is inverted from background
         texCrosshair.clear();
         for(int i = 0; i<9; i++) {
-            Color pxCol;
+            NCH_Color pxCol;
             pxCol.setFromHSV(360-hue, 100-sat, 100-val);
 
             texCrosshair.pixel(i, 4, pxCol.getRGBA());

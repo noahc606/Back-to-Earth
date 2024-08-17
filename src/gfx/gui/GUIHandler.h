@@ -165,7 +165,7 @@ public:
 
     /* Groups of GUIs */
     enum GUIs {
-        MAIN,
+        MAIN_MENU,
         OPTIONS,
             CONTROLS,
             GRAPHICS,

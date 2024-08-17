@@ -57,6 +57,7 @@ public:
 
 	/** TileMap manipulation */
 	//Set tile
+	//int setTile(t_regionMap& regMap, int64_t x, int64_t y, int64_t z, TileType tt);
 	int setTile(int64_t x, int64_t y, int64_t z, TileType tt);
 	int setTileByCsXYZ(Camera* cam, int64_t cx, int64_t cy, int64_t cz, TileType tt);
 	void setStructureWithinReg(Structure* stru, TileRegion& tr, int64_t rX, int64_t rY, int64_t rZ);

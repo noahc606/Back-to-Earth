@@ -1,8 +1,8 @@
 #include "CampaignCreation.h"
 #include <iostream>
+#include <nch/cpp-utils/io/Log.h>
 #include <set>
 #include <sstream>
-#include "Log.h"
 #include "Noise.h"
 #include "RadioButton.h"
 #include "TextBox.h"
@@ -17,7 +17,7 @@ bool CampaignCreation::createWorldDir(GUIHandler* gh, FileHandler* fh)
 {
     //Check for campaign-create-new window. If not found, stop.
     if(gh->getGUI(BTEObject::GUI_window, GUIHandler::win_SELECT_CAMPAIGN_CN)==nullptr) {
-        Log::warn(__PRETTY_FUNCTION__, "Couldn't find the window for creating campaigns");
+        NCH_Log::warn(__PRETTY_FUNCTION__, "Couldn't find the window for creating campaigns");
         return false;
     }
 
@@ -33,7 +33,7 @@ bool CampaignCreation::createWorldDir(GUIHandler* gh, FileHandler* fh)
         //Get world name entered, then try to validate it. If 'world' could be validated, create the directory.
         worldName = validateWorldName(fh, tbxLevelName->getString());
         if(worldName=="") {
-            Log::warn(__PRETTY_FUNCTION__, "Invalid level name entered: \"%s\"", tbxLevelName->getString().c_str());
+            NCH_Log::warn(__PRETTY_FUNCTION__, "Invalid level name entered: \"%s\"", tbxLevelName->getString().c_str());
             tbxLevelName->errorFlash();
             return false;
         }
@@ -47,7 +47,7 @@ bool CampaignCreation::createWorldDir(GUIHandler* gh, FileHandler* fh)
     { RadioButton* rb = gh->getRadioButton(gh->rbtn_SELECT_CAMPAIGN_CN_gameMode1); if(rb!=nullptr && rb->isSelected()) gamemode = "survival"; }
     { RadioButton* rb = gh->getRadioButton(gh->rbtn_SELECT_CAMPAIGN_CN_gameMode2); if(rb!=nullptr && rb->isSelected()) gamemode = "hardcore"; }
     if(gamemode=="") {
-        Log::warn(__PRETTY_FUNCTION__, "Failed to get gamemode");
+        NCH_Log::warn(__PRETTY_FUNCTION__, "Failed to get gamemode");
         return false;
     }
 
@@ -67,7 +67,7 @@ bool CampaignCreation::createWorldDir(GUIHandler* gh, FileHandler* fh)
         return false;
     }
 
-    Log::log("Creating new campaign with name \"%s\", seed %d within the directory: \"%s\".", tbxLevelName->getString().c_str(), worldSeed, worldName.c_str());
+    NCH_Log::log("Creating new campaign with name \"%s\", seed %d within the directory: \"%s\".", tbxLevelName->getString().c_str(), worldSeed, worldName.c_str());
     createWorldData(gh, fh, worldName, tbxLevelName->getString(), worldSeed, gamemode);
     return true;
 }

@@ -1,8 +1,8 @@
 #include "TileMap.h"
 #include <math.h>
+#include <nch/cpp-utils/io/Log.h>
 #include <sstream>
 #include "DebugScreen.h"
-#include "Log.h"
 #include "Terrain.h"
 #include "TileIterator.h"
 #include "TileType.h"
@@ -21,7 +21,7 @@ void TileMap::init(SDLHandler* sh, FileHandler* fh, Planet* pt, StructureMap* st
 
 void TileMap::destroy()
 {
-    Log::trbshoot(__PRETTY_FUNCTION__, "Deleting TileMap.");
+    NCH_Log::debug(__PRETTY_FUNCTION__, "Deleting TileMap.");
 
     //Delete elements in regionMap
     for( t_regionMap::iterator itr = regionMap.begin(); itr!=regionMap.end(); itr = regionMap.begin() ) {
@@ -40,11 +40,6 @@ void TileMap::putInfo(std::stringstream& ss, int& tabs)
         rmCount++;
     }
     DebugScreen::newLine(ss);
-
-    //regTexMap size
-    //DebugScreen::indentLine(ss, tabs);
-    //ss << "# of regStates!=-1=" << regStateMap.size() << "; ";
-    //DebugScreen::newLine(ss);
 }
 
 TileMap::t_regionMap* TileMap::getRegionMap() { return &regionMap; }
@@ -189,7 +184,7 @@ void TileMap::setStructureWithinReg(Structure* stru, TileRegion& tr, int64_t rX,
 	//Log::log("Building structure within RXYZ(%d, %d, %d)", rX, rY, rZ);
 
 	//Get relevant structure bounds and world bounds
-	Box3X sb = stru->getBounds();
+	Box3X<int64_t> sb = stru->getBounds();
 	Box3X<int64_t> wb(rX*32, rY*32, rZ*32, rX*32+31, rY*32+31, rZ*32+31);
 	
 	//TileIterator thru Structure (tiS).
@@ -237,7 +232,10 @@ int TileMap::loadRegion(FileHandler* fileHandler, int64_t rX, int64_t rY, int64_
 		//Place tiles that are part of structures
 		std::vector<Structure*> regStructures = struMap->getStructuresInRXYZ(rX, rY, rZ);
 		for(Structure* stru : regStructures) {
-			setStructureWithinReg(stru, tr, rX, rY, rZ);
+			if(stru->getID()==stru->CRASHED_SHIP) {
+				NCH_Log::log("Placing structure ID %d @ (%d, %d, %d)...\n", stru->getID(), rX, rY, rZ);
+				setStructureWithinReg(stru, tr, rX, rY, rZ);
+			}
 		}
 
 		//Place region's artificial tiles
@@ -294,7 +292,7 @@ int TileMap::forceLoadRegion(FileHandler* fileHandler, int64_t rX, int64_t rY, i
 {
 	std::stringstream ss;
 	ss << "Forceloading region (" << rX << ", " << rY << ", " << rZ << ")";
-	Log::log(ss.str());
+	NCH_Log::log(ss.str());
 	
 	loadRegion(fileHandler, rX, rY, rZ);
 	TileRegion* tr = getRegByRXYZ(rX, rY, rZ);
@@ -314,7 +312,7 @@ int TileMap::saveRegion(FileHandler* fileHandler, int64_t rX, int64_t rY, int64_
 	
 	std::stringstream ss;
 	ss << "Saving region (" << rX << ", " << rY << ", " << rZ << ") in save '" << worldDirName << "'";
-	Log::debug(ss.str());
+	NCH_Log::debug(ss.str());
 	
 	tr->save(fileHandler, worldDirName, rX, rY, rZ, false);
 	return 0;

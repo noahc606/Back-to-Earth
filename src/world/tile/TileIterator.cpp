@@ -1,9 +1,9 @@
 #include "TileIterator.h"
 #include <iostream>
+#include <nch/cpp-utils/io/Log.h>
 #include <sstream>
 #include <string.h>
 #include <SDL2/SDL.h>
-#include "Log.h"
 
 TileIterator::TileIterator(std::map<Defs::t_tripleI64, TileRegion>* regMap)
 {
@@ -395,7 +395,7 @@ void TileIterator::scanBounds()
     std::tuple<int, int, int> textureXYZ = std::make_tuple(2, 0, 0);
 
     //Message
-    Log::debug("Scanning bounds...");
+    NCH_Log::debug("Scanning bounds...");
 
     //Start time
     start = SDL_GetTicks();
@@ -504,11 +504,11 @@ int TileIterator::testSelectionLoaded()
                     boundsInvalid = true;
 
                     if(warnings) {
-                        Log::warn(__PRETTY_FUNCTION__, "TileIterator selected area is partially unloaded");
+                        NCH_Log::warn(__PRETTY_FUNCTION__, "TileIterator selected area is partially unloaded");
 
                         std::stringstream ss2;
                         ss2 << "Bounds are from RXYZ(" << begReg[0] << ", " << begReg[1] << ", " << begReg[2] << ") to RXYZ(" << endReg[0] << ", " << endReg[1] << ", " << endReg[2] << ")";
-                        Log::warn(__PRETTY_FUNCTION__, ss2.str());
+                        NCH_Log::warn(__PRETTY_FUNCTION__, ss2.str());
                     }
 
                     return -1;

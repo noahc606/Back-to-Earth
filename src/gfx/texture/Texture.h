@@ -1,7 +1,7 @@
 #pragma once
 #include <cstdint>
+#include <nch/cpp-utils/gfx/Color.h>
 #include <SDL2/SDL.h>
-#include "Color.h"
 #include "FileHandler.h"
 #include "SDLHandler.h"
 
@@ -92,7 +92,7 @@ public:
     void rect(int x, int y, int w, int h, uint8_t r, uint8_t g, uint8_t b, uint8_t a, SDL_BlendMode bm);
     void rect(int x, int y, int w, int h, uint8_t r, uint8_t g, uint8_t b, uint8_t a);
     void rect(int x, int y, int w, int h, uint8_t r, uint8_t g, uint8_t b);
-	void rect(int x, int y, int w, int h, Color& c);
+	void rect(int x, int y, int w, int h, NCH_Color& c);
     void pixel(int x, int y, uint8_t r, uint8_t g, uint8_t b, uint8_t a, SDL_BlendMode bm);
     void pixel(int x, int y, uint8_t r, uint8_t g, uint8_t b, uint8_t a);
     void pixel(int x, int y, uint8_t r, uint8_t g, uint8_t b);
@@ -105,7 +105,7 @@ public:
     void clear();
 
     void setColorMod();
-    void setColorMod(const Color& c);
+    void setColorMod(const NCH_Color& c);
     void setColorMod(uint8_t r, uint8_t g, uint8_t b);
     void setColorMod(uint8_t r, uint8_t g, uint8_t b, uint8_t a);
     void setBlendMode(SDL_BlendMode bm);
@@ -164,7 +164,7 @@ protected:
     SDL_Texture* tex = nullptr;
     int access = SDL_TEXTUREACCESS_TARGET;
     SDL_BlendMode blendMode = SDL_BLENDMODE_BLEND;
-    Color colorMod;
+    NCH_Color colorMod;
 
     //Texture locking data
     SDL_Rect lockArea;

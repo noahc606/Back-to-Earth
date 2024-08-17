@@ -244,7 +244,7 @@ void Window::updateColorSelectorUI(double hue)
     //Color gradient
     for(int ix = 0; ix<uiW; ix++) {
         for(int iy = 0; iy<uiH; iy++) {
-            Color c; c.setFromHSV(hue, ((double)ix)*100.0/128.0, ((double)iy)*100.0/128.0);
+            NCH_Color c; c.setFromHSV(hue, ((double)ix)*100.0/128.0, ((double)iy)*100.0/128.0);
             windowTex.pixel(uiX+ix, uiY+iy, c.getRGBA());
         }
     }

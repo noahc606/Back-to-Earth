@@ -240,7 +240,7 @@ void RegTexBuilder::detailDepthPTiles(TileIterator& ti)
 /**
     Draw a tile image with a given color; Depending on depth, shade it.
 */
-void RegTexBuilder::drawTypeA(TileIterator& ti, int srcX, int srcY, Color c)
+void RegTexBuilder::drawTypeA(TileIterator& ti, int srcX, int srcY, NCH_Color c)
 {
 	TextureLoader* tl = tex->getTextureLoader();
 	
@@ -270,7 +270,7 @@ void RegTexBuilder::drawTypeA(TileIterator& ti, int srcX, int srcY, Color c)
 			depth = 6;
 		}
 		
-		Color skyColor;
+		NCH_Color skyColor;
 		if( plnt!=nullptr ) {
 			skyColor = plnt->getSkyColor();
 		}
@@ -289,11 +289,11 @@ void RegTexBuilder::drawTypeA(TileIterator& ti, TileType tt)
 	int g = std::get<1>(tt.getRGB());
 	int b = std::get<2>(tt.getRGB());
 	
-	drawTypeA(ti, srcX, srcY, Color(r, g, b) );
+	drawTypeA(ti, srcX, srcY, NCH_Color(r, g, b) );
 }
 void RegTexBuilder::drawTypeA(TileIterator& ti, int srcX, int srcY)
 {
-	drawTypeA( ti, srcX, srcY, Color(255, 255, 255) );
+	drawTypeA( ti, srcX, srcY, NCH_Color(255, 255, 255) );
 }
 
 /*

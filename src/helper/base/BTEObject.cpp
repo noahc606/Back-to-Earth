@@ -1,5 +1,5 @@
 #include "BTEObject.h"
-#include "Log.h"
+#include <nch/cpp-utils/io/Log.h>
 
 /**/
 BTEObject::BTEObject(){}
@@ -36,7 +36,7 @@ void BTEObject::setType(int p_type)
     if(type==Type::none) {
         type = p_type;
     } else {
-        Log::warn(__PRETTY_FUNCTION__, "Tried to set the type of an object more than once");
+        NCH_Log::warn(__PRETTY_FUNCTION__, "Tried to set the type of an object more than once");
     }
 }
 void BTEObject::setSubType(int p_subtype)
@@ -56,7 +56,7 @@ void BTEObject::setSubType(int p_subtype)
         }
     }
 
-    Log::warn(__PRETTY_FUNCTION__, "Tried to set the type of an object to an invalid subtype");
+    NCH_Log::warn(__PRETTY_FUNCTION__, "Tried to set the type of an object to an invalid subtype");
 }
 
 void BTEObject::setID(int p_id)
@@ -64,7 +64,7 @@ void BTEObject::setID(int p_id)
     if(id==-1) {
         id = p_id;
     } else {
-        Log::warn(__PRETTY_FUNCTION__, "Tried to set ID of an object more than once");
+        NCH_Log::warn(__PRETTY_FUNCTION__, "Tried to set ID of an object more than once");
     }
 }
 

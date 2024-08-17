@@ -1,8 +1,8 @@
 #include "ButtonAction.h"
+#include <nch/cpp-utils/io/Log.h>
 #include "CheckBox.h"
 #include "ColorSelector.h"
 #include "FileHandler.h"
-#include "Log.h"
 #include "MainLoop.h"
 #include "TextBox.h"
 
@@ -40,7 +40,7 @@ ButtonAction::ButtonAction(SDLHandler* sh, GUIHandler* gh, FileHandler* fh, Cont
         /** Update prompt buttons */
         case GUIHandler::btn_UPDATE_PROMPT_not_now: {   gh->setGUIs(GUIHandler::GUIs::DEBUG); } break;
         case GUIHandler::btn_UPDATE_PROMPT_dont_ask: {
-            gh->setGUIs(GUIHandler::GUIs::MAIN);
+            gh->setGUIs(GUIHandler::GUIs::MAIN_MENU);
             stgs->kv(Settings::options, "checkForUpdates", "false");
             fh->saveSettings(Settings::options);
         } break;
@@ -100,9 +100,9 @@ ButtonAction::ButtonAction(SDLHandler* sh, GUIHandler* gh, FileHandler* fh, Cont
 		
         /** Default */
         default: {
-            std::stringstream ss;
-            ss << "Clicked button with unset action ID: " << gh->getGUIActionID();
-            Log::trbshoot(__PRETTY_FUNCTION__, ss.str(), "deleting button");
+            //std::stringstream ss;
+            //ss << "Clicked button with unset action ID: " << gh->getGUIActionID();
+            //Log::warnv(__PRETTY_FUNCTION__, ss.str(), "deleting button");
         } break;
     }
 
@@ -182,7 +182,7 @@ void ButtonAction::populateSettingUIInfo(GUIHandler* gh, int& currentWindowID, i
             settingFileID = Settings::TextFiles::options;
         } break;
         default: {
-            Log::error(__PRETTY_FUNCTION__, "Couldn't find any setting-holding windows");
+            NCH_Log::error(__PRETTY_FUNCTION__, "Couldn't find any setting-holding windows");
             return;
         } break;
     }
@@ -219,7 +219,7 @@ void ButtonAction::saveSettingsBasedOnUIs(AudioLoader* al, GUIHandler* gh, Setti
             std::string value = "null";
             //If inputType is hex digits
             if(tbx->getInputType()==tbx->FREE_HEX_BASIC) {
-                Color thisCol;
+                NCH_Color thisCol;
                 thisCol.setFromB16Str(tbx->getString()+"FF");
 
                 value = thisCol.toStringB10();

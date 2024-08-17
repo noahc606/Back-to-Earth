@@ -1,8 +1,8 @@
 #include "TextBox.h"
+#include <nch/cpp-utils/io/Log.h>
 #include <sstream>
 #include "TextOld.h"
 #include "TextureBuilder.h"
-#include "Log.h"
 
 TextBox::TextBox(Window* p_parentWindow, int p_x, int p_y, int p_width, int p_inputType, std::string text, int p_id)
 : Button::Button(p_parentWindow, p_x, p_y, p_width, "", p_id)
@@ -54,7 +54,7 @@ void TextBox::draw()
     Button::draw();
 
 	if(colorInput && inputType==FREE_HEX_BASIC && btnText.getString().size()==7 ) {
-		Color c(255, 0, 0);
+		NCH_Color c(255, 0, 0);
 		c.setFromB16Str(btnText.getString()+"FF");
 		btnText.draw(c);
 	} else {
@@ -80,7 +80,7 @@ void TextBox::tick()
 
         if( selected ) {
             btnText.setString("Enter input...");
-            btnText.foreground = Color(0, 255, 0);
+            btnText.foreground = NCH_Color(0, 255, 0);
         } else {
             btnText.setString(setCB.toCtrlString());
 			
@@ -212,7 +212,7 @@ void TextBox::resetActionID(std::string methodName)
     if( actionID==-1 ) {
         std::stringstream ss;
         ss << "Tried to reset Action ID that already = -1.";
-        Log::warn(methodName, ss.str());
+        NCH_Log::warn(methodName, ss.str());
     }
 
     actionID = -1;

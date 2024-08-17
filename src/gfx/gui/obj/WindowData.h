@@ -1,7 +1,7 @@
 #pragma once
+#include <nch/cpp-utils/gfx/Color.h>
 #include <map>
 #include <string>
-#include "Color.h"
 #include "Texture.h"
 #include "GUI.h"
 
@@ -20,16 +20,16 @@ public:
     int getWidth();
     int getW64();
     char getPanelData(int line, int x);
-    Color getPanelColor(char ch);
-    Color getPanelColor(int line, int x);
-    Color getBorderColor();
+    NCH_Color getPanelColor(char ch);
+    NCH_Color getPanelColor(int line, int x);
+    NCH_Color getBorderColor();
     int getSpecialType();
     GUI* getRelatedUI();
     std::string toString();
     /**/
     void setPanelData(int line, std::string data);
-    void setPanelColor(char ch, const Color& col);
-    void setBorderColor(const Color& col);
+    void setPanelColor(char ch, const NCH_Color& col);
+    void setBorderColor(const NCH_Color& col);
     void setSpecialType(int st, GUI* relatedUI);
     void setSpecialType(int st);
     void buildTex(Texture* windowTex);
@@ -52,6 +52,6 @@ private:
     GUI* relatedUI = nullptr;
 
     std::map<int, std::string> panelData;
-    Color borderColor;
-    std::map<char, Color> colors;
+    NCH_Color borderColor;
+    std::map<char, NCH_Color> colors;
 };

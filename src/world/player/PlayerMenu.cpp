@@ -1,6 +1,6 @@
 #include "PlayerMenu.h"
+#include <nch/cpp-utils/io/Log.h>
 #include <cmath>
-#include "Log.h"
 #include "TextBox.h"
 #include "Tooltip.h"
 
@@ -111,7 +111,6 @@ void PlayerMenu::tick() {
 void PlayerMenu::draw()
 {
 	double angle = ((SDL_GetTicks()/30)%360)*3.141/180.0;
-	oscillation = 32*std::abs(std::sin(angle));
 	
 	if(itemHeldShouldUpdate) {
 		heldItem.init(sdlHandler, 32, 32, 2);
@@ -125,7 +124,8 @@ void PlayerMenu::draw()
 		
 		//Inventory
 		if(state==1) {
-			drawInventory();
+			int oscillation = 32*std::abs(std::sin(angle));
+			drawInventory(oscillation);
 		}
 		
 		if(state==2) {
@@ -155,7 +155,25 @@ void PlayerMenu::draw()
 			invHeldStack.drawCount(sdlHandler, drawX+2, drawY+2);
 		}
 	}
-	
+
+	int shx = getSlotHoveringX();
+	int shy = getSlotHoveringY();
+	int type = getInventorySlotItemType(shx, shy);
+	std::string itemName = Items::getItemName(type);
+	if(itemName!="???null???") {		
+		int trw = TextOld::draw(sdlHandler, itemName, controls->getMouseX(), controls->getMouseY(), 2);
+
+		SDL_Rect tr;
+		tr.x = (controls->getMouseX()-6)/2*2;
+		tr.y = (controls->getMouseY()-6)/2*2;
+		tr.w = trw/2*2+12;
+		tr.h = 7*2+12;
+		
+		sdlHandler->setRenderDrawColor(NCH_Color(0, 0, 0, 128));
+		sdlHandler->renderFillRect(&tr);
+
+		TextOld::draw(sdlHandler, itemName, controls->getMouseX(), controls->getMouseY(), 2);
+	}
 }
 
 int PlayerMenu::getSlotHoveringX() { return std::floor((controls->getMouseX()-invScreenX)/64.0); }
@@ -164,8 +182,8 @@ int PlayerMenu::getItemTexSrcX(int itemID) { return (itemID%8)*32; }
 int PlayerMenu::getItemTexSrcY(int itemID) { return (itemID/8)*32;}
 
 int PlayerMenu::getState() { return state; }
-uint8_t PlayerMenu::getSandboxTexX() { return sandboxTexX; }
-uint8_t PlayerMenu::getSandboxTexY() { return sandboxTexY; }
+uint8_t PlayerMenu::getSelectedSlotX() { return invSX; }
+uint8_t PlayerMenu::getSelectedSlotY() { return invSY; }
 uint8_t PlayerMenu::getSandboxTexRed() { return items.getSandboxRGB().r; } 
 uint8_t PlayerMenu::getSandboxTexGreen() { return items.getSandboxRGB().g; } 
 uint8_t PlayerMenu::getSandboxTexBlue() { return items.getSandboxRGB().b; } 
@@ -245,7 +263,18 @@ void PlayerMenu::setState(int newState)
 	}
 }
 
-void PlayerMenu::drawInventory()
+void PlayerMenu::save(FileHandler* fh, std::string worldDataPath)
+{
+	NCH_Log::log("Saving main player data within \"%s\"\n", worldDataPath.c_str());
+
+	std::stringstream invdata;
+	for(int y = 0; y<invH; y++)
+	for(int x = 0; x<invW; x++) {
+
+	}
+}
+
+void PlayerMenu::drawInventory(int oscillation)
 {
 	//Set texture settings for uiOverlay
 	uiOverlay.clear();
@@ -254,8 +283,8 @@ void PlayerMenu::drawInventory()
 	uiOverlay.setDrawScale(2);
 	
 	//Set color of inventory slot ridges
-	Color ridge1(0, 0, 0, 100);
-	Color ridge2(128+oscillation, 128+oscillation, 128+oscillation, 100);
+	NCH_Color ridge1(0, 0, 0, 100);
+	NCH_Color ridge2(128+oscillation, 128+oscillation, 128+oscillation, 100);
 	
 	//Draw inventory elements
 	for(int ix = -10; ix<10; ix++)
@@ -265,9 +294,9 @@ void PlayerMenu::drawInventory()
 		}
 
 		//Rect containing 4 ridges and a 30x30 texture
-		Color box1(0, 16, 32+oscillation, 100);
-		Color box2(0, 0, 48+oscillation, 100);
-		Color box3(0, 32, 16, 100);
+		NCH_Color box1(0, 16, 32+oscillation, 100);
+		NCH_Color box2(0, 0, 48+oscillation, 100);
+		NCH_Color box3(0, 32, 16, 100);
 		if(getInventorySlotItemType(ix, iy)!=-1) {
 			//Set box1, box2, box3 to be a different color if this inventory spot is selected
 			if( invSX==ix && invSY==iy ) {
@@ -354,8 +383,8 @@ void PlayerMenu::updateMenuCoordinates()
 		windowX = parentWindow->getSX(); 	windowY = parentWindow->getSY();
 		windowW = parentWindow->getWidth(); windowH = parentWindow->getHeight();
 		//invScreen
-		invScreenX = windowX+32*20+2*6;		invScreenW = invW*32*2;
-		invScreenY = windowY+2*4;			invScreenH = invH*32*2;
+		invScreenX = windowX+64*7+2*6;		invScreenW = invW*64;
+		invScreenY = windowY+2*4;			invScreenH = invH*64;
 	}
 }
 
@@ -371,7 +400,7 @@ void PlayerMenu::updateSandboxRGB()
 					colorInt = 255;
 				}
 				
-				Color newcolor = items.getSandboxRGB();
+				NCH_Color newcolor = items.getSandboxRGB();
 				switch(i) {
 					case 0: newcolor.r = colorInt; break;
 					case 1: newcolor.g = colorInt; break;
@@ -400,13 +429,7 @@ void PlayerMenu::selectInventorySlot(int x, int y)
 	if( getInventorySlotItemType(invSX, invSY)!=-1 ) {
 		itemUIShouldUpdate = true;
 	}
-	
-	//If in sandbox mode, set sandboxTex(X, Y).
-	if( state==2 ) {
-		sandboxTexX = x;
-		sandboxTexY = y;
-	}
-	
+		
 	//Set invSX and invSY to x, y
 	invSX = x;
 	invSY = y;
@@ -420,7 +443,7 @@ void PlayerMenu::setInventorySlotItem(int x, int y, int i)
 void PlayerMenu::setInventorySlotItemStack(int x, int y, InvItemStack iis)
 {
 	if(!inventorySlotExists(x, y)) {
-		Log::warn(__PRETTY_FUNCTION__, "Invalid inventory slot (%d, %d)", x, y);
+		NCH_Log::warn(__PRETTY_FUNCTION__, "Invalid inventory slot (%d, %d)", x, y);
 		return;
 	}
 

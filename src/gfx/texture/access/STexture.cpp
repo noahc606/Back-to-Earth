@@ -1,6 +1,6 @@
 #include "STexture.h"
-#include "Log.h"
-#include "Timer.h"
+#include <nch/cpp-utils/io/Log.h>
+#include <nch/sdl-utils/Timer.h>
 
 STexture::STexture(){}
 STexture::~STexture(){}
@@ -33,8 +33,8 @@ void STexture::lock()
 
     //lock entire texture
     if( SDL_LockTexture(tex, NULL, &pixels, &pitch)<0 ) {
-        Log::errorv(__PRETTY_FUNCTION__, SDL_GetError(), "Texture locking failed");
-        Log::throwException();
+        NCH_Log::errorv(__PRETTY_FUNCTION__, SDL_GetError(), "Texture locking failed");
+        NCH_Log::throwException();
     }
 }
 
@@ -56,10 +56,3 @@ void STexture::pixel(int x, int y, uint8_t r, uint8_t g, uint8_t b)
 {
     pixel(x, y, r, g, b, 255);
 }
-
-/*
-void STexture::allocDestinationPixels()
-{
-    dstPixels = (uint32_t*)malloc(lockArea.w*lockArea.h*sizeof(*dstPixels));
-}
-*/

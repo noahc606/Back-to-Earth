@@ -1,6 +1,6 @@
 #include "Commands.h"
+#include <nch/cpp-utils/io/Log.h>
 #include <vector>
-#include "Log.h"
 
 Commands::t_kvIntSet Commands::kvIntSet;
 Commands::t_kvStrSet Commands::kvStrSet;
@@ -92,7 +92,7 @@ int Commands::executeCMD(std::string cmd)
                 case CMD_gs:
                 case CMD_tele: {
                     if(s<=1) {
-                        Log::log(errorMissingArg(2, args[0]));
+                        NCH_Log::log(errorMissingArg(2, args[0]));
                         return -1;
                     }
                 } break;
@@ -103,14 +103,14 @@ int Commands::executeCMD(std::string cmd)
                 case CMD_debug: {
                     //If there are too many arguments
                     if(s>3) {
-                        Log::log( errorTooManyArgs(3, commandList[cmdID]) );
+                        NCH_Log::log( errorTooManyArgs(3, commandList[cmdID]) );
                         return -1;
                     }
                 } break;
                 case CMD_tele: {
                     //If there are only two arguments
                     if(s==2) {
-                        Log::log( errorMissingArg(3, args[0]) );
+                        NCH_Log::log( errorMissingArg(3, args[0]) );
                         return -1;
                     }
                 } break;
@@ -127,7 +127,7 @@ int Commands::executeCMD(std::string cmd)
                     if(s==2) {
                         int x = cmdKV(word);
                         if( x!=0 ) {
-                            Log::log(errorMissingArg(3, commandList[cmdID]));
+                            NCH_Log::log(errorMissingArg(3, commandList[cmdID]));
                             return -1;
                         }
                     }
@@ -137,7 +137,7 @@ int Commands::executeCMD(std::string cmd)
                     if(s==2) {
                         int x = cmdKV("\""+word+"\"");
                         if( x!=0 ) {
-                            Log::log(errorMissingArg(3, commandList[cmdID]));
+                            NCH_Log::log(errorMissingArg(3, commandList[cmdID]));
                             return -1;
                         }
                     }
@@ -146,14 +146,14 @@ int Commands::executeCMD(std::string cmd)
                     if( word=="\"memTexes\"" ) {
                         cKV("~cmd.debug.type", "\"memTexes\"");
                     } else {
-                        Log::log("Unknown argument '"+word+"'...");
+                        NCH_Log::log("Unknown argument '"+word+"'...");
                     }
                 } break;
                 case CMD_gs: {
                     if( parseString(word)==ParseTypes::INT ) {
                         cKV("~cmd.gs", std::stoi(word));
                     } else {
-                        Log::log(errorInvalidArg(commandList[cmdID], 2, "integer"));
+                        NCH_Log::log(errorInvalidArg(commandList[cmdID], 2, "integer"));
                         return -1;
                     }
                 } break;
@@ -162,7 +162,7 @@ int Commands::executeCMD(std::string cmd)
                     if( parseString(word)==ParseTypes::INT ) {
                         cKV("~cmd.tele.x", std::stoi(word));
                     } else {
-                        Log::log(errorInvalidArg(commandList[cmdID], 2, "integer"));
+                        NCH_Log::log(errorInvalidArg(commandList[cmdID], 2, "integer"));
                         return -1;
                     }
                 } break;
@@ -186,7 +186,7 @@ int Commands::executeCMD(std::string cmd)
                             cKV("~cmd.debug", 1);
                             cKV("~cmd.debug.memTexesID", std::stoi(word));
                         } else {
-                            Log::log(errorInvalidArg(commandList[cmdID], 3, "integer"));
+                            NCH_Log::log(errorInvalidArg(commandList[cmdID], 3, "integer"));
                         }
                     }
                 } break;
@@ -196,7 +196,7 @@ int Commands::executeCMD(std::string cmd)
                         cKV("~cmd.tele.y", std::stoi(word));
                         cKV("~cmd.tele", 1);
                     } else {
-                        Log::log(errorInvalidArg(commandList[cmdID], 3, "integer"));
+                        NCH_Log::log(errorInvalidArg(commandList[cmdID], 3, "integer"));
                         return -1;
                     }
                 } break;
@@ -212,7 +212,7 @@ int Commands::executeCMD(std::string cmd)
                         cKV("~cmd.tele.z", std::stoi(word));
                         cKV("~cmd.tele", 1);
                     } else {
-                        Log::log(errorInvalidArg(commandList[cmdID], 4, "integer"));
+                        NCH_Log::log(errorInvalidArg(commandList[cmdID], 4, "integer"));
                         return -1;
                     }
                 }
@@ -224,7 +224,7 @@ int Commands::executeCMD(std::string cmd)
     if( args[0]=="" ) {
         std::stringstream ss;
         ss << "Invalid command \"" << words.at(0) << "\"";
-        Log::log(ss.str());
+        NCH_Log::log(ss.str());
         return -1;
     }
 
@@ -256,7 +256,7 @@ int Commands::resetCMDEntered(std::string methodName)
     if( getInt("~cmd.state")==nullptr &&
         getString("~cmd.state")==nullptr
     ) {
-        Log::warn(methodName, "Tried to reset key \"~cmd.state\" which doesn't exist");
+        NCH_Log::warn(methodName, "Tried to reset key \"~cmd.state\" which doesn't exist");
         return -1;
     }
 
@@ -380,7 +380,7 @@ int Commands::cmdKV(std::string arg1, std::string arg2)
         if( !noMessage ) {
             std::stringstream ss;
             ss << "Set kv-pair (\"" << arg1 << "\", \"" << arg2 << "\").";
-            Log::log(ss.str());
+            NCH_Log::log(ss.str());
         }
         //Return
         return 0;
@@ -394,7 +394,7 @@ int Commands::cmdKV(std::string arg1, std::string arg2)
         if( !noMessage ) {
             std::stringstream ss;
             ss << "Set kv-pair (\"" << arg1 << "\", " << arg2 << ").";
-            Log::log(ss.str());
+            NCH_Log::log(ss.str());
         }
         //Return
         return 0;
@@ -409,7 +409,7 @@ int Commands::cmdKV(std::string arg1, std::string arg2)
         if( !noMessage ) {
             std::stringstream ss;
             ss << "Set kv-pair (\"" << arg1 << "\", " << arg2 << ").";
-            Log::log(ss.str());
+            NCH_Log::log(ss.str());
         }
         //Return
         return 0;
@@ -421,7 +421,7 @@ int Commands::cmdKV(std::string arg1, std::string arg2)
         if( !noMessage ) {
             std::stringstream ss;
             ss << "Removed kv-pair (\"" << arg1 << "\", " << arg2 << ").";
-            Log::log(ss.str());
+            NCH_Log::log(ss.str());
         }
         //Return
         return 0;
@@ -442,7 +442,7 @@ int Commands::cmdKV(std::string arg1)
         //Message 1
         std::stringstream ss1;
         ss1 << "Clearing all key-value pairs...";
-        Log::log(ss1.str());
+        NCH_Log::log(ss1.str());
         //Operation
         int ints = 0;
         for( t_kvIntSet::iterator itrKVI = kvIntSet.begin(); itrKVI!=kvIntSet.end(); ) {
@@ -459,7 +459,7 @@ int Commands::cmdKV(std::string arg1)
         //Message 2
         std::stringstream ss2;
         ss2 << "Count: " << ints << " keys w/ integer values & " << strs << " keys w/ string values.";
-        Log::log(ss2.str());
+        NCH_Log::log(ss2.str());
     } else
     if( arg1=="?" || arg1=="??" || arg1=="show" ) {
         bool showHidden = false;
@@ -474,7 +474,7 @@ int Commands::cmdKV(std::string arg1)
         } else {
             ss1 << "List of ALL key-value pairs:";
         }
-        Log::log(ss1.str());
+        NCH_Log::log(ss1.str());
         /* Operation */
         //Count ints
         int ints = 0;
@@ -514,7 +514,7 @@ int Commands::cmdKV(std::string arg1)
         } else {
             ss2 << "Found " << ints << " (+" << hiddenInts << ") integers, " << strs << " (+" << hiddenStrs << ") strings.";
         }
-        Log::log(ss2.str());
+        NCH_Log::log(ss2.str());
     } else
     {
         //Unsuccessful command
@@ -563,7 +563,7 @@ int Commands::parseString(std::string& word)
     //Unable to parse string if program has reached this point
     std::stringstream ss;
     ss << "Unable to parse \"" << word << "\" - must be a string (surrounded in quotes) or an int";
-    Log::log(ss.str());
+    NCH_Log::log(ss.str());
     return ParseTypes::UNKNOWN;
 }
 
@@ -621,5 +621,5 @@ void Commands::ssWords(const std::vector<std::string>& words)
         wordsFormatted << "\"" << word << "\" ";
     }
     wordsFormatted << "}";
-    Log::log(wordsFormatted.str());
+    NCH_Log::log(wordsFormatted.str());
 }

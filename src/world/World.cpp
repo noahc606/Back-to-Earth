@@ -1,8 +1,8 @@
 #include "World.h"
 #include <math.h>
+#include <nch/cpp-utils/io/Log.h>
 #include <time.h>
 #include "TextureBuilder.h"
-#include "Log.h"
 #include "Atmosphere.h"
 #include "MainLoop.h"
 #include "Timer.h"
@@ -55,7 +55,7 @@ void World::init(SDLHandler* sh, GUIHandler* gh, FileHandler* fh, Controls* ctrl
 	double pz = Settings::getNum(worldDataKVs, "playerZ");
 	int64_t worldSeed = Settings::getI64(worldDataKVs, "worldSeed");
 	double plntRot = Settings::getNum(worldDataKVs, "planetRotation");
-	Log::log("Loaded save data: player(%f, %f, %f); planetRotation=%f\n", px, py, pz, plntRot);
+	NCH_Log::log("Loaded save data: player(%f, %f, %f); planetRotation=%f\n", px, py, pz, plntRot);
 	std::cout << "Seed: " << worldSeed << "\n";
 
 	/* INIT 1: Planet */
@@ -115,6 +115,9 @@ World::~World()
 	Settings::kv(&wdKVs, "playerY", std::get<1>(localPlayer.getPos()) );
 	Settings::kv(&wdKVs, "playerZ", std::get<2>(localPlayer.getPos()) );
 	fileHandler->saveSettings(wdKVs, worldDataPath);
+
+	//Save player inventory
+	localPlayerMenu.save(fileHandler, worldDataPath);
 
 	// Destroy canvases
 	csTileMap.destroy();
@@ -177,7 +180,7 @@ void World::draw(bool debugOn)
 void World::tick(bool paused, GUIHandler& guiHandler)
 {
 	performanceCounter = 0;
-	Timer t("World tick timer", false);
+	NCH_Timer t("World tick timer", false);
 
 	/** Tick world objects if not paused */
 	if( !paused ) {
@@ -406,7 +409,7 @@ void World::playerInteractions(GUIHandler& guiHandler, bool paused)
 				tt.init();
 				tt.setRGB(localPlayerMenu.getSandboxTexRed(), localPlayerMenu.getSandboxTexGreen(), localPlayerMenu.getSandboxTexBlue());
 				tt.setSolid(true);
-				tt.setTextureXY(localPlayerMenu.getSandboxTexX(), localPlayerMenu.getSandboxTexY());
+				tt.setTextureXY(localPlayerMenu.getSelectedSlotX(), localPlayerMenu.getSelectedSlotY());
 				tt.setVisionBlocking(true);
 				playerTryPlaceTile(tt, false);
 			}; break;

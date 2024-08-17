@@ -45,7 +45,7 @@ void Tooltip::draw()
         int g = 100*sf-ed;  if(g<0) g = 0; if(g>255) g = 255;
         int b = 225*sf-ed;  if(b<0) b = 0; if(b>255) b = 255;
         
-        TextOld::draw(sdlHandler, text, sX, sY, 4, Color(r, g, b), Color(0, 0, 0, 255), TextureLoader::GUI_FONT_robot);
+        TextOld::draw(sdlHandler, text, sX, sY, 4, NCH_Color(r, g, b), NCH_Color(0, 0, 0, 255), TextureLoader::GUI_FONT_robot);
     } else {
         TextOld::draw(sdlHandler, text, sX, sY, 2);
     }

@@ -20,8 +20,8 @@ public:
 	int getItemTexSrcX(int itemID);
 	int getItemTexSrcY(int itemID);
 	int getState();
-	uint8_t getSandboxTexX();
-	uint8_t getSandboxTexY();
+	uint8_t getSelectedSlotX();
+	uint8_t getSelectedSlotY(); 
 	uint8_t getSandboxTexRed();
 	uint8_t getSandboxTexGreen();
 	uint8_t getSandboxTexBlue();
@@ -30,6 +30,7 @@ public:
 	void giveItemStack(InvItemStack iis);
 	void decrementSelectedItemStack();
 	void setState(int newState);
+	void save(FileHandler* fh, std::string worldDataPath);
 	/**/
 private:
 	/**/
@@ -38,15 +39,12 @@ private:
 	Controls* controls = nullptr;
 	int state = 0;
 	int lastState = 0;
-	int oscillation = 0;
 	
-	//Inventory slot and selected inventory slot
+	//Inventory
 	const int invW = 8; const int invH = 8;
-	
 	std::map<std::pair<int, int>, InvItemStack> inventorySlots;
-	//int inventorySlots[8][8];
-	//int clothingSlots[0][3];
-
+	
+	//Inventory selection and holding
 	int invSX = -1; int invSY = -1;		//X, Y of the currently selected inventory slot
 	InvItemStack invHeldStack;			//Currently held item stack
 	InvItemStack invSelectedStack;		//Currently selected item stack (right click)
@@ -54,12 +52,9 @@ private:
 	bool itemUIShouldUpdate = true;
 	bool itemHeldShouldUpdate = true;
 	
-	int windowX = 0; int windowY = 0; int windowW = 0; int windowH = 0;
-	int invScreenX = 0; int invScreenY = 0; int invScreenW = 0; int invScreenH = 0;
-	
-	uint8_t sandboxTexX = 1;
-	uint8_t sandboxTexY = 3;
-
+	//Window and inventory screen
+	int windowX = 0, windowY = 0, windowW = 0, windowH = 0;
+	int invScreenX = 0, invScreenY = 0, invScreenW = 0, invScreenH = 0;
 	
 	Texture uiOverlay;
 	Texture heldItem;
@@ -68,7 +63,7 @@ private:
 	int playerGamemode = 0;
 
 	/**/
-	void drawInventory();
+	void drawInventory(int oscillation);
 	/**/
 	int getSlotHoveringX();
 	int getSlotHoveringY();

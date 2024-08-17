@@ -1,12 +1,12 @@
 #include "MainLoop.h"
 #include <ctime>
 #include <iostream>
+#include <nch/cpp-utils/io/Log.h>
+#include <nch/sdl-utils/Timer.h>
 #include <SDL2/SDL.h>
 #include <unistd.h>
 #include "CurlHandler.h"
-#include "Log.h"
 #include "Main.h"
-#include "Timer.h"
 
 #if ( defined(_WIN32) || defined(WIN32) )
 #include <windows.h>
@@ -38,14 +38,10 @@ uint64_t MainLoop::nextSecond = 0;
  * 	- BTE: GUIHandler, Tests, DebugScreen, World
  */
 MainLoop::MainLoop()
-{
-	//Create Back to Earth subsystems
-	Log::trbshoot(__PRETTY_FUNCTION__, "Creating BTE subsystems");
-	
+{	
 	//SDL (pre-init): file handler and controls.
 	sdlHandler.preinit();
 	fileHandler.init( sdlHandler.getResourcePath(), sdlHandler.getFilesystemType() );
-	Log::initAll( sdlHandler.getResourcePath(), sdlHandler.getFilesystemType() );
 	controls.init( fileHandler.getSettings() );
 	
 	//BTE (pre-init): Managing settings
@@ -62,7 +58,7 @@ MainLoop::MainLoop()
 	//Start gameLoop
 	initialized = true;
 	if(!bte.isHardTesting()) {
-		Log::log("Running "+Main::TITLE+" "+Main::VERSION_LABEL+"...");
+		NCH_Log::log("Running "+Main::TITLE+" "+Main::VERSION_LABEL+"...");
 		while(running) gameLoop();
 	}
 }
@@ -74,13 +70,11 @@ MainLoop::~MainLoop()
 {
 	if(!bte.isHardTesting()) {
 		sdlHandler.getTextureLoader()->destroy();
-		Log::log("Exiting "+Main::TITLE+" "+Main::VERSION_LABEL+"...");
+		NCH_Log::log("Exiting "+Main::TITLE+" "+Main::VERSION_LABEL+"...");
 	} else {
-        Log::log("Finished hard testing "+Main::TITLE+" "+Main::VERSION_LABEL+"...");
-		Log::log("To enable the BTE window, make sure you have \"debugHardTesting=false\" in 'backtoearth/saved/settings/options.txt'!");
+        NCH_Log::log("Finished hard testing "+Main::TITLE+" "+Main::VERSION_LABEL+"...");
+		NCH_Log::log("To enable the BTE window, make sure you have \"debugHardTesting=false\" in 'backtoearth/saved/settings/options.txt'!");
 	}
-	
-	Log::destroyAll();
 }
 
 //void MainLoop::init();
@@ -123,7 +117,7 @@ bool MainLoop::isInitialized() { return initialized; }
 void MainLoop::setMaxFPS(int maxFPS)
 {
 	std::stringstream ss; ss << "Setting max FPS to '" << maxFPS << "'...";
-	Log::debug(ss.str());
+	NCH_Log::debug(ss.str());
 	
 	MainLoop::maxFPS = maxFPS;
 	MainLoop::msPerFrame = 1000.0/MainLoop::maxFPS;
@@ -264,11 +258,11 @@ void MainLoop::tick()
     controls.tick();
 
     if( controls.isPressed("FUNC_9") ) {
-        Log::log("Reloading Back to Earth assets...");
+        NCH_Log::log("Reloading Back to Earth assets...");
 
         //Reload all resources and track how much time it takes
         {
-            Timer t("reloading all resources");
+            NCH_Timer t("reloading all resources");
             sdlHandler.getTextureLoader()->reload();
             fileHandler.reloadSettings();
         }

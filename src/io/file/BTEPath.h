@@ -1,16 +1,20 @@
 #pragma once
+#include <string>
 
-/*
-    FilePath class ended up being a disaster because of repeated conversions between string paths and FilePaths.
-    Also, the usage of getModifiedPath() and getUnmodifiedPath() within FileHandler is extremely messy.
-    Unfortunately, most of FileHandler relies on FilePath.
+class BTEPath
+{
+public:
+    BTEPath(std::string path, std::string extension, int filesystemType);
+    BTEPath(std::string path, int filesystemType);
 
-    The plan is to slowly replace FilePath with BTEPath.
-    BTEPath will store the full filesystem path string and take in a single string in its constructor (regardless of format: "/home/user/.../backtoearth" or "/backtoearth/" or whatever).
+    static std::string getConvertedPath(std::string path, int fileSystemType);
+    static std::string getExtension(std::string path, int fsType);
+    static std::string getDirectory(std::string path, int fsType);
+    static char getSeparator(int fsType);
+    std::string get();
 
-    However, this may not be implemented for a while as the current system "just works".
-*/
+protected:
 
-class BTEPath {
-
+private:
+    std::string path;
 };
