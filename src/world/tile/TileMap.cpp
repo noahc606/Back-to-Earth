@@ -21,7 +21,7 @@ void TileMap::init(SDLHandler* sh, FileHandler* fh, Planet* pt, StructureMap* st
 
 void TileMap::destroy()
 {
-    NCH_Log::debug(__PRETTY_FUNCTION__, "Deleting TileMap.");
+    nch::Log::debug(__PRETTY_FUNCTION__, "Deleting TileMap.");
 
     //Delete elements in regionMap
     for( t_regionMap::iterator itr = regionMap.begin(); itr!=regionMap.end(); itr = regionMap.begin() ) {
@@ -233,7 +233,7 @@ int TileMap::loadRegion(FileHandler* fileHandler, int64_t rX, int64_t rY, int64_
 		std::vector<Structure*> regStructures = struMap->getStructuresInRXYZ(rX, rY, rZ);
 		for(Structure* stru : regStructures) {
 			if(stru->getID()==stru->CRASHED_SHIP) {
-				NCH_Log::log("Placing structure ID %d @ (%d, %d, %d)...\n", stru->getID(), rX, rY, rZ);
+				nch::Log::log("Placing structure ID %d @ (%d, %d, %d)...\n", stru->getID(), rX, rY, rZ);
 				setStructureWithinReg(stru, tr, rX, rY, rZ);
 			}
 		}
@@ -292,7 +292,7 @@ int TileMap::forceLoadRegion(FileHandler* fileHandler, int64_t rX, int64_t rY, i
 {
 	std::stringstream ss;
 	ss << "Forceloading region (" << rX << ", " << rY << ", " << rZ << ")";
-	NCH_Log::log(ss.str());
+	nch::Log::log(ss.str());
 	
 	loadRegion(fileHandler, rX, rY, rZ);
 	TileRegion* tr = getRegByRXYZ(rX, rY, rZ);
@@ -312,7 +312,7 @@ int TileMap::saveRegion(FileHandler* fileHandler, int64_t rX, int64_t rY, int64_
 	
 	std::stringstream ss;
 	ss << "Saving region (" << rX << ", " << rY << ", " << rZ << ") in save '" << worldDirName << "'";
-	NCH_Log::debug(ss.str());
+	nch::Log::debug(ss.str());
 	
 	tr->save(fileHandler, worldDirName, rX, rY, rZ, false);
 	return 0;

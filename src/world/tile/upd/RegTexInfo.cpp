@@ -143,7 +143,7 @@ void RegTexInfo::draw(int64_t camSRX, int64_t camSRY, int64_t camSRZ, int loadDi
 	rtUpdatesTime = 0.0;
 	{
 		std::stringstream ss; ss << "Performing " << rtUpdatesToDo << " RegTexUpdater";
-		NCH_Timer t(ss.str(), false);
+		nch::Timer t(ss.str(), false);
 		
 		regTexProcessor.processRegions(cam, loadDistH, rtUpdatesToDo);
 		
@@ -165,15 +165,15 @@ void RegTexInfo::drawDebugOverlay(Canvas* csDebug, int64_t csRX, int64_t csRY, i
 				TileRegion* tr = tileMap->getRegByCsRXYZ(cam, icsRX, icsRY, csRZ);
 
 				//Get fill color which depends on the TileRegion's current regTexState
-				NCH_Color fillColor(255, 255, 255);	//White == nullptr
+				nch::Color fillColor(255, 255, 255);	//White == nullptr
 				if(tr!=nullptr) {
 					switch(tr->getRegTexState()) {
-						case TileRegion::NONE: 					fillColor = NCH_Color(255, 127, 255); break;	//Pink
-						case TileRegion::UNGENERATED: 			fillColor = NCH_Color(255,   0,   0); break;	//Red
-						case TileRegion::GENERATING: 			fillColor = NCH_Color(255, 255,   0); break;	//Yellow
-						case TileRegion::FINISHED_GENERATING: 	fillColor = NCH_Color(  0, 255,   0); break;	//Green
-						case TileRegion::SHOULD_UPDATE: 		fillColor = NCH_Color(  0, 255, 255); break;	//Cyan
-						case TileRegion::UPDATED: 				fillColor = NCH_Color(  0,   0, 255); break;	//Blue
+						case TileRegion::NONE: 					fillColor = nch::Color(255, 127, 255); break;	//Pink
+						case TileRegion::UNGENERATED: 			fillColor = nch::Color(255,   0,   0); break;	//Red
+						case TileRegion::GENERATING: 			fillColor = nch::Color(255, 255,   0); break;	//Yellow
+						case TileRegion::FINISHED_GENERATING: 	fillColor = nch::Color(  0, 255,   0); break;	//Green
+						case TileRegion::SHOULD_UPDATE: 		fillColor = nch::Color(  0, 255, 255); break;	//Cyan
+						case TileRegion::UPDATED: 				fillColor = nch::Color(  0,   0, 255); break;	//Blue
 					}
 				}
 				

@@ -26,7 +26,7 @@ void Button::init(SDLHandler* sh, Controls* ctrls)
     GUI::init(sh, ctrls);
     
     //Reset draw color
-    sdlHandler->setRenderDrawColor(NCH_Color(0, 0, 0, 0));
+    sdlHandler->setRenderDrawColor(nch::Color(0, 0, 0, 0));
 
     int texW = width/2;
     int texH = height/2;

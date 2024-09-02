@@ -24,7 +24,7 @@ public:
     uint32_t** getSheetPixels();
 
     void setSpriteDimensions(int w, int h);
-    void setSpriteColor(const NCH_Color& c);
+    void setSpriteColor(const nch::Color& c);
 
     void addSprite(int imgID, int srcX, int srcY, int srcW, int srcH, int spriteX, int spriteY);
     void addSprite(int imgID, int srcX, int srcY, int spriteX, int spriteY);
@@ -48,7 +48,7 @@ private:
     void restrictingSpriteSize(bool rss);
 
     int spriteWidth = 0; int spriteHeight = 0;
-    NCH_Color spriteColor;
+    nch::Color spriteColor;
 
     int sheetWidth = 0; int sheetHeight = 0;
     std::vector<int> spritesThisRow;

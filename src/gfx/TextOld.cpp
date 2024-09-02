@@ -28,7 +28,7 @@ TextOld::~TextOld(){}
 
 /**/
 
-void TextOld::draw(const NCH_Color& fg)
+void TextOld::draw(const nch::Color& fg)
 {
     if( insertionPoint>-1 && selected ) {
 
@@ -43,14 +43,14 @@ void TextOld::draw(const NCH_Color& fg)
 
 void TextOld::draw()
 {
-    NCH_Color c(255, 255, 255);
+    nch::Color c(255, 255, 255);
     draw(c);
 }
 
 /**
  *  Draw text to a texture, rather than directly to the screen (if tex!=nullptr, this function is broken - have to replace this entire class)
 */
-int TextOld::draw(SDLHandler* sdlHandler, Texture* tex, std::string s, int x, int y, int scale, const NCH_Color& fg, const NCH_Color& bg, int fontType)
+int TextOld::draw(SDLHandler* sdlHandler, Texture* tex, std::string s, int x, int y, int scale, const nch::Color& fg, const nch::Color& bg, int fontType)
 {
     //Width of text
     int res = 0;
@@ -176,19 +176,19 @@ int TextOld::draw(SDLHandler* sdlHandler, Texture* tex, std::string s, int x, in
     Perfectly fine for small to medium sized strings (n<~200).
     For large strings, it is recommended to create a TextOld object and change the string line by line.
 */
-int TextOld::draw(SDLHandler* sdlHandler, std::string s, int x, int y, int scale, const NCH_Color& fg, const NCH_Color& bg, int fontType)
+int TextOld::draw(SDLHandler* sdlHandler, std::string s, int x, int y, int scale, const nch::Color& fg, const nch::Color& bg, int fontType)
 {
     return draw(sdlHandler, nullptr, s, x, y, scale, fg, bg, fontType);
 }
 
-int TextOld::draw(SDLHandler* sdlHandler, std::string s, int x, int y, int scale, const NCH_Color& fg, const NCH_Color& bg)
+int TextOld::draw(SDLHandler* sdlHandler, std::string s, int x, int y, int scale, const nch::Color& fg, const nch::Color& bg)
 {
-    return draw(sdlHandler, s, x, y, scale, NCH_Color(255, 255, 255), NCH_Color(0, 0, 0, 0), TextureLoader::GUI_FONT_bte);
+    return draw(sdlHandler, s, x, y, scale, nch::Color(255, 255, 255), nch::Color(0, 0, 0, 0), TextureLoader::GUI_FONT_bte);
 }
 
 int TextOld::draw(SDLHandler* sdlHandler, std::string s, int x, int y, int scale)
 {
-    return draw(sdlHandler, s, x, y, scale, NCH_Color(255, 255, 255), NCH_Color(0, 0, 0, 0));
+    return draw(sdlHandler, s, x, y, scale, nch::Color(255, 255, 255), nch::Color(0, 0, 0, 0));
 }
 
 /**/
@@ -296,7 +296,7 @@ void TextOld::setFontType(int ft)
 
         default: {
             std::stringstream ss; ss << "Using default font for unknown font ID '" << ft << "'";
-            NCH_Log::warn(__PRETTY_FUNCTION__, ss.str());
+            nch::Log::warn(__PRETTY_FUNCTION__, ss.str());
             fontType = TextureLoader::GUI_FONT_bte;
         } break;
     }

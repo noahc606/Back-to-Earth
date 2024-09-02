@@ -34,7 +34,7 @@ void TileMapScreen::init(SDLHandler* sh, FileHandler* fh, TileMap* tm, Canvas* c
 
 void TileMapScreen::destroy()
 {
-	NCH_Log::log("Destroying tileMapScreen...");
+	nch::Log::log("Destroying tileMapScreen...");
 	
 	//Build a list of all tile region locations
 	std::vector<std::tuple<uint64_t, uint64_t, uint64_t>> regs;
@@ -87,7 +87,7 @@ void TileMapScreen::tick()
 
 	// Track tick time (start at 0.0)
 	infoTickTime = 0.0;
-	NCH_Timer localTimer;
+	nch::Timer localTimer;
 	{
 		// Update cam and regTexUpdates
 		// Get camera info
@@ -159,7 +159,7 @@ void TileMapScreen::draw()
 {
 	// Keep track of draw time
 	infoDrawTime = 0.0;
-	NCH_Timer localTimer;
+	nch::Timer localTimer;
 	{
 		//draw: RegTexUpdater
 		regTexInfo.draw(camRX, camRY, camRZ, loadDist);

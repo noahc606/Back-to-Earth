@@ -182,7 +182,7 @@ void ButtonAction::populateSettingUIInfo(GUIHandler* gh, int& currentWindowID, i
             settingFileID = Settings::TextFiles::options;
         } break;
         default: {
-            NCH_Log::error(__PRETTY_FUNCTION__, "Couldn't find any setting-holding windows");
+            nch::Log::error(__PRETTY_FUNCTION__, "Couldn't find any setting-holding windows");
             return;
         } break;
     }
@@ -219,7 +219,7 @@ void ButtonAction::saveSettingsBasedOnUIs(AudioLoader* al, GUIHandler* gh, Setti
             std::string value = "null";
             //If inputType is hex digits
             if(tbx->getInputType()==tbx->FREE_HEX_BASIC) {
-                NCH_Color thisCol;
+                nch::Color thisCol;
                 thisCol.setFromB16Str(tbx->getString()+"FF");
 
                 value = thisCol.toStringB10();

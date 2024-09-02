@@ -161,7 +161,7 @@ void TileMapUpdater::updateMapVisible(int loadDist) { updateMapVisible(false, lo
 void TileMapUpdater::regPillarGenAttempt(FileHandler* fileHandler, int64_t csRX, int64_t csRY, int64_t camCsRZ, int loadDepth)
 {
 	//Timer for debugging
-	NCH_Timer rlt;
+	nch::Timer rlt;
 
 	//Check pillar of regions at (rX, rY)
 	for(int64_t neg = -1; neg<=1; neg += 2) {

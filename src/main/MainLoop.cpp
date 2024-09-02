@@ -58,7 +58,7 @@ MainLoop::MainLoop()
 	//Start gameLoop
 	initialized = true;
 	if(!bte.isHardTesting()) {
-		NCH_Log::log("Running "+Main::TITLE+" "+Main::VERSION_LABEL+"...");
+		nch::Log::log("Running "+Main::TITLE+" "+Main::VERSION_LABEL+"...");
 		while(running) gameLoop();
 	}
 }
@@ -70,10 +70,10 @@ MainLoop::~MainLoop()
 {
 	if(!bte.isHardTesting()) {
 		sdlHandler.getTextureLoader()->destroy();
-		NCH_Log::log("Exiting "+Main::TITLE+" "+Main::VERSION_LABEL+"...");
+		nch::Log::log("Exiting "+Main::TITLE+" "+Main::VERSION_LABEL+"...");
 	} else {
-        NCH_Log::log("Finished hard testing "+Main::TITLE+" "+Main::VERSION_LABEL+"...");
-		NCH_Log::log("To enable the BTE window, make sure you have \"debugHardTesting=false\" in 'backtoearth/saved/settings/options.txt'!");
+        nch::Log::log("Finished hard testing "+Main::TITLE+" "+Main::VERSION_LABEL+"...");
+		nch::Log::log("To enable the BTE window, make sure you have \"debugHardTesting=false\" in 'backtoearth/saved/settings/options.txt'!");
 	}
 }
 
@@ -117,7 +117,7 @@ bool MainLoop::isInitialized() { return initialized; }
 void MainLoop::setMaxFPS(int maxFPS)
 {
 	std::stringstream ss; ss << "Setting max FPS to '" << maxFPS << "'...";
-	NCH_Log::debug(ss.str());
+	nch::Log::debug(ss.str());
 	
 	MainLoop::maxFPS = maxFPS;
 	MainLoop::msPerFrame = 1000.0/MainLoop::maxFPS;
@@ -258,11 +258,11 @@ void MainLoop::tick()
     controls.tick();
 
     if( controls.isPressed("FUNC_9") ) {
-        NCH_Log::log("Reloading Back to Earth assets...");
+        nch::Log::log("Reloading Back to Earth assets...");
 
         //Reload all resources and track how much time it takes
         {
-            NCH_Timer t("reloading all resources");
+            nch::Timer t("reloading all resources");
             sdlHandler.getTextureLoader()->reload();
             fileHandler.reloadSettings();
         }

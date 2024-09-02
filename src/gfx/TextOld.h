@@ -13,11 +13,11 @@ public:
     void init(SDLHandler* sh);
     virtual ~TextOld();
     /**/
-    void draw(const NCH_Color& fg);
+    void draw(const nch::Color& fg);
     void draw();
-    static int draw(SDLHandler* sdlHandler, Texture* tex, std::string s, int x, int y, int scale, const NCH_Color& fg, const NCH_Color& bg, int fontType);
-    static int draw(SDLHandler* sdlHandler, std::string s, int x, int y, int scale, const NCH_Color& fg, const NCH_Color& bg, int fontType);
-    static int draw(SDLHandler* sdlHandler, std::string s, int x, int y, int scale, const NCH_Color& fg, const NCH_Color& bg);
+    static int draw(SDLHandler* sdlHandler, Texture* tex, std::string s, int x, int y, int scale, const nch::Color& fg, const nch::Color& bg, int fontType);
+    static int draw(SDLHandler* sdlHandler, std::string s, int x, int y, int scale, const nch::Color& fg, const nch::Color& bg, int fontType);
+    static int draw(SDLHandler* sdlHandler, std::string s, int x, int y, int scale, const nch::Color& fg, const nch::Color& bg);
     static int draw(SDLHandler* sdlHandler, std::string s, int x, int y, int scale);
     /**/
     std::string getString();
@@ -35,8 +35,8 @@ public:
     /**/
 
 
-    NCH_Color foreground;
-    NCH_Color background;
+    nch::Color foreground;
+    nch::Color background;
     int sX = 0; int sY = 0; int scale = 2;
     Texture txtTex;
     Texture insertionBarTex;

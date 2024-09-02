@@ -45,7 +45,7 @@ void TextureBuilder::buildWindow(Texture& tex, WindowData* winData, int texW, in
     tex.setColorMod(255, 255, 255);
 }
 
-void TextureBuilder::buildRadioButton(Texture& tex, const NCH_Color& c, int srcX, int srcY)
+void TextureBuilder::buildRadioButton(Texture& tex, const nch::Color& c, int srcX, int srcY)
 {
     tex.init(sdlHandler);
     tex.setTexDimensions(10, 10);
@@ -57,12 +57,12 @@ void TextureBuilder::buildRadioButton(Texture& tex, const NCH_Color& c, int srcX
 
 void TextureBuilder::buildRadioButton(Texture& tex, int srcX, int srcY)
 {
-    buildRadioButton(tex, NCH_Color(), srcX, srcY);
+    buildRadioButton(tex, nch::Color(), srcX, srcY);
 }
 
 void TextureBuilder::buildCheckbox(Texture& tex, int srcX, int srcY)
 {
-    buildRadioButton(tex, NCH_Color(), srcX, srcY);
+    buildRadioButton(tex, nch::Color(), srcX, srcY);
 }
 
 void TextureBuilder::buildButton(Texture& tex, int srcX, int srcY, int width) {

@@ -169,7 +169,7 @@ void PlayerMenu::draw()
 		tr.w = trw/2*2+12;
 		tr.h = 7*2+12;
 		
-		sdlHandler->setRenderDrawColor(NCH_Color(0, 0, 0, 128));
+		sdlHandler->setRenderDrawColor(nch::Color(0, 0, 0, 128));
 		sdlHandler->renderFillRect(&tr);
 
 		TextOld::draw(sdlHandler, itemName, controls->getMouseX(), controls->getMouseY(), 2);
@@ -265,7 +265,7 @@ void PlayerMenu::setState(int newState)
 
 void PlayerMenu::save(FileHandler* fh, std::string worldDataPath)
 {
-	NCH_Log::log("Saving main player data within \"%s\"\n", worldDataPath.c_str());
+	nch::Log::log("Saving main player data within \"%s\"\n", worldDataPath.c_str());
 
 	std::stringstream invdata;
 	for(int y = 0; y<invH; y++)
@@ -283,8 +283,8 @@ void PlayerMenu::drawInventory(int oscillation)
 	uiOverlay.setDrawScale(2);
 	
 	//Set color of inventory slot ridges
-	NCH_Color ridge1(0, 0, 0, 100);
-	NCH_Color ridge2(128+oscillation, 128+oscillation, 128+oscillation, 100);
+	nch::Color ridge1(0, 0, 0, 100);
+	nch::Color ridge2(128+oscillation, 128+oscillation, 128+oscillation, 100);
 	
 	//Draw inventory elements
 	for(int ix = -10; ix<10; ix++)
@@ -294,9 +294,9 @@ void PlayerMenu::drawInventory(int oscillation)
 		}
 
 		//Rect containing 4 ridges and a 30x30 texture
-		NCH_Color box1(0, 16, 32+oscillation, 100);
-		NCH_Color box2(0, 0, 48+oscillation, 100);
-		NCH_Color box3(0, 32, 16, 100);
+		nch::Color box1(0, 16, 32+oscillation, 100);
+		nch::Color box2(0, 0, 48+oscillation, 100);
+		nch::Color box3(0, 32, 16, 100);
 		if(getInventorySlotItemType(ix, iy)!=-1) {
 			//Set box1, box2, box3 to be a different color if this inventory spot is selected
 			if( invSX==ix && invSY==iy ) {
@@ -400,7 +400,7 @@ void PlayerMenu::updateSandboxRGB()
 					colorInt = 255;
 				}
 				
-				NCH_Color newcolor = items.getSandboxRGB();
+				nch::Color newcolor = items.getSandboxRGB();
 				switch(i) {
 					case 0: newcolor.r = colorInt; break;
 					case 1: newcolor.g = colorInt; break;
@@ -443,7 +443,7 @@ void PlayerMenu::setInventorySlotItem(int x, int y, int i)
 void PlayerMenu::setInventorySlotItemStack(int x, int y, InvItemStack iis)
 {
 	if(!inventorySlotExists(x, y)) {
-		NCH_Log::warn(__PRETTY_FUNCTION__, "Invalid inventory slot (%d, %d)", x, y);
+		nch::Log::warn(__PRETTY_FUNCTION__, "Invalid inventory slot (%d, %d)", x, y);
 		return;
 	}
 

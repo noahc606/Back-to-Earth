@@ -33,7 +33,7 @@ int GUI::getExtraID() { return extraID; }
 void GUI::setExtraID(int p_exid)
 {
     if( exists() ) {
-        NCH_Log::warn(__PRETTY_FUNCTION__, "Tried to set the extraID of an object after it was initialized");
+        nch::Log::warn(__PRETTY_FUNCTION__, "Tried to set the extraID of an object after it was initialized");
     } else {
         extraID = p_exid;
     }

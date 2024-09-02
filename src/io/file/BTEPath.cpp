@@ -49,7 +49,7 @@ std::string BTEPath::getConvertedPath(std::string path, int fsType)
     } else {
         std::stringstream ss;
         ss << "Unrecognized filesystem type '" << fsType << "'";
-        NCH_Log::warn(__PRETTY_FUNCTION__, ss.str(), "getting original string");
+        nch::Log::warn(__PRETTY_FUNCTION__, ss.str(), "getting original string");
     }
 
     return res;

@@ -350,7 +350,7 @@ void GUIHandler::resetGUIAction(std::string methodName)
     if( guiActionID==-1 ) {
         std::stringstream ss;
         ss << "Tried to reset GUI Action that already == -1.";
-        NCH_Log::warn(methodName, ss.str());
+        nch::Log::warn(methodName, ss.str());
     }
 
     guiActionID = -1;

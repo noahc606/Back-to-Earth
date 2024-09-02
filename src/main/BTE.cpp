@@ -110,11 +110,11 @@ void BTE::draw()
 
 		case GameState::INTRO: {
 			SDL_Rect r;
-			r.w = 512; r.h = 512;
+			r.w = 1024; r.h = 512;
 			r.x = sdlHandler->getWidth()/2 - r.w/2;
 			r.y = sdlHandler->getHeight()/2 - r.h/2;
 
-			NCH_Color cmod(255, 255, 255, 255);
+			nch::Color cmod(255, 255, 255, 255);
 			if(introTimer<80) {
 				cmod.a = introTimer*3;
 			}
@@ -123,7 +123,7 @@ void BTE::draw()
 			SDL_SetTextureBlendMode(stex, SDL_BLENDMODE_BLEND);
 			SDL_SetTextureAlphaMod(stex, cmod.a);
 			sdlHandler->renderCopy(TextureLoader::ootws, NULL, &r);
-			TextOld::draw(sdlHandler, "presents...", sdlHandler->getWidth()/2-400/2, r.y+r.h-32, 8, cmod, NCH_Color());
+			TextOld::draw(sdlHandler, "presents...", sdlHandler->getWidth()/2-400/2, r.y+r.h, 8, cmod, nch::Color());
 		} break;
 
 		case GameState::WORLD: {
@@ -356,7 +356,7 @@ bool BTE::updateBTEApp()
 {
 	//Prevent update sequence if not in the correct gamestate
 	if(gamestate!=GameState::UPDATING) {
-		NCH_Log::warn(__PRETTY_FUNCTION__, "Within invalid gamestate");
+		nch::Log::warn(__PRETTY_FUNCTION__, "Within invalid gamestate");
 		return false;
 	}
 	ProgressBar* pbr = nullptr;
@@ -364,7 +364,7 @@ bool BTE::updateBTEApp()
 	if(pgui!=nullptr) {
 		pbr = (ProgressBar*)pgui;
 	} else {
-		NCH_Log::warn(__PRETTY_FUNCTION__, "Could not find progress bar");
+		nch::Log::warn(__PRETTY_FUNCTION__, "Could not find progress bar");
 		return false;
 	}
 
@@ -375,32 +375,32 @@ bool BTE::updateBTEApp()
 	std::string newVersion = "";
 	std::string nbvaRes = ch->newBTEVersionAvailable(&newVersion);
 	if( nbvaRes=="true" || nbvaRes=="false" ) {
-		NCH_Log::log("================================");
-		NCH_Log::log("Preparing to download assets for version \"%s\".", newVersion.c_str());
+		nch::Log::log("================================");
+		nch::Log::log("Preparing to download assets for version \"%s\".", newVersion.c_str());
 
 		std::vector<std::string>* assets = new std::vector<std::string>(ch->getBTEAssetPathList());
 		updateNumFiles = assets->size();
 		auto dirs = ch->getBTEDirList(*assets);
 
 		//Make the necessary dirs
-		NCH_Log::log("CREATING DIRECTORIES:");
+		nch::Log::log("CREATING DIRECTORIES:");
         FileHandler fh;
         fh.init(sdlHandler->getResourcePath(), sdlHandler->getFilesystemType());
 		for(std::string s : dirs) {
 			if(s.substr(0,12).compare("backtoearth/")!=0) {
-				NCH_Log::error(__PRETTY_FUNCTION__, "Invalid directory \"%s\" found", s.c_str());
+				nch::Log::error(__PRETTY_FUNCTION__, "Invalid directory \"%s\" found", s.c_str());
 			} else {
 				if(!forceDisableUpdateDLs) {
 					fh.createBTEDir(s.substr(12));
 				}
-				NCH_Log::log(s.substr(12));
+				nch::Log::log(s.substr(12));
 			}
 		}
 
 		pbr->initWorkTypeA(ch, assets, forceDisableUpdateDLs);
 
-		NCH_Log::log("STARTING DOWNLOADS:");
-		NCH_Log::log("================================");
+		nch::Log::log("STARTING DOWNLOADS:");
+		nch::Log::log("================================");
 		return true;
 	}
 
@@ -417,7 +417,7 @@ void BTE::setGameState(int p_gamestate, std::string extraInfo)
 
 	// Set gamestate
 	gamestate = p_gamestate;
-	NCH_Log::log("Switching to gamestate %d...", gamestate);
+	nch::Log::log("Switching to gamestate %d...", gamestate);
 
 	// Actions depending on new gamestate value
 	switch(p_gamestate) {
@@ -448,13 +448,13 @@ void BTE::setGameState(int p_gamestate, std::string extraInfo)
 		} break;
 
 		case UPDATING: {
-			NCH_Log::log("Started updating...");
+			nch::Log::log("Started updating...");
 			GUIBuilder gb;
 			gb.buildUpdatingScreen(guiHandler);
 
 			updateBTEApp();
 
-			NCH_Log::log("Finished updating.");
+			nch::Log::log("Finished updating.");
 
 		} break;
 
@@ -474,7 +474,7 @@ void BTE::setGameState(int p_gamestate, std::string extraInfo)
 
 		// Go to unknown gamestate (testing)
 		default: {
-			NCH_Log::warn(__PRETTY_FUNCTION__, "Tried to switch to invalid gamestate", "going to TESTING (-1)");
+			nch::Log::warn(__PRETTY_FUNCTION__, "Tried to switch to invalid gamestate", "going to TESTING (-1)");
 			setGameState(TESTING);
 		} break;
 	}
@@ -530,7 +530,7 @@ void BTE::performGUIAction(int guiActionID)
 		/** Campaign select menu */
 		case GUIHandler::ssr_SELECT_CAMPAIGN_select: {
 			std::string selectedWorld = guiHandler.getGUIActionData();
-			NCH_Log::log("Opening world \"%s\"", selectedWorld.c_str());
+			nch::Log::log("Opening world \"%s\"", selectedWorld.c_str());
 			setGameState(GameState::WORLD, selectedWorld);
 		} break;
 		case GUIHandler::btn_SELECT_CAMPAIGN_CN_mkdir: {

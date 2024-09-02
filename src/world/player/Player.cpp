@@ -415,7 +415,7 @@ Box3X<double> Player::getBounds(int bbt)
 		b3d.c1.z = z+unit*3.;	b3d.c2.z = z+unit*3.;
 	} break;
 	default:
-		NCH_Log::warnv(__PRETTY_FUNCTION__, "returning default Box3D", "Invalid bounding box type %d", bbt);
+		nch::Log::warnv(__PRETTY_FUNCTION__, "returning default Box3D", "Invalid bounding box type %d", bbt);
 		break;
 	}
 
@@ -458,7 +458,7 @@ void Player::setModeFromStr(std::string newGameMode)
 	} else if (newGameMode=="hardcore") {
 		setMode(HARDCORE);
 	} else {
-		NCH_Log::warnv(__PRETTY_FUNCTION__, "defaulting to \"sandbox\"", "Unknown gamemode \"%s\"", newGameMode.c_str());
+		nch::Log::warnv(__PRETTY_FUNCTION__, "defaulting to \"sandbox\"", "Unknown gamemode \"%s\"", newGameMode.c_str());
 	}
 }
 

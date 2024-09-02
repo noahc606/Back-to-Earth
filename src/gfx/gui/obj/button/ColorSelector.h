@@ -5,7 +5,7 @@
 class ColorSelector : public Button
 {
 public:
-    ColorSelector(Window* parentWindow, int x, int y, NCH_Color col, int id);
+    ColorSelector(Window* parentWindow, int x, int y, nch::Color col, int id);
     ColorSelector(Window* parentWindow, int x, int y, int id);
     void init(SDLHandler* sh, Controls* ctrls);
     void destroy();
@@ -37,7 +37,7 @@ private:
     std::pair<bool, bool> drawStateLast = std::make_pair(false, false);
     std::pair<bool, bool> drawState = std::make_pair(false, false);
 
-    NCH_Color color;
+    nch::Color color;
     double lastHue = 0; double hue = 50; uint64_t lastHueUpdate = 0;
     double lastSat = 0; double sat = 50;
     double lastVal = 0; double val = 50;

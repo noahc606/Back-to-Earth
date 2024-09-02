@@ -151,7 +151,7 @@ void RegTexProcessor::buildRegionArea(int64_t csRX, int64_t csRY)
 	}
 	
 	if( tileMap==nullptr ) {
-		NCH_Log::throwException();
+		nch::Log::throwException();
 		return;
 	}
 	TileIterator ti(tileMap);

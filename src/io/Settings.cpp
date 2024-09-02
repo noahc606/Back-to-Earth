@@ -115,7 +115,7 @@ void Settings::logInfo(t_kvMap kvMap)
 	for( Settings::t_kvPair kvp : kvMap ) {
 		ss << kvp.first << "=" << kvp.second << "; ";
 	}
-	NCH_Log::log("List of key-val pairs: %s", ss.str().c_str());
+	nch::Log::log("List of key-val pairs: %s", ss.str().c_str());
 }
 
 bool Settings::unload(int index)
@@ -159,7 +159,7 @@ void Settings::load(int index, t_kvMap kvMap)
 	} else {
 		std::stringstream ss;
 		ss << "Default key-value pairs for setting set '" << index << "' doesn't exist";
-		NCH_Log::error(__PRETTY_FUNCTION__, ss.str() );
+		nch::Log::error(__PRETTY_FUNCTION__, ss.str() );
 	}
 	
 	if(logging) {
@@ -215,7 +215,7 @@ std::string Settings::getKey(t_kvMap kvMap, int index)
 	
 	std::stringstream ss;
 	ss << "Failed to find the key-value pair at " << index << " in the key-value set";
-	NCH_Log::warn(__PRETTY_FUNCTION__, ss.str(), "returning \"null\"");
+	nch::Log::warn(__PRETTY_FUNCTION__, ss.str(), "returning \"null\"");
 	return "null";
 }
 /**
@@ -230,7 +230,7 @@ std::string Settings::get(t_kvMap kvMap, std::string key)
 	
 	std::stringstream ss;
 	ss << "Failed to find the key \"" << key << "\" in the key-value set";
-	NCH_Log::warn(__PRETTY_FUNCTION__, ss.str(), "returning \"null\"");
+	nch::Log::warn(__PRETTY_FUNCTION__, ss.str(), "returning \"null\"");
 	return "null";
 }
 
@@ -241,7 +241,7 @@ std::string Settings::get(int kvMapIndex, std::string key)
 		return get(itr->second, key);
 	}
 	
-	NCH_Log::warn(__PRETTY_FUNCTION__, "Tried to find a key-value pair in a nonexistent file index", "returning \"null\"");
+	nch::Log::warn(__PRETTY_FUNCTION__, "Tried to find a key-value pair in a nonexistent file index", "returning \"null\"");
 	return "null";
 }
 
@@ -253,7 +253,7 @@ double Settings::getNum(t_kvMap kvMap, std::string key)
 	try {
 		res = std::stold(val);
 	} catch(...) {
-		NCH_Log::warnv(__PRETTY_FUNCTION__, "returning 0.0", "Failed to convert value \"%s\" to a number", val.c_str());
+		nch::Log::warnv(__PRETTY_FUNCTION__, "returning 0.0", "Failed to convert value \"%s\" to a number", val.c_str());
 	}
 
 	return res;
@@ -266,7 +266,7 @@ double Settings::getNum(int kvMapIndex, std::string key)
 		return getNum(itr->second, key);
 	}
 	
-	NCH_Log::warn(__PRETTY_FUNCTION__, "Tried to find a key-value pair in a nonexistent file index", "returning -1");
+	nch::Log::warn(__PRETTY_FUNCTION__, "Tried to find a key-value pair in a nonexistent file index", "returning -1");
 	return -1;
 }
 
@@ -278,7 +278,7 @@ int64_t Settings::getI64(t_kvMap kvMap, std::string key)
 	try {
 		res = std::stoll(val);
 	} catch(...) {
-		NCH_Log::warnv(__PRETTY_FUNCTION__, "returning 0", "Failed to convert value \"%s\" to a number", val.c_str());
+		nch::Log::warnv(__PRETTY_FUNCTION__, "returning 0", "Failed to convert value \"%s\" to a number", val.c_str());
 	}
 
 	return res;
@@ -297,7 +297,7 @@ int Settings::find(t_kvMap kvMap, std::string key)
 	if( index>=kvMap.size() ) {
 		std::stringstream ss;
 		ss << "Failed to find the key \"" << key << "\" in the key-value set";
-		NCH_Log::warn(__PRETTY_FUNCTION__, ss.str(), "returning -1");
+		nch::Log::warn(__PRETTY_FUNCTION__, ss.str(), "returning -1");
 		return -1;
 	}
 	return (int)index;
@@ -343,7 +343,7 @@ void Settings::kv(int index, std::string key, std::string val)
 	} else {
 		std::stringstream ss;
 		ss << "Settings map with index '" << index << "' doesn't exist";
-		NCH_Log::error(__PRETTY_FUNCTION__, ss.str(), "doing nothing");
+		nch::Log::error(__PRETTY_FUNCTION__, ss.str(), "doing nothing");
 	}
 }
 void Settings::kv(int index, std::string key, int val)

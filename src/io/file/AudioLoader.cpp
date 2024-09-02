@@ -25,7 +25,7 @@ void AudioLoader::init(std::string resourcePath, int p_frequency, uint16_t p_for
 
     //SDL_Mixer open audio
     if( Mix_OpenAudio(p_frequency, p_format, p_channels, 1024)==-1 ) {
-        NCH_Log::warn( __PRETTY_FUNCTION__, "SDL_Mixer audio failed to open" );
+        nch::Log::warn( __PRETTY_FUNCTION__, "SDL_Mixer audio failed to open" );
     }
 
     //Update times opened
@@ -53,7 +53,7 @@ void AudioLoader::tick()
 void AudioLoader::querySpecs(int& frequency, uint16_t& format, int& channels)
 {
 	if( !Mix_QuerySpec(&frequency, &format, &channels) ) {
-		NCH_Log::warn(__PRETTY_FUNCTION__, "Mix_OpenAudio() was never called");
+		nch::Log::warn(__PRETTY_FUNCTION__, "Mix_OpenAudio() was never called");
 	}
 }
 
@@ -68,7 +68,7 @@ Mix_Chunk* AudioLoader::getMixSfxChunk(int id)
 			
 		} else {
 			ss << "Couldn't find audio chunk with ID '" << id << "'";
-			NCH_Log::warnv(__PRETTY_FUNCTION__, "returning 'missingChunk'", ss.str() );
+			nch::Log::warnv(__PRETTY_FUNCTION__, "returning 'missingChunk'", ss.str() );
 		}
 		return missingChunk;
 	}
@@ -82,7 +82,7 @@ Mix_Music* AudioLoader::getMixMusicChunk(int id)
 	if( chunk==musicChunks.end() ) {
 		std::stringstream ss;
 		ss << "Couldn't find music chunk with ID '" << id << "'";
-		NCH_Log::warnv(__PRETTY_FUNCTION__, "returning nullptr", ss.str() );
+		nch::Log::warnv(__PRETTY_FUNCTION__, "returning nullptr", ss.str() );
 		return nullptr;
 	}
 	
@@ -111,7 +111,7 @@ uint32_t AudioLoader::getAudioDurationMS(int id)
 	
 	//If neither...
 	} else {
-		NCH_Log::warnv(__PRETTY_FUNCTION__, "returning -1", "Bad audio chunk ID %d", id);
+		nch::Log::warnv(__PRETTY_FUNCTION__, "returning -1", "Bad audio chunk ID %d", id);
 		return -1;
 	}
 }
@@ -148,7 +148,7 @@ void AudioLoader::play(int index, int channel, int loops, int ticks)
 
 	//If something went wrong with playing sfx or music...
 	if( res==-1 ) {
-		NCH_Log::errorv(__PRETTY_FUNCTION__, Mix_GetError(), "SDL_mixer error");
+		nch::Log::errorv(__PRETTY_FUNCTION__, Mix_GetError(), "SDL_mixer error");
 	}
 	
 }
@@ -262,7 +262,7 @@ Mix_Chunk* AudioLoader::addMixChunk(int index, std::string path, std::string ext
 		Mix_Music* musicChunk =  Mix_LoadMUS( path.c_str() );
 		
 		if(musicChunk==NULL) {
-			NCH_Log::error(__PRETTY_FUNCTION__, "SDL_mixer error", Mix_GetError() );
+			nch::Log::error(__PRETTY_FUNCTION__, "SDL_mixer error", Mix_GetError() );
 		}
 		
 		//Insert new element into its map
@@ -272,14 +272,14 @@ Mix_Chunk* AudioLoader::addMixChunk(int index, std::string path, std::string ext
 		audioChunk = Mix_LoadWAV( path.c_str() );
 		if( audioChunk==NULL ) {
 			//Load the missingChunk
-			NCH_Log::warn( __PRETTY_FUNCTION__, "Unable to load audioChunk from '"+path+"'", "Using missing.wav instead" );
-			NCH_Log::error( __PRETTY_FUNCTION__, "SDL_mixer error", Mix_GetError() );
+			nch::Log::warn( __PRETTY_FUNCTION__, "Unable to load audioChunk from '"+path+"'", "Using missing.wav instead" );
+			nch::Log::error( __PRETTY_FUNCTION__, "SDL_mixer error", Mix_GetError() );
 			audioChunk = missingChunk;
 			
 			//If even the missingChunk is NULL, stop the program as something is very wrong.
 			if( audioChunk==NULL ) {
-				NCH_Log::error(__PRETTY_FUNCTION__, "Could not find file 'resources/audio/missing.wav'");
-				NCH_Log::throwException();
+				nch::Log::error(__PRETTY_FUNCTION__, "Could not find file 'resources/audio/missing.wav'");
+				nch::Log::throwException();
 			}
 		}
 		

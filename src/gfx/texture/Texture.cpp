@@ -318,7 +318,7 @@ void Texture::rect(int x, int y, int w, int h, uint8_t r, uint8_t g, uint8_t b)
 {
     rect(x, y, w, h, r, g, b, 255);
 }
-void Texture::rect(int x, int y, int w, int h, NCH_Color& c)
+void Texture::rect(int x, int y, int w, int h, nch::Color& c)
 {
 	rect(x, y, w, h, c.r, c.g, c.b, c.a);
 }
@@ -337,7 +337,7 @@ void Texture::pixel(int x, int y, uint8_t r, uint8_t g, uint8_t b)
 }
 void Texture::pixel(int x, int y, uint32_t rgba)
 {
-    NCH_Color color(rgba);
+    nch::Color color(rgba);
     pixel(x, y, color.r, color.g, color.b, color.a);
 }
 
@@ -358,15 +358,15 @@ void Texture::setColorMod()
     colorMod.a = 255;
 }
 
-void Texture::setColorMod(const NCH_Color& c)
+void Texture::setColorMod(const nch::Color& c)
 {
     colorMod.r = c.r;
     colorMod.g = c.g;
     colorMod.b = c.b;
     colorMod.a = c.a;
 }
-void Texture::setColorMod(uint8_t r, uint8_t g, uint8_t b) { setColorMod(NCH_Color(r, g, b)); }
-void Texture::setColorMod(uint8_t r, uint8_t g, uint8_t b, uint8_t a) { setColorMod(NCH_Color(r, g, b, a)); }
+void Texture::setColorMod(uint8_t r, uint8_t g, uint8_t b) { setColorMod(nch::Color(r, g, b)); }
+void Texture::setColorMod(uint8_t r, uint8_t g, uint8_t b, uint8_t a) { setColorMod(nch::Color(r, g, b, a)); }
 
 void Texture::setBlendMode(SDL_BlendMode bm) { blendMode = bm; }
 
@@ -473,12 +473,12 @@ void Texture::initTex(bool scale)
                     /* Check for errrors */
                     //If 'tex' is NULL
                     if(tex==NULL) {
-                        NCH_Log::error( __PRETTY_FUNCTION__, "texture is NULL", SDL_GetError() );
+                        nch::Log::error( __PRETTY_FUNCTION__, "texture is NULL", SDL_GetError() );
                     }
                     //Set BlendMode of 'tex' to SDL_BLENDMODE_BLEND
                     setBlendMode(SDL_BLENDMODE_BLEND);
                     if( SDL_SetTextureBlendMode(tex, SDL_BLENDMODE_BLEND)==-1 ) {
-                        NCH_Log::error( __PRETTY_FUNCTION__, "Blend mode could not be set", SDL_GetError() );
+                        nch::Log::error( __PRETTY_FUNCTION__, "Blend mode could not be set", SDL_GetError() );
                     }
                 }
 
@@ -510,7 +510,7 @@ void Texture::initTex(bool scale)
         case SDL_TEXTUREACCESS_STREAMING: {
             tex = SDL_CreateTexture(sdlHandler->getRenderer(), sdlHandler->getPixelFormat()->format, SDL_TEXTUREACCESS_STREAMING, texW, texH);
             if(tex==NULL) {
-                NCH_Log::errorv(__PRETTY_FUNCTION__, SDL_GetError(), "Error creating streaming texture");
+                nch::Log::errorv(__PRETTY_FUNCTION__, SDL_GetError(), "Error creating streaming texture");
             }
         } break;
     }

@@ -34,6 +34,6 @@ void Loggable::logInfo()
 	
 	//Log each individual line of the string.
 	for(int i = 0; i<lines.size()-1; i++) {
-		NCH_Log::log(lines[i]);
+		nch::Log::log(lines[i]);
 	}
 }

@@ -147,7 +147,7 @@ void LevelSave::saveTileRegion(TileMap* tm, int64_t rX, int64_t rY, int64_t rZ)
 	} else {
 		std::stringstream ss;
 		ss << "TileRegion at (" << rX << ", " << rY << ", " << rZ << ") doesn't exist";
-		NCH_Log::warn(__PRETTY_FUNCTION__, ss.str());
+		nch::Log::warn(__PRETTY_FUNCTION__, ss.str());
 	}
 }
 
@@ -231,7 +231,7 @@ bool LevelSave::loadTileRegion(TileRegion& tr, int64_t rX, int64_t rY, int64_t r
 					ss << "tileDS.getSeekBytePos()=" << tileDS.getSeekBytePos() << "; \n";
 
 					if(true) {
-						NCH_Log::warnv(__PRETTY_FUNCTION__, "placing debug tile\n====================", ss.str());
+						nch::Log::warnv(__PRETTY_FUNCTION__, "placing debug tile\n====================", ss.str());
 						TileType tt;
 						tt.init();
 						tt.setSolid(true);
@@ -242,7 +242,7 @@ bool LevelSave::loadTileRegion(TileRegion& tr, int64_t rX, int64_t rY, int64_t r
 					}
 
 					if(!true) {
-						NCH_Log::throwException(__PRETTY_FUNCTION__, "Throwing exception to prevent re-saving of bad region...");
+						nch::Log::throwException(__PRETTY_FUNCTION__, "Throwing exception to prevent re-saving of bad region...");
 					}
 				}
 				tileDS.seekBitDelta(dataBitsPerTile);
@@ -579,12 +579,12 @@ void LevelSave::savePrelims(TileRegion& tr, int64_t rX, int64_t rY, int64_t rZ)
 	
 	//If our file didn't exist or had a bad prefix at the time of file creation, build prefix and header.
 	if(!fileExisted) {
-		NCH_Log::log("Building new file...");
+		nch::Log::log("Building new file...");
 		buildPrefixAndHeader();
 	} else {
 		fileHandler->seekTo(0);
 		if(!fileHandler->checkMagicNumber(magicNumberP1, magicNumberP2)) {
-			NCH_Log::log("Rebuilding prefix and header for bad file.");
+			nch::Log::log("Rebuilding prefix and header for bad file.");
 			buildPrefixAndHeader();
 		}
 	}

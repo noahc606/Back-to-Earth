@@ -8,15 +8,15 @@
 class ColorPalette
 {
 public:
-	typedef std::map<std::string, NCH_Color> t_palette;
+	typedef std::map<std::string, nch::Color> t_palette;
 	
 	void init(int id);
 	void initPlayerPalette(Settings* s);
-	NCH_Color get(std::string key);
-	static NCH_Color randColor();
-	static NCH_Color randSkinColor();
-	static NCH_Color randHairColor();
-	static NCH_Color randEyeColor();
+	nch::Color get(std::string key);
+	static nch::Color randColor();
+	static nch::Color randSkinColor();
+	static nch::Color randHairColor();
+	static nch::Color randEyeColor();
 
 	
 	enum Palettes {
@@ -27,10 +27,10 @@ public:
 protected:
 
 private:
-	static NCH_Color skinColors[];
+	static nch::Color skinColors[];
 	//Taken from https://1.bp.blogspot.com/-c9JCgylzCvg/Ugg6aJs16KI/AAAAAAAARCM/aWIRNZ58eG4/s1600/rbg+for+hair.JPG
-	static NCH_Color hairColors[];
-	static NCH_Color eyeColors[];
+	static nch::Color hairColors[];
+	static nch::Color eyeColors[];
 	
 	t_palette palette;
 };

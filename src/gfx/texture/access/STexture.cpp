@@ -33,8 +33,8 @@ void STexture::lock()
 
     //lock entire texture
     if( SDL_LockTexture(tex, NULL, &pixels, &pitch)<0 ) {
-        NCH_Log::errorv(__PRETTY_FUNCTION__, SDL_GetError(), "Texture locking failed");
-        NCH_Log::throwException();
+        nch::Log::errorv(__PRETTY_FUNCTION__, SDL_GetError(), "Texture locking failed");
+        nch::Log::throwException();
     }
 }
 

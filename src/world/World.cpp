@@ -55,7 +55,7 @@ void World::init(SDLHandler* sh, GUIHandler* gh, FileHandler* fh, Controls* ctrl
 	double pz = Settings::getNum(worldDataKVs, "playerZ");
 	int64_t worldSeed = Settings::getI64(worldDataKVs, "worldSeed");
 	double plntRot = Settings::getNum(worldDataKVs, "planetRotation");
-	NCH_Log::log("Loaded save data: player(%f, %f, %f); planetRotation=%f\n", px, py, pz, plntRot);
+	nch::Log::log("Loaded save data: player(%f, %f, %f); planetRotation=%f\n", px, py, pz, plntRot);
 	std::cout << "Seed: " << worldSeed << "\n";
 
 	/* INIT 1: Planet */
@@ -180,7 +180,7 @@ void World::draw(bool debugOn)
 void World::tick(bool paused, GUIHandler& guiHandler)
 {
 	performanceCounter = 0;
-	NCH_Timer t("World tick timer", false);
+	nch::Timer t("World tick timer", false);
 
 	/** Tick world objects if not paused */
 	if( !paused ) {

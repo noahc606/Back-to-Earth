@@ -34,7 +34,7 @@ private:
 	void detailDepth0Tiles(TileIterator& ti, int camDirection); //Depth 0
 	void detailDepthPTiles(TileIterator& ti); //Depth positive (>0)
 	
-	void drawTypeA(TileIterator& ti, int srcX, int srcY, NCH_Color c);
+	void drawTypeA(TileIterator& ti, int srcX, int srcY, nch::Color c);
 	void drawTypeA(TileIterator& ti, TileType tt);
 	void drawTypeA(TileIterator& ti, int srcX, int srcY);
 	void drawWallOverlay(int srcX, int srcY);

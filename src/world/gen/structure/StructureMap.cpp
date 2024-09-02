@@ -74,7 +74,7 @@ void StructureMap::populateRegionsNear(int64_t stRX, int64_t stRY, int64_t stRZ,
         return;
     }
 
-    NCH_Timer t("poptime", false);
+    nch::Timer t("poptime", false);
 
     Noise n(gSeed);
     CollectionUtils cu;
@@ -91,7 +91,7 @@ void StructureMap::populateRegionsNear(int64_t stRX, int64_t stRY, int64_t stRZ,
                 int64_t x = rX*32, y = rY*32, z = rZ*32;
 
                 if(rX==0 && rY==0 && rZ==-2) {
-                    NCH_Log::log("Generated ship @ (%d, %d, %d)", rX, rY, rZ);
+                    nch::Log::log("Generated ship @ (%d, %d, %d)", rX, rY, rZ);
                     Point3X<int64_t> shipOrigin(x, y, z);
                     structures.push_back(new Structure(Structure::CRASHED_SHIP, shipOrigin));
                 }

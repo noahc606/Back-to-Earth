@@ -101,6 +101,6 @@ void SaveSelector::resetActionID(std::string methodName)
         actionID = -1;
         actionInfo = std::make_pair(-1, "");
     } else {
-        NCH_Log::warn(methodName, "Tried to reset SaveSelector's action which was already reset");
+        nch::Log::warn(methodName, "Tried to reset SaveSelector's action which was already reset");
     }
 }

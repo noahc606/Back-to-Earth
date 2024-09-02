@@ -90,7 +90,7 @@ void TileRegion::printInfoTileIndices()
 		ss << "\n\n";
 	}
 	
-	NCH_Log::log(ss.str());
+	nch::Log::log(ss.str());
 }
 
 uint16_t TileRegion::getPaletteSize() { return palette.size(); }
@@ -169,7 +169,7 @@ TileType TileRegion::getTile( int x, int y, int z )
 		std::stringstream ss;
 		ss << "Tile key '" << key << "' @ (" << x << ", " << y << ", " << z << ") does not exist in palette ";
 		ss << "(min=" << -getArtificialPaletteSize() << ", max=" << getPaletteSizeNatural()-1 << ")";
-		NCH_Log::warn(__PRETTY_FUNCTION__, ss.str(), "returning default tile");
+		nch::Log::warn(__PRETTY_FUNCTION__, ss.str(), "returning default tile");
 		return TileType();
 	}
 	
@@ -187,7 +187,7 @@ int TileRegion::getRegTexState() { return regTexState; }
 bool TileRegion::assertDefaultTileExists(t_palette& pal)
 {
 	if( pal.find(0)==pal.end() ) {
-		NCH_Log::warn(__PRETTY_FUNCTION__, "Could not find default palette element", "stopping");
+		nch::Log::warn(__PRETTY_FUNCTION__, "Could not find default palette element", "stopping");
 		return false;
 	}
 	
@@ -413,7 +413,7 @@ void TileRegion::save(FileHandler* fh, std::string saveGameName, long rX, long r
 
 	//Compression
 	if( p_compress ) {
-		NCH_Timer t1;
+		nch::Timer t1;
 		compress();
 	}
 

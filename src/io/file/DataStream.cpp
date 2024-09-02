@@ -50,7 +50,7 @@ uint8_t DataStream::peekByteCell()
 	if( bytestream.size()!=0 ) {
 		return bytestream.at(seekBytePos);
 	} else {
-		NCH_Log::warn(__PRETTY_FUNCTION__, "Bytestream is empty", "returning 0");
+		nch::Log::warn(__PRETTY_FUNCTION__, "Bytestream is empty", "returning 0");
 		return 0;
 	}
 }
@@ -150,7 +150,7 @@ void DataStream::dumpBytestream(FileHandler* fh, uint64_t bytePos)
 	if( bytePos>fh->getFileLength() ) {
 		std::stringstream ss;
 		ss << "Byte dump position (" << bytePos << ") cannot be larger than the file length (" << fh->getFileLength() << ")";
-		NCH_Log::warn(__PRETTY_FUNCTION__, ss.str());
+		nch::Log::warn(__PRETTY_FUNCTION__, ss.str());
 		return;
 	}
 	
@@ -175,7 +175,7 @@ void DataStream::clear()
 	bytestream.clear();
 	bool ignoredReturnValueLol = bitcache.empty();
 	if(redundant) {
-		NCH_Log::warn(__PRETTY_FUNCTION__, "Tried to clear DataStream which was already empty");
+		nch::Log::warn(__PRETTY_FUNCTION__, "Tried to clear DataStream which was already empty");
 	}
 	
 	seekBitOffset = 0;

@@ -28,7 +28,7 @@ void GUIBuilder::buildUpdatePrompt(GUIHandler& gh, CurlHandler& cuha, int guiAct
     //Get previous open window (should be win_DEBUG_SETTINGS)
     Window* prevWindow = gh.getWindow(GUIHandler::win_DEBUG_SETTINGS);
     if(prevWindow==nullptr) {
-        NCH_Log::warnv(__PRETTY_FUNCTION__, "skipping update prompt GUI", "Didn't find debug settings window (are you there?)");
+        nch::Log::warnv(__PRETTY_FUNCTION__, "skipping update prompt GUI", "Didn't find debug settings window (are you there?)");
         return;
     }
 
@@ -298,7 +298,7 @@ void GUIBuilder::buildMainCharacter(GUIHandler& gh, FileHandler& fh)
         }
 
         //Get color from setting
-        NCH_Color color; color.setFromB10Str(settings->get(Settings::character, stng));
+        nch::Color color; color.setFromB10Str(settings->get(Settings::character, stng));
 
         //Add GUIs
 		gh.addGUI(new Tooltip(w, xPos, yPos+10, name+":", gh.ttp_CHARACTER_SETTINGS_tooltip), i);
@@ -446,12 +446,12 @@ void GUIBuilder::buildCharacterMenu(GUIHandler& gh, int gamemode)
         wd->setPanelData(8, "aaaaaaaaaaaaaaaa");
         wd->setPanelData(9, "aaaaaaaaaaaaaaaa");
 
-        wd->setPanelColor('s', NCH_Color(0, 0, 200, 240) );     //[S]idebar
-        wd->setPanelColor('d', NCH_Color(150, 105, 55, 240) );  //[D]etails about character
-        wd->setPanelColor('i', NCH_Color(0, 255, 0, 240) );     //[I]nventory
-        wd->setPanelColor('c', NCH_Color(0, 0, 0, 240) );       //[C]haracter
-        wd->setPanelColor('a', NCH_Color(100, 0, 0, 240) );     //[A]ctions from items
-        wd->setPanelColor('w', NCH_Color(130, 210, 180, 240) ); //[W]orkstation tabs (crafting, assembling, etc.)
+        wd->setPanelColor('s', nch::Color(0, 0, 200, 240) );     //[S]idebar
+        wd->setPanelColor('d', nch::Color(150, 105, 55, 240) );  //[D]etails about character
+        wd->setPanelColor('i', nch::Color(0, 255, 0, 240) );     //[I]nventory
+        wd->setPanelColor('c', nch::Color(0, 0, 0, 240) );       //[C]haracter
+        wd->setPanelColor('a', nch::Color(100, 0, 0, 240) );     //[A]ctions from items
+        wd->setPanelColor('w', nch::Color(130, 210, 180, 240) ); //[W]orkstation tabs (crafting, assembling, etc.)
 
         gh.addGUI(new Window( ch, cv, wd, gh.win_CHARACTER ));
 
@@ -486,8 +486,8 @@ void GUIBuilder::buildColorSelector(GUIHandler& gh, Window* parentWindow, int ex
     wd->setPanelData(6, "oooooooooo");
     wd->setPanelData(7, "oooooooooo");
     wd->setPanelData(8, "xxxxxxxxxx");
-    wd->setPanelColor('x', NCH_Color(0, 0, 200, 240) );
-    wd->setPanelColor('o', NCH_Color(150, 105, 55, 240) );
+    wd->setPanelColor('x', nch::Color(0, 0, 200, 240) );
+    wd->setPanelColor('o', nch::Color(150, 105, 55, 240) );
 
     int width = 300;
     Window* win = new Window(ch, cv, wd, GUIHandler::win_COLORSELECTOR);
@@ -503,7 +503,7 @@ void GUIBuilder::buildColorSelector(GUIHandler& gh, Window* parentWindow, int ex
     sdr->setNumSpaces(128);
     
     //Get textbox's color in HSV
-    NCH_Color c;
+    nch::Color c;
     c.setFromB16Str(tbx->getString()+"00");
     auto hsv = c.getHSV();
 
@@ -541,10 +541,10 @@ void GUIBuilder::buildSelectCampaign(GUIHandler& gh, FileHandler& fh)
     wd->setPanelData(9, "ssssssssssss");
     wd->setPanelData(10,"aaaaaaaaaaaa");
     wd->setPanelData(11,"bbbbbbbbbbbb");
-    wd->setPanelColor('t', NCH_Color(64, 64, 64, 240) );
-    wd->setPanelColor('s', NCH_Color(0, 0, 255, 160) );
-    wd->setPanelColor('a', NCH_Color(96, 128, 240, 240) );
-    wd->setPanelColor('b', NCH_Color(64, 64, 64, 240) );
+    wd->setPanelColor('t', nch::Color(64, 64, 64, 240) );
+    wd->setPanelColor('s', nch::Color(0, 0, 255, 160) );
+    wd->setPanelColor('a', nch::Color(96, 128, 240, 240) );
+    wd->setPanelColor('b', nch::Color(64, 64, 64, 240) );
 
     Window* w = new Window( ch, cv, wd, gh.win_SELECT_CAMPAIGN );
     gh.addGUI(w);
@@ -557,7 +557,7 @@ void GUIBuilder::buildSelectCampaign(GUIHandler& gh, FileHandler& fh)
             saveDir = saveDir.substr(12);
         }
 
-        NCH_Log::log("Loaded save dir \"%s\"", saveDir.c_str());
+        nch::Log::log("Loaded save dir \"%s\"", saveDir.c_str());
 
         //Get world size description
         std::string sizeDesc = fh.getReadableMemorySize(fh.dirDiskSpaceUsed(s));
@@ -599,10 +599,10 @@ void GUIBuilder::buildSelectCampaignCN(GUIHandler& gh, FileHandler& fh)
     wd->setPanelData(9, "ssssssssssss");
     wd->setPanelData(10,"aaaaaaaaaaaa");
     wd->setPanelData(11,"bbbbbbbbbbbb");
-    wd->setPanelColor('t', NCH_Color(64, 64, 64, 240) );
-    wd->setPanelColor('s', NCH_Color(0, 0, 255, 160) );
-    wd->setPanelColor('a', NCH_Color(96, 128, 240, 240) );
-    wd->setPanelColor('b', NCH_Color(64, 64, 64, 240) );
+    wd->setPanelColor('t', nch::Color(64, 64, 64, 240) );
+    wd->setPanelColor('s', nch::Color(0, 0, 255, 160) );
+    wd->setPanelColor('a', nch::Color(96, 128, 240, 240) );
+    wd->setPanelColor('b', nch::Color(64, 64, 64, 240) );
 
     Window* w = new Window( ch, cv, wd, gh.win_SELECT_CAMPAIGN_CN );
     gh.addGUI(w);
@@ -647,7 +647,7 @@ void GUIBuilder::campaignNewShowMore(GUIHandler& gh, FileHandler& fh)
 {
     Window* w = gh.getWindow(gh.win_SELECT_CAMPAIGN_CN);
     if(w==nullptr) {
-        NCH_Log::warn(__PRETTY_FUNCTION__, "Couldn't fild campaignNew window.");
+        nch::Log::warn(__PRETTY_FUNCTION__, "Couldn't fild campaignNew window.");
         return;
     }
 

@@ -83,7 +83,7 @@ int FileHandler::createPNGScreenshot(SDL_Window* w, SDL_Renderer* r, SDL_PixelFo
     if(IMG_SavePNG(surf, ssPath.get().c_str())==0) {
         //Message
         std::string msg = "Screenshot saved to " + ssPath.get();
-        NCH_Log::log(msg);
+        nch::Log::log(msg);
         //Free surface
         SDL_FreeSurface(surf);
         return 0;
@@ -91,7 +91,7 @@ int FileHandler::createPNGScreenshot(SDL_Window* w, SDL_Renderer* r, SDL_PixelFo
     } else {
         //Message
         std::string msg = "Failed to save screenshot saved at " + ssPath.get();
-        NCH_Log::error(__PRETTY_FUNCTION__, msg);
+        nch::Log::error(__PRETTY_FUNCTION__, msg);
         //Free surface
         SDL_FreeSurface(surf);
         return -1;
@@ -106,9 +106,9 @@ void FileHandler::openUserLocalURL(std::string url)
     std::string lurl = ss.str();    //Local URL recognized as such by SDL (must start with "file:///")
 
     //Attempt to open 'lurl'
-    NCH_Log::log("Attempting to open local URL \"%s\" in user's file manager...", lurl.c_str());
+    nch::Log::log("Attempting to open local URL \"%s\" in user's file manager...", lurl.c_str());
     if(SDL_OpenURL(lurl.c_str())==-1) {
-        NCH_Log::errorv(__PRETTY_FUNCTION__, SDL_GetError(), "Failed to open local URL \"%s\"", lurl.c_str());
+        nch::Log::errorv(__PRETTY_FUNCTION__, SDL_GetError(), "Failed to open local URL \"%s\"", lurl.c_str());
     }
 }
 
@@ -123,7 +123,7 @@ int FileHandler::openFile(std::string path, int openType, bool binary)
     //Get whether file already exists
     bool fExists = (fileExists(path));
     if(!fExists) {
-        NCH_Log::debug("File \"%s\" not found, attempting to create new file...", mpath.c_str());
+        nch::Log::debug("File \"%s\" not found, attempting to create new file...", mpath.c_str());
     }
     //Mode: Binary (b) or Text (t).
     std::string modeArg = "b";
@@ -145,7 +145,7 @@ int FileHandler::openFile(std::string path, int openType, bool binary)
     if(file==NULL) {
         std::string action = "open";
         if(fExists) { action = "create"; }
-        NCH_Log::warn(__PRETTY_FUNCTION__, "Failed to "+action+" file '"+mpath+"' for "+getFileOpenTypeStr(openType));
+        nch::Log::warn(__PRETTY_FUNCTION__, "Failed to "+action+" file '"+mpath+"' for "+getFileOpenTypeStr(openType));
 		return FileStates::FAILED_ACCESS;
     //If file was successfully created
     } else {
@@ -202,13 +202,13 @@ int FileHandler::mvFile(std::string srcPath, std::string dstPath)
 	if( !fileExists(srcMPath) ) {
 		std::stringstream ss;
 		ss << "Can't rename file '" << srcMPath << "' which doesn't exist";
-		NCH_Log::error(__PRETTY_FUNCTION__, ss.str());
+		nch::Log::error(__PRETTY_FUNCTION__, ss.str());
 		return -1;
 	}
 	
 	std::stringstream ss;
 	ss << "Unknown error in renaming file '" << srcMPath;
-	NCH_Log::error(__PRETTY_FUNCTION__, ss.str());
+	nch::Log::error(__PRETTY_FUNCTION__, ss.str());
 	return -2;
 }
 
@@ -218,7 +218,7 @@ template<typename T> int FileHandler::write(T t)
 	
 	if( std::fputs(ss.str().c_str(), file)==EOF ) {
 		std::string logres = "Unsuccessful fputs() call for string '"+ss.str()+"'";
-		NCH_Log::error(__PRETTY_FUNCTION__, logres, strerror(errno));
+		nch::Log::error(__PRETTY_FUNCTION__, logres, strerror(errno));
 		return -1;
 	}
 	return 0;
@@ -228,7 +228,7 @@ int FileHandler::writeByte(uint8_t byte)
 	if(fwrite(&byte, 1, 1, file)!=1) {
 		std::stringstream logres;
 		logres << "Unsuccessful fwrite() call for data '" << byte << "'";
-		NCH_Log::error(__PRETTY_FUNCTION__, logres.str(), strerror(errno));
+		nch::Log::error(__PRETTY_FUNCTION__, logres.str(), strerror(errno));
 		return -1;
 	}
 	return 0;
@@ -311,7 +311,7 @@ std::vector<std::string> FileHandler::listDirContents(std::string parentDir, boo
         }
 
     } else {
-        NCH_Log::warnv(__PRETTY_FUNCTION__, "returning empty vector", "\"%s\" is not a directory", parentDir.c_str());
+        nch::Log::warnv(__PRETTY_FUNCTION__, "returning empty vector", "\"%s\" is not a directory", parentDir.c_str());
     }
 
 
@@ -347,7 +347,7 @@ uint8_t FileHandler::readByte()
 {
 	uint8_t buffer = 0;
 	if( fread(&buffer, sizeof(uint8_t), 1, file)!=1 ) {
-		NCH_Log::warn(__PRETTY_FUNCTION__, "Failed to read byte from file");
+		nch::Log::warn(__PRETTY_FUNCTION__, "Failed to read byte from file");
 	}
 	return buffer;
 }
@@ -395,7 +395,7 @@ Settings::t_kvMap FileHandler::readTxtFileKVs(BTEPath fp)
 
 	//Return an empty kvMap if file not found.
 	if( !fileExists(fp.get()) ) {
-		NCH_Log::debug( __PRETTY_FUNCTION__, "File \"%s\" not found", fp.get().c_str());
+		nch::Log::debug( __PRETTY_FUNCTION__, "File \"%s\" not found", fp.get().c_str());
 		return contents;
 	}
 	
@@ -502,7 +502,7 @@ bool FileHandler::checkMagicNumber(uint64_t mnPart1, uint64_t mnPart2)
 long FileHandler::tellPos() {
     long res = ftell(file);
     if(res==-1) {
-        NCH_Log::warnv(__PRETTY_FUNCTION__, "returning 0 instead", "ftell failed");
+        nch::Log::warnv(__PRETTY_FUNCTION__, "returning 0 instead", "ftell failed");
         return 0;
     }
     return res;
@@ -521,7 +521,7 @@ long FileHandler::getFileLength()
 	seekTo(origPos);
 
     if(res==-1) {
-        NCH_Log::warnv(__PRETTY_FUNCTION__, "returning 0 instead", "getFileLength failed");
+        nch::Log::warnv(__PRETTY_FUNCTION__, "returning 0 instead", "getFileLength failed");
         return 0;
     }
 	return res;
@@ -530,7 +530,7 @@ long FileHandler::getFileLength()
 int FileHandler::seek(long byte, int seekType)
 {
 	if( file==nullptr ) {
-		NCH_Log::error(__PRETTY_FUNCTION__, "File is nullptr");
+		nch::Log::error(__PRETTY_FUNCTION__, "File is nullptr");
 	}
 
 	if( fseek(file, byte, seekType)!=0 ) {
@@ -540,7 +540,7 @@ int FileHandler::seek(long byte, int seekType)
 			case SEEK_END: logres << "Failed to seek to end of file."; break;
 			case SEEK_CUR: logres << "Failed to seek " << byte << " forward in file."; break;
 		}
-		NCH_Log::warn(__PRETTY_FUNCTION__, logres.str());
+		nch::Log::warn(__PRETTY_FUNCTION__, logres.str());
 		return -1;
 	}
 	return 0;
@@ -570,7 +570,7 @@ void FileHandler::saveSettings(Settings::t_kvMap kvMap, std::string path)
 
 	    saveCloseFile();
 	} else {
-        NCH_Log::warn(__PRETTY_FUNCTION__, "kvMap is empty");
+        nch::Log::warn(__PRETTY_FUNCTION__, "kvMap is empty");
     }
 }
 
@@ -586,7 +586,7 @@ void FileHandler::saveSettings(int index)
     } else {
         std::stringstream ss;
         ss << "Index '" << index << "' doesn't exist.";
-        NCH_Log::error(__PRETTY_FUNCTION__, ss.str());
+        nch::Log::error(__PRETTY_FUNCTION__, ss.str());
     }
 }
 
@@ -601,7 +601,7 @@ void FileHandler::reloadSettings()
 {
     //Load settings and track how much time it takes
     {
-        NCH_Timer t("reloading settings");
+        nch::Timer t("reloading settings");
         unloadSettings();
         loadSettings();
     }
@@ -718,20 +718,20 @@ int FileHandler::createDir(std::string path)
     // If 'path' is not within the backtoearth folder
     unsigned int minPathSize = resourcePath.length();
     if( path.substr(0, minPathSize)!=resourcePath ) {
-        NCH_Log::error( __PRETTY_FUNCTION__,
+        nch::Log::error( __PRETTY_FUNCTION__,
                     "Tried to create a directory outside of the main resource path '"+resourcePath+"'",
                     "If you are seeing this, something is very wrong...");
-        NCH_Log::throwException();
+        nch::Log::throwException();
         return -2;
     }
 
     // If directory at 'path' isn't found
     if (opendir(path.c_str())==nullptr) {
         if(path==resourcePath) {
-            NCH_Log::error( __PRETTY_FUNCTION__,
+            nch::Log::error( __PRETTY_FUNCTION__,
                         "Could not find main directory '"+resourcePath+"'",
                         "Make sure the 'backtoearth' folder is in the same location as the executable");
-            NCH_Log::throwException();
+            nch::Log::throwException();
         }
     }
 
@@ -742,10 +742,10 @@ int FileHandler::createDir(std::string path)
 
         int mkdirres = mkdir(fp.get().c_str());
         if(mkdirres==0) {
-            NCH_Log::trbshoot(__PRETTY_FUNCTION__, "Successfully created new directory." );
+            nch::Log::trbshoot(__PRETTY_FUNCTION__, "Successfully created new directory." );
             return 0;
         } else {
-            NCH_Log::trbshoot(__PRETTY_FUNCTION__, "Found or couldn't create directory \"%s\"", path.c_str());
+            nch::Log::trbshoot(__PRETTY_FUNCTION__, "Found or couldn't create directory \"%s\"", path.c_str());
         }
     // ...for Linux and macOS
     #elif (defined(__unix__) || defined(__unix) || (defined(__APPLE__) && defined(__MACH__)) )
@@ -755,11 +755,11 @@ int FileHandler::createDir(std::string path)
 				return 0;
 			}
 		#else
-			NCH_Log::error(__PRETTY_FUNCTION__, "POSIX version undefined for this Unix OS, could not create directory");
+			nch::Log::error(__PRETTY_FUNCTION__, "POSIX version undefined for this Unix OS, could not create directory");
 		#endif
     // ...for something else? -> Error
     #else
-		NCH_Log::error(__PRETTY_FUNCTION__, "Unknown operating system, could not create directory");
+		nch::Log::error(__PRETTY_FUNCTION__, "Unknown operating system, could not create directory");
     #endif
 
     //If path to be created is invalid

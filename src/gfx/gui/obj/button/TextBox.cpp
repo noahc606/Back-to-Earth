@@ -54,7 +54,7 @@ void TextBox::draw()
     Button::draw();
 
 	if(colorInput && inputType==FREE_HEX_BASIC && btnText.getString().size()==7 ) {
-		NCH_Color c(255, 0, 0);
+		nch::Color c(255, 0, 0);
 		c.setFromB16Str(btnText.getString()+"FF");
 		btnText.draw(c);
 	} else {
@@ -80,7 +80,7 @@ void TextBox::tick()
 
         if( selected ) {
             btnText.setString("Enter input...");
-            btnText.foreground = NCH_Color(0, 255, 0);
+            btnText.foreground = nch::Color(0, 255, 0);
         } else {
             btnText.setString(setCB.toCtrlString());
 			
@@ -212,7 +212,7 @@ void TextBox::resetActionID(std::string methodName)
     if( actionID==-1 ) {
         std::stringstream ss;
         ss << "Tried to reset Action ID that already = -1.";
-        NCH_Log::warn(methodName, ss.str());
+        nch::Log::warn(methodName, ss.str());
     }
 
     actionID = -1;

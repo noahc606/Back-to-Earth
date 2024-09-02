@@ -22,7 +22,7 @@ void Planet::init(int rotation)
 
 	std::stringstream ss;
 	ss << "Initialized planet id " << id << "...";
-	NCH_Log::log(ss.str());
+	nch::Log::log(ss.str());
 }
 
 void Planet::init()
@@ -90,4 +90,4 @@ int Planet::getPartOfDay(int segments)
 {
 	return time*(double)segments;
 }
-NCH_Color Planet::getSkyColor() { return skyColor; }
+nch::Color Planet::getSkyColor() { return skyColor; }

@@ -24,7 +24,7 @@ Structure::Structure(int id, Point3X<int64_t> origin)
             bounds.c2 = Point3X<int64_t>(ox+63, oy+47, oz+23);
         } break;
         default: {
-            NCH_Log::warnv(__PRETTY_FUNCTION__, "using placeholder", "Tried to build bounds of structure with unknown ID '%d'", id);
+            nch::Log::warnv(__PRETTY_FUNCTION__, "using placeholder", "Tried to build bounds of structure with unknown ID '%d'", id);
             bounds.c1 = Point3X<int64_t>(ox, oy, oz);
             bounds.c2 = Point3X<int64_t>(ox, oy+3, oz+8);
         } break;
@@ -63,7 +63,7 @@ Structure::Structure(int id, Point3X<int64_t> origin)
 
         //Unknown structure - causes a Monolith to spawn
         default: {
-            if(!suppressWarnings) NCH_Log::warnv(__PRETTY_FUNCTION__, "using placeholder", "Tried to build structure with unknown ID '%d'", id);
+            if(!suppressWarnings) nch::Log::warnv(__PRETTY_FUNCTION__, "using placeholder", "Tried to build structure with unknown ID '%d'", id);
 
             TileRegion* tr = cu.findInMap(regMap, std::make_tuple((int64_t)0, (int64_t)0, (int64_t)0));
             if(tr!=nullptr) {

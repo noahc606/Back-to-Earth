@@ -33,7 +33,7 @@ std::string Items::getItemName(int itemID)
 	}
 }
 
-NCH_Color Items::getSandboxRGB() { return sandboxRGB; }
+nch::Color Items::getSandboxRGB() { return sandboxRGB; }
 void Items::setSandboxRGB(uint8_t r, uint8_t g, uint8_t b)
 {
     sandboxRGB.r = r;

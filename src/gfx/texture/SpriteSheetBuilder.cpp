@@ -33,7 +33,7 @@ void SpriteSheetBuilder::buildPlayerSheet(int type, SpriteSheet& spsh, ColorPale
 	spsh.setSpriteColor(pal.get("skin"));
 	spsh.addSpriteToRow(TextureLoader::PLAYER_side_head, 0, 0, PlayerAnimation::SIDE_HEAD_BASE);
 	//Row 8
-	spsh.setSpriteColor(NCH_Color(255, 255, 255));
+	spsh.setSpriteColor(nch::Color(255, 255, 255));
 	spsh.addSpriteToRow(TextureLoader::PLAYER_side_head, 0, 32, PlayerAnimation::SIDE_HEAD_EYES);
 	//Row 9
 	spsh.setSpriteColor(pal.get("eyes"));

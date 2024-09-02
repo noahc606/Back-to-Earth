@@ -395,7 +395,7 @@ void TileIterator::scanBounds()
     std::tuple<int, int, int> textureXYZ = std::make_tuple(2, 0, 0);
 
     //Message
-    NCH_Log::debug("Scanning bounds...");
+    nch::Log::debug("Scanning bounds...");
 
     //Start time
     start = SDL_GetTicks();
@@ -504,11 +504,11 @@ int TileIterator::testSelectionLoaded()
                     boundsInvalid = true;
 
                     if(warnings) {
-                        NCH_Log::warn(__PRETTY_FUNCTION__, "TileIterator selected area is partially unloaded");
+                        nch::Log::warn(__PRETTY_FUNCTION__, "TileIterator selected area is partially unloaded");
 
                         std::stringstream ss2;
                         ss2 << "Bounds are from RXYZ(" << begReg[0] << ", " << begReg[1] << ", " << begReg[2] << ") to RXYZ(" << endReg[0] << ", " << endReg[1] << ", " << endReg[2] << ")";
-                        NCH_Log::warn(__PRETTY_FUNCTION__, ss2.str());
+                        nch::Log::warn(__PRETTY_FUNCTION__, ss2.str());
                     }
 
                     return -1;

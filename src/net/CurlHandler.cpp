@@ -73,7 +73,7 @@ bool CurlHandler::v1NewerThanV2(std::string v1, std::string v2)
         v1sm = std::stoi(vs[0][0]); v1ma = std::stoi(vs[0][1]); v1mi = std::stoi(vs[0][2]);
         v2sm = std::stoi(vs[1][0]); v2ma = std::stoi(vs[1][1]); v2mi = std::stoi(vs[1][2]);
     } catch(...) {
-        NCH_Log::warn(__PRETTY_FUNCTION__, "bad conversion");
+        nch::Log::warn(__PRETTY_FUNCTION__, "bad conversion");
     }
 
     //Compare
@@ -117,7 +117,7 @@ std::string CurlHandler::newBTEVersionAvailable(std::string* newVersion)
     //Return whether we found a newer version or not
     if(v1NewerThanV2(max, Main::VERSION_LABEL)) {
         *newVersion = max;
-        NCH_Log::log("Found newer version \"%s\" at noahc606.github.io/nch/bte/versions.txt. Maybe you should update.", max.c_str());
+        nch::Log::log("Found newer version \"%s\" at noahc606.github.io/nch/bte/versions.txt. Maybe you should update.", max.c_str());
         return "true";
     }
 
@@ -131,7 +131,7 @@ std::vector<std::string> CurlHandler::getBTEAssetPathList()
     std::string url = "https://noahc606.github.io/nch/bte/assets.txt";
     CURLcode cc = cURLAsString(&assetPathList, url);
     if(cc!=0) {
-        NCH_Log::errorv(__PRETTY_FUNCTION__, curl_easy_strerror(cc), "Failed to GET \"%s\"", url.c_str());
+        nch::Log::errorv(__PRETTY_FUNCTION__, curl_easy_strerror(cc), "Failed to GET \"%s\"", url.c_str());
         std::vector<std::string> emptyList;
         return emptyList;
     }
@@ -161,7 +161,7 @@ bool CurlHandler::initEHandle()
     //Curl handle init for the current object
     eHandle = curl_easy_init();
     if(!eHandle) {
-        NCH_Log::error(__PRETTY_FUNCTION__, "Failed to initialize curl handler");
+        nch::Log::error(__PRETTY_FUNCTION__, "Failed to initialize curl handler");
         return false;
     }
     return true;
@@ -177,7 +177,7 @@ size_t CurlHandler::curlWriteCallbackString(void *contents, size_t size, size_t 
         s->append((char*)contents, newLength);
     }
     catch(std::bad_alloc &e) {
-        NCH_Log::error(__PRETTY_FUNCTION__, "Bad allocation");
+        nch::Log::error(__PRETTY_FUNCTION__, "Bad allocation");
         return 0;
     }
     return newLength;
@@ -211,7 +211,7 @@ CURLcode CurlHandler::cURLAsStringTBR(std::string* str, std::string url)
 
         //Cleanup
         if(cc!=0) {
-            NCH_Log::errorv(__PRETTY_FUNCTION__, curl_easy_strerror(cc), "Nonzero CURLcode %d", cc);
+            nch::Log::errorv(__PRETTY_FUNCTION__, curl_easy_strerror(cc), "Nonzero CURLcode %d", cc);
         }
         curl_easy_reset(eHandle);
 
@@ -239,7 +239,7 @@ CURLcode CurlHandler::cURLIntoFileTBR(std::string out, std::string url)
 
         //Cleanup
         if(cc!=0)  {
-            NCH_Log::errorv(__PRETTY_FUNCTION__, curl_easy_strerror(cc), "Nonzero CURLcode %d", cc);
+            nch::Log::errorv(__PRETTY_FUNCTION__, curl_easy_strerror(cc), "Nonzero CURLcode %d", cc);
         }
         curl_easy_cleanup(eHandle);
         fclose(fp);
