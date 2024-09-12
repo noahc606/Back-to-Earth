@@ -276,7 +276,7 @@ void TileMapScreen::putInfo(std::stringstream& ss, int& tabs, int64_t mouseX, in
 				TileIterator ti(tileMap);
 				ti.setBoundsByRXYZ( TileMap::getRegRXYZ(mouseX), TileMap::getRegRXYZ(mouseY), TileMap::getRegRXYZ(cam->getLayer()) );
 				ti.setTrackerSub( msx, msy, TileMap::getRegSubPos(cam->getLayer()) );
-				auto tttData = RegTexInfo::camTrackedTile(ti, cam->getDirection());
+				auto tttData = RegTexInfo::camTopVisionBlockingTile(ti, cam->getDirection());
 				int64_t dZ = std::get<0>(tttData);
 				ss << "Top tile(dZ, Z)=(" << dZ << ", " << (ti.getTrackerSub(2)+dZ) << "); ";
 				DebugScreen::newLine(ss);

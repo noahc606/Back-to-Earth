@@ -64,7 +64,12 @@ void BTE::init()
 	debugScreen.init(sdlHandler, &guiHandler, controls);
 
 	if( !testing ) {
-		setGameState(GameState::INTRO);
+		if( settings->get(Settings::options, "showIntro")=="true" ) {
+			setGameState(GameState::INTRO);
+		} else {
+			setGameState(GameState::MAIN_MENU);
+		}
+		
 	} else {
 		setGameState(GameState::TESTING);
 	}

@@ -8,7 +8,7 @@
 class RegTexBuilder
 {
 public:
-	RegTexBuilder(Texture* tex, Planet* plnt, TileIterator& ti, int camDirection, int blitScale, TileType ttfc, int ttdfc);
+	RegTexBuilder(Texture* tex, Planet* plnt, TileIterator& ti, int camDirection, int blitScale, std::vector<std::pair<int64_t, TileType>>& tilesToDraw);
 	virtual ~RegTexBuilder();
 	
 	static void info(std::stringstream& ss, int& tabs, TileIterator& ti, int ttdfc);
@@ -32,18 +32,14 @@ private:
 	int getDstY(TileIterator& ti);
 	
 	void detailDepth0Tiles(TileIterator& ti, int camDirection); //Depth 0
-	void detailDepthPTiles(TileIterator& ti); //Depth positive (>0)
 	
-	void drawTypeA(TileIterator& ti, int srcX, int srcY, nch::Color c);
-	void drawTypeA(TileIterator& ti, TileType tt);
-	void drawTypeA(TileIterator& ti, int srcX, int srcY);
+	void drawTiles(std::vector<std::pair<int64_t, TileType>>& tilesToDraw);
+	void drawTypeA(TileType tt, int depth);
 	void drawWallOverlay(int srcX, int srcY);
 	
 	Planet* plnt = nullptr;
 	Texture* tex = nullptr;
 	int dstX = 0;
 	int dstY = 0;
-	int ttdfc = 0;	//Top Tile's Distance From Camera
-	TileType ttfc;	//Top Tile From Camera
 	int blitScale = -1;
 };

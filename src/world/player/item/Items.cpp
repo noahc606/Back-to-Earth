@@ -4,6 +4,7 @@
 
 void Items::init(GUIHandler* gh, Player* pl)
 {
+	sandboxRGB = nch::Color(255, 255, 255);
     guiHandler = gh;
     player = pl;
 }

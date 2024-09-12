@@ -133,6 +133,7 @@ public:
             cbx_DEBUG_SETTINGS_logging,
             ttp_DEBUG_SETTINGS_debugHacks, tbx_DEBUG_SETTINGS_debugHacks,
             ttp_DEBUG_SETTINGS_debugTesting, tbx_DEBUG_SETTINGS_debugTesting,
+            cbx_DEBUG_SETTINGS_showIntro,
             btn_DEBUG_SETTINGS_checkForUpdates,
             btn_DEBUG_SETTINGS_forceUpdate,
         /* Pause Screen */

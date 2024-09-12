@@ -329,6 +329,7 @@ void GUIBuilder::buildMainDebug(GUIHandler& gh, FileHandler& fh)
 	uis.push_back( std::make_pair("Logging", "logging") );
 	uis.push_back( std::make_pair("Console Commands", "debugHacks") );
 	uis.push_back( std::make_pair("Testing on Startup", "debugTesting") );
+	uis.push_back( std::make_pair("Show Logo on Startup", "showIntro") );
 
     //Add window, get settings
 	int width = 300;
@@ -353,9 +354,12 @@ void GUIBuilder::buildMainDebug(GUIHandler& gh, FileHandler& fh)
         gh.addGUI(new Tooltip(w, 30, 92+32*(7), uis[4].first+": ", gh.ttp_DEBUG_SETTINGS_debugTesting), 4);
         gh.addGUI(new TextBox(w, 460, 82+32*(7), 300, TextBox::FREE_TEXT, stngs->get(Settings::options, uis[4].second), gh.tbx_DEBUG_SETTINGS_debugTesting), 4);
     //About
-    gh.addGUI(new Tooltip(w, ch, 92+32*(16), "About", gh.ttp_GENERIC));
+    gh.addGUI(new Tooltip(w, ch, 92+32*(14), "About", gh.ttp_GENERIC));
+        gh.addGUI(new Tooltip(w, 30, 92+32*(15), "\"Back to Earth\" by Out of This World Software", gh.ttp_GENERIC));
+        //Startup Intro visible
+        gh.addGUI(new CheckBox( w, 26, 82+32*(16), uis[5].first, stngs->get(Settings::options, uis[5].second), gh.cbx_DEBUG_SETTINGS_showIntro ), 5);
         //Check For Updates
-        gh.addGUI(new Tooltip(w, 30, 92+32*(17), ""+Main::TITLE+" "+Main::VERSION_LABEL, gh.ttp_GENERIC));
+        gh.addGUI(new Tooltip(w, 30, 92+32*(17), "Version: "+Main::VERSION_LABEL, gh.ttp_GENERIC));
     	gh.addGUI(new Button( w, 460, 82+32*(17), width, "Check For Updates...", gh.btn_DEBUG_SETTINGS_checkForUpdates ));
 
         gh.addGUI(new Tooltip(w, 30, 92+32*(18), "Released: "+Main::VERSION_DATE, gh.ttp_GENERIC));

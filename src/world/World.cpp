@@ -321,9 +321,6 @@ void World::updateMouseAndCamInfo()
 	int64_t cSL = localPlayer.getCamera()->getLayer();
 	int64_t cSRZ = TileMap::getRegRXYZ(cSL);
 	
-	
-	//Get mouseZLL - the position of the top visible tile in view of the camera.
-	//At the last line of each case block: Get distance of the closest solid tile "underneath" the mouse.
 	TileIterator ti(&tileMap);
 	
 
@@ -337,7 +334,7 @@ void World::updateMouseAndCamInfo()
 			ti.setBoundsByRXYZ( cSRZ, mouseSRX, mouseSRY );
 			ti.setTrackerSub( TileMap::getRegSubPos(cSL), TileMap::getRegSubPos(mouseSXL), TileMap::getRegSubPos(mouseSYL) );
 			
-			mouseXL = cSL+( std::get<0>(RegTexInfo::camTrackedTile(ti, localPlayer.getCamera()->getDirection()) ) );
+			mouseXL = cSL+( std::get<0>(RegTexInfo::camTopTileWithProperty(ti, localPlayer.getCamera()->getDirection(), 32, TileType::SOLID) ) );
 		} break;
 		case Camera::Y: {
 			mouseX = mouseSX;
@@ -348,7 +345,7 @@ void World::updateMouseAndCamInfo()
 			ti.setBoundsByRXYZ( cSRZ, mouseSRY, mouseSRX );
 			ti.setTrackerSub( TileMap::getRegSubPos(cSL), TileMap::getRegSubPos(mouseSYL), TileMap::getRegSubPos(mouseSXL) );
 			
-			mouseYL = cSL+( std::get<0>(RegTexInfo::camTrackedTile(ti, localPlayer.getCamera()->getDirection()) ) );
+			mouseYL = cSL+( std::get<0>(RegTexInfo::camTopTileWithProperty(ti, localPlayer.getCamera()->getDirection(), 32, TileType::SOLID) ) );
 		} break;
 		case Camera::Z: {
 			mouseX = mouseSX;
@@ -359,13 +356,9 @@ void World::updateMouseAndCamInfo()
 			ti.setBoundsByRXYZ( TileMap::getRegRXYZ(mouseSXL), TileMap::getRegRXYZ(mouseSYL), cSRZ);
 			ti.setTrackerSub( TileMap::getRegSubPos(mouseSXL), TileMap::getRegSubPos(mouseSYL), TileMap::getRegSubPos(cSL) );
 			
-			mouseZL = cSL+( std::get<0>(RegTexInfo::camTrackedTile(ti, localPlayer.getCamera()->getDirection()) ) );
+			mouseZL = cSL+( std::get<0>(RegTexInfo::camTopTileWithProperty(ti, localPlayer.getCamera()->getDirection(), 32, TileType::SOLID) ) );
 		} break;
 	}
-	
-
-	//Get mouseCLL - position of camera layer.
-	//mouseCL = localPlayer.getCamera()->getLayer();
 }
 
 void World::playerInteractions(GUIHandler& guiHandler, bool paused)
@@ -409,8 +402,18 @@ void World::playerInteractions(GUIHandler& guiHandler, bool paused)
 				tt.init();
 				tt.setRGB(localPlayerMenu.getSandboxTexRed(), localPlayerMenu.getSandboxTexGreen(), localPlayerMenu.getSandboxTexBlue());
 				tt.setSolid(true);
-				tt.setTextureXY(localPlayerMenu.getSelectedSlotX(), localPlayerMenu.getSelectedSlotY());
-				tt.setVisionBlocking(true);
+				
+				
+				int gsx = localPlayerMenu.getSelectedSlotX();
+				int gsy = localPlayerMenu.getSelectedSlotY();
+				tt.setTextureXY(gsx, gsy);
+
+				if( (gsy==6) ) {
+					tt.setVisionBlocking(false);
+				} else {
+					tt.setVisionBlocking(true);
+				}
+
 				playerTryPlaceTile(tt, false);
 			}; break;
 
@@ -449,8 +452,6 @@ void World::playerTryPlaceTile(TileType tt, bool force)
 			mouseCsZL = mouseYL;
 		} break;
 	}
-
-	//TODO LATER: clean up everything below - it was rushed when I wrote it on 16 June 2024 (release date)
 
 	//Try to place tile
 	TileType ttLast = tileMap.getTileByCsXYZ(cam, mouseCsXL, mouseCsYL, cam->getLayer());

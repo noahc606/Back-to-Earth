@@ -102,7 +102,7 @@ void Minimap::updateTerrainPartial(int64_t startX, int64_t endX)
 			for(int sy = ti.gbs(1); sy<=ti.ges(1); sy++) {
 				ti.setTrackerSub(sx, sy, TileMap::getRegSubPos(camLZ));
 
-				auto ctt = RegTexInfo::camTrackedTile(ti, Camera::DOWN, 16);
+				auto ctt = RegTexInfo::camTopVisionBlockingTile(ti, Camera::DOWN, 16);
 				int64_t depth = ctt.first;
 				auto ttRGB = ctt.second.getRGB();
 

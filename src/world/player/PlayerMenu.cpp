@@ -129,8 +129,9 @@ void PlayerMenu::draw()
 		}
 		
 		if(state==2) {
+			uiOverlay.clear();
 			uiOverlay.setTexDimensions(invW*32, invH*32);
-			uiOverlay.setDrawPos(invScreenX-2, invScreenY-2);
+			uiOverlay.setDrawPos(invScreenX-2+uiOverlayDX, invScreenY-2+uiOverlayDY);
 			uiOverlay.setDrawScale(2);
 			
 			uiOverlay.lock();
@@ -144,16 +145,16 @@ void PlayerMenu::draw()
 		}
 
 		uiOverlay.draw();
+	}
 
-		//Draw held item
-		if(invHeldStack.getType()!=-1) {
-			int drawX = controls->getMouseX()/2*2-32;
-			int drawY = controls->getMouseY()/2*2-32;
-			
-			heldItem.setDrawPos(drawX, drawY);
-			heldItem.draw();
-			invHeldStack.drawCount(sdlHandler, drawX+2, drawY+2);
-		}
+	//Draw held item
+	if(invHeldStack.getType()!=-1) {
+		int drawX = controls->getMouseX()/2*2-32;
+		int drawY = controls->getMouseY()/2*2-32;
+		
+		heldItem.setDrawPos(drawX, drawY);
+		heldItem.draw();
+		invHeldStack.drawCount(sdlHandler, drawX+2+uiOverlayDX, drawY+2+uiOverlayDY);
 	}
 
 	int shx = getSlotHoveringX();
@@ -276,12 +277,11 @@ void PlayerMenu::save(FileHandler* fh, std::string worldDataPath)
 
 void PlayerMenu::drawInventory(int oscillation)
 {
-	//Set texture settings for uiOverlay
 	uiOverlay.clear();
 	uiOverlay.setTexDimensions(invW*32, invH*32);
-	uiOverlay.setDrawPos(invScreenX-2, invScreenY-2);
+	uiOverlay.setDrawPos(invScreenX-2+uiOverlayDX, invScreenY-2+uiOverlayDY);
 	uiOverlay.setDrawScale(2);
-	
+
 	//Set color of inventory slot ridges
 	nch::Color ridge1(0, 0, 0, 100);
 	nch::Color ridge2(128+oscillation, 128+oscillation, 128+oscillation, 100);
@@ -308,42 +308,42 @@ void PlayerMenu::drawInventory(int oscillation)
 			//Draw box1 or box2 in a checkerboard fashion
 			if((ix+iy)%2==1) {
 				sdlHandler->setRenderDrawColor(box1);
-				sdlHandler->renderFillRect(invScreenX+ix*64-2, invScreenY+iy*64-2, 64, 64);
+				sdlHandler->renderFillRect(invScreenX+ix*64-2+uiOverlayDX, invScreenY+iy*64-2+uiOverlayDY, 64, 64);
 			} else {
 				sdlHandler->setRenderDrawColor(box2);
-				sdlHandler->renderFillRect(invScreenX+ix*64-2, invScreenY+iy*64-2, 64, 64);
+				sdlHandler->renderFillRect(invScreenX+ix*64-2+uiOverlayDX, invScreenY+iy*64-2+uiOverlayDY, 64, 64);
 			}
 			
 			int itemID = getInventorySlotItemType(ix, iy);
 			
 			SDL_Rect isrc; isrc.x = getItemTexSrcX(itemID)+1; isrc.y = getItemTexSrcY(itemID)+1; isrc.w = 30; isrc.h = 30;
-			SDL_Rect idst; idst.x = (invScreenX+ix*64); idst.y = (invScreenY+iy*64); idst.w = 60; idst.h = 60;
+			SDL_Rect idst; idst.x = (invScreenX+ix*64+uiOverlayDX); idst.y = (invScreenY+iy*64+uiOverlayDY); idst.w = 60; idst.h = 60;
 			if(getInventorySlotItemType(ix, iy)!=Items::WORLDTILE) {
 				sdlHandler->renderCopy(TextureLoader::PLAYER_items, &isrc, &idst);
 			} else {
 				getInventorySlotItemStack(ix, iy).drawEDTileType(sdlHandler, idst.x, idst.y);
 			}
 			
-			getInventorySlotItemStack(ix, iy).drawCount(sdlHandler, invScreenX+ix*64, invScreenY+iy*64);
+			getInventorySlotItemStack(ix, iy).drawCount(sdlHandler, invScreenX+ix*64+uiOverlayDX, invScreenY+iy*64+uiOverlayDY);
 		} else {
 			sdlHandler->setRenderDrawColor(box3);
-			sdlHandler->renderFillRect(invScreenX+ix*64-2, invScreenY+iy*64-2, 64, 64);
+			sdlHandler->renderFillRect(invScreenX+ix*64-2+uiOverlayDX, invScreenY+iy*64-2+uiOverlayDY, 64, 64);
 		}
 
 		//Draw ridges
 		sdlHandler->setRenderDrawColor(ridge1);
-		sdlHandler->renderFillRect(invScreenX+ix*64-2, 	invScreenY+iy*64-2, 	2, 64);
-		sdlHandler->renderFillRect(invScreenX+ix*64-2, 	invScreenY+iy*64-2, 	64, 2);
+		sdlHandler->renderFillRect(invScreenX+ix*64-2+uiOverlayDX, 	invScreenY+iy*64-2+uiOverlayDY, 	2, 64);
+		sdlHandler->renderFillRect(invScreenX+ix*64-2+uiOverlayDX, 	invScreenY+iy*64-2+uiOverlayDY, 	64, 2);
 		sdlHandler->setRenderDrawColor(ridge2);
-		if(iy!=7) sdlHandler->renderFillRect(invScreenX+ix*64-2, 	invScreenY+iy*64+60, 	64, 2);
-		if(ix!=7) sdlHandler->renderFillRect(invScreenX+ix*64+60, invScreenY+iy*64-2,		2, 64);
+		sdlHandler->renderFillRect(invScreenX+ix*64-2+uiOverlayDX, 	invScreenY+iy*64+60+uiOverlayDY, 	64, 2);
+		sdlHandler->renderFillRect(invScreenX+ix*64+60+uiOverlayDX, invScreenY+iy*64-2+uiOverlayDY,		2, 64);
 	}
 	
 	//Selected Slot Outline
 	if( inventorySlotExists(invSX, invSY) ) {
 		if( getInventorySlotItemType(invSX, invSY)!=-1 ) {
 			SDL_Rect ssrc; ssrc.x = 0; ssrc.y = 0; ssrc.w = 32; ssrc.h = 32;
-			SDL_Rect sdst; sdst.x = invScreenX+invSX*64-2; sdst.y = invScreenY+invSY*64-2; sdst.w = 64; sdst.h = 64;
+			SDL_Rect sdst; sdst.x = invScreenX+invSX*64-2+uiOverlayDX; sdst.y = invScreenY+invSY*64-2+uiOverlayDY; sdst.w = 64; sdst.h = 64;
 			sdlHandler->renderCopy(TextureLoader::GUI_player_interactions, &ssrc, &sdst);
 		}
 	}

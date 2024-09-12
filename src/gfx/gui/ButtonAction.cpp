@@ -177,8 +177,9 @@ void ButtonAction::populateSettingUIInfo(GUIHandler* gh, int& currentWindowID, i
                 std::make_pair(GUIHandler::cbx_DEBUG_SETTINGS_logging, 2),
                 std::make_pair(GUIHandler::tbx_DEBUG_SETTINGS_debugHacks, 3),
                 std::make_pair(GUIHandler::tbx_DEBUG_SETTINGS_debugTesting, 4),
+                std::make_pair(GUIHandler::cbx_DEBUG_SETTINGS_showIntro, 5),
             };
-            objKeys = { "debugEnabled", "debugOverlayEnabled", "logging", "debugHacks", "debugTesting" };
+            objKeys = { "debugEnabled", "debugOverlayEnabled", "logging", "debugHacks", "debugTesting", "showIntro" };
             settingFileID = Settings::TextFiles::options;
         } break;
         default: {

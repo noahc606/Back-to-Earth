@@ -2,7 +2,7 @@
 #include "DebugScreen.h"
 #include <math.h>
 
-RegTexBuilder::RegTexBuilder(Texture* tex, Planet* plnt, TileIterator& ti, int camDirection, int blitScale, TileType ttfc, int ttdfc)
+RegTexBuilder::RegTexBuilder(Texture* tex, Planet* plnt, TileIterator& ti, int camDirection, int blitScale, std::vector<std::pair<int64_t, TileType>>& tilesToDraw)
 {
 	//Store blit's texture, size and destinationo
 	RegTexBuilder::tex = tex;
@@ -24,31 +24,43 @@ RegTexBuilder::RegTexBuilder(Texture* tex, Planet* plnt, TileIterator& ti, int c
 		} break;
 	}
 	
-	RegTexBuilder::ttdfc = ttdfc;
+	//RegTexBuilder::ttdfc = ttdfc;
 	bool lookingDown = camDirection==Camera::Directions::DOWN;
 	
-	//If there is a tile seen by the camera:
-	if(ttdfc!=-1) {
-		//Draw tile
-		drawTypeA( ti, ttfc );
-	//If no tile is seen by the camera and camera is not looking down:
-	} else if(!lookingDown) {
-		//Draw transparency to make sky visible
-		tex->rect(dstX, dstY, blitScale, blitScale, 255, 0, 0, 0, SDL_BLENDMODE_NONE);
-	}
-
-	//If the camera is looking downward into a deep hole, don't draw the sky
-	if(ttdfc==-1 && lookingDown) {
-		TileType tt;
-		tt.init();
-		tt.setTextureXY(0, 0);
-		tt.setRGB(0, 0, 0);
-		drawTypeA( ti, tt );
-	}
-
-	//Detail tiles
-	if(ttdfc==0) {
-		detailDepth0Tiles(ti, camDirection);
+	switch(tilesToDraw.size()) {
+		case 0: {
+			//If the camera is looking far downward, draw darkness instead of the the sky
+			if(lookingDown) {
+				TileType tt;
+				tt.init();
+				tt.setTextureXY(0, 0);
+				tt.setRGB(0, 0, 0);
+				drawTypeA(tt, 0);
+			//If not, draw invisibilty for the sky
+			} else {
+				tex->rect(dstX, dstY, blitScale, blitScale, 0, 0, 0, 0, SDL_BLENDMODE_NONE);
+			}
+		} break;
+		case 1: {
+			if(tilesToDraw[0].second.isVisionBlocking()) {
+				drawTypeA(tilesToDraw[0].second, tilesToDraw[0].first);
+				
+				//Detail tiles further if they are depth 0
+				if(tilesToDraw[0].first==0) {
+					detailDepth0Tiles(ti, camDirection);
+				}
+			} else {
+				tex->rect(dstX, dstY, blitScale, blitScale, 192, 192, 192, 0, SDL_BLENDMODE_NONE);
+				drawTypeA(tilesToDraw[0].second, tilesToDraw[0].first);
+			}
+		} break;
+		default: {
+			printf("%d\n", tilesToDraw.size());
+			tex->rect(dstX, dstY, blitScale, blitScale, 64, 64, 64, 0, SDL_BLENDMODE_NONE);
+			for(int i = tilesToDraw.size()-1; i>=0; i--) {
+				drawTypeA(tilesToDraw[i].second, tilesToDraw[i].first);
+			}
+		} break;
 	}
 }
 
@@ -204,46 +216,31 @@ void RegTexBuilder::detailDepth0Tiles(TileIterator& ti, int camDirection)
 
 }
 
-void RegTexBuilder::detailDepthPTiles(TileIterator& ti)
+void RegTexBuilder::drawTiles(std::vector<std::pair<int64_t, TileType>>& tilesToDraw)
 {
-	bool bl[8] = { false };
-	infoBl(ti, bl, ttdfc);
+	for(int i = 0; i<tilesToDraw.size(); i++) {
+		int depth = tilesToDraw[i].first;
+		TileType tt = tilesToDraw[i].second;
 
-	bool co[4] = { 0, 0, 0, 0 }; //Corners
-	bool si[4] = { 0, 0, 0, 0 }; //Sides
-	infoCoSi(bl, co, si);
-
-	int osx = 0; //Overlay source X
-	int osy = 0; //Overlay source Y
-
-	/* Draw corner(s) */
-	osx = 0;
-	osy = 8;
-	if( co[0] ) osy += 2;
-	if( co[1] ) osy += 1;
-	if( co[2] ) osx += 2;
-	if( co[3] ) osx += 1;
-
-	drawWallOverlay( osx, osy );
-
-	/* Draw side(s) */
-	osx = 4;
-	osy = 8;
-	if( si[0] ) osy += 2;
-	if( si[1] ) osy += 1;
-	if( si[2] ) osx += 2;
-	if( si[3] ) osx += 1;
-
-	drawWallOverlay( osx, osy );
+		if(tt.getTextureXYZ(0)==0 && tt.getTextureXYZ(1)==0) {
+			continue;
+		} else {
+			drawTypeA(tt, depth);
+		}
+	}
 }
 
 /**
     Draw a tile image with a given color; Depending on depth, shade it.
 */
-void RegTexBuilder::drawTypeA(TileIterator& ti, int srcX, int srcY, nch::Color c)
+void RegTexBuilder::drawTypeA(TileType tt, int depth)
 {
 	TextureLoader* tl = tex->getTextureLoader();
 	
+	int srcX = 32*std::get<0>(tt.getTextureXYZ());
+	int srcY = 32*std::get<1>(tt.getTextureXYZ());
+	nch::Color c(tt.getRGB(0), tt.getRGB(1), tt.getRGB(2));
+
 	//Prep texture for editing (set lock area and color)
 	tex->lock(dstX, dstY, blitScale, blitScale);
 	tex->setColorMod(c.r, c.g, c.b);
@@ -264,7 +261,6 @@ void RegTexBuilder::drawTypeA(TileIterator& ti, int srcX, int srcY, nch::Color c
 	}
 	
 	//For a positive depth (capped at 6), make the tile look darker (deeper = darker)
-	int depth = ttdfc;
 	if( depth!=0 ) {
 		if(depth>6) {
 			depth = 6;
@@ -277,23 +273,6 @@ void RegTexBuilder::drawTypeA(TileIterator& ti, int srcX, int srcY, nch::Color c
 		
 		tex->rect( dstX, dstY, blitScale, blitScale, skyColor.r/5, skyColor.g/5, skyColor.b/5, 40*(depth-1), SDL_BLENDMODE_BLEND);
 	}
-}
-
-
-void RegTexBuilder::drawTypeA(TileIterator& ti, TileType tt)
-{
-	//Draw a Type A tile based on its TileType data
-	int srcX = 32*std::get<0>(tt.getTextureXYZ());
-	int srcY = 32*std::get<1>(tt.getTextureXYZ());
-	int r = std::get<0>(tt.getRGB());
-	int g = std::get<1>(tt.getRGB());
-	int b = std::get<2>(tt.getRGB());
-	
-	drawTypeA(ti, srcX, srcY, nch::Color(r, g, b) );
-}
-void RegTexBuilder::drawTypeA(TileIterator& ti, int srcX, int srcY)
-{
-	drawTypeA( ti, srcX, srcY, nch::Color(255, 255, 255) );
 }
 
 /*

@@ -127,12 +127,14 @@ void RegTexProcessor::processTileArea(TileIterator& ti, Texture* tex, int blitSc
 	if( tex==nullptr ) return;
 
 	//Get data of the top tile from the camera
-	auto tttData = RegTexInfo::camTrackedTile(ti, cam->getDirection());  //Pair of an int64_t object and a TileType object
-	int64_t dZ = std::get<0>(tttData);        								//Relative height of top tile ( topmost==0, one below==-1, etc. )
-	TileType topTileFromCam = std::get<1>(tttData); 						//TileType of top tile from camera
+	auto cttdh = RegTexInfo::camTilesToDrawHere(ti, cam->getDirection(), 32);
+	//cttdh is a vector of pairs(int64_t, TileType).
+	//int64_t: Relative depth of top tile ( none found==-1, topmost==0, one below==1, etc. )
+	//TileType: tile in list which should be drawn
+
 
 	//Create RegTexBuilder
-	RegTexBuilder rtb(tex, tileMap->getPlanet(), ti, cam->getDirection(), blitScale, topTileFromCam, dZ);
+	RegTexBuilder rtb(tex, tileMap->getPlanet(), ti, cam->getDirection(), blitScale, cttdh);
 }
 
 /*
@@ -170,11 +172,7 @@ void RegTexProcessor::buildRegionArea(int64_t csRX, int64_t csRY)
 				default: ti.setTrackerSub( scx, scy, TileMap::getRegSubPos(cL) ); break;
 			}
 			
-			auto ctt = RegTexInfo::camTrackedTile(ti, cam->getDirection());
-			int64_t depth = ctt.first;
-			TileType tt = ctt.second;
-			int blitScale = 32.0*Canvas::getTexLODBasedOnZoom(cam->getZoom());
-			RegTexBuilder rtb(tex, tileMap->getPlanet(), ti, cam->getDirection(), blitScale, tt, depth);
+			processTileArea(ti, tex, 32.0*Canvas::getTexLODBasedOnZoom(cam->getZoom()));
 		}
 	}
 }
