@@ -124,7 +124,7 @@ void PlayerMenu::draw()
 		
 		//Inventory
 		if(state==1) {
-			int oscillation = 32*std::abs(std::sin(angle));
+			int oscillation = 64*std::abs(std::sin(angle));
 			drawInventory(oscillation);
 		}
 		
@@ -177,8 +177,14 @@ void PlayerMenu::draw()
 	}
 }
 
-int PlayerMenu::getSlotHoveringX() { return std::floor((controls->getMouseX()-invScreenX)/64.0); }
-int PlayerMenu::getSlotHoveringY() { return std::floor((controls->getMouseY()-invScreenY)/64.0); }
+int PlayerMenu::getSlotHoveringX() {
+	if(state==0) return -1000;
+	return std::floor((controls->getMouseX()-invScreenX)/64.0);
+}
+int PlayerMenu::getSlotHoveringY() {
+	if(state==0) return -1000;
+	return std::floor((controls->getMouseY()-invScreenY)/64.0);
+}
 int PlayerMenu::getItemTexSrcX(int itemID) { return (itemID%8)*32; }
 int PlayerMenu::getItemTexSrcY(int itemID) { return (itemID/8)*32;}
 
@@ -283,8 +289,8 @@ void PlayerMenu::drawInventory(int oscillation)
 	uiOverlay.setDrawScale(2);
 
 	//Set color of inventory slot ridges
-	nch::Color ridge1(0, 0, 0, 100);
-	nch::Color ridge2(128+oscillation, 128+oscillation, 128+oscillation, 100);
+	nch::Color ridge1(oscillation, oscillation, oscillation, 150);
+	nch::Color ridge2(255, 255, 255, 30);
 	
 	//Draw inventory elements
 	for(int ix = -10; ix<10; ix++)
@@ -332,11 +338,11 @@ void PlayerMenu::drawInventory(int oscillation)
 
 		//Draw ridges
 		sdlHandler->setRenderDrawColor(ridge1);
-		sdlHandler->renderFillRect(invScreenX+ix*64-2+uiOverlayDX, 	invScreenY+iy*64-2+uiOverlayDY, 	2, 64);
-		sdlHandler->renderFillRect(invScreenX+ix*64-2+uiOverlayDX, 	invScreenY+iy*64-2+uiOverlayDY, 	64, 2);
-		sdlHandler->setRenderDrawColor(ridge2);
 		sdlHandler->renderFillRect(invScreenX+ix*64-2+uiOverlayDX, 	invScreenY+iy*64+60+uiOverlayDY, 	64, 2);
 		sdlHandler->renderFillRect(invScreenX+ix*64+60+uiOverlayDX, invScreenY+iy*64-2+uiOverlayDY,		2, 64);
+		sdlHandler->setRenderDrawColor(ridge2);
+		sdlHandler->renderFillRect(invScreenX+ix*64-2+uiOverlayDX, 	invScreenY+iy*64-2+uiOverlayDY, 	2, 64);
+		sdlHandler->renderFillRect(invScreenX+ix*64-2+uiOverlayDX, 	invScreenY+iy*64-2+uiOverlayDY, 	64, 2);
 	}
 	
 	//Selected Slot Outline

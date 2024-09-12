@@ -43,7 +43,7 @@ private:
 	//Inventory
 	//Set texture settings for uiOverlay
 	const int uiOverlayDX = -2;
-	const int uiOverlayDY = -2;
+	const int uiOverlayDY = 0;
 	const int invW = 8; const int invH = 8;
 	std::map<std::pair<int, int>, InvItemStack> inventorySlots;
 	
