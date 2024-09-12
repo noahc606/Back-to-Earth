@@ -13,7 +13,7 @@ Building is cross-platform and uses CMake.
 If you are on Linux/MacOS, you need to make sure you have all the necessary dev libraries for libsdl and libcurl installed. If you are on Windows, the linking step (with the -l) in the CMakeLists.txt can be confusing to get working properly. I recommend using MSYS2 and MinGW for building on Windows. See the CMakeLists.txt for more info on this.
 
 ### Include NCH-CPP-Utils
-BTE 1.2-alpha now depends on <a href="https://github.com/noahc606/nch-cpp-utils">NCH-CPP-Utils</a>. Clone that repo and go to the root's 'include' directory. There, copy or symlink the two directories 'nch-cpp-utils' and 'nch-sdl-utils' into a new 'include' directory within BTE's root.
+BTE 1.2-alpha now depends on <a href="https://github.com/noahc606/nch-cpp-utils">NCH-CPP-Utils</a>. Clone that repo and go to the root's 'include/nch' directory. There, copy or symlink the two directories 'cpp-utils' and 'sdl-utils' into a new 'include/nch' directory within BTE's root.
 
 ### Building & Running
 Once you have the 'src', 'include', and 'bin' folders all in the same place (BTE's root), run the following:
