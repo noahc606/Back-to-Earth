@@ -26,14 +26,15 @@ cmake --build build
 For the application to run, it must also have its assets available (everything within [BTE root]/bin/backtoearth). Copy that from the main branch into the 'bin' folder if it's not there already.
 
 # Credits
-Libraries used:<br>
--The <a href="https://www.libsdl.org/">SDL2</a> libraries (SDL2, SDL2_image, SDL2_mixer, SDL2_ttf, SDL2_net).<br>
--<a href="https://curl.se/">cURL</a>, which is a network data transfer library.<br>
--<a href="https://github.com/noahc606/nch-cpp-utils">NCH-CPP-Utils</a>, my own helper library
-<br>
-Miscellaneous:<br>
--Any music/SFX within 'bin/backtoearth/resources/audio' (credits to those authors can be found in that diretory in credits.html).<br>
-<br>
-Things I developed:<br>
--Everything within the src folder (unless specified otherwise, a few occassions). You may use any of my source code without crediting me.<br>
--<a href="https://github.com/noahc606/nch-cpp-utils">NCH-CPP-Utils</a>
+### Libraries
+<li>The <a href="https://www.libsdl.org/">SDL2</a> libraries (SDL2, SDL2_image, SDL2_mixer, SDL2_ttf, SDL2_net).</li>
+<li><a href="https://curl.se/">cURL</a>, which is a network data transfer library.</li>
+<li><a href="https://github.com/noahc606/nch-cpp-utils">NCH-CPP-Utils</a>, my own helper library</li>
+
+### Assets
+The authors for music/SFX within 'bin/backtoearth/resources/audio' are referenced in credits.html within that directory.<br>
+
+
+### Things I developed:<br>
+<li>Back to Earth: Everything within the src folder (unless specified otherwise, a few occassions).</li>
+<li><a href="https://github.com/noahc606/nch-cpp-utils">NCH-CPP-Utils</a></li>
