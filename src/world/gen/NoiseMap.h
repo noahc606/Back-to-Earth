@@ -1,13 +1,16 @@
 #pragma once
-#include <map>
 #include <cstdint>
+#include <map>
+#include <vector>
 
 class NoiseMap
 {
 public:
+    typedef std::map< std::pair<int64_t, int64_t>, std::vector<std::vector<int64_t>>*> t_baseTerrainMap;
+
     struct NoiseRegion {};
     
 private:
     
-    std::map<std::tuple<int64_t, int64_t, int64_t>, int> noiseMap;
+    t_baseTerrainMap baseTerrainMap;
 };

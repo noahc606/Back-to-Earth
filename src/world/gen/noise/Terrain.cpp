@@ -1,12 +1,13 @@
 #include "Terrain.h"
 #include "Noise.h"
 
-Terrain::Terrain(int64_t seed)
+Terrain::Terrain(int64_t seed, NoiseMap::t_baseTerrainMap* btm)
 {
     TileType tt;
     tt.init();
     
     Terrain::seed = seed;
+    Terrain::btm = btm;
 
     //Air
     worldTiles.push_back(tt);
@@ -60,34 +61,58 @@ void Terrain::genericRegion(TileRegion& tr, int rX, int rY, int rZ, bool natural
     int gravel = tr.addToPalette(worldTiles[4], natural);
     int magma = tr.addToPalette(worldTiles[5], natural);
 
-    float tNoise = 0.0;
-    float mNoise = 0.0;
-    float lNoise = 0.0;
-    float cNoise = 0.0;
-    
     float noise3d = 0.0;
-
-    //ND: Noise depth.
-    int nd = 0;
-    //LD: Local depth. Based on noise depth but within a region.
-    int ld = 0;
 
     Noise n(seed);
 
+    //If the noise has been cached at this (rX, rY), use what's in this cache
+    std::vector<std::vector<int64_t>>* regHeightMap = nullptr;
+    if(true) {
+        if( btm->find(std::make_pair(rX, rY))!=btm->end() ) {
+            regHeightMap = btm->find(std::make_pair(rX, rY))->second;
+        //If the noise has not been cached for this (rX, rY), create it.
+        } else {
+            //Build empty heightmap
+            regHeightMap = new std::vector<std::vector<int64_t>>();
+            for(int sx = 0; sx<32; sx++) {
+                regHeightMap->push_back(std::vector<int64_t>());
+                for(int sy = 0; sy<32; sy++) {
+                    regHeightMap->at(sx).push_back(0);
+                }
+            }
+            
+            //Fill empty heightmap with values
+            float tNoise = 0.0;
+            float mNoise = 0.0;
+            float lNoise = 0.0;
+            float cNoise = 0.0;
+            for( char sx = 0; sx<32; sx++ ) {
+                for( char sy = 0; sy<32; sy++ ) {
+
+                    //Calculate noise components at this location
+                    tNoise = n.clampedNoise2D((x+sx)/tZoom,(y+sy)/tZoom)*vScale0;
+                    mNoise = n.clampedNoise2D((x+sx)/mZoom,(y+sy)/mZoom)*vScale0;
+                    lNoise = n.noise2D((x+sx)/lZoom,(y+sy)/lZoom)*vScale0;
+                    cNoise = n.noise2D((x+sx)/cZoom,(y+sy)/cZoom)*vScale1;
+                
+                    //Populate heightmap element
+                    regHeightMap->at(sx).at(sy) = -tNoise-mNoise-lNoise-cNoise;
+                }
+            }
+
+            //Store the newly computed heightmap for later use
+            btm->insert(std::make_pair(std::make_pair(rX, rY), regHeightMap));
+        }
+    }
+
+
+    //From (stored or newly computed) heightmap, set tiles at this (rX, rY, rZ).
     for( char sx = 0; sx<32; sx++ ) {
         for( char sy = 0; sy<32; sy++ ) {
-
-            //Calculate noise components at this location
-            tNoise = n.clampedNoise2D((x+sx)/tZoom,(y+sy)/tZoom)*vScale0;
-            mNoise = n.clampedNoise2D((x+sx)/mZoom,(y+sy)/mZoom)*vScale0;
-            lNoise = n.noise2D((x+sx)/lZoom,(y+sy)/lZoom)*vScale0;
-            cNoise = n.noise2D((x+sx)/cZoom,(y+sy)/cZoom)*vScale1;
-
-            //Calculate total noise depth.
-            nd = -z-tNoise-mNoise-lNoise-cNoise;
+            int64_t nd = -z+regHeightMap->at(sx).at(sy);
 
             for( int sz = 0; sz<32; sz++ ) {
-                ld = sz-nd;
+                int64_t ld = sz-nd;
                 //https://opentextbc.ca/geology/chapter/9-2-the-temperature-of-earths-interior/
                 //Divide real-life depth distances by 60. A tile is 1x1x1 meters.
                 if(ld>3400) {                       //Deep into mantle

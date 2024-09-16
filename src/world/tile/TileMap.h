@@ -9,6 +9,7 @@
 #include "Defs.h"
 #include "FileHandler.h"
 #include "Loggable.h"
+#include "NoiseMap.h"
 #include "Planet.h"
 #include "StructureMap.h"
 #include "Texture.h"
@@ -74,6 +75,8 @@ protected:
 private:
 	//Maps
 	t_regionMap regionMap;
+	NoiseMap::t_baseTerrainMap baseTerrainMap;
+	
 
 	//World objects
 	Planet* planet = nullptr;

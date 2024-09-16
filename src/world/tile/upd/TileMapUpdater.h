@@ -46,7 +46,7 @@ private:
 
 	int loadCount = 0;
     int loadCountMax = 10;
-	double allowedLoadTimeMS = 5.0;
+	double allowedLoadTimeMS = 1.0;
 
 
     // Info: region load counting

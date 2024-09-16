@@ -149,7 +149,6 @@ void TileMapScreen::tick()
 		if( doUpdMapMoved )     tileMapUpdater.updateMapMoved(fileHandler, loadDist);
 		if( doUpdMapIdle )      tileMapUpdater.updateMapToSHOULD_UPDATE(loadDist);
 		if( doUpdMapIdle )      tileMapUpdater.updateMapToUPDATED(loadDist);
-		//if( doUpdMapAutosave )  {}
 	}
 	// Get elapsed time in MS
 	infoTickTime = localTimer.getElapsedTimeMS();

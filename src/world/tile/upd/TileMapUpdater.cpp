@@ -309,10 +309,7 @@ void TileMapUpdater::updateMapMoved(FileHandler* fileHandler, int loadDist)
 			//Set dRZ (delta RZ)
 			int dRZ = outlineV*2;
 			// If we are at a horizontal edge of the cubic area
-			if( abs(dRX)==outlineH || abs(dRY)==outlineH ) {
-				dRZ = 1;
-				//regTexUpdates->blackOutRegionArea(rX, rY);
-			}
+			if( abs(dRX)==outlineH || abs(dRY)==outlineH ) { dRZ = 1; }
 
 			for( int rZ = camRZ-outlineV; rZ<=camRZ+outlineV; rZ += dRZ ) {
 				//Unload regions

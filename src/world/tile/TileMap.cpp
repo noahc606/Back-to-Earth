@@ -34,6 +34,7 @@ void TileMap::putInfo(std::stringstream& ss, int& tabs)
     //regionMap size
     DebugScreen::indentLine(ss, tabs);
     ss << "regionMap size=" << regionMap.size() << "; ";
+    ss << "baseTerrainMap size=" << baseTerrainMap.size() << "; ";
     int rmCount = 0;
     t_regionMap::iterator itrRM = regionMap.begin();
     for( ; itrRM!= regionMap.end(); itrRM++ ) {
@@ -221,7 +222,7 @@ int TileMap::loadRegion(FileHandler* fileHandler, int64_t rX, int64_t rY, int64_
 	//If no region was found, create the region and process it.
 	if( itr==regionMap.end() ) {
 		//Create Terrain and TileRegion objects
-		Terrain terra(worldSeed);
+		Terrain terra(worldSeed, &baseTerrainMap);
 		TileRegion tr;
 		
 		//Populate region's terrain
