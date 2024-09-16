@@ -282,6 +282,27 @@ void Player::tickControls()
 	if(noclip) {
 		vz = mv3;
 	}
+
+	//When player is walking parallel to screen:
+	//Try to make their center move toward the middle of the layer they are standing in.
+	switch(camera.getDirection()) {
+		case Camera::NORTH: case Camera::SOUTH: {
+			if(vx!=0 && vy==0) {
+				int64_t cL = camera.getLayer();
+				double pL = y;
+				if(pL<cL+0.4) { vy = speed; }
+				if(pL>cL+0.6) { vy = -speed; }
+			}
+		} break;
+		case Camera::EAST: case Camera::WEST: {
+			if(vy!=0 && vx==0) {
+				int64_t cL = camera.getLayer();
+				double pL = x;
+				if(pL<cL+0.4) { vx = speed; }
+				if(pL>cL+0.6) { vx = -speed; }
+			}
+		} break;
+	}
 }
 
 void Player::applyVelAndCollision(TileMap* tm)
@@ -364,16 +385,6 @@ void Player::putInfo(std::stringstream& ss, int& tabs)
 		DebugScreen::indentLine(ss, tabs);
 		ss << "snap(NESWUD)=(" << snapN << ", " << snapE << ", " << snapS << ", " << snapW << ", " << snapU << ", " << snapD << ")";
 	}
-
-
-	/*
-	if(!true) {
-		DebugScreen::indentLine(ss, tabs);
-		ss << "(anWalkFrameX, anWalkState)=(" << anWalkFrameX << ", " << anWalkState << "); ";
-		ss << "(walkSpeed)=(" << walkSpeed << "); ";
-		DebugScreen::newLine(ss);
-	}*/
-
 }
 
 int Player::getAction() { return action; }
