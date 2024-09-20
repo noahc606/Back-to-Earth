@@ -47,8 +47,9 @@ private:
 	PlayerMenu localPlayerMenu;
 	int playTime = 0;
 	
-	bool lpMenuState = false;
-	bool lpMenuStateLast = false;
+	bool lpMenuOpen = false;
+	bool lpMenuOpenLast = false;
+	int lpMenuLastModule = -1;
 	double mouseX = 0; double mouseY = 0; double mouseZ = 0;
 	int64_t mouseXL = 0; int64_t mouseYL = 0; int64_t mouseZL = 0;
 	

@@ -260,6 +260,7 @@ void TextureLoader::load()
 			addSurface("gui/save_selector");
 			addSurface("gui/misc");
 			//Player
+			addSurface("player/modules");
 			addSurface("player/items");
 			addSurface("player/side/hair");
 			addSurface("player/side/head");

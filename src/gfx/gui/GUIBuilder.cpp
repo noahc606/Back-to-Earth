@@ -425,7 +425,7 @@ void GUIBuilder::buildWorldPauseHowto(GUIHandler& gh)
 void GUIBuilder::buildCharacterMenu(GUIHandler& gh, int gamemode)
 {
     if( gh.getGUI(BTEObject::GUI_window, gh.win_CHARACTER)==nullptr ) {
-        int w = 16;
+        int w = 13;
         int h = 10;
 
         /*
@@ -439,20 +439,20 @@ void GUIBuilder::buildCharacterMenu(GUIHandler& gh, int gamemode)
 
         */
         WindowData* wd = new WindowData(w, h);
-        wd->setPanelData(0, "sssddddiiiiiiiiw");
-        wd->setPanelData(1, "ssscccciiiiiiiiw");
-        wd->setPanelData(2, "ssscccciiiiiiiiw");
-        wd->setPanelData(3, "ssscccciiiiiiiiw");
-        wd->setPanelData(4, "ssscccciiiiiiiiw");
-        wd->setPanelData(5, "ssscccciiiiiiiiw");
-        wd->setPanelData(6, "sssddddiiiiiiiiw");
-        wd->setPanelData(7, "sssddddiiiiiiiiw");
-        wd->setPanelData(8, "aaaaaaaaaaaaaaaa");
-        wd->setPanelData(9, "aaaaaaaaaaaaaaaa");
+        wd->setPanelData(0, "ddddhhhhhhhhw");
+        wd->setPanelData(1, "cccchhhhhhhhw");
+        wd->setPanelData(2, "cccciiiiiiiiw");
+        wd->setPanelData(3, "cccciiiiiiiiw");
+        wd->setPanelData(4, "cccciiiiiiiiw");
+        wd->setPanelData(5, "cccciiiiiiiiw");
+        wd->setPanelData(6, "ddddiiiiiiiiw");
+        wd->setPanelData(7, "ddddiiiiiiiiw");
+        wd->setPanelData(8, "aaaaaaaaaaaaa");
+        wd->setPanelData(9, "aaaaaaaaaaaaa");
 
-        wd->setPanelColor('s', nch::Color(0, 0, 200, 240) );     //[S]idebar
         wd->setPanelColor('d', nch::Color(150, 105, 55, 240) );  //[D]etails about character
         wd->setPanelColor('i', nch::Color(0, 255, 0, 240) );     //[I]nventory
+        wd->setPanelColor('h', nch::Color(255, 120, 40, 240) );  //[H]otbar
         wd->setPanelColor('c', nch::Color(0, 0, 0, 240) );       //[C]haracter
         wd->setPanelColor('a', nch::Color(100, 0, 0, 240) );     //[A]ctions from items
         wd->setPanelColor('w', nch::Color(130, 210, 180, 240) ); //[W]orkstation tabs (crafting, assembling, etc.)
@@ -465,13 +465,6 @@ void GUIBuilder::buildCharacterMenu(GUIHandler& gh, int gamemode)
             gh.addGUI(new Tooltip( gh.getWindow(gh.win_CHARACTER), 30, 30, "Hardcore Mode", gh.ttp_CHARACTER_tabs_desc ) );
         } else {
             gh.addGUI(new Tooltip( gh.getWindow(gh.win_CHARACTER), 30, 30, "Sandbox Mode", gh.ttp_CHARACTER_tabs_desc ) );
-        }
-
-        if(gamemode==Player::SURVIVAL || gamemode==Player::HARDCORE) {
-            gh.addGUI(new RadioButton( gh.getWindow(gh.win_CHARACTER), 30, 60, "Backpack", true, gh.rbtn_CHARACTER_inventory, gh.rbtn_CHARACTER_tabs_1a, gh.rbtn_CHARACTER_tabs_1b ) );
-        } else {
-            gh.addGUI(new RadioButton( gh.getWindow(gh.win_CHARACTER), 30, 60, "Backpack", true, gh.rbtn_CHARACTER_inventory, gh.rbtn_CHARACTER_tabs_1a, gh.rbtn_CHARACTER_tabs_1b ) );
-            gh.addGUI(new RadioButton( gh.getWindow(gh.win_CHARACTER), 30, 100, "Engineering", gh.rbtn_CHARACTER_engineering, gh.rbtn_CHARACTER_tabs_1a, gh.rbtn_CHARACTER_tabs_1b ) );
         }
     }
 }
@@ -578,12 +571,6 @@ void GUIBuilder::buildSelectCampaign(GUIHandler& gh, FileHandler& fh)
     gh.addGUI(new Button( w, 26, wd->getH64()-38-66, 200, "Create New...", gh.btn_SELECT_CAMPAIGN_createNew ));
     gh.addGUI(new Button( w, ch, wd->getH64()-38-66, 300, "Open Save Directory", gh.btn_SELECT_CAMPAIGN_openSaveDirectory ));
     gh.addGUI(new Button( w, ch, wd->getH64()-38, 300, "Back", gh.btn_SELECT_CAMPAIGN_back ));
-
-    
-
-    //gh.addGUI(new Tooltip( gh.getWindow(gh.win_SELECT_CAMPAIGN), 30, 30, "Sandbox Mode", gh.ttp_CHARACTER_tabs_desc ) );
-    //gh.addGUI(new RadioButton( gh.getWindow(gh.win_CHARACTER), 30, 60, "Backpack", true, gh.rbtn_CHARACTER_inventory, gh.rbtn_CHARACTER_tabs_1a, gh.rbtn_CHARACTER_tabs_1b ) );
-    //gh.addGUI(new RadioButton( gh.getWindow(gh.win_CHARACTER), 30, 100, "Engineering", gh.rbtn_CHARACTER_engineering, gh.rbtn_CHARACTER_tabs_1a, gh.rbtn_CHARACTER_tabs_1b ) );
 }
 
 void GUIBuilder::buildSelectCampaignCN(GUIHandler& gh, FileHandler& fh)

@@ -187,7 +187,7 @@ void World::tick(bool paused, GUIHandler& guiHandler)
 		tickWorldObjs();
 	} else {
 		//Force-disable character menu when paused
-		lpMenuState = 0;
+		lpMenuOpen = false;
 	}
 
 	/** Tick canvases */
@@ -365,27 +365,28 @@ void World::playerInteractions(GUIHandler& guiHandler, bool paused)
 {
 	//Control character menu state
 	if( !paused && controls->isPressed("PLAYER_INVENTORY") ) {
-		if(lpMenuState) {
-			lpMenuState = false;
+		if(lpMenuOpen) {
+			lpMenuOpen = false;
 		} else {
-			lpMenuState = true;
+			lpMenuOpen = true;
 		}
 		controls->stopPress("PLAYER_INVENTORY", __PRETTY_FUNCTION__);
 	}
 	
-	if( lpMenuStateLast!=lpMenuState ) {
-		lpMenuStateLast = lpMenuState;
-		setLocalPlayerMenuState(lpMenuState);
+	if( lpMenuOpenLast!=lpMenuOpen ) {
+		lpMenuOpenLast = lpMenuOpen;
 		
-		if( lpMenuState ) {
-			setLocalPlayerMenuState(1);
+		if( lpMenuOpen ) {
+			if(lpMenuLastModule<0) lpMenuLastModule = 0;
+			setLocalPlayerMenuState(lpMenuLastModule);
 		} else {
-			setLocalPlayerMenuState(0);
+			lpMenuLastModule = localPlayerMenu.getModule();
+			setLocalPlayerMenuState(-1);
 		}
 	}
 
 	//Player actions
-	if( !lpMenuState ) {		
+	if( !lpMenuOpen ) {		
 		bool audio = false;
 		AudioLoader* al = sdlHandler->getAudioLoader();
 		if(al!=nullptr) {
@@ -506,5 +507,5 @@ void World::playerTryDestroyTile()
 
 void World::setLocalPlayerMenuState(int newMenuState)
 {
-	localPlayerMenu.setState(newMenuState);
+	localPlayerMenu.setModule(newMenuState);
 }

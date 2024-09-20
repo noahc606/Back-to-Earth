@@ -44,6 +44,7 @@ public:
 		GUI_save_selector,
 		GUI_misc,
 
+		PLAYER_modules,
 		PLAYER_items,
 		PLAYER_side_hair,
 		PLAYER_side_head,

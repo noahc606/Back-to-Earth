@@ -183,7 +183,7 @@ int TextOld::draw(SDLHandler* sdlHandler, std::string s, int x, int y, int scale
 
 int TextOld::draw(SDLHandler* sdlHandler, std::string s, int x, int y, int scale, const nch::Color& fg, const nch::Color& bg)
 {
-    return draw(sdlHandler, s, x, y, scale, nch::Color(255, 255, 255), nch::Color(0, 0, 0, 0), TextureLoader::GUI_FONT_bte);
+    return draw(sdlHandler, s, x, y, scale, fg, bg, TextureLoader::GUI_FONT_bte);
 }
 
 int TextOld::draw(SDLHandler* sdlHandler, std::string s, int x, int y, int scale)

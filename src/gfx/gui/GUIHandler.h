@@ -151,8 +151,6 @@ public:
 
             // Character -> Inventory
             rbtn_CHARACTER_tabs_1a,
-                rbtn_CHARACTER_inventory,
-                rbtn_CHARACTER_engineering,
             rbtn_CHARACTER_tabs_1b,
 
             // Character -> Inventory -> tab tooltip descriptions

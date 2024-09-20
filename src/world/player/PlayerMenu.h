@@ -4,6 +4,7 @@
 #include "Items.h"
 #include "InvItemStack.h"
 #include "Player.h"
+#include "PlayerMenuModules.h"
 #include <map>
 
 class PlayerMenu {
@@ -17,9 +18,9 @@ public:
 	bool inventorySlotExists(int x, int y);
 	int getInventorySlotItemType(int x, int y);
 	InvItemStack getInventorySlotItemStack(int x, int y);
-	int getItemTexSrcX(int itemID);
-	int getItemTexSrcY(int itemID);
-	int getState();
+	static int getItemTexSrcX(int itemID);
+	static int getItemTexSrcY(int itemID);
+	int getModule();
 	uint8_t getSelectedSlotX();
 	uint8_t getSelectedSlotY(); 
 	uint8_t getSandboxTexRed();
@@ -29,21 +30,38 @@ public:
 	/**/
 	void giveItemStack(InvItemStack iis);
 	void decrementSelectedItemStack();
-	void setState(int newState);
+	void setModule(int newMod);
 	void save(FileHandler* fh, std::string worldDataPath);
 	/**/
 private:
 	/**/
+	void tickInventoryOpen();
+	void drawInventory();
+	void drawInventoryElements(int oscillation);
+	void drawHoverText();
+	/**/
+	int getSlotHoveringX();
+	int getSlotHoveringY();
+	/**/
+	void updateMenuCoordinates();
+	void updateSandboxRGB();
+	void selectInventorySlot(int x, int y);
+	void setInventorySlotItem(int x, int y, int i);
+	void setInventorySlotItemStack(int x, int y, InvItemStack iis);
+	/**/
+
+	/**/
 	SDLHandler* sdlHandler = nullptr;
 	GUIHandler* guiHandler = nullptr;
 	Controls* controls = nullptr;
-	int state = 0;
-	int lastState = 0;
+	PlayerMenuModules pmm;
+	int mod = -1;
+	int lastMod = -1;
 	
 	//Inventory
 	//Set texture settings for uiOverlay
 	const int uiOverlayDX = -2;
-	const int uiOverlayDY = 0;
+	const int uiOverlayDY = -2;
 	const int invW = 8; const int invH = 8;
 	std::map<std::pair<int, int>, InvItemStack> inventorySlots;
 	
@@ -64,17 +82,4 @@ private:
 	Items items;
 
 	int playerGamemode = 0;
-
-	/**/
-	void drawInventory(int oscillation);
-	/**/
-	int getSlotHoveringX();
-	int getSlotHoveringY();
-	/**/
-	void updateMenuCoordinates();
-	void updateSandboxRGB();
-	void selectInventorySlot(int x, int y);
-	void setInventorySlotItem(int x, int y, int i);
-	void setInventorySlotItemStack(int x, int y, InvItemStack iis);
-	/**/
 };

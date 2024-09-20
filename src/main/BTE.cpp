@@ -147,7 +147,7 @@ void BTE::draw()
 		PlayerMenu* localPlayerMenu = world->getLocalPlayerMenu();
 		if( localPlayer!=nullptr ) {
 			//Draw player within menu if player's menu is open
-			if( localPlayerMenu->getState()>0 ) {
+			if( localPlayerMenu->getModule()>=0 ) {
 				localPlayer->drawCharInMenu();
 			}
 			
@@ -571,16 +571,6 @@ void BTE::performGUIAction(int guiActionID)
 		case GUIHandler::btn_PAUSED_exit: {
 			setGameState(GameState::MAIN_MENU);
 			paused = false;
-		} break;
-		
-		/* Player Menu */
-		case GUIHandler::rbtn_CHARACTER_inventory:
-		case GUIHandler::rbtn_CHARACTER_engineering:
-		{
-			PlayerMenu* lpm = world->getLocalPlayerMenu();
-			if( lpm!=nullptr ) {
-				lpm->setState( gaid-(GUIHandler::rbtn_CHARACTER_engineering)+2 );
-			}
 		} break;
 	}
 }

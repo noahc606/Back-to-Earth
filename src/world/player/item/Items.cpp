@@ -12,7 +12,6 @@ void Items::init(GUIHandler* gh, Player* pl)
 std::string Items::getItemName(int itemID)
 {
 	switch(itemID) {
-	case SANDBOX:					return "Tile Selection: Texture & Color";
 	case ION_BLASTER: 				return "Ion Blaster";
 	case GEOPORTER:					return "Geo-porter";
 	case SOLID_PLASMA_ANNIHILATOR:	return "Solid-Plasma Annihilator";
@@ -74,22 +73,6 @@ void Items::putItemInterface(int itemID)
 	guiHandler->addGUI( new Tooltip(win, dX, 524+4, Items::getItemName(itemID), GUIHandler::ttp_CHARACTER_item) );
 	
 	switch( itemID ) {
-	case Items::SANDBOX: {
-		guiHandler->addGUI( new Tooltip(win, dX+32*00, 524+32*0+ttpDY, "Red (0-255):", GUIHandler::ttp_CHARACTER_item) );
-		TextBox* tbx1 = (TextBox*)guiHandler->addGUI( new TextBox(win, dX+32*06, 524+32*0+tbxDY, 100, TextBox::FREE_NUMBERS_BASIC, GUIHandler::tbx_CHARACTER_item), 2000 );
-		std::stringstream ss1; ss1 << (int)sandboxRGB.r;
-		tbx1->setString( ss1.str() );
-		
-		guiHandler->addGUI( new Tooltip(win, dX+32*00, 524+32*1+ttpDY, "Green (0-255):", GUIHandler::ttp_CHARACTER_item) );
-		TextBox* tbx2 = (TextBox*)guiHandler->addGUI( new TextBox(win, dX+32*06, 524+32*1+tbxDY, 100, TextBox::FREE_NUMBERS_BASIC, GUIHandler::tbx_CHARACTER_item), 2001 );
-		std::stringstream ss2; ss2 << (int)sandboxRGB.g;
-		tbx2->setString( ss2.str() );
-
-		guiHandler->addGUI( new Tooltip(win, dX+32*00, 524+32*2+ttpDY, "Blue (0-255):", GUIHandler::ttp_CHARACTER_item) );
-		TextBox* tbx3 = (TextBox*)guiHandler->addGUI( new TextBox(win, dX+32*06, 524+32*2+tbxDY, 100, TextBox::FREE_NUMBERS_BASIC, GUIHandler::tbx_CHARACTER_item), 2002 );
-		std::stringstream ss3; ss3 << (int)sandboxRGB.b;
-		tbx3->setString( ss3.str() );
-	} break;
 	case GEOPORTER: {
 
 
@@ -118,7 +101,7 @@ void Items::putItemInterface(int itemID)
 		putItemInterfaceDesc(win, dX, ttpDY, "Destroy solid matter with Left Click", 1);
 	} break;
 	case ATOM_PRINTER: {
-		putItemInterfaceDesc(win, dX, ttpDY, "Build tiles with Right Click - select the tile type from Engineering", 1);
+		putItemInterfaceDesc(win, dX, ttpDY, "Build tiles with Right Click - select the tile type from Backpack/Sandbox/etc.", 1);
 	} break;
 
 

@@ -19,7 +19,8 @@ public:
 	void putItemInterface(int itemID);
 
 	enum IDs {
-		SANDBOX = -100,
+		SANDBOX_INTERFACE = -100,
+		PMT_INTERFACE = -99,
 		UNDEFINED = -1,
 		ION_BLASTER = 0,
 		GEOPORTER,
