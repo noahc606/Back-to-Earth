@@ -55,6 +55,8 @@ private:
 	
 	StructureMap struMap;
 	TileMap tileMap;
+	NoiseMap noiseMap;
+
 	TileMapScreen tileMapScreen;
 	RegTexInfo regTexInfo;
 	

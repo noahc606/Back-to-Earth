@@ -116,7 +116,7 @@ void LevelSave::saveTileRegion(TileRegion& tr, int64_t rX, int64_t rY, int64_t r
 	buildHeaderEntry(rX, rY, rZ, dataLocation, dataBitsPerTile, dataPopulated);
 	
 	//Save tile palette data and tile index data of this specific region. Will be written @ 'dataLocation' position in the file
-	//Total of 32*32*32=1024 tiles. Each tile = 'dataBitsPerTile' bits. Two hex chars = 1 byte.
+	//Total of 16*16*4=1024 tiles. Each tile = 'dataBitsPerTile' bits. Two hex chars = 1 byte.
 	fileHandler->seekTo(dataLocation);
 	
 	//Dump tile palette and tile data, in that order, to datastream.

@@ -75,8 +75,9 @@ void World::init(SDLHandler* sh, GUIHandler* gh, FileHandler* fh, Controls* ctrl
 	wbg.init(sdlHandler, localPlayer.getCamera(), &planet);
 
 	/* INIT 4: StructureMap, TileMap, TileMapScreen, Minimap */
-	struMap.init(worldSeed, localPlayer.getCamera(), 6);
-	tileMap.init(sdlHandler, fileHandler, &planet, &struMap, worldDirName, worldSeed);
+	noiseMap.init(worldSeed);
+	struMap.init(&noiseMap, localPlayer.getCamera(), 6);
+	tileMap.init(sdlHandler, fileHandler, &planet, &struMap, &noiseMap, worldDirName, worldSeed);
 	tileMapScreen.init(sdlHandler, fileHandler, &tileMap, &csTileMap);
 	minimap.init(sdlHandler, localPlayer.getCamera(), &tileMap);
 

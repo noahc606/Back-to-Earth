@@ -271,22 +271,26 @@ void TileMapUpdater::updateMapToSHOULD_UPDATE(int loadDist)
 
 void TileMapUpdater::updateMapToUPDATED(int loadDist)
 {
-	Grid grid;
-	grid.updateOrderFinder(sdlHandler, tileMap, cam, loadDist, TileRegion::RegTexState::UPDATED-1);
-	std::pair<int, int> leXY = grid.getLowestElementXY();
+	for(int i = 0; i<2; i++) {
+		Grid grid;
+		grid.updateOrderFinder(sdlHandler, tileMap, cam, loadDist, TileRegion::RegTexState::UPDATED-1);
+		std::pair<int, int> leXY = grid.getLowestElementXY();
 
-	if(leXY.first!=-1) {
-		int64_t csRX = cam->getCsRX()-loadDist+leXY.first;
-		int64_t csRY = cam->getCsRY()-loadDist+leXY.second;
-		TileRegion* tr = tileMap->getRegByCsRXYZ(cam, csRX, csRY, cam->getCsRZ());
-		
-		if(tr!=nullptr) {
-			if(tr->getRegTexState()==TileRegion::SHOULD_UPDATE) {
-				addRegionUpdate(csRX, csRY);
-				tr->setRegTexState(tr->UPDATED);
+		if(leXY.first!=-1) {
+			int64_t csRX = cam->getCsRX()-loadDist+leXY.first;
+			int64_t csRY = cam->getCsRY()-loadDist+leXY.second;
+			TileRegion* tr = tileMap->getRegByCsRXYZ(cam, csRX, csRY, cam->getCsRZ());
+			
+			if(tr!=nullptr) {
+				if(tr->getRegTexState()==TileRegion::SHOULD_UPDATE) {
+					addRegionUpdate(csRX, csRY);
+					tr->setRegTexState(tr->UPDATED);
+				}
 			}
 		}
 	}
+
+
 }
 
 void TileMapUpdater::updateMapMoved(FileHandler* fileHandler, int loadDist)

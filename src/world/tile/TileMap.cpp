@@ -7,16 +7,16 @@
 #include "TileIterator.h"
 #include "TileType.h"
 
-void TileMap::init(SDLHandler* sh, FileHandler* fh, Planet* pt, StructureMap* struMap, std::string wdn, int64_t worldSeed)
+void TileMap::init(SDLHandler* sh, FileHandler* fh, Planet* pt, StructureMap* struMap, NoiseMap* nMap, std::string wdn, int64_t worldSeed)
 {
 	sdlHandler = sh;
 	fileHandler = fh;
 	planet = pt;
 
 	TileMap::struMap = struMap;
+	TileMap::nMap = nMap;
 
 	worldDirName = wdn;
-	TileMap::worldSeed = worldSeed;
 }
 
 void TileMap::destroy()
@@ -34,7 +34,7 @@ void TileMap::putInfo(std::stringstream& ss, int& tabs)
     //regionMap size
     DebugScreen::indentLine(ss, tabs);
     ss << "regionMap size=" << regionMap.size() << "; ";
-    ss << "baseTerrainMap size=" << baseTerrainMap.size() << "; ";
+    ss << "baseTerrainMap size=" << nMap->getBaseTerrainMap()->size() << "; ";
     int rmCount = 0;
     t_regionMap::iterator itrRM = regionMap.begin();
     for( ; itrRM!= regionMap.end(); itrRM++ ) {
@@ -180,26 +180,47 @@ int TileMap::setTileByCsXYZ(Camera* cam, int64_t csX, int64_t csY, int64_t csZ, 
 	return setTile(csX, csY, csZ, tt);
 }
 
+bool TileMap::setTiles(t_regionMap* rm, int64_t x1, int64_t y1, int64_t z1, int64_t x2, int64_t y2, int64_t z2, TileType tt)
+{
+	//Validate selected volume specified by (x1, y1, z1) -> (x2, y2, z2).
+	//If any regions within that volume are unloaded, operation should fail.
+	TileIterator ti(rm);
+	if(ti.setBounds(x1, y1, z1, x2, y2, z2)!=0) {
+		return false;
+	}
+	
+	//Fill the appropriate volumes within all contained regions
+	for(TileRegion* tr = ti.peekRegion(); !ti.atEnd(); ti.nextRegion()) {
+		int16_t id = tr->addToPalette(tt);
+		tr->setTiles(ti.gbs(0), ti.gbs(1), ti.gbs(2), ti.ges(0), ti.ges(1), ti.ges(2), id);
+	}
+
+	//Successful operation
+	return true;
+}
+
+bool TileMap::setTiles(int64_t x1, int64_t y1, int64_t z1, int64_t x2, int64_t y2, int64_t z2, TileType tt)
+{
+	return setTiles(&regionMap, x1, y1, z1, x2, y2, z2, tt);
+}
+
 void TileMap::setStructureWithinReg(Structure* stru, TileRegion& tr, int64_t rX, int64_t rY, int64_t rZ)
 {
 	//Log::log("Building structure within RXYZ(%d, %d, %d)", rX, rY, rZ);
 
 	//Get relevant structure bounds and world bounds
-	Box3X<int64_t> sb = stru->getBounds();
+	Point3X<int64_t> so = stru->getOrigin();
 	Box3X<int64_t> wb(rX*32, rY*32, rZ*32, rX*32+31, rY*32+31, rZ*32+31);
 	
 	//TileIterator thru Structure (tiS).
 	//Set bounds within tiS to be the part of the structure to be generated (32x32x32 regardless of whether near an edge or not)
 	TileIterator tiS(stru->getRegionMap());
 	tiS.setBounds(
-		wb.c1.x-sb.c1.x, wb.c1.y-sb.c1.y, wb.c1.z-sb.c1.z,
-		wb.c2.x-sb.c1.x, wb.c2.y-sb.c1.y, wb.c2.z-sb.c1.z
+		wb.c1.x-so.x, wb.c1.y-so.y, wb.c1.z-so.z,
+		wb.c2.x-so.x, wb.c2.y-so.y, wb.c2.z-so.z
 	);
-	// ^ 
-	//Some regions may not be loaded within the TileIterator bounds(). Make TileIterator work when some regions are unloaded
-	//Could make unloaded regions simply refer to an empty TileRegion?
 
-	tiS.setTrackerMode(tiS.FULL);
+	tiS.setTrackerSub(tiS.gbs(0), tiS.gbs(1), tiS.gbs(2));
 	for(int sx = 0; sx<32; sx++)
 	for(int sy = 0; sy<32; sy++)
 	for(int sz = 0; sz<32; sz++) {
@@ -222,7 +243,7 @@ int TileMap::loadRegion(FileHandler* fileHandler, int64_t rX, int64_t rY, int64_
 	//If no region was found, create the region and process it.
 	if( itr==regionMap.end() ) {
 		//Create Terrain and TileRegion objects
-		Terrain terra(worldSeed, &baseTerrainMap);
+		Terrain terra(nMap);
 		TileRegion tr;
 		
 		//Populate region's terrain
@@ -233,10 +254,7 @@ int TileMap::loadRegion(FileHandler* fileHandler, int64_t rX, int64_t rY, int64_
 		//Place tiles that are part of structures
 		std::vector<Structure*> regStructures = struMap->getStructuresInRXYZ(rX, rY, rZ);
 		for(Structure* stru : regStructures) {
-			if(stru->getID()==stru->CRASHED_SHIP) {
-				nch::Log::log("Placing structure ID %d @ (%d, %d, %d)...\n", stru->getID(), rX, rY, rZ);
-				setStructureWithinReg(stru, tr, rX, rY, rZ);
-			}
+			setStructureWithinReg(stru, tr, rX, rY, rZ);
 		}
 
 		//Place region's artificial tiles

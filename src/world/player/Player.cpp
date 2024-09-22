@@ -118,7 +118,7 @@ void Player::tick(TileMap* tm)
 	if(spaceSuitState!=SpaceSuitStates::STABLE) {
 		oxygen -= 0.015;
 		AudioLoader* al = sdlHandler->getAudioLoader();
-		al->playOnce(AudioLoader::SFX_WORLD_air_release_1);
+		//al->playOnce(AudioLoader::SFX_WORLD_air_release_1);
 	} else {
 		oxygen += 0.1;
 	}

@@ -5,7 +5,7 @@
 class Terrain
 {
 public:
-    Terrain(int64_t seed, NoiseMap::t_baseTerrainMap* btm);
+    Terrain(NoiseMap* nMap);
     virtual ~Terrain();
 
 	void genericRegion(TileRegion& tr, int rX, int rY, int rZ, bool natural);
@@ -16,9 +16,6 @@ public:
 protected:
 
 private:
-    int64_t seed = 0;
-    NoiseMap::t_baseTerrainMap* btm;
+    NoiseMap* nMap;
     std::vector<TileType> worldTiles;
-    float vScale0, vScale1;
-    float tZoom, mZoom, lZoom, cZoom;
 };

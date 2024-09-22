@@ -447,14 +447,14 @@ void GUIBuilder::buildCharacterMenu(GUIHandler& gh, int gamemode)
         wd->setPanelData(5, "cccciiiiiiiiw");
         wd->setPanelData(6, "ddddiiiiiiiiw");
         wd->setPanelData(7, "ddddiiiiiiiiw");
-        wd->setPanelData(8, "aaaaaaaaaaaaa");
-        wd->setPanelData(9, "aaaaaaaaaaaaa");
+        wd->setPanelData(8, "ddddaaaaaaaaa");
+        wd->setPanelData(9, "ddddaaaaaaaaa");
 
         wd->setPanelColor('d', nch::Color(150, 105, 55, 240) );  //[D]etails about character
         wd->setPanelColor('i', nch::Color(0, 255, 0, 240) );     //[I]nventory
         wd->setPanelColor('h', nch::Color(255, 120, 40, 240) );  //[H]otbar
         wd->setPanelColor('c', nch::Color(0, 0, 0, 240) );       //[C]haracter
-        wd->setPanelColor('a', nch::Color(100, 0, 0, 240) );     //[A]ctions from items
+        wd->setPanelColor('a', nch::Color(0, 255, 255, 240) );     //[A]ctions from items
         wd->setPanelColor('w', nch::Color(130, 210, 180, 240) ); //[W]orkstation tabs (crafting, assembling, etc.)
 
         gh.addGUI(new Window( ch, cv, wd, gh.win_CHARACTER ));

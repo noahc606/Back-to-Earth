@@ -15,12 +15,14 @@ public:
     ~Structure();
 
     int getID();
+    Point3X<int64_t> getOrigin();
     Box3X<int64_t> getBounds();
     std::map<Defs::t_tripleI64, TileRegion>* getRegionMap();
 private:
 
     int id = -1;
-    Box3X<int64_t> bounds;
+    Point3X<int64_t> origin;
+    Box3X<int64_t> bnds;    //Bounds
     std::map<Defs::t_tripleI64, TileRegion> regMap;
 
     static bool suppressWarnings;

@@ -473,12 +473,10 @@ void TileIterator::updateRegionPtrs()
                 nearbyTileRegions[1][1][z+1] = TileMap::getRegByRXYZ(regMap, itrReg[0], itrReg[1], itrReg[2]+z);
         } break;
         case RegionTrackingModes::FULL: {
-            for( int x = -1; x<2; x++ ) {
-                for( int y = -1; y<2; y++ ) {
-                    for( int z = -1; z<2; z++ ) {
-                        nearbyTileRegions[x+1][y+1][z+1] = TileMap::getRegByRXYZ(regMap, itrReg[0]+x, itrReg[1]+y, itrReg[2]+z);
-                    }
-                }
+            for( int x = -1; x<2; x++ )
+            for( int y = -1; y<2; y++ )
+            for( int z = -1; z<2; z++ ) {
+                nearbyTileRegions[x+1][y+1][z+1] = TileMap::getRegByRXYZ(regMap, itrReg[0]+x, itrReg[1]+y, itrReg[2]+z);
             }
         } break;
         default: {

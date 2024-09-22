@@ -4,12 +4,13 @@
 #include "CollectionUtils.h"
 #include "DebugScreen.h"
 #include "Noise.h"
+#include "TileMap.h"
 
 const int64_t StructureMap::msrs = 4;
 
-void StructureMap::init(int64_t gSeed, Camera* cam, int64_t loadDist)
+void StructureMap::init(NoiseMap* nMap, Camera* cam, int64_t loadDist)
 {
-    StructureMap::gSeed = gSeed;
+    StructureMap::nMap = nMap;
     StructureMap::cam = cam;
     StructureMap::loadDist = loadDist;
     initted = true;
@@ -48,6 +49,11 @@ void StructureMap::putInfo(std::stringstream& ss, int& tabs)
     ss << "structures.size()=" << structures.size() << "; ";
     ss << "lastPopTime=" << lastPopTime << "ms; ";
     DebugScreen::newLine(ss);
+
+    DebugScreen::indentLine(ss, tabs);
+    NoiseMap::RegHeightMap* rhm = nMap->cachedBaseTerrainHeightMapAt(cam->getRX(), cam->getRY());
+    ss << "regAvgZ=" << rhm->avgHeight << "\n";
+    DebugScreen::newLine(ss);
 }
 
 std::vector<Structure*> StructureMap::getStructuresInRXYZ(int64_t rX, int64_t rY, int64_t rZ)
@@ -76,32 +82,36 @@ void StructureMap::populateRegionsNear(int64_t stRX, int64_t stRY, int64_t stRZ,
 
     nch::Timer t("poptime", false);
 
-    Noise n(gSeed);
     CollectionUtils cu;
     int64_t stRegDist = loadDist/msrs+1;
+
+    //Iterate thru all stRegions within the stRegion load distance
     for(int64_t iStRX = stRX-stRegDist; iStRX<=stRX+stRegDist; iStRX++)
     for(int64_t iStRY = stRY-stRegDist; iStRY<=stRY+stRegDist; iStRY++)
     for(int64_t iStRZ = stRZ-stRegDist; iStRZ<=stRZ+stRegDist; iStRZ++) {
-        //If this region is unpopulated with structures
-        if( cu.findInMap(populatedRegions, std::make_tuple(iStRX, iStRY, iStRZ))==false ) {
+        //If this stRegion is unpopulated with structures...
+        if( !cu.findInMap(populatedRegions, std::make_tuple(iStRX, iStRY, iStRZ)) ) {
+            //Iterate thru all normal regions within this structure region (4x4x4)
             for(int64_t iDRX = 0; iDRX<msrs; iDRX++)
             for(int64_t iDRY = 0; iDRY<msrs; iDRY++)
             for(int64_t iDRZ = 0; iDRZ<msrs; iDRZ++) {
                 int64_t rX = iStRX*4+iDRX, rY = iStRY*4+iDRY, rZ = iStRZ*4+iDRZ;
                 int64_t x = rX*32, y = rY*32, z = rZ*32;
 
-                if(rX==0 && rY==0 && rZ==-2) {
-                    nch::Log::log("Generated ship @ (%d, %d, %d)", rX, rY, rZ);
-                    Point3X<int64_t> shipOrigin(x, y, z);
-                    structures.push_back(new Structure(Structure::CRASHED_SHIP, shipOrigin));
-                }
+                //Get terrain heightmap of this (rX, rY) location.
+                NoiseMap::RegHeightMap* rhm = nMap->cachedBaseTerrainHeightMapAt(rX, rY);
+                
+                //Specific regions
+                populateSpecificRegions(rX, rY, rZ, rhm);
 
-                uint32_t miniseed = n.hash3ToUint32(rX, rY, rZ);
+                //Monolith (1 in 100)
+                uint32_t miniseed = nMap->getNoise()->hash3ToUint32(rX, rY, rZ);
                 srand(miniseed);
-                if(std::abs(rand())%1==0) {
-                    //Log::log("Generated structure @ (%d, %d, %d)", rX, rY, rZ);
-                    //Point3X<int64_t> origin(x, y, z);
-                    //structures.push_back( new Structure(0, origin) );
+                if(rand()%100==0) {        
+                    int64_t avgTerrainZ = rhm->avgHeight;
+                    if(rZ==TileMap::getRegRXYZ(avgTerrainZ)) {
+                        structures.push_back(new Structure(Structure::MONOLITH, Point3X<int64_t>(x, y, avgTerrainZ-9)));
+                    }
                 }
             }
 
@@ -109,7 +119,20 @@ void StructureMap::populateRegionsNear(int64_t stRX, int64_t stRY, int64_t stRZ,
         }
     }
 
+    //Track time spent populating
     lastPopTime = t.getElapsedTimeMS();
+}
+
+void StructureMap::populateSpecificRegions(int64_t rX, int64_t rY, int64_t rZ, NoiseMap::RegHeightMap* rhm) {
+    int64_t x = rX*32, y = rY*32, z = rZ*32;
+    
+    int64_t avgTerrainZ = rhm->avgHeight;
+
+    if(rX==0 && rY==0 && rZ==TileMap::getRegRXYZ(avgTerrainZ)) {
+        nch::Log::log("Generated ship @ xyz(%d, %d, %d)", x, y, avgTerrainZ);
+        Point3X<int64_t> shipOrigin(x, y, avgTerrainZ);
+        structures.push_back(new Structure(Structure::CRASHED_SHIP, shipOrigin));
+    }
 }
 
 void StructureMap::updateCamStRXYZ()

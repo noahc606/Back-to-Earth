@@ -143,12 +143,13 @@ void TileMapScreen::tick()
 		}
 		
 		// Update different parts of the map under different conditions
-		// Make sure to do it in the order of 1->2->3->4 (most expensive to least)
 		if( doUpdMapVisible )   tileMapUpdater.updateMapVisible(doMapBlackout, loadDist);
 		if( doUpdMapTicked )    tileMapUpdater.updateMapToFINISHED_GENERATING(fileHandler, loadDist);
 		if( doUpdMapMoved )     tileMapUpdater.updateMapMoved(fileHandler, loadDist);
-		if( doUpdMapIdle )      tileMapUpdater.updateMapToSHOULD_UPDATE(loadDist);
-		if( doUpdMapIdle )      tileMapUpdater.updateMapToUPDATED(loadDist);
+		if( doUpdMapIdle ) {
+			tileMapUpdater.updateMapToSHOULD_UPDATE(loadDist);
+			tileMapUpdater.updateMapToUPDATED(loadDist);
+		}
 	}
 	// Get elapsed time in MS
 	infoTickTime = localTimer.getElapsedTimeMS();
@@ -221,6 +222,8 @@ void TileMapScreen::putInfo(std::stringstream& ss, int& tabs, int64_t mouseX, in
 		ss << "Layer=" << cam->getLayer() << "; ";
 		DebugScreen::newLine(ss);
 	DebugScreen::endGroup(tabs);
+
+	regTexInfo.info(ss, tabs);
 
 	//Mouse
 	if( mouseExists ) {

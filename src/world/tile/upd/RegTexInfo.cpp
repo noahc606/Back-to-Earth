@@ -111,9 +111,9 @@ void RegTexInfo::info(std::stringstream& ss, int& tabs)
 	//DebugScreen::indentLine(ss, tabs);
 	//ss << rtUpdatesToDo << " rtUpdates (time elapsed)=" << rtUpdatesTime << "ms; ";
 	//DebugScreen::newLine(ss);
-	//DebugScreen::indentLine(ss, tabs);
-	//ss << "Total time taken by rtUpdates (avg, last second)=" << rtUpdatesTimeAvg << "ms; ";
-	//DebugScreen::newLine(ss);
+	DebugScreen::indentLine(ss, tabs);
+	ss << "Total time taken by rtUpdates (avg, last second)=" << rtUpdatesTimeAvg << "ms; ";
+	DebugScreen::newLine(ss);
 	
 	DebugScreen::indentLine(ss, tabs);
 	ss << "Screen(w, h)=(" << cam->getScreenWidthTiles() << ", " << cam->getScreenHeightTiles() << "); ";
@@ -176,7 +176,7 @@ void RegTexInfo::draw(int64_t camSRX, int64_t camSRY, int64_t camSRZ, int loadDi
 	//Perform 'rtUpdates' number of RegTexUpdates and do performance gauging
 	rtUpdatesTime = 0.0;
 	{
-		std::stringstream ss; ss << "Performing " << rtUpdatesToDo << " RegTexUpdater";
+		std::stringstream ss; ss << "Performing " << rtUpdatesToDo;
 		nch::Timer t(ss.str(), false);
 		
 		regTexProcessor.processRegions(cam, loadDistH, rtUpdatesToDo);

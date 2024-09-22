@@ -60,7 +60,7 @@ void Items::putItemInterface(int itemID)
 	
 	guiHandler->removeGUIs(GUIHandler::ttp_CHARACTER_item, GUIHandler::tbx_CHARACTER_item);
 
-	int dX = 12;
+	int dX = 16+4*64;
 	int tbxDY = 26;
 	int ttpDY = tbxDY+8;
 
@@ -90,10 +90,6 @@ void Items::putItemInterface(int itemID)
 		TextBox* tbx3 = (TextBox*)guiHandler->addGUI( new TextBox(win, dX+32*06, 524+32*2+tbxDY, 100, TextBox::FREE_NUMBERS_INTEGERS, GUIHandler::tbx_CHARACTER_item), 1002 );
 		std::stringstream ss3; ss3 << (int)std::get<2>(player->getPos());
 		tbx3->setString( ss3.str() );
-
-		guiHandler->addGUI( new Tooltip(win, dX+32*10, 524+32*0+ttpDY, "Planet ID:", GUIHandler::ttp_CHARACTER_item) );
-		TextBox* tbx4 = (TextBox*)guiHandler->addGUI( new TextBox(win, dX+32*13+4, 524+32*0+tbxDY, 350, TextBox::FREE_NUMBERS_BASIC, GUIHandler::tbx_CHARACTER_item), 1003 );
-		
 		
 		guiHandler->addGUI( new Button (win, dX+32*10, 524+32*2+tbxDY, 200, "Teleport", GUIHandler::btn_CHARACTER_item), 1004 );
 	} break;
@@ -101,18 +97,19 @@ void Items::putItemInterface(int itemID)
 		putItemInterfaceDesc(win, dX, ttpDY, "Destroy solid matter with Left Click", 1);
 	} break;
 	case ATOM_PRINTER: {
-		putItemInterfaceDesc(win, dX, ttpDY, "Build tiles with Right Click - select the tile type from Backpack/Sandbox/etc.", 1);
+		putItemInterfaceDesc(win, dX, ttpDY, "Build tiles with Right Click.", 1);
+		putItemInterfaceDesc(win, dX, ttpDY, "Select the tile type from Backpack/Sandbox/etc.", 2);
 	} break;
 
 
 
 	case FOOD_RATION_A: {
 		putItemInterfaceDesc(win, dX, ttpDY, "Servings: 128. Calories: 120.", 1);
-		putItemInterfaceDesc(win, dX, ttpDY, "Provides more nutrients but less calories than normal food.", 2);
+		putItemInterfaceDesc(win, dX, ttpDY, "More nutritious but with less calories than normal food.", 2);
 	} break;
 	case FOOD_RATION_B: {
 		putItemInterfaceDesc(win, dX, ttpDY, "Servings: 128. Calories: 120.", 1);
-		putItemInterfaceDesc(win, dX, ttpDY, "Provides more nutrients but less calories than normal food.", 2);
+		putItemInterfaceDesc(win, dX, ttpDY, "More nutritious but with less calories than normal food.", 2);
 	} break;
 	case FOOD_RATION_C: {
 		putItemInterfaceDesc(win, dX, ttpDY, "Servings: 12. Calories: 350.", 1);
