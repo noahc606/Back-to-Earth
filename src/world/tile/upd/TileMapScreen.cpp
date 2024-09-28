@@ -2,8 +2,8 @@
 #include <iomanip>
 #include <iostream>
 #include <math.h>
-#include <nch/cpp-utils/io/Log.h>
-#include <nch/sdl-utils/Timer.h>
+#include <nch/cpp-utils/log.h>
+#include <nch/sdl-utils/timer.h>
 #include <sstream>
 #include "Controls.h"
 #include "DebugScreen.h"

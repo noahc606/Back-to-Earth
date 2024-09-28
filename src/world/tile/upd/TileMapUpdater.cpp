@@ -1,6 +1,6 @@
 #include "TileMapUpdater.h"
-#include <nch/cpp-utils/io/Log.h>
-#include <nch/sdl-utils/Timer.h>
+#include <nch/cpp-utils/log.h>
+#include <nch/sdl-utils/timer.h>
 #include "DebugScreen.h"
 #include "Grid.h"
 #include "RegTexInfo.h"

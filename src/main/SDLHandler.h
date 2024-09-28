@@ -1,5 +1,5 @@
 #pragma once
-#include <nch/cpp-utils/gfx/Color.h>
+#include <nch/cpp-utils/color.h>
 #include <SDL2/SDL.h>
 #include <string>
 #include "AudioLoader.h"

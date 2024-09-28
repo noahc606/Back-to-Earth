@@ -1,6 +1,6 @@
 #pragma once
 #include <map>
-#include <nch/cpp-utils/gfx/Color.h>
+#include <nch/cpp-utils/color.h>
 #include <string>
 #include <vector>
 #include "Settings.h"

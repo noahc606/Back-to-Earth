@@ -3,7 +3,7 @@
 #include <iomanip>
 #include <iostream>
 #include <math.h>
-#include <nch/cpp-utils/io/Log.h>
+#include <nch/cpp-utils/log.h>
 #include <stdlib.h>
 #include <sstream>
 #include "DebugScreen.h"

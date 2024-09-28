@@ -1,5 +1,5 @@
 #include "ProgressBar.h"
-#include <nch/cpp-utils/io/Log.h>
+#include <nch/cpp-utils/log.h>
 
 ProgressBar::ProgressBar(Window* parentWindow, int x, int y, int width, int id)
 : WindowComponent::WindowComponent(parentWindow, x, y)

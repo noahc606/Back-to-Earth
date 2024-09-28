@@ -1,5 +1,5 @@
 #pragma once
-#include <nch/cpp-utils/gfx/Color.h>
+#include <nch/cpp-utils/color.h>
 #include <string>
 #include <vector>
 #include "BTEObject.h"
@@ -21,8 +21,8 @@ public:
 
     std::string getInfo();
     Texture* getSheetTexture();
-    uint32_t** getSheetPixels();
 
+    void setSheetDimensions(int w, int h);
     void setSpriteDimensions(int w, int h);
     void setSpriteColor(const nch::Color& c);
 
@@ -36,8 +36,6 @@ public:
 
     void loadTextureAsSpriteSheet(SDL_Texture* sdlTex, int spriteWidth, int spriteHeight);
     void loadTextureAsSpriteSheet(SDL_Texture* sdlTex);
-
-    void updateSheetPixels();
 
     SDL_Rect src;
     SDL_Rect dst;
@@ -56,5 +54,4 @@ private:
     bool restrictSpriteSize = true;
 
     Texture sheet;
-    uint32_t* sheetPixels = nullptr;
 };

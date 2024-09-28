@@ -1,5 +1,5 @@
 #include "GUIHandler.h"
-#include <nch/cpp-utils/io/Log.h>
+#include <nch/cpp-utils/log.h>
 #include <set>
 #include "CheckBox.h"
 #include "Color.h"

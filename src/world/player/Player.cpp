@@ -1,7 +1,7 @@
 #include "Player.h"
 #include <cmath>
 #include <math.h>
-#include <nch/cpp-utils/io/Log.h>
+#include <nch/cpp-utils/log.h>
 #include <iomanip>
 #include <iostream>
 #include "DebugScreen.h"

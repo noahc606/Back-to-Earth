@@ -5,8 +5,8 @@
 #include <errno.h>
 #include <filesystem>
 #include <locale>
-#include <nch/cpp-utils/io/Log.h>
-#include <nch/sdl-utils/Timer.h>
+#include <nch/cpp-utils/log.h>
+#include <nch/sdl-utils/timer.h>
 #include <SDL2/SDL_image.h>
 #include <sstream>
 #include <stdio.h>

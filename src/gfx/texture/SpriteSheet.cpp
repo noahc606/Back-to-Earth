@@ -1,6 +1,6 @@
 #include "SpriteSheet.h"
 #include <iostream>
-#include <nch/cpp-utils/io/Log.h>
+#include <nch/cpp-utils/log.h>
 #include <sstream>
 
 SpriteSheet::SpriteSheet(){}
@@ -41,7 +41,6 @@ void SpriteSheet::init(SDLHandler* sh, SDL_Texture* sdlTex, int spriteWidth, int
         //Check texture access
         if( texAccess==SDL_TEXTUREACCESS_TARGET || texAccess==SDL_TEXTUREACCESS_STATIC ) {
             loadTextureAsSpriteSheet(sdlTex);
-            updateSheetPixels();
         //If texAccess is something else...
         } else {
             nch::Log::error(__PRETTY_FUNCTION__, "Cannot init SpriteSheet textures with texture access other than SDL_TEXTUREACCESS_TARGET");
@@ -74,7 +73,7 @@ void SpriteSheet::init(SDLHandler* sh)
 
 void SpriteSheet::destroy()
 {
-    free(sheetPixels);
+
 }
 
 std::string SpriteSheet::getInfo()
@@ -98,7 +97,10 @@ std::string SpriteSheet::getInfo()
 
 Texture* SpriteSheet::getSheetTexture() { return &sheet; }
 
-uint32_t** SpriteSheet::getSheetPixels() { return &sheetPixels; }
+void SpriteSheet::setSheetDimensions(int w, int h)
+{
+    sheet.setTexDimensions(w, h);
+}
 
 void SpriteSheet::setSpriteDimensions(int w, int h)
 {
@@ -181,32 +183,6 @@ void SpriteSheet::addSpritesToRow(int imgID, int num, int srcY, int spriteY)
 void SpriteSheet::drawSheet()
 {
     sheet.draw();
-}
-
-/**
-    Get all of the pixels in 'sheet' and store them in the raw pointer 'sheetPixels'.
-    Recommended to call this function once at the end of building a spritesheet.
-*/
-void SpriteSheet::updateSheetPixels()
-{
-    //Get SDLHandler's SDL_Renderer* object
-    SDL_Renderer* r = sdlHandler->getRenderer();
-
-    //Free whatever exists in sheetPixels
-    free(sheetPixels);
-
-    //Store the current render target
-    SDL_Texture* rtOld = SDL_GetRenderTarget( r );
-
-    //Set render target to the Texture 'sheet' and read the pixels of 'sheet'.
-    SDL_SetRenderTarget( r, sheet.getSDLTexture() );
-    SDL_Rect rect; rect.x = 0; rect.y = 0; rect.w = sheet.getTexWidth(); rect.h = sheet.getTexHeight();
-
-    sheetPixels = (uint32_t*)malloc(rect.w*rect.h*sizeof(*sheetPixels));
-    SDL_RenderReadPixels( r, &rect, sdlHandler->getPixelFormat()->format, sheetPixels, 4*rect.w );
-
-    //Set render target back to what it originally was
-    SDL_SetRenderTarget( r, rtOld );
 }
 
 void SpriteSheet::loadTextureAsSpriteSheet(SDL_Texture* sdlTex, int spriteWidth, int spriteHeight)

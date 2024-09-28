@@ -1,5 +1,5 @@
 #pragma once
-#include <nch/cpp-utils/gfx/Color.h>
+#include <nch/cpp-utils/color.h>
 #include <string>
 #include "SDLHandler.h"
 #include "Texture.h"

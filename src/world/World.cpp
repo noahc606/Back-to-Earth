@@ -1,6 +1,6 @@
 #include "World.h"
 #include <math.h>
-#include <nch/cpp-utils/io/Log.h>
+#include <nch/cpp-utils/log.h>
 #include <time.h>
 #include "TextureBuilder.h"
 #include "Atmosphere.h"

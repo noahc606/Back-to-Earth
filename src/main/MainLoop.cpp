@@ -1,8 +1,8 @@
 #include "MainLoop.h"
 #include <ctime>
 #include <iostream>
-#include <nch/cpp-utils/io/Log.h>
-#include <nch/sdl-utils/Timer.h>
+#include <nch/cpp-utils/log.h>
+#include <nch/sdl-utils/timer.h>
 #include <SDL2/SDL.h>
 #include <unistd.h>
 #include "CurlHandler.h"

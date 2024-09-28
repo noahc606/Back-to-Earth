@@ -1,5 +1,5 @@
 #include "RegTexProcessor.h"
-#include <nch/cpp-utils/io/Log.h>
+#include <nch/cpp-utils/log.h>
 #include "RegTexBuilder.h"
 #include "RegTexInfo.h"
 

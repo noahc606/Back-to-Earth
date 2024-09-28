@@ -1,6 +1,6 @@
 #include "Loggable.h"
 #include <algorithm>
-#include <nch/cpp-utils/io/Log.h>
+#include <nch/cpp-utils/log.h>
 #include <vector>
 
 void Loggable::putInfo(std::stringstream& ss, int& tabs)

@@ -1,7 +1,7 @@
 #include "Settings.h"
 #include <fstream>
 #include <iostream>
-#include <nch/cpp-utils/io/Log.h>
+#include <nch/cpp-utils/log.h>
 #include <sstream>
 #include "Main.h"
 #include "MainLoop.h"

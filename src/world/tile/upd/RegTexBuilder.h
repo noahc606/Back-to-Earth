@@ -1,5 +1,5 @@
 #pragma once
-#include <nch/cpp-utils/gfx/Color.h>
+#include <nch/cpp-utils/color.h>
 #include <sstream>
 #include "Planet.h"
 #include "Texture.h"

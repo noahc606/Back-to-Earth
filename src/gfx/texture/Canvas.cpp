@@ -1,6 +1,6 @@
 #include "Canvas.h"
 #include <math.h>
-#include <nch/cpp-utils/io/Log.h>
+#include <nch/cpp-utils/log.h>
 #include "MainLoop.h"
 #include "TileMap.h"
 

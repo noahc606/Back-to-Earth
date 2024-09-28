@@ -1,6 +1,6 @@
 #pragma once
 #include <cstdint>
-#include <nch/cpp-utils/gfx/Color.h>
+#include <nch/cpp-utils/color.h>
 #include <SDL2/SDL.h>
 #include "FileHandler.h"
 #include "SDLHandler.h"

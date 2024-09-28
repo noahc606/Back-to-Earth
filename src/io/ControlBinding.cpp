@@ -1,5 +1,5 @@
 #include "ControlBinding.h"
-#include <nch/cpp-utils/io/Log.h>
+#include <nch/cpp-utils/log.h>
 #include <sstream>
 #include <string>
 

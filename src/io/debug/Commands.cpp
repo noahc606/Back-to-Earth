@@ -1,5 +1,5 @@
 #include "Commands.h"
-#include <nch/cpp-utils/io/Log.h>
+#include <nch/cpp-utils/log.h>
 #include <vector>
 
 Commands::t_kvIntSet Commands::kvIntSet;

@@ -1,5 +1,5 @@
 #include "PlayerMenu.h"
-#include <nch/cpp-utils/io/Log.h>
+#include <nch/cpp-utils/log.h>
 #include <cmath>
 #include "PlayerMenuModules.h"
 #include "TextBox.h"

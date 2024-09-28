@@ -55,7 +55,6 @@ RegTexBuilder::RegTexBuilder(Texture* tex, Planet* plnt, TileIterator& ti, int c
 			}
 		} break;
 		default: {
-			printf("%d\n", tilesToDraw.size());
 			tex->rect(dstX, dstY, blitScale, blitScale, 64, 64, 64, 0, SDL_BLENDMODE_NONE);
 			for(int i = tilesToDraw.size()-1; i>=0; i--) {
 				drawTypeA(tilesToDraw[i].second, tilesToDraw[i].first);

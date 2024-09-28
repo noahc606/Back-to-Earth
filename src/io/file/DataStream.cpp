@@ -1,6 +1,6 @@
 #include "DataStream.h"
 #include <iomanip>
-#include <nch/cpp-utils/io/Log.h>
+#include <nch/cpp-utils/log.h>
 #include "DebugScreen.h"
 
 DataStream::DataStream()

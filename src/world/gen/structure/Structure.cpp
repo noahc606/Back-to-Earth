@@ -1,5 +1,5 @@
 #include "Structure.h"
-#include <nch/cpp-utils/io/Log.h>
+#include <nch/cpp-utils/log.h>
 #include "CollectionUtils.h"
 #include "TileIterator.h"
 
