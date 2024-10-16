@@ -65,6 +65,7 @@ Structure::Structure(int id, Point3X<int64_t> origin)
             
             TileType tt; tt.init(); tt.setRGB(50, 50, 50); tt.setSolid(true); tt.setTextureXY(2, 3); tt.setVisionBlocking(true);
             TileMap::setTiles(&regMap, 0, 0, 0, 0, 3, 8, tt);
+            suppressWarnings = false;
         } break;
     }
 }
@@ -80,3 +81,4 @@ int Structure::getID() { return id; }
 Point3X<int64_t> Structure::getOrigin() { return origin; }
 Box3X<int64_t> Structure::getBounds() { return bnds; }
 std::map<Defs::t_tripleI64, TileRegion>* Structure::getRegionMap() { return &regMap; }
+void Structure::suppressNextWarning() { suppressWarnings = true; }

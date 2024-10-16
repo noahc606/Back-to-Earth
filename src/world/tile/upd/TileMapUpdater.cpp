@@ -169,7 +169,7 @@ void TileMapUpdater::regPillarGenAttempt(FileHandler* fileHandler, int64_t csRX,
 			int64_t icsRZ = camCsRZ+neg*diff;
 			
 			//If new region load was successful (regions already loaded are not == 0)
-			if( tileMap->loadRegionByCsRXYZ(fileHandler, cam->getAxis(), csRX, csRY, icsRZ)==0 ) {
+			if( tileMap->loadRegionByCsRXYZ(cam->getAxis(), csRX, csRY, icsRZ)==0 ) {
 				//Increment loadCount
 				loadCount++;
 
@@ -317,8 +317,8 @@ void TileMapUpdater::updateMapMoved(FileHandler* fileHandler, int loadDist)
 
 			for( int rZ = camRZ-outlineV; rZ<=camRZ+outlineV; rZ += dRZ ) {
 				//Unload regions
-				tileMap->saveRegion(fileHandler, rX, rY, rZ);
-				tileMap->unloadRegion(fileHandler, rX, rY, rZ);
+				tileMap->saveRegion(rX, rY, rZ);
+				tileMap->unloadRegion(rX, rY, rZ);
 			}
 		}
 	}

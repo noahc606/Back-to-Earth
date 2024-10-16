@@ -384,17 +384,12 @@ void TileRegion::dumpPaletteData(DataStream& ds, uint8_t dataBitsPerTile)
 
 void TileRegion::dumpTileData(DataStream& ds, uint8_t dataBitsPerTile)
 {
-	for( uint8_t sx = 0; sx<32; sx++ ) {
-		for( uint8_t sy = 0; sy<32; sy++ ) {
-			for( uint8_t sz = 0; sz<32; sz++ ) {
-				int16_t key = -getTileKey(sx, sy, sz);
-				if(key>0) {
-					ds.putXBits( key, dataBitsPerTile ); 
-				} else {
-					ds.putXBits( 0, dataBitsPerTile );
-				}
-			}
-		}
+	for( uint8_t sx = 0; sx<32; sx++ )
+	for( uint8_t sy = 0; sy<32; sy++ )
+	for( uint8_t sz = 0; sz<32; sz++ ) {
+		int16_t key = -getTileKey(sx, sy, sz);
+		if(key>0) { ds.putXBits( key, dataBitsPerTile ); 
+		} else { ds.putXBits( 0, dataBitsPerTile ); }
 	}
 }
 
@@ -405,11 +400,10 @@ void TileRegion::dumpTileData(DataStream& ds, uint8_t dataBitsPerTile)
 		-This region needs to be unloaded (compress==true). More expensive option
 		-This region is auto-saved (compress==false). Less expensive option
 */
-void TileRegion::save(FileHandler* fh, std::string saveGameName, long rX, long rY, long rZ, bool p_compress)
+void TileRegion::save(std::string saveGameName, long rX, long rY, long rZ, bool p_compress)
 {
 	//Make sure folder which contains the region files themselves exists
-	std::string regFilesDir = "saved/games/"+saveGameName+"/tilemap/default";
-	//fh->createBTEDir(regFilesDir); //this is STUPID
+	std::string regFilesDir = "backtoearth/saved/games/"+saveGameName+"/tilemap/default";
 
 	//Compression
 	if( p_compress ) {
@@ -418,17 +412,17 @@ void TileRegion::save(FileHandler* fh, std::string saveGameName, long rX, long r
 	}
 
 	//Level saving logic
-	LevelSave ls(fh, regFilesDir);
+	LevelSave ls(regFilesDir);
 	ls.saveTileRegion(*this, rX, rY, rZ);
 }
 
-void TileRegion::save(FileHandler* fh, std::string saveGameName, long rX, long rY, long rZ)
+void TileRegion::save(std::string saveGameName, long rX, long rY, long rZ)
 {
-	save(fh, saveGameName, rX, rY, rZ, false);
+	save(saveGameName, rX, rY, rZ, false);
 }
 
-void TileRegion::load(FileHandler* fh, std::string saveGameName, long rX, long rY, long rZ)
+void TileRegion::load(std::string saveGameName, long rX, long rY, long rZ)
 {
-	LevelSave ls(fh, "saved/games/"+saveGameName+"/tilemap/default");
+	LevelSave ls("backtoearth/saved/games/"+saveGameName+"/tilemap/default");
 	ls.loadTileRegion(*this, rX, rY, rZ);
 }

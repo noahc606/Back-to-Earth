@@ -17,10 +17,11 @@ public:
     uint64_t getSeekBytePos();
     uint64_t getSeekBitPos();
     uint8_t getSeekBitOffset();
-    uint8_t peekByteCell();
-    uint8_t peekHexDigitCell();
+    unsigned char peekByteCell();
+    unsigned char peekHexDigitCell();
     uint64_t peekXBits(uint8_t numBits);
     bool peekBit();
+    std::vector<unsigned char> getByteStreamCopy();
 
 
     /**/
@@ -49,7 +50,7 @@ private:
     void popWriteBytes();
 
     std::queue<bool> bitcache;          //Hold bits that we will add to collection later (we only hold a collection of whole bytes at any given time)
-    std::vector<uint8_t> bytestream;    //Hold collection of bytes (uint8_t's)
+    std::vector<unsigned char> bytestream;    //Hold collection of bytes (uint8_t's)
     uint8_t seekBitOffset = 0;
     uint64_t seekBytePos = 0;
 };

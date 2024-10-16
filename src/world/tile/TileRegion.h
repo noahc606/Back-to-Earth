@@ -63,9 +63,9 @@ public:
     void compress();
     void dumpPaletteData(DataStream& ds, uint8_t dataBitsPerTile);
     void dumpTileData(DataStream& ds, uint8_t dataBitsPerTile);
-    void save(FileHandler* fh, std::string saveGameName, long rX, long rY, long rZ, bool compress);
-    void save(FileHandler* fh, std::string saveGameName, long rX, long rY, long rZ);
-	void load(FileHandler* fh, std::string saveGameName, long rX, long rY, long rZ);
+    void save(std::string saveGameName, long rX, long rY, long rZ, bool compress);
+    void save(std::string saveGameName, long rX, long rY, long rZ);
+	void load(std::string saveGameName, long rX, long rY, long rZ);
 
     enum RegTexState {
         NONE = 0,                   //Unused state - undefined behavior

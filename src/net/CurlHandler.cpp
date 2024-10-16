@@ -1,8 +1,8 @@
 #include "CurlHandler.h"
+#include "BTEPath.h"
 #include <set>
 #include <nch/cpp-utils/log.h>
-#include "FileHandler.h"
-
+#include <nch/cpp-utils/string-utils.h>
 
 bool CurlHandler::globalInitState = false;
 
@@ -53,8 +53,8 @@ bool CurlHandler::v1NewerThanV2(std::string v1, std::string v2)
 {
     //Build 'vs' ("version splits") which is a vector of string splits
     std::vector<std::vector<std::string>> vs;
-    vs.push_back(FileHandler::split(v1, "."));
-    vs.push_back(FileHandler::split(v2, "."));
+    vs.push_back(nch::StringUtils::split(v1, '.'));
+    vs.push_back(nch::StringUtils::split(v2, '.'));
     for(int i = 0; i<2; i++) {
         char x = vs[i][2][vs[i][2].size()-1];
         if(x=='a'||x=='b') {
@@ -104,7 +104,7 @@ std::string CurlHandler::newBTEVersionAvailable(std::string* newVersion)
         ss << curl_easy_strerror(cc);
         return ss.str();
     }
-    auto svl = FileHandler::split(versionList, "\n");   //'svl': 'split versionList'
+    auto svl = nch::StringUtils::split(versionList, '\n');   //'svl': 'split versionList'
 
     //Find maximum version within list
     std::string max = "0.0.0a";
@@ -136,7 +136,7 @@ std::vector<std::string> CurlHandler::getBTEAssetPathList()
         return emptyList;
     }
 
-    std::vector<std::string> res = FileHandler::split(assetPathList, "\n"); //'split assetPathList'
+    std::vector<std::string> res = nch::StringUtils::split(assetPathList, '\n'); //'split assetPathList'
     return res;
 }
 

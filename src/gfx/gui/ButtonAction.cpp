@@ -38,7 +38,7 @@ ButtonAction::ButtonAction(SDLHandler* sh, GUIHandler* gh, FileHandler* fh, Cont
         } break;
 
         /** Update prompt buttons */
-        case GUIHandler::btn_UPDATE_PROMPT_not_now: {   gh->setGUIs(GUIHandler::GUIs::DEBUG); } break;
+        case GUIHandler::btn_UPDATE_PROMPT_not_now: {   gh->setGUIs(GUIHandler::GUIs::DEBUGGING); } break;
         case GUIHandler::btn_UPDATE_PROMPT_dont_ask: {
             gh->setGUIs(GUIHandler::GUIs::MAIN_MENU);
             stgs->kv(Settings::options, "checkForUpdates", "false");
@@ -54,7 +54,7 @@ ButtonAction::ButtonAction(SDLHandler* sh, GUIHandler* gh, FileHandler* fh, Cont
         case GUIHandler::btn_OPTIONS_graphics_settings:     { gh->setGUIs(gh->GRAPHICS); } break;
         case GUIHandler::btn_OPTIONS_audio_settings:        { gh->setGUIs(gh->AUDIO); } break;
 		case GUIHandler::btn_OPTIONS_character_settings:    { gh->setGUIs(gh->CHARACTER); } break;
-		case GUIHandler::btn_OPTIONS_debug_settings:        { gh->setGUIs(gh->DEBUG); } break;
+		case GUIHandler::btn_OPTIONS_debug_settings:        { gh->setGUIs(gh->DEBUGGING); } break;
 
         case GUIHandler::btn_AUDIO_SETTINGS_test: { saveSettingsBasedOnUIs(al, gh, stgs, fh, ctrls); } break;
 

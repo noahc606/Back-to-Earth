@@ -355,7 +355,7 @@ void GUIBuilder::buildMainDebug(GUIHandler& gh, FileHandler& fh)
         gh.addGUI(new TextBox(w, 460, 82+32*(7), 300, TextBox::FREE_TEXT, stngs->get(Settings::options, uis[4].second), gh.tbx_DEBUG_SETTINGS_debugTesting), 4);
     //About
     gh.addGUI(new Tooltip(w, ch, 92+32*(14), "About", gh.ttp_GENERIC));
-        gh.addGUI(new Tooltip(w, 30, 92+32*(15), "\"Back to Earth\" by Out of This World Software", gh.ttp_GENERIC));
+        gh.addGUI(new Tooltip(w, 30, 92+32*(15), "\"Back to Earth\" by Out of this World Software", gh.ttp_GENERIC));
         //Startup Intro visible
         gh.addGUI(new CheckBox( w, 26, 82+32*(16), uis[5].first, stngs->get(Settings::options, uis[5].second), gh.cbx_DEBUG_SETTINGS_showIntro ), 5);
         //Check For Updates

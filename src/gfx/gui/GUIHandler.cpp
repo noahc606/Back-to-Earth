@@ -417,7 +417,7 @@ void GUIHandler::setGUIs(int guis, int param)
         case GRAPHICS:  { gb.buildMainGraphics(*this, *fileHandler); } break;
         case AUDIO:     { gb.buildMainAudio(*this, *fileHandler); } break;
 		case CHARACTER: { gb.buildMainCharacter(*this, *fileHandler); } break;
-        case DEBUG:     { gb.buildMainDebug(*this, *fileHandler); } break;
+        case DEBUGGING: { gb.buildMainDebug(*this, *fileHandler); } break;
 
         /** Campaign Creation/Selection UIs */
         case SELECT_CAMPAIGN:           { gb.buildSelectCampaign(*this, *fileHandler); } break;

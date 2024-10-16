@@ -170,7 +170,7 @@ public:
             GRAPHICS,
             AUDIO,
 			CHARACTER,
-			DEBUG,
+			DEBUGGING,
 
         SELECT_CAMPAIGN,
             SELECT_CAMPAIGN_createNew,

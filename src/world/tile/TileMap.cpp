@@ -7,7 +7,7 @@
 #include "TileIterator.h"
 #include "TileType.h"
 
-void TileMap::init(SDLHandler* sh, FileHandler* fh, Planet* pt, StructureMap* struMap, NoiseMap* nMap, std::string wdn, int64_t worldSeed)
+void TileMap::init(SDLHandler* sh, FileHandler* fh, Planet* pt, StructureMap* struMap, NoiseMap* nMap, std::string saveGameName, int64_t worldSeed)
 {
 	sdlHandler = sh;
 	fileHandler = fh;
@@ -16,7 +16,7 @@ void TileMap::init(SDLHandler* sh, FileHandler* fh, Planet* pt, StructureMap* st
 	TileMap::struMap = struMap;
 	TileMap::nMap = nMap;
 
-	worldDirName = wdn;
+	TileMap::saveGameName = saveGameName;
 }
 
 void TileMap::destroy()
@@ -45,7 +45,6 @@ void TileMap::putInfo(std::stringstream& ss, int& tabs)
 
 TileMap::t_regionMap* TileMap::getRegionMap() { return &regionMap; }
 Planet* TileMap::getPlanet() { return planet; }
-std::string TileMap::getWorldDirName() { return worldDirName; }
 
 /*
     This function will work fine in small loops but keep in mind getRegSubPos() is somewhat expensive. For large or even 3D loops (like in TileMapScreen::draw()) use a TileIterator.
@@ -236,7 +235,7 @@ void TileMap::setStructureWithinReg(Structure* stru, TileRegion& tr, int64_t rX,
 	Given a nonexistent region (rX, rY, rZ), create the region, generate its terrain, and load its artificial tiles from file.
 	Returns: 0 if successful, -1 if region already existed.
 */
-int TileMap::loadRegion(FileHandler* fileHandler, int64_t rX, int64_t rY, int64_t rZ)
+int TileMap::loadRegion(int64_t rX, int64_t rY, int64_t rZ)
 {
 	//Try to find the region (rX, rY, rZ).
 	t_regionMap::iterator itr = regionMap.find( std::make_tuple(rX, rY, rZ) );
@@ -258,7 +257,7 @@ int TileMap::loadRegion(FileHandler* fileHandler, int64_t rX, int64_t rY, int64_
 		}
 
 		//Place region's artificial tiles
-		tr.load(fileHandler, worldDirName, rX, rY, rZ);
+		tr.load(saveGameName, rX, rY, rZ);
 		
 		//Insert the region into the regionMap.
 		regionMap.insert( std::make_pair(std::make_tuple(rX, rY, rZ), tr) );
@@ -267,13 +266,13 @@ int TileMap::loadRegion(FileHandler* fileHandler, int64_t rX, int64_t rY, int64_
 	return -1;
 }
 
-int TileMap::loadRegionByCsRXYZ(FileHandler* fileHandler, int camAxis, int64_t csRX, int64_t csRY, int64_t csRZ)
+int TileMap::loadRegionByCsRXYZ(int camAxis, int64_t csRX, int64_t csRY, int64_t csRZ)
 {
 	switch(camAxis) {
-		case Camera::X: return loadRegion(fileHandler, csRZ, csRX, csRY); break;
-		case Camera::Y: return loadRegion(fileHandler, csRX, csRZ, csRY); break;
+		case Camera::X: return loadRegion(csRZ, csRX, csRY); break;
+		case Camera::Y: return loadRegion(csRX, csRZ, csRY); break;
 	}
-	return loadRegion(fileHandler, csRX, csRY, csRZ);
+	return loadRegion(csRX, csRY, csRZ);
 }
 
 /*
@@ -281,7 +280,7 @@ int TileMap::loadRegionByCsRXYZ(FileHandler* fileHandler, int camAxis, int64_t c
 	Warning: will cause more lag at once compared to a single loadRegion().
 	Returns: -x, where x is the number of regions that couldn't be loaded (because they already existed there)
 */
-int TileMap::loadRegions(FileHandler* fileHandler, int64_t rX1, int64_t rY1, int64_t rZ1, int64_t rX2, int64_t rY2, int64_t rZ2)
+int TileMap::loadRegions(int64_t rX1, int64_t rY1, int64_t rZ1, int64_t rX2, int64_t rY2, int64_t rZ2)
 {
 	//Return result
 	int res = 0;
@@ -295,7 +294,7 @@ int TileMap::loadRegions(FileHandler* fileHandler, int64_t rX1, int64_t rY1, int
 	for(int iRX = rX1; iRX<=rX2; iRX++) {
 		for(int iRY = rY1; iRY<=rY2; iRY++) {
 			for(int iRZ = rZ1; iRZ<=rZ2; iRZ++) {
-				res += loadRegion(fileHandler, iRX, iRY, iRZ);
+				res += loadRegion(iRX, iRY, iRZ);
 			}
 		}
 	}
@@ -307,37 +306,34 @@ int TileMap::loadRegions(FileHandler* fileHandler, int64_t rX1, int64_t rY1, int
 /**
  * 	Used for debug purposes. Loads the region specified by rX, rY, and rZ, except it loads the artificial tiles (from file) no matter what.
  */
-int TileMap::forceLoadRegion(FileHandler* fileHandler, int64_t rX, int64_t rY, int64_t rZ)
+int TileMap::forceLoadRegion(int64_t rX, int64_t rY, int64_t rZ)
 {
 	std::stringstream ss;
 	ss << "Forceloading region (" << rX << ", " << rY << ", " << rZ << ")";
 	nch::Log::log(ss.str());
 	
-	loadRegion(fileHandler, rX, rY, rZ);
+	loadRegion(rX, rY, rZ);
 	TileRegion* tr = getRegByRXYZ(rX, rY, rZ);
 	if( tr!=nullptr ) {
-		tr->load(fileHandler, worldDirName, rX, rY, rZ);
+		tr->load(saveGameName, rX, rY, rZ);
 		return 1;
 	}
 	return -1;
 }
 
-int TileMap::saveRegion(FileHandler* fileHandler, int64_t rX, int64_t rY, int64_t rZ)
+int TileMap::saveRegion(int64_t rX, int64_t rY, int64_t rZ)
 {
 	TileRegion* tr = getRegByRXYZ(rX, rY, rZ);
 	
 	if( tr==nullptr ) 					{ return -99; }
 	if( !tr->beenModifiedSinceLoad() ) 	{ return -1; }
 	
-	std::stringstream ss;
-	ss << "Saving region (" << rX << ", " << rY << ", " << rZ << ") in save '" << worldDirName << "'";
-	nch::Log::debug(ss.str());
-	
-	tr->save(fileHandler, worldDirName, rX, rY, rZ, false);
+	nch::Log::debug("Saving region (%d, %d, %d) in save \"%s\"", rX, rY, rZ, saveGameName.c_str());	
+	tr->save(saveGameName, rX, rY, rZ, false);
 	return 0;
 }
 
-int TileMap::unloadRegion(FileHandler* fileHandler, int64_t rX, int64_t rY, int64_t rZ)
+int TileMap::unloadRegion(int64_t rX, int64_t rY, int64_t rZ)
 {
 	t_regionMap::iterator itr = regionMap.find( std::make_tuple(rX, rY, rZ) );
 	if( itr!=regionMap.end() ) {

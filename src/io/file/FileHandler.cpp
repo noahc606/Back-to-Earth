@@ -471,34 +471,6 @@ Settings::t_kvMap FileHandler::readTxtFileKVs(std::string path)
 	return readTxtFileKVs( BTEPath(path, filesystemType) );
 }
 
-bool FileHandler::checkMagicNumber(uint64_t mnPart1, uint64_t mnPart2)
-{
-	DataStream ds;
-	ds.putXBits(mnPart1, 64);
-	ds.putXBits(mnPart2, 64);
-	
-	//Find where we currently are
-	long originalPos = tellPos();
-	
-	//Compare the next 16 bytes (128) bits, between the FileHandler's bytes and the DataStream's bytes.
-	bool success = true;
-	for( int i = 0; i<16; i++ ) {
-		//std::cout << (int)readByteStay() << ", " << (int)ds.peekByteCell() << "\n";
-		if( getFileLength()==0 || readByteStay()!=ds.peekByteCell() ) {
-			success = false;
-			break;
-		}
-		ds.seekByteDelta(1);
-		seekThru(1);
-	}
-	
-	//Go back to where we were.
-	seekTo(originalPos);
-	
-	//Return whether comparison was successful or not.
-	return success;
-}
-
 long FileHandler::tellPos() {
     long res = ftell(file);
     if(res==-1) {
@@ -640,30 +612,6 @@ std::string FileHandler::getUnmodifiedPath(std::string mfp)
         //Log::warnv(__PRETTY_FUNCTION__, "returning itself", "Path \"%s\" is not a full path", mfp.c_str());
         return mfp;
     }
-}
-
-
-std::vector<std::string> FileHandler::split(std::string toSplit, std::string delim)
-{
-    std::vector<int> posList;
-    for(int i = 0; i<toSplit.size(); i++) {
-        if(toSplit.substr(i, delim.size())==delim) {
-            posList.push_back(i);
-        }
-    }
-    
-    std::vector<std::string> res;
-    if(posList.size()>=1) {
-        res.push_back(toSplit.substr(0, posList[0]));
-        for(int i = 0; i<posList.size(); i++) {
-            std::string potential = toSplit.substr(posList[i]+delim.size(), posList[i+1]-posList[i]-delim.size());
-            if(potential.size()>0) {
-                res.push_back(potential);
-            }
-        }
-    }
-
-    return res;
 }
 
 std::string FileHandler::getFileOpenTypeStr(int fot)

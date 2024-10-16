@@ -45,7 +45,7 @@ uint64_t DataStream::getSeekBytePos() { return seekBytePos; }
 uint64_t DataStream::getSeekBitPos() { return getSeekBytePos()*8+seekBitOffset; }
 uint8_t DataStream::getSeekBitOffset() { return seekBitOffset; }
 
-uint8_t DataStream::peekByteCell()
+unsigned char DataStream::peekByteCell()
 {
 	if( bytestream.size()!=0 ) {
 		return bytestream.at(seekBytePos);
@@ -54,7 +54,7 @@ uint8_t DataStream::peekByteCell()
 		return 0;
 	}
 }
-uint8_t DataStream::peekHexDigitCell()
+unsigned char DataStream::peekHexDigitCell()
 {
     // SBO is in [0, 3] (first half of byte) -> return byte shifted by 4 to the right
     if( seekBitOffset<4 ) {
@@ -68,6 +68,7 @@ bool DataStream::peekBit()
 {
     return ( (peekByteCell()>>(7-seekBitOffset) )&0b1 );
 }
+std::vector<unsigned char> DataStream::getByteStreamCopy() { return bytestream; }
 uint64_t DataStream::peekXBits(uint8_t numBits)
 {
     uint64_t oldBitSeekPos = getSeekBitPos();

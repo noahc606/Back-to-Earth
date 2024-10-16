@@ -9,7 +9,7 @@ const std::string Main::VERSION_LABEL = "1.1.0a";
 const std::string Main::VERSION_DATE = "17 June 2024";
 const std::string Main::TITLE = "Back to Earth";
 const std::string Main::PASSWORD = "opensesame";
-const bool Main::DEBUG = true;
+const bool Main::DEBUGGING = true;
 const bool Main::TROUBLESHOOTING = false;
 
 /*

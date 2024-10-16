@@ -18,6 +18,8 @@ public:
     Point3X<int64_t> getOrigin();
     Box3X<int64_t> getBounds();
     std::map<Defs::t_tripleI64, TileRegion>* getRegionMap();
+    static void suppressNextWarning();
+
 private:
 
     int id = -1;

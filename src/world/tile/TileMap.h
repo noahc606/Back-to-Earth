@@ -33,7 +33,6 @@ public:
 	t_regionMap* getRegionMap();
 	NoiseMap::t_baseTerrainMap* getBaseTerrainMap();
 	Planet* getPlanet();
-	std::string getWorldDirName();
 	//Getting TileTypes given their position
 	TileType getTile(int64_t x, int64_t y, int64_t z);
 	TileType getTileByCsXYZ(Camera* cam, int64_t csX, int64_t csY, int64_t csZ);
@@ -66,12 +65,12 @@ public:
 	bool setTiles(int64_t x1, int64_t y1, int64_t z1, int64_t x2, int64_t y2, int64_t z2, TileType tt);
 	void setStructureWithinReg(Structure* stru, TileRegion& tr, int64_t rX, int64_t rY, int64_t rZ);
 	//Load regions
-	int loadRegion(FileHandler* fileHandler, int64_t rX, int64_t rY, int64_t rZ);
-	int loadRegionByCsRXYZ(FileHandler* fileHandler, int camAxis, int64_t csRX, int64_t csRY, int64_t csRZ);
-	int loadRegions(FileHandler* fileHandler, int64_t rX1, int64_t rY1, int64_t rZ1, int64_t rX2, int64_t rY2, int64_t rZ2);
-	int forceLoadRegion(FileHandler* fileHandler, int64_t rX, int64_t rY, int64_t rZ);
-	int saveRegion(FileHandler* fileHandler, int64_t rX, int64_t rY, int64_t rZ);
-	int unloadRegion(FileHandler* fileHandler, int64_t rX, int64_t rY, int64_t rZ);
+	int loadRegion(int64_t rX, int64_t rY, int64_t rZ);
+	int loadRegionByCsRXYZ(int camAxis, int64_t csRX, int64_t csRY, int64_t csRZ);
+	int loadRegions(int64_t rX1, int64_t rY1, int64_t rZ1, int64_t rX2, int64_t rY2, int64_t rZ2);
+	int forceLoadRegion(int64_t rX, int64_t rY, int64_t rZ);
+	int saveRegion(int64_t rX, int64_t rY, int64_t rZ);
+	int unloadRegion(int64_t rX, int64_t rY, int64_t rZ);
 
 protected:
 
@@ -84,5 +83,5 @@ private:
 	//World objects
 	Planet* planet = nullptr;
 	StructureMap* struMap = nullptr;
-	std::string worldDirName = "world_unknown";
+	std::string saveGameName = "world_unknown";
 };

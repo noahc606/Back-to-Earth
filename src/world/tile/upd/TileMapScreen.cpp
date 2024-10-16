@@ -58,8 +58,8 @@ void TileMapScreen::destroy()
 		uint64_t rZ = std::get<2>(thisReg);
 		
 		TileRegion* tr = tileMap->getRegByRXYZ(rX, rY, rZ);
-		tileMap->saveRegion(fileHandler, rX, rY, rZ);
-		tileMap->unloadRegion(fileHandler, rX, rY, rZ);
+		tileMap->saveRegion(rX, rY, rZ);
+		tileMap->unloadRegion(rX, rY, rZ);
 	}
 	
 	// Get rid of RegTexUpdates object when this is destroyed

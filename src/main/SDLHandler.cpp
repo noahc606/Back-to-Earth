@@ -231,6 +231,7 @@ void SDLHandler::createSubsystems()
             nch::Log::error( __PRETTY_FUNCTION__, "Failed to set hint", SDL_GetError() );
         }
     }
+    SDL_CaptureMouse(SDL_FALSE);
 
     /* Get resource path of application */
     //If this function somehow fails, the application should not continue running.

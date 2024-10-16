@@ -110,7 +110,9 @@ void StructureMap::populateRegionsNear(int64_t stRX, int64_t stRY, int64_t stRZ,
                 if(rand()%100==0) {        
                     int64_t avgTerrainZ = rhm->avgHeight;
                     if(rZ==TileMap::getRegRXYZ(avgTerrainZ)) {
-                        structures.push_back(new Structure(Structure::MONOLITH, Point3X<int64_t>(x, y, avgTerrainZ-9)));
+                        Structure::suppressNextWarning();
+                        Structure* mono = new Structure(Structure::MONOLITH, Point3X<int64_t>(x, y, avgTerrainZ-9));
+                        structures.push_back(mono);
                     }
                 }
             }

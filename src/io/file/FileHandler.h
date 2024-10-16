@@ -49,7 +49,6 @@ public:
 	uint8_t readHex2Stay();
 	Settings::t_kvMap readTxtFileKVs(BTEPath fp);
 	Settings::t_kvMap readTxtFileKVs(std::string path);
-	bool checkMagicNumber(uint64_t mnPart1, uint64_t mnPart2);
 	//Seek thru files
 	long tellPos();						//Get current byte position
 	long getFileLength();				//Get current file length
@@ -70,7 +69,6 @@ public:
     std::string getResourcePath();
     std::string getModifiedPath(BTEPath fp);
     std::string getUnmodifiedPath(std::string mfp);
-    static std::vector<std::string> split(std::string toSplit, std::string delim);
     static std::string getFileOpenTypeStr(int fot);
     static std::string getReadableMemorySize(uint64_t numBytes);
 
