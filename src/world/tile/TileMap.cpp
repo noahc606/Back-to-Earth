@@ -5,14 +5,14 @@
 #include "DebugScreen.h"
 #include "Terrain.h"
 #include "TileIterator.h"
-#include "TileType.h"
+#include "Tile.h"
 
-void TileMap::init(SDLHandler* sh, FileHandler* fh, Planet* pt, StructureMap* struMap, NoiseMap* nMap, std::string saveGameName, int64_t worldSeed)
+void TileMap::init(SDLHandler* sh, Planet* pt, StructureMap* struMap, NoiseMap* nMap, TileDict* td, std::string saveGameName)
 {
 	sdlHandler = sh;
-	fileHandler = fh;
 	planet = pt;
 
+	TileMap::tileDict = td;
 	TileMap::struMap = struMap;
 	TileMap::nMap = nMap;
 
@@ -21,7 +21,33 @@ void TileMap::init(SDLHandler* sh, FileHandler* fh, Planet* pt, StructureMap* st
 
 void TileMap::destroy()
 {
-    nch::Log::debug(__PRETTY_FUNCTION__, "Deleting TileMap.");
+    nch::Log::log(__PRETTY_FUNCTION__, "Deleting TileMap.");
+
+	//Build a list of all tile region locations
+	std::vector<std::tuple<uint64_t, uint64_t, uint64_t>> regs;
+	TileMap::t_regionMap::iterator itrRM;
+	
+	if( this==nullptr || getRegionMap()==nullptr ) {
+		return;
+	}
+	for( itrRM = getRegionMap()->begin(); itrRM!=getRegionMap()->end(); itrRM++ ) {
+		int rX = std::get<0>(itrRM->first);
+		int rY = std::get<1>(itrRM->first);
+		int rZ = std::get<2>(itrRM->first);
+		regs.push_back( std::make_tuple(rX, rY, rZ) );
+	}
+	
+	//Remove and unload all known tile regions
+	for( int i = 0; i<regs.size(); i++ ) {
+		auto thisReg = regs.at(i);
+		uint64_t rX = std::get<0>(thisReg);
+		uint64_t rY = std::get<1>(thisReg);
+		uint64_t rZ = std::get<2>(thisReg);
+		
+		TileRegion* tr = getRegByRXYZ(rX, rY, rZ);
+		saveRegion(rX, rY, rZ);
+		unloadRegion(rX, rY, rZ);
+	}
 
     //Delete elements in regionMap
     for( t_regionMap::iterator itr = regionMap.begin(); itr!=regionMap.end(); itr = regionMap.begin() ) {
@@ -45,12 +71,13 @@ void TileMap::putInfo(std::stringstream& ss, int& tabs)
 
 TileMap::t_regionMap* TileMap::getRegionMap() { return &regionMap; }
 Planet* TileMap::getPlanet() { return planet; }
+TileDict* TileMap::getTileDict() { return tileDict; }
 
 /*
     This function will work fine in small loops but keep in mind getRegSubPos() is somewhat expensive. For large or even 3D loops (like in TileMapScreen::draw()) use a TileIterator.
 
 */
-TileType TileMap::getTile(int64_t x, int64_t y, int64_t z)
+Tile TileMap::getTile(int64_t x, int64_t y, int64_t z)
 {
     TileRegion* tr = getRegByXYZ(x, y, z);
     getRegSubPos(x, y, z);
@@ -59,9 +86,9 @@ TileType TileMap::getTile(int64_t x, int64_t y, int64_t z)
         return tr->getTile(x, y, z);
 
     //If tr==null
-    return TileType();
+    return Tile();
 }
-TileType TileMap::getTileByCsXYZ(Camera* cam, int64_t csX, int64_t csY, int64_t csZ)
+Tile TileMap::getTileByCsXYZ(Camera* cam, int64_t csX, int64_t csY, int64_t csZ)
 {
 	switch(cam->getAxis()) {
 		case Camera::X: return getTile(csZ, csX, csY); break;
@@ -135,7 +162,7 @@ bool TileMap::collides(Box3X<double> b, int64_t& cx, int64_t& cy, int64_t& cz)
 			for(int64_t sy = ti.getBegSub(1); sy<=ti.getEndSub(1); sy++ )
 			for(int64_t sz = ti.getBegSub(2); sz<=ti.getEndSub(2); sz++ ) {
 				//If we are looking at a solid tile...
-				if(tr->getTile(sx, sy, sz).isSolid() ) {
+				if(tr->getTile(sx, sy, sz).solid ) {
 					int64_t x = ti.getItrReg(0)*32+sx;
 					int64_t y = ti.getItrReg(1)*32+sy;
 					int64_t z = ti.getItrReg(2)*32+sz;
@@ -159,27 +186,27 @@ bool TileMap::collides(Box3X<double> b)
 	return collides(b, x, y, z);
 }
 
-int TileMap::setTile(int64_t x, int64_t y, int64_t z, TileType tt)
+int TileMap::setTile(int64_t x, int64_t y, int64_t z, Tile t)
 {
 	TileRegion* tr = getRegByXYZ(x, y, z);
 	getRegSubPos(x, y, z);
 	if( tr!=nullptr ) {
-		tr->setTile(x, y, z, tt);
+		tr->setTile(x, y, z, t);
 		return 0;
 	}
 	return -1;
 }
 
-int TileMap::setTileByCsXYZ(Camera* cam, int64_t csX, int64_t csY, int64_t csZ, TileType tt)
+int TileMap::setTileByCsXYZ(Camera* cam, int64_t csX, int64_t csY, int64_t csZ, Tile t)
 {
 	switch(cam->getAxis()) {
-		case Camera::X: return setTile(csZ, csX, csY, tt); break;
-		case Camera::Y: return setTile(csX, csZ, csY, tt); break;
+		case Camera::X: return setTile(csZ, csX, csY, t); break;
+		case Camera::Y: return setTile(csX, csZ, csY, t); break;
 	}
-	return setTile(csX, csY, csZ, tt);
+	return setTile(csX, csY, csZ, t);
 }
 
-bool TileMap::setTiles(t_regionMap* rm, int64_t x1, int64_t y1, int64_t z1, int64_t x2, int64_t y2, int64_t z2, TileType tt)
+bool TileMap::setTiles(t_regionMap* rm, int64_t x1, int64_t y1, int64_t z1, int64_t x2, int64_t y2, int64_t z2, Tile t, bool natural)
 {
 	//Validate selected volume specified by (x1, y1, z1) -> (x2, y2, z2).
 	//If any regions within that volume are unloaded, operation should fail.
@@ -190,7 +217,7 @@ bool TileMap::setTiles(t_regionMap* rm, int64_t x1, int64_t y1, int64_t z1, int6
 	
 	//Fill the appropriate volumes within all contained regions
 	for(TileRegion* tr = ti.peekRegion(); !ti.atEnd(); ti.nextRegion()) {
-		int16_t id = tr->addToPalette(tt);
+		int16_t id = tr->addToPalette(t, natural);
 		tr->setTiles(ti.gbs(0), ti.gbs(1), ti.gbs(2), ti.ges(0), ti.ges(1), ti.ges(2), id);
 	}
 
@@ -198,9 +225,9 @@ bool TileMap::setTiles(t_regionMap* rm, int64_t x1, int64_t y1, int64_t z1, int6
 	return true;
 }
 
-bool TileMap::setTiles(int64_t x1, int64_t y1, int64_t z1, int64_t x2, int64_t y2, int64_t z2, TileType tt)
+bool TileMap::setTiles(int64_t x1, int64_t y1, int64_t z1, int64_t x2, int64_t y2, int64_t z2, Tile tt, bool natural)
 {
-	return setTiles(&regionMap, x1, y1, z1, x2, y2, z2, tt);
+	return setTiles(&regionMap, x1, y1, z1, x2, y2, z2, tt, natural);
 }
 
 void TileMap::setStructureWithinReg(Structure* stru, TileRegion& tr, int64_t rX, int64_t rY, int64_t rZ)
@@ -223,8 +250,8 @@ void TileMap::setStructureWithinReg(Structure* stru, TileRegion& tr, int64_t rX,
 	for(int sx = 0; sx<32; sx++)
 	for(int sy = 0; sy<32; sy++)
 	for(int sz = 0; sz<32; sz++) {
-		TileType tisTile = tiS.peekTrackedTile(sx, sy, sz);
-		if(tisTile.getVal()!=0x0) {
+		Tile tisTile = tiS.peekTrackedTile(sx, sy, sz);
+		if(tisTile.id!="null") {
 			int16_t idx = tr.addToPalette(tisTile, true);
 			tr.setTile(sx, sy, sz, idx);
 		}
@@ -242,8 +269,8 @@ int TileMap::loadRegion(int64_t rX, int64_t rY, int64_t rZ)
 	//If no region was found, create the region and process it.
 	if( itr==regionMap.end() ) {
 		//Create Terrain and TileRegion objects
-		Terrain terra(nMap);
-		TileRegion tr;
+		Terrain terra(nMap, tileDict);
+		TileRegion tr(tileDict);
 		
 		//Populate region's terrain
 		tr.setRegTexState(tr.GENERATING);

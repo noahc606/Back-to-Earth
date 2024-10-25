@@ -13,24 +13,25 @@ public:
     virtual ~SpriteSheet();
 
     void init(SDLHandler* sh, SDL_Texture* sdlTex, int spriteWidth, int spriteHeight);
-    void init(SDLHandler* sh, int texID, int spriteWidth, int spriteHeight);
     void init(SDLHandler* sh, SDL_Texture* sdlTex);
-    void init(SDLHandler* sh, int texID);
+    void init(SDLHandler* sh, int sheetWidth, int sheetHeight);
     void init(SDLHandler* sh);
     void destroy();
 
     std::string getInfo();
     Texture* getSheetTexture();
+    int getSheetWidth();
+    int getSheetHeight();
 
-    void setSheetDimensions(int w, int h);
-    void setSpriteDimensions(int w, int h);
-    void setSpriteColor(const nch::Color& c);
+    void setSpriteColorMod(const nch::Color& c);
 
-    void addSprite(int imgID, int srcX, int srcY, int srcW, int srcH, int spriteX, int spriteY);
-    void addSprite(int imgID, int srcX, int srcY, int spriteX, int spriteY);
-    void addSpriteToRow(int imgID, int srcX, int srcY, int srcW, int srcH, int spriteY);
-    void addSpriteToRow(int imgID, int srcX, int srcY, int spriteY);
-    void addSpritesToRow(int imgID, int num, int srcY, int spriteY);
+    void addSprite(SDL_Texture* src, int srcX, int srcY, int srcW, int srcH, int spriteX, int spriteY);
+    void addSprite(SDL_Texture* src, int srcX, int srcY, int spriteX, int spriteY);
+    void addSpriteToRow(SDL_Texture* src, int srcX, int srcY, int spriteY);
+    void addSpriteToRow(int texID, int srcX, int srcY, int spriteY);
+    void addSpritesToRow(SDL_Texture* src, int num, int srcY, int spriteY);
+    void addSpritesToRow(int texID, int num, int srcY, int spriteY);
+    void addSpriteToFixedSizeSheet(SDL_Texture* src, int srcX, int srcY);
 
     void drawSheet();
 
@@ -46,9 +47,8 @@ private:
     void restrictingSpriteSize(bool rss);
 
     int spriteWidth = 0; int spriteHeight = 0;
-    nch::Color spriteColor;
+    nch::Color spriteColor = nch::Color(255, 255, 255);
 
-    int sheetWidth = 0; int sheetHeight = 0;
     std::vector<int> spritesThisRow;
 
     bool restrictSpriteSize = true;

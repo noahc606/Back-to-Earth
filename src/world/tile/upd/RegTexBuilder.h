@@ -8,7 +8,7 @@
 class RegTexBuilder
 {
 public:
-	RegTexBuilder(Texture* tex, Planet* plnt, TileIterator& ti, int camDirection, int blitScale, std::vector<std::pair<int64_t, TileType>>& tilesToDraw);
+	RegTexBuilder(Texture* tex, Planet* plnt, TileIterator& ti, int camDirection, int blitScale, TileDict* tileDict, std::vector<std::pair<int64_t, Tile>>& tilesToDraw);
 	virtual ~RegTexBuilder();
 	
 	static void info(std::stringstream& ss, int& tabs, TileIterator& ti, int ttdfc);
@@ -33,8 +33,8 @@ private:
 	
 	void detailDepth0Tiles(TileIterator& ti, int camDirection); //Depth 0
 	
-	void drawTiles(std::vector<std::pair<int64_t, TileType>>& tilesToDraw);
-	void drawTypeA(TileType tt, int depth);
+	void drawTiles(TileDict* tileDict, std::vector<std::pair<int64_t, Tile>>& tilesToDraw, int camDirection);
+	void drawTypeA(TileDict* tileDict, Tile tt, int camDirection, int depth);
 	void drawWallOverlay(int srcX, int srcY);
 	
 	Planet* plnt = nullptr;

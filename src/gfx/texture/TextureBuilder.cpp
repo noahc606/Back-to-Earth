@@ -115,13 +115,15 @@ void TextureBuilder::buildButtonShine(Texture& tex)
 
 void TextureBuilder::buildDefaultTile(Texture& tex)
 {
-    //Build "default" tile.
-    tex.init(sdlHandler);
-    tex.setTexDimensions(32, 32);
+    /* Build "default" tile. */
+    if(!tex.isInitialized()) {
+        tex.init(sdlHandler);
+        tex.setTexDimensions(32, 32);
+    }
+
     for( int x = 0; x<32; x++ ) {
         for( int y = 0; y<32; y++ ) {
             tex.pixel(x, y, 128, x*8, y*8);
         }
     }
-    tex.setDrawScale(4);
 }

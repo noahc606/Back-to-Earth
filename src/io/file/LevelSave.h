@@ -4,15 +4,13 @@
 #include "DataStream.h"
 #include "TileMap.h"
 #include "TileRegion.h"
-#include "TileType.h"
 #include <string>
 
 class LevelSave
 {
 public:
     /**/
-    LevelSave(std::string dir);
-    LevelSave();
+    LevelSave(std::string dir, TileDict* td);
 	/**/
 	static std::string getNatFilePathFromRxyz(std::string parentDir, int64_t rX, int64_t rY, int64_t rZ);
 	static std::string getNatHeaderTriple(int64_t rX, int64_t rY, int64_t rZ);
@@ -30,4 +28,5 @@ private:
 
 	static nch::ArrayList<nch::NoahAllocTable> nats;
 	std::string directory = "";
+	TileDict* td;
 };

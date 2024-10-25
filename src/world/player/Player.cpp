@@ -435,8 +435,8 @@ Box3X<double> Player::getBounds(int bbt)
 Box3X<double> Player::getBounds() { return getBounds(MAIN); }
 
 
-std::tuple<double, double, double> Player::getPos() { return std::make_tuple(x, y, z); }
-std::tuple<double, double, double> Player::getVelComponents() { return std::make_tuple(vx, vy, vz); }
+std::vector<double> Player::getPos() { return { x, y, z }; }
+std::vector<double> Player::getVelComponents() { return { vx, vy, vz }; }
 double Player::getVel() { return sqrt( vx*vx + vy*vy + vz*vz ); }
 Camera* Player::getCamera() { return &camera; }
 bool Player::inGodMode() { return godMode; }

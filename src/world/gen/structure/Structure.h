@@ -1,6 +1,7 @@
 #pragma once
 #include "Box3X.h"
 #include "Defs.h"
+#include "TileDict.h"
 #include "TileRegion.h"
 
 class Structure
@@ -11,7 +12,7 @@ public:
         CRASHED_SHIP = 2,  
     };
 
-    Structure(int id, Point3X<int64_t> origin);
+    Structure(int id, Point3X<int64_t> origin, TileDict* tileDict);
     ~Structure();
 
     int getID();
@@ -26,6 +27,7 @@ private:
     Point3X<int64_t> origin;
     Box3X<int64_t> bnds;    //Bounds
     std::map<Defs::t_tripleI64, TileRegion> regMap;
+    TileDict* tileDict;
 
     static bool suppressWarnings;
 };

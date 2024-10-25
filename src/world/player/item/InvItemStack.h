@@ -1,6 +1,5 @@
 #pragma once
 #include "SDLHandler.h"
-#include "TileType.h"
 
 class InvItemStack {
 public:

@@ -13,7 +13,6 @@
 #include "TileMap.h"
 #include "TileMapUpdater.h"
 #include "TileRegion.h"
-#include "TileType.h"
 
 class TileMapScreen : public BTEObject
 {

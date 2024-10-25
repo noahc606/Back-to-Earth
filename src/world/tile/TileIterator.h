@@ -6,7 +6,7 @@
 #include "Texture.h"
 #include "TileMap.h"
 #include "TileRegion.h"
-#include "TileType.h"
+#include "Tile.h"
 
 class TileIterator
 {
@@ -15,18 +15,18 @@ public:
     TileIterator(TileMap* tileMap);
     virtual ~TileIterator();
 
-    TileType nextTile();
-    TileType prevTile();
+    Tile nextTile();
+    Tile prevTile();
     TileRegion* nextRegion();
     TileRegion* prevRegion();
-    TileType firstTile();
-    TileType lastTile();
+    Tile firstTile();
+    Tile lastTile();
 
 
-    TileType peekTile();
-    TileType peekTile(int offsetX, int offsetY, int offsetZ);
-    TileType peekTrackedTile();
-    TileType peekTrackedTile(int offsetX, int offsetY, int offsetZ);
+    Tile peekTile();
+    Tile peekTile(int offsetX, int offsetY, int offsetZ);
+    Tile peekTrackedTile();
+    Tile peekTrackedTile(int offsetX, int offsetY, int offsetZ);
     TileRegion* peekRegion();
 
     int64_t getItrIndex();
@@ -58,9 +58,6 @@ public:
 
 
     void logWarnings(bool value);
-
-    void scanBounds();
-
 
     enum RegionTrackingModes {
         NONE,

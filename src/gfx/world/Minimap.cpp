@@ -104,34 +104,33 @@ void Minimap::updateTerrainPartial(int64_t startX, int64_t endX)
 
 				auto ctt = RegTexInfo::camTopVisionBlockingTile(ti, Camera::DOWN, 16);
 				int64_t depth = ctt.first;
-				auto ttRGB = ctt.second.getRGB();
+				nch::Color ttRGB = ctt.second.mapColor;
 
 				//Calculate darkFactor from depth
 				double darkFactor = 1.0 + (double)(depth)/2.;
 
 				//Fully darken a depth-zero tile if:
-				// 1) it is opaque, AND
+				// 1) it is opaque (from above), AND
 				// 2) blocked on all 4 sides and 4 corners with opaque tiles
 				if(depth==0) {
 					if(
-						ctt.second.isVisionBlocking() &&
-						ti.peekTrackedTile(-1, -1, 0).isVisionBlocking() &&
-						ti.peekTrackedTile(-1, 00, 0).isVisionBlocking() &&
-						ti.peekTrackedTile(-1, 01, 0).isVisionBlocking() &&
-						ti.peekTrackedTile(00, -1, 0).isVisionBlocking() &&
-						ti.peekTrackedTile(00, 01, 0).isVisionBlocking() &&
-						ti.peekTrackedTile(01, -1, 0).isVisionBlocking() &&
-						ti.peekTrackedTile(01, 00, 0).isVisionBlocking() &&
-						ti.peekTrackedTile(01, 01, 0).isVisionBlocking()
+						ctt.second.isVisionBlocking(Camera::DOWN) &&
+						ti.peekTrackedTile(-1, -1, 0).isVisionBlocking(Camera::DOWN) &&
+						ti.peekTrackedTile(-1, 00, 0).isVisionBlocking(Camera::DOWN) &&
+						ti.peekTrackedTile(-1, 01, 0).isVisionBlocking(Camera::DOWN) &&
+						ti.peekTrackedTile(00, -1, 0).isVisionBlocking(Camera::DOWN) &&
+						ti.peekTrackedTile(00, 01, 0).isVisionBlocking(Camera::DOWN) &&
+						ti.peekTrackedTile(01, -1, 0).isVisionBlocking(Camera::DOWN) &&
+						ti.peekTrackedTile(01, 00, 0).isVisionBlocking(Camera::DOWN) &&
+						ti.peekTrackedTile(01, 01, 0).isVisionBlocking(Camera::DOWN)
 					) {
 						darkFactor = 1000.0;
 					}
 				}
 
 				terrain.pixel (
-					ti.getItrReg(0)*32-cMinX+sx+tEast, ti.getItrReg(1)*32-cMinY+sy, std::get<0>(ttRGB)/darkFactor, std::get<1>(ttRGB)/darkFactor, std::get<2>(ttRGB)/darkFactor
+					ti.getItrReg(0)*32-cMinX+sx+tEast, ti.getItrReg(1)*32-cMinY+sy, ttRGB.r/darkFactor, ttRGB.g/darkFactor, ttRGB.b/darkFactor
 				);
-
 			}
 		}
 	}

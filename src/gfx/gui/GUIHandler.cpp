@@ -292,9 +292,9 @@ void GUIHandler::passSpecialInput(ControlBinding& passedCB) { cbSpecialInput += 
 
 void GUIHandler::putInfo(std::stringstream& ss, int& tabs)
 {
-    DebugScreen::indentLine(ss, tabs);
-    ss << "guis.size()=" << guis.size() << ";";
-    DebugScreen::newLine(ss);
+    //DebugScreen::indentLine(ss, tabs);
+    //ss << "guis.size()=" << guis.size() << ";";
+    //DebugScreen::newLine(ss);
 }
 
 int GUIHandler::getGUIActionID() { return guiActionID; }

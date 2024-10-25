@@ -27,16 +27,14 @@ void SpriteSheet::init(SDLHandler* sh, SDL_Texture* sdlTex, int spriteWidth, int
     src.x = 0; src.y = 0; src.w = 0; src.h = 0;
     dst.x = 0; dst.y = 0; dst.w = 0; dst.h = 0;
 
-    //If sdlTex is nullptr, the spritesheet will be initialized to 0x0.
-    if( sdlTex==nullptr ) {
-        sheetWidth = 0;
-        sheetHeight = 0;
-        setSpriteDimensions(spriteWidth, spriteHeight);
+    SpriteSheet::spriteWidth = spriteWidth;
+    SpriteSheet::spriteHeight = spriteHeight;
+  
     //If sdlTex isn't nullptr
-    } else {
+    if(sdlTex!=nullptr) {
         //Query tex info
         int texAccess = 0;
-        SDL_QueryTexture(sdlTex, NULL, &texAccess, &sheetWidth, &sheetHeight);
+        SDL_QueryTexture(sdlTex, NULL, &texAccess, NULL, NULL);
 
         //Check texture access
         if( texAccess==SDL_TEXTUREACCESS_TARGET || texAccess==SDL_TEXTUREACCESS_STATIC ) {
@@ -49,21 +47,16 @@ void SpriteSheet::init(SDLHandler* sh, SDL_Texture* sdlTex, int spriteWidth, int
     }
 }
 
-void SpriteSheet::init(SDLHandler* sh, int texID, int spriteWidth, int spriteHeight)
-{
-    BTEObject::init(sh, nullptr, nullptr);
-    init(sh, sh->getTextureLoader()->getTexture(texID), spriteWidth, spriteHeight);
-}
-
 void SpriteSheet::init(SDLHandler* sh, SDL_Texture* sdlTex)
 {
     init(sh, sdlTex, 32, 32);
 }
 
-void SpriteSheet::init(SDLHandler* sh, int texID)
+void SpriteSheet::init(SDLHandler* sh, int sheetWidth, int sheetHeight)
 {
-    BTEObject::init(sh, nullptr, nullptr);
-    init(sh, sh->getTextureLoader()->getTexture(texID), 32, 32);
+    Texture temp;
+    temp.init(sh, sheetWidth, sheetHeight);
+    init(sh, temp.getSDLTexture());
 }
 
 void SpriteSheet::init(SDLHandler* sh)
@@ -73,14 +66,14 @@ void SpriteSheet::init(SDLHandler* sh)
 
 void SpriteSheet::destroy()
 {
-
+    sheet.destroy();
 }
 
 std::string SpriteSheet::getInfo()
 {
     std::stringstream ss;
 
-    ss << "Sheet(width, height)=(" << sheetWidth << ", " << sheetHeight << "); ";
+    ss << "Sheet(width, height)=(" << getSheetWidth() << ", " << getSheetHeight() << "); ";
     ss << "Sprites(width, height)=(" << spriteWidth << ", " << spriteHeight << "); ";
     ss << "\n";
 
@@ -96,24 +89,15 @@ std::string SpriteSheet::getInfo()
 }
 
 Texture* SpriteSheet::getSheetTexture() { return &sheet; }
+int SpriteSheet::getSheetWidth() { return sheet.getTexWidth(); } 
+int SpriteSheet::getSheetHeight() { return sheet.getTexHeight(); } 
 
-void SpriteSheet::setSheetDimensions(int w, int h)
-{
-    sheet.setTexDimensions(w, h);
-}
-
-void SpriteSheet::setSpriteDimensions(int w, int h)
-{
-    spriteWidth = w;
-    spriteHeight = h;
-}
-
-void SpriteSheet::setSpriteColor(const nch::Color& c)
+void SpriteSheet::setSpriteColorMod(const nch::Color& c)
 {
     spriteColor = c;
 }
 
-void SpriteSheet::addSprite(int imgID, int srcX, int srcY, int srcW, int srcH, int spriteX, int spriteY)
+void SpriteSheet::addSprite(SDL_Texture* src, int srcX, int srcY, int srcW, int srcH, int spriteX, int spriteY)
 {
     //Make sure size() of spritesThisRow matches the number of rows
     for(int i = spritesThisRow.size(); i<=spriteY; i++) {
@@ -122,7 +106,7 @@ void SpriteSheet::addSprite(int imgID, int srcX, int srcY, int srcW, int srcH, i
 
     //Expand sheet horizontally if needed
     int newWidth = (spriteX+1)*spriteWidth;
-    if( newWidth>sheetWidth ) {
+    if( newWidth>getSheetWidth() ) {
         sheet.setTexWidth( newWidth );
     }
 
@@ -134,63 +118,111 @@ void SpriteSheet::addSprite(int imgID, int srcX, int srcY, int srcW, int srcH, i
 
     //Expand sheet vertically if needed
     int newHeight = (spriteY+1)*spriteHeight;
-    if( newHeight>sheetHeight ) {
+    if( newHeight>getSheetHeight() ) {
         sheet.setTexHeight( newHeight );
     }
-
-    //Update sheetWidth and sheetHeight
-    sheetWidth = sheet.getTexWidth();
-    sheetHeight = sheet.getTexHeight();
 
     //Blit image at desired location from desired source.
     sheet.setColorMod(spriteColor);
     sheet.lock( spriteX*spriteWidth, spriteY*spriteHeight, spriteWidth, spriteHeight );
-    sheet.blit( imgID, srcX, srcY, srcW, srcH );
+    sheet.blit( src, srcX, srcY, srcW, srcH );
 }
 
-void SpriteSheet::addSprite(int imgID, int srcX, int srcY, int spriteX, int spriteY)
+void SpriteSheet::addSprite(SDL_Texture* src, int srcX, int srcY, int spriteX, int spriteY)
 {
-    addSprite(imgID, srcX, srcY, spriteWidth, spriteHeight, spriteX, spriteY);
+    addSprite(src, srcX, srcY, spriteWidth, spriteHeight, spriteX, spriteY);
 }
 
-void SpriteSheet::addSpriteToRow(int imgID, int srcX, int srcY, int srcW, int srcH, int spriteY)
-{
-    for(int i = spritesThisRow.size(); i<=spriteY; i++) {
-        spritesThisRow.push_back(0);
-    }
-    addSprite( imgID, srcX, srcY, srcW, srcH, spritesThisRow[spriteY], spriteY );
-}
-
-void SpriteSheet::addSpriteToRow(int imgID, int srcX, int srcY, int spriteY)
+void SpriteSheet::addSpriteToRow(SDL_Texture* src, int srcX, int srcY, int spriteY)
 {
     for(int i = spritesThisRow.size(); i<=spriteY; i++) {
         spritesThisRow.push_back(0);
     }
-    addSprite(imgID, srcX, srcY, spritesThisRow[spriteY], spriteY);
+    addSprite(src, srcX, srcY, spritesThisRow[spriteY], spriteY);
+}
+void SpriteSheet::addSpriteToRow(int texID, int srcX, int srcY, int spriteY)
+{
+    addSpriteToRow(sheet.getTextureLoader()->getTexture(texID), srcX, srcY, spriteY);
 }
 
 /*
     Call addSpriteToRow 'num' times, with the image's srcX starting at 0, then 1*spriteWidth, 2*spriteWidth, ..., then finally (num-1)*spriteWidth.
     'srcY' and 'spriteY' stay constant throughout the 'num' calls.
 */
-void SpriteSheet::addSpritesToRow(int imgID, int num, int srcY, int spriteY)
+void SpriteSheet::addSpritesToRow(SDL_Texture* src, int num, int srcY, int spriteY)
 {
     for( int i = 0; i<num; i++ ) {
-        addSpriteToRow( imgID, i*spriteWidth, srcY, spriteY );
+        addSpriteToRow(src, i*spriteWidth, srcY, spriteY);
+    }
+}
+void SpriteSheet::addSpritesToRow(int texID, int num, int srcY, int spriteY)
+{
+    addSpritesToRow(sheet.getTextureLoader()->getTexture(texID), num, srcY, spriteY);
+}
+
+void SpriteSheet::addSpriteToFixedSizeSheet(SDL_Texture* src, int srcX, int srcY)
+{
+    int spritesPerRow = getSheetWidth()/spriteWidth;
+    int spritesPerCol = getSheetHeight()/spriteHeight;
+
+    int i = 0;
+    if(spritesThisRow.size()==0) {
+        spritesThisRow.push_back(0);
+    }
+
+    while(spritesThisRow[i]==spritesPerRow) i++;
+    if(i>=spritesPerCol) {
+        nch::Log::warn(
+            __PRETTY_FUNCTION__,
+            "Spritesheet completely filled (%dx%d size of sprites & %dx%d size of sheet = %d total sprites)",
+            spriteHeight, spriteWidth, getSheetWidth(), getSheetHeight(), spritesPerRow*spritesPerCol
+        );
+    } else {
+        addSpriteToRow(src, srcX, srcY, i);
     }
 }
 
 void SpriteSheet::drawSheet()
 {
+    int mspr = getSheetWidth()/spriteWidth;     //[M]ax [S]prites [P]er [R]ow
+    int mspc = getSheetWidth()/spriteHeight;    //... [P]er [C]olumn
+
+    SDL_Rect dr;    //Full draw rect
+    dr.x = sheet.getDrawX();
+    dr.y = sheet.getDrawY();
+    dr.w = sheet.getTexWidth()*sheet.getDrawScale();
+    dr.h = sheet.getTexHeight()*sheet.getDrawScale();
+
+    for(int ix = 0; ix<mspr; ix++)
+    for(int iy = 0; iy<mspc; iy++) {
+        double incX = dr.w/mspr;
+        double incY = dr.w/mspc;
+        
+        if( iy>=spritesThisRow.size() || ix>=spritesThisRow[iy]) {
+            if((ix+iy)%2) sdlHandler->setRenderDrawColor(nch::Color(0, 64, 0));
+            else          sdlHandler->setRenderDrawColor(nch::Color(0, 0, 64));
+        }
+
+        sdlHandler->renderFillRect(dr.x+incX*ix, dr.y+incY*iy, incX, incY);
+    }
+    
+    sheet.lock(0, 0, 16, 16);
+    sheet.setColorMod(255, 0, 0);
+    sheet.fill();
+
+    sheet.setColorMod(255, 255, 255);
     sheet.draw();
 }
 
 void SpriteSheet::loadTextureAsSpriteSheet(SDL_Texture* sdlTex, int spriteWidth, int spriteHeight)
 {
+    int shw = 0; int shh = 0;
+    SDL_QueryTexture(sdlTex, NULL, NULL, &shw, &shh);
+
     //If sheet dimensions incompatible with sprite dimensions
-    if( sheetWidth%spriteWidth!=0 || sheetHeight%spriteHeight!=0 ) {
+    if( shw%spriteWidth!=0 || shh%spriteHeight!=0 ) {
         std::stringstream ss;
-        ss << "SpriteSheet dimensions (" << sheetWidth << ", " << sheetHeight << ") ";
+        ss << "SpriteSheet dimensions (" << shw << ", " << shh << ") ";
         ss << "must be divisible by the dimensions of a single sprite (" << spriteWidth << ", " << spriteHeight << ")";
         nch::Log::warn(__PRETTY_FUNCTION__, ss.str(), "setting restrictSpriteSize to false");
         restrictingSpriteSize(false);
@@ -201,7 +233,7 @@ void SpriteSheet::loadTextureAsSpriteSheet(SDL_Texture* sdlTex, int spriteWidth,
 
     //Build new sheet texture
     sheet.init(sdlHandler);
-    sheet.setTexDimensions(sheetWidth, sheetHeight);
+    sheet.setTexDimensions(shw, shh);
     sheet.lock();
     sheet.blit(sdlTex);
 }

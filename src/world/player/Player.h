@@ -64,8 +64,8 @@ public:
 	Box3X<double> getBounds(int bbt);
 	Box3X<double> getBounds();
 	bool getCollideState();
-	std::tuple<double, double, double> getPos();
-	std::tuple<double, double, double> getVelComponents();
+	std::vector<double> getPos();
+	std::vector<double> getVelComponents();
 	double getVel();
 	Camera* getCamera();
 	bool inGodMode();

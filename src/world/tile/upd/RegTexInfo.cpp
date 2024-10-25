@@ -22,14 +22,14 @@ RegTexInfo::~RegTexInfo(){}
 /*
 *
 */
-std::vector<std::pair<int64_t, TileType>> RegTexInfo::camTilesToDrawHere(TileIterator& ti, int camDirection, int maxChecks)
+std::vector<std::pair<int64_t, Tile>> RegTexInfo::camTilesToDrawHere(TileIterator& ti, int camDirection, int maxChecks)
 {
-	std::vector<std::pair<int64_t, TileType>> res;
+	std::vector<std::pair<int64_t, Tile>> res;
 	int sign = 1; if(camDirection%2==0) sign = -1;
 	int axis = Camera::getAxisFromDirection(camDirection);
 
 	int depth = -1;
-	TileType ttfc;	//TrackedTileFromCamera
+	Tile ttfc;	//TrackedTileFromCamera
 	for(int i = 0; i<maxChecks; i++) {
 		switch(axis) {
 			case Camera::X: ttfc = ti.peekTrackedTile(sign*i, 0, 0); break;
@@ -38,12 +38,12 @@ std::vector<std::pair<int64_t, TileType>> RegTexInfo::camTilesToDrawHere(TileIte
 		}
 
 		//If tile is transparent/translucent but not completely invisible
-		if( !ttfc.isVisionBlocking() && ttfc.getTextureXYZ()!=std::make_tuple(0, 0, 0) ) {
+		if( !ttfc.isVisionBlocking(camDirection) && !ttfc.skipRendering ) {
 			res.push_back(std::make_pair(i, ttfc));
 		}
 		
 		//If tile is completely opaque
-		if( ttfc.isVisionBlocking() ) {
+		if( ttfc.isVisionBlocking(camDirection) ) {
 			res.push_back(std::make_pair(i, ttfc));
 			break;
 		}
@@ -52,19 +52,13 @@ std::vector<std::pair<int64_t, TileType>> RegTexInfo::camTilesToDrawHere(TileIte
 	return res;
 }
 
-/*
- * Depending on the TileIterator's (ti) position, find:
- * - the top tile (that has a given proprty) seen by the camera assuming it is looking in the 'camDirection' direction.
- * - Depth of this tile relative from camera (-1 if depth exceeds maxChecks)
- */
-std::pair<int64_t, TileType> RegTexInfo::camTopTileWithProperty(TileIterator& ti, int camDirection, int maxChecks, uint64_t propertyMask)
+std::pair<int64_t, Tile> RegTexInfo::camTopVisionBlockingTile(TileIterator& ti, int camDirection, int maxChecks)
 {
+	//Find top-most visionBlocking tile at current x, y
 	int sign = 1; if(camDirection%2==0) sign = -1;
 	int axis = Camera::getAxisFromDirection(camDirection);
-
-	//Find top-most tile at current x, y
 	int depth = -1;
-	TileType topTileFromCam;
+	Tile topTileFromCam;
 	for(int i = 0; i<maxChecks; i++) {
 		switch(axis) {
 			case Camera::X: topTileFromCam = ti.peekTrackedTile(sign*i, 0, 0); break;
@@ -72,24 +66,35 @@ std::pair<int64_t, TileType> RegTexInfo::camTopTileWithProperty(TileIterator& ti
 			case Camera::Z: topTileFromCam = ti.peekTrackedTile(0, 0, sign*i); break;
 		}
 		
-		if( topTileFromCam.getVal()&propertyMask ) {
-			depth = i;
-			break;
-		}
+		if( topTileFromCam.isVisionBlocking(camDirection) ) { depth = i; break; }
 	}
 	
-	//Return tuple:
-	//1st object: equal to the depth of the top tile from the camera (topmost would be = 0)
-	//2nd object: TileType which represents the top tile from the camera.
 	return std::make_pair( depth, topTileFromCam );
 }
 
-std::pair<int64_t, TileType> RegTexInfo::camTopVisionBlockingTile(TileIterator& ti, int camDirection, int maxChecks)
+std::pair<int64_t, Tile> RegTexInfo::camTopSolidTile(TileIterator& ti, int camDirection, int maxChecks)
 {
-	return camTopTileWithProperty(ti, camDirection, maxChecks, TileType::VISION_BLOCKING);
+	//Find top-most solid tile at current x, y
+	int sign = 1; if(camDirection%2==0) sign = -1;
+	int axis = Camera::getAxisFromDirection(camDirection);
+	int depth = -1;
+	Tile topTileFromCam;
+	bool foundNew = false;
+	for(int i = 0; i<maxChecks; i++) {
+		switch(axis) {
+			case Camera::X: { topTileFromCam = ti.peekTrackedTile(sign*i, 0, 0); } break;
+			case Camera::Y: { topTileFromCam = ti.peekTrackedTile(0, sign*i, 0); } break;
+			case Camera::Z: { topTileFromCam = ti.peekTrackedTile(0, 0, sign*i); } break;
+		}
+		
+		if( topTileFromCam.solid ) { depth = i; break; }
+	}
+	
+	return std::make_pair( depth, topTileFromCam );
 }
 
-std::pair<int64_t, TileType> RegTexInfo::camTopVisionBlockingTile(TileIterator& ti, int camDirection)
+
+std::pair<int64_t, Tile> RegTexInfo::camTopVisionBlockingTile(TileIterator& ti, int camDirection)
 {
 	return camTopVisionBlockingTile(ti, camDirection, 32);
 }
@@ -98,7 +103,7 @@ std::pair<int64_t, TileType> RegTexInfo::camTopVisionBlockingTile(TileIterator& 
 /*
  * Depending on the TileIterator's (ti) position (x/y), find the top tile visible from the camera as if it were looking down.
  */
-std::pair<int64_t, TileType> RegTexInfo::topVisionBlockingTile(TileIterator& ti)
+std::pair<int64_t, Tile> RegTexInfo::topVisionBlockingTile(TileIterator& ti)
 {
 	return camTopVisionBlockingTile(ti, Camera::DOWN);
 }

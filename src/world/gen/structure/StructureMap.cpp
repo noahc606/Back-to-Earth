@@ -8,9 +8,10 @@
 
 const int64_t StructureMap::msrs = 4;
 
-void StructureMap::init(NoiseMap* nMap, Camera* cam, int64_t loadDist)
+void StructureMap::init(NoiseMap* nMap, TileDict* tDict, Camera* cam, int64_t loadDist)
 {
     StructureMap::nMap = nMap;
+    StructureMap::tDict = tDict;
     StructureMap::cam = cam;
     StructureMap::loadDist = loadDist;
     initted = true;
@@ -52,7 +53,7 @@ void StructureMap::putInfo(std::stringstream& ss, int& tabs)
 
     DebugScreen::indentLine(ss, tabs);
     NoiseMap::RegHeightMap* rhm = nMap->cachedBaseTerrainHeightMapAt(cam->getRX(), cam->getRY());
-    ss << "regAvgZ=" << rhm->avgHeight << "\n";
+    ss << "regAvgZ=" << rhm->avgHeight;
     DebugScreen::newLine(ss);
 }
 
@@ -96,25 +97,13 @@ void StructureMap::populateRegionsNear(int64_t stRX, int64_t stRY, int64_t stRZ,
             for(int64_t iDRY = 0; iDRY<msrs; iDRY++)
             for(int64_t iDRZ = 0; iDRZ<msrs; iDRZ++) {
                 int64_t rX = iStRX*4+iDRX, rY = iStRY*4+iDRY, rZ = iStRZ*4+iDRZ;
-                int64_t x = rX*32, y = rY*32, z = rZ*32;
 
                 //Get terrain heightmap of this (rX, rY) location.
                 NoiseMap::RegHeightMap* rhm = nMap->cachedBaseTerrainHeightMapAt(rX, rY);
                 
                 //Specific regions
                 populateSpecificRegions(rX, rY, rZ, rhm);
-
-                //Monolith (1 in 100)
-                uint32_t miniseed = nMap->getNoise()->hash3ToUint32(rX, rY, rZ);
-                srand(miniseed);
-                if(rand()%100==0) {        
-                    int64_t avgTerrainZ = rhm->avgHeight;
-                    if(rZ==TileMap::getRegRXYZ(avgTerrainZ)) {
-                        Structure::suppressNextWarning();
-                        Structure* mono = new Structure(Structure::MONOLITH, Point3X<int64_t>(x, y, avgTerrainZ-9));
-                        structures.push_back(mono);
-                    }
-                }
+                populateStructuresPerRegion(rX, rY, rZ, rhm);
             }
 
             cu.insertInMap(populatedRegions, std::make_pair(std::make_tuple(iStRX, iStRY, iStRZ), true));
@@ -133,7 +122,24 @@ void StructureMap::populateSpecificRegions(int64_t rX, int64_t rY, int64_t rZ, N
     if(rX==0 && rY==0 && rZ==TileMap::getRegRXYZ(avgTerrainZ)) {
         nch::Log::log("Generated ship @ xyz(%d, %d, %d)", x, y, avgTerrainZ);
         Point3X<int64_t> shipOrigin(x, y, avgTerrainZ);
-        structures.push_back(new Structure(Structure::CRASHED_SHIP, shipOrigin));
+        structures.push_back(new Structure(Structure::CRASHED_SHIP, shipOrigin, tDict));
+    }
+}
+
+void StructureMap::populateStructuresPerRegion(int64_t rX, int64_t rY, int64_t rZ, NoiseMap::RegHeightMap* rhm)
+{
+    int64_t x = rX*32, y = rY*32, z = rZ*32;
+
+    //Monolith (1 in 1000)
+    uint32_t miniseed = nMap->getNoise()->hash3ToUint32(rX, rY, rZ);
+    srand(miniseed);
+    if(rand()%1000==0) {        
+        int64_t avgTerrainZ = rhm->avgHeight;
+        if(rZ==TileMap::getRegRXYZ(avgTerrainZ)) {
+            Structure::suppressNextWarning();
+            Structure* mono = new Structure(Structure::MONOLITH, Point3X<int64_t>(x, y, avgTerrainZ-9), tDict);
+            structures.push_back(mono);
+        }
     }
 }
 

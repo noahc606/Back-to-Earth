@@ -128,13 +128,8 @@ void RegTexProcessor::processTileArea(TileIterator& ti, Texture* tex, int blitSc
 
 	//Get data of the top tile from the camera
 	auto cttdh = RegTexInfo::camTilesToDrawHere(ti, cam->getDirection(), 32);
-	//cttdh is a vector of pairs(int64_t, TileType).
-	//int64_t: Relative depth of top tile ( none found==-1, topmost==0, one below==1, etc. )
-	//TileType: tile in list which should be drawn
-
-
 	//Create RegTexBuilder
-	RegTexBuilder rtb(tex, tileMap->getPlanet(), ti, cam->getDirection(), blitScale, cttdh);
+	RegTexBuilder rtb(tex, tileMap->getPlanet(), ti, cam->getDirection(), blitScale, tileMap->getTileDict(), cttdh);
 }
 
 /*

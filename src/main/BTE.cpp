@@ -290,41 +290,46 @@ std::string BTE::getInfo()
 	DebugScreen::endGroup(tabs);
 
 	//SDLHandler
-	DebugScreen::newGroup(ss, tabs, "SDLHandler");
-		if(!true) {
+	if(!true) {
+		DebugScreen::newGroup(ss, tabs, "SDLHandler");
+			if(!true) {
+				DebugScreen::indentLine(ss, tabs);
+				ss << sdlHandler->getSystemRamDesc() << ";";
+				DebugScreen::newLine(ss);
+			}
+
+			if(!true) {
+				DebugScreen::indentLine(ss, tabs);
+				ss << sdlHandler->getVideoDriversDesc() << ";";
+				DebugScreen::newLine(ss);
+			}
+
 			DebugScreen::indentLine(ss, tabs);
-			ss << sdlHandler->getSystemRamDesc() << ";";
+			ss << "Window(w, h)=(" << sdlHandler->getWidth() << ", " << sdlHandler->getHeight() << "); ";
 			DebugScreen::newLine(ss);
-		}
 
-		if(!true) {
 			DebugScreen::indentLine(ss, tabs);
-			ss << sdlHandler->getVideoDriversDesc() << ";";
+			uint8_t r; uint8_t g; uint8_t b; uint8_t a;
+			SDL_GetRenderDrawColor(sdlHandler->getRenderer(), &r, &g, &b, &a);
+			ss << "SDL_GetRenderDrawColor()=(" << (int)r << ", " << (int)g << ", " << (int)b << ", " << (int)a << ");"; 
 			DebugScreen::newLine(ss);
-		}
-
-		DebugScreen::indentLine(ss, tabs);
-		ss << "Window(w, h)=(" << sdlHandler->getWidth() << ", " << sdlHandler->getHeight() << "); ";
-		DebugScreen::newLine(ss);
-
-		DebugScreen::indentLine(ss, tabs);
-		uint8_t r; uint8_t g; uint8_t b; uint8_t a;
-		SDL_GetRenderDrawColor(sdlHandler->getRenderer(), &r, &g, &b, &a);
-		ss << "SDL_GetRenderDrawColor()=(" << (int)r << ", " << (int)g << ", " << (int)b << ", " << (int)a << ");"; 
-		DebugScreen::newLine(ss);
-	DebugScreen::endGroup(tabs);
+		DebugScreen::endGroup(tabs);
+	}
 
 	//Controls
-	DebugScreen::newGroup(ss, tabs, "Controls");
-		DebugScreen::indentLine(ss, tabs);
-		ss << "Mouse(x, y)=(" << controls->getMouseX() << ", " << controls->getMouseY() << "); ";
-		ss << "Mouse Wheel(y)=" << controls->getMouseWheel() << "; ";
-		DebugScreen::newLine(ss);
-	DebugScreen::endGroup(tabs);
+	if(!true) {
+		DebugScreen::newGroup(ss, tabs, "Controls");
+			DebugScreen::indentLine(ss, tabs);
+			ss << "Mouse(x, y)=(" << controls->getMouseX() << ", " << controls->getMouseY() << "); ";
+			ss << "Mouse Wheel(y)=" << controls->getMouseWheel() << "; ";
+			DebugScreen::newLine(ss);
+		DebugScreen::endGroup(tabs);
+	}
+
 
 	//[BTE]
 	DebugScreen::newGroup(ss, tabs, "BTE");
-		if(true) {
+		if(!true) {
 			DebugScreen::newGroup(ss, tabs, "BTE::guiHandler");
 				guiHandler.putInfo(ss, tabs);
 			DebugScreen::endGroup(tabs);
@@ -332,9 +337,7 @@ std::string BTE::getInfo()
 
 
 		if( world!=nullptr ) {
-			DebugScreen::newGroup(ss, tabs, "BTE::world");
-				world->putInfo(ss, tabs);
-			DebugScreen::endGroup(tabs);
+			world->putInfo(ss, tabs);
 		}
 
 		if( tests!=nullptr ) {

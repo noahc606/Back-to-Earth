@@ -169,6 +169,11 @@ void DebugScreen::newLine(std::stringstream& ss)
 {
     ss << "\n";
 }
+void DebugScreen::newIndentedLine(std::stringstream& ss, int& indents)
+{
+    newLine(ss);
+    indentLine(ss, indents);
+}
 
 
 void DebugScreen::setHax0rMode(bool val)

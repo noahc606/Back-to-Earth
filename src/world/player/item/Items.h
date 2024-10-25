@@ -11,9 +11,6 @@ public:
     void init(GUIHandler* gh, Player* pl);
     
     static std::string getItemName(int id);
-    nch::Color getSandboxRGB();
-
-    void setSandboxRGB(uint8_t r, uint8_t g, uint8_t b);
 	void putItemInterfaceDesc(Window* win, int dX, int ttpDY, std::string itemDesc, int rowNum);
 	void putItemInterfaceTitle(Window* win, int dX, int ttpDY, int itemID);
 	void putItemInterface(int itemID);
@@ -41,5 +38,4 @@ public:
 private:
     GUIHandler* guiHandler = nullptr;
     Player* player = nullptr;
-    nch::Color sandboxRGB;
 };

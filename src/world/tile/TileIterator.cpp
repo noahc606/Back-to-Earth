@@ -24,12 +24,12 @@ TileIterator::~TileIterator(){}
     The iterator will go through all selected tiles in a region, then move on to the next region, and so on.
     If the end has been passed the iterator will return a null tile.
 */
-TileType TileIterator::nextTile()
+Tile TileIterator::nextTile()
 {
     itrIndex++;
     if( invalidIndex() ) {
         itrIndex = itrLength;
-        return TileType();
+        return Tile();
     }
 
     itrSub[0]++;
@@ -55,12 +55,12 @@ TileType TileIterator::nextTile()
     return peekTile();
 }
 
-TileType TileIterator::prevTile()
+Tile TileIterator::prevTile()
 {
     itrIndex--;
     if( invalidIndex() ) {
         itrIndex = -1;
-        return TileType();
+        return Tile();
     }
 
     itrSub[0]--;
@@ -152,7 +152,7 @@ TileRegion* TileIterator::prevRegion()
     return nearbyTileRegions[1][1][1];
 }
 
-TileType TileIterator::firstTile()
+Tile TileIterator::firstTile()
 {
     //Set itrReg to begReg, set itrSubPos to begPos, and truncate itrSubPos
     memcpy( itrReg, begReg, sizeof itrReg );
@@ -171,7 +171,7 @@ TileType TileIterator::firstTile()
     return peekTile();
 }
 
-TileType TileIterator::lastTile()
+Tile TileIterator::lastTile()
 {
     //Set itrReg to endReg, set itrSubPos to endPos, and truncate itrSubPos
     memcpy( itrReg, endReg, sizeof itrReg );
@@ -190,14 +190,14 @@ TileType TileIterator::lastTile()
     return peekTile();
 }
 
-TileType TileIterator::peekTile()
+Tile TileIterator::peekTile()
 {
     if( nearbyTileRegions[1][1][1]!=nullptr )
         return nearbyTileRegions[1][1][1]->getTile(itrSub[0], itrSub[1], itrSub[2]);
-    return TileType();
+    return Tile();
 }
 
-TileType TileIterator::peekTile(int offsetX, int offsetY, int offsetZ)
+Tile TileIterator::peekTile(int offsetX, int offsetY, int offsetZ)
 {
     int posInReg[3] = { (int)itrSub[0]+offsetX, (int)itrSub[1]+offsetY, (int)itrSub[2]+offsetZ };
     int regOffset[3] = {0, 0, 0};
@@ -218,18 +218,18 @@ TileType TileIterator::peekTile(int offsetX, int offsetY, int offsetZ)
     if(tr!=nullptr) {
         return tr->getTile(posInReg[0], posInReg[1], posInReg[2]);
     } else {
-        return TileType();
+        return Tile();
     }
 }
 
-TileType TileIterator::peekTrackedTile()
+Tile TileIterator::peekTrackedTile()
 {
     if( nearbyTileRegions[1][1][1]!=nullptr )
         return nearbyTileRegions[1][1][1]->getTile(trackerSub[0], trackerSub[1], trackerSub[2]);
-    return TileType();
+    return Tile();
 }
 
-TileType TileIterator::peekTrackedTile(int offsetX, int offsetY, int offsetZ)
+Tile TileIterator::peekTrackedTile(int offsetX, int offsetY, int offsetZ)
 {
     int posInReg[3] = { (int)trackerSub[0]+offsetX, (int)trackerSub[1]+offsetY, (int)trackerSub[2]+offsetZ };
 
@@ -252,7 +252,7 @@ TileType TileIterator::peekTrackedTile(int offsetX, int offsetY, int offsetZ)
 
         return tr->getTile(posInReg[0], posInReg[1], posInReg[2]);
     } else {
-        return TileType();
+        return Tile();
     }
 }
 
@@ -385,36 +385,6 @@ void TileIterator::setTrackerSub(int64_t sx, int64_t sy, int64_t sz)
 }
 
 void TileIterator::logWarnings(bool value) { warnings = value; }
-
-void TileIterator::scanBounds()
-{
-    //Variables
-    int numScans = 1;
-    int start = 0; int end = 0;
-    int num = 0; int numNull = 0; int total = 0;
-    std::tuple<int, int, int> textureXYZ = std::make_tuple(2, 0, 0);
-
-    //Message
-    nch::Log::debug("Scanning bounds...");
-
-    //Start time
-    start = SDL_GetTicks();
-
-    for(int i = 0; i<numScans; i++) {
-
-        while( !invalidIndex() ) {
-            TileType tt = peekTile();
-            if( tt.getTextureXYZ()==textureXYZ ) num++;
-            if(tt.isNull()) numNull++;
-
-            total++;
-            nextTile();
-        }
-    }
-    end = SDL_GetTicks();
-    std::cout << "#: " << num << " out of " << total << ". Found " << numNull << " null tiles.\n";
-    std::cout << "Time Elapsed: " << (end-start) << "ms\n";
-}
 
 void TileIterator::updateSubInfo() { updateSubInfo(true); }
 

@@ -2,7 +2,7 @@
 #include "DebugScreen.h"
 #include <math.h>
 
-RegTexBuilder::RegTexBuilder(Texture* tex, Planet* plnt, TileIterator& ti, int camDirection, int blitScale, std::vector<std::pair<int64_t, TileType>>& tilesToDraw)
+RegTexBuilder::RegTexBuilder(Texture* tex, Planet* plnt, TileIterator& ti, int camDirection, int blitScale, TileDict* tileDict, std::vector<std::pair<int64_t, Tile>>& tilesToDraw)
 {
 	//Store blit's texture, size and destinationo
 	RegTexBuilder::tex = tex;
@@ -29,21 +29,18 @@ RegTexBuilder::RegTexBuilder(Texture* tex, Planet* plnt, TileIterator& ti, int c
 	
 	switch(tilesToDraw.size()) {
 		case 0: {
-			//If the camera is looking far downward, draw darkness instead of the the sky
+			//If the camera is looking far downward, draw darkness instead of the sky
 			if(lookingDown) {
-				TileType tt;
-				tt.init();
-				tt.setTextureXY(0, 0);
-				tt.setRGB(0, 0, 0);
-				drawTypeA(tt, 0);
+				Tile t;
+				drawTypeA(tileDict, t, camDirection, 0);
 			//If not, draw invisibilty for the sky
 			} else {
 				tex->rect(dstX, dstY, blitScale, blitScale, 0, 0, 0, 0, SDL_BLENDMODE_NONE);
 			}
 		} break;
 		case 1: {
-			if(tilesToDraw[0].second.isVisionBlocking()) {
-				drawTypeA(tilesToDraw[0].second, tilesToDraw[0].first);
+			if(tilesToDraw[0].second.isVisionBlocking(camDirection)) {
+				drawTypeA(tileDict, tilesToDraw[0].second, camDirection, tilesToDraw[0].first);
 				
 				//Detail tiles further if they are depth 0
 				if(tilesToDraw[0].first==0) {
@@ -51,13 +48,13 @@ RegTexBuilder::RegTexBuilder(Texture* tex, Planet* plnt, TileIterator& ti, int c
 				}
 			} else {
 				tex->rect(dstX, dstY, blitScale, blitScale, 192, 192, 192, 0, SDL_BLENDMODE_NONE);
-				drawTypeA(tilesToDraw[0].second, tilesToDraw[0].first);
+				drawTypeA(tileDict, tilesToDraw[0].second, camDirection, tilesToDraw[0].first);
 			}
 		} break;
 		default: {
 			tex->rect(dstX, dstY, blitScale, blitScale, 64, 64, 64, 0, SDL_BLENDMODE_NONE);
 			for(int i = tilesToDraw.size()-1; i>=0; i--) {
-				drawTypeA(tilesToDraw[i].second, tilesToDraw[i].first);
+				drawTypeA(tileDict, tilesToDraw[i].second, camDirection, tilesToDraw[i].first);
 			}
 		} break;
 	}
@@ -111,9 +108,9 @@ void RegTexBuilder::infoBl(TileIterator& ti, bool bl[8], int ttdfc, int camDirec
 		}
 	
 		switch(axis){
-		case 0: bl[i] = ti.peekTrackedTile(ttdfc, c1, c2).isVisionBlocking(); break;
-		case 1: bl[i] = ti.peekTrackedTile(c1, ttdfc, c2).isVisionBlocking(); break;
-		case 2: bl[i] = ti.peekTrackedTile(c1, c2, ttdfc).isVisionBlocking(); break;
+		case 0: bl[i] = ti.peekTrackedTile(ttdfc, c1, c2).isVisionBlocking(camDirection); break;
+		case 1: bl[i] = ti.peekTrackedTile(c1, ttdfc, c2).isVisionBlocking(camDirection); break;
+		case 2: bl[i] = ti.peekTrackedTile(c1, c2, ttdfc).isVisionBlocking(camDirection); break;
 		}
 	}
 }
@@ -215,16 +212,16 @@ void RegTexBuilder::detailDepth0Tiles(TileIterator& ti, int camDirection)
 
 }
 
-void RegTexBuilder::drawTiles(std::vector<std::pair<int64_t, TileType>>& tilesToDraw)
+void RegTexBuilder::drawTiles(TileDict* tileDict, std::vector<std::pair<int64_t, Tile>>& tilesToDraw, int camDirection)
 {
 	for(int i = 0; i<tilesToDraw.size(); i++) {
 		int depth = tilesToDraw[i].first;
-		TileType tt = tilesToDraw[i].second;
+		Tile t = tilesToDraw[i].second;
 
-		if(tt.getTextureXYZ(0)==0 && tt.getTextureXYZ(1)==0) {
+		if(t.skipRendering) {
 			continue;
 		} else {
-			drawTypeA(tt, depth);
+			drawTypeA(tileDict, t, camDirection, depth);
 		}
 	}
 }
@@ -232,19 +229,26 @@ void RegTexBuilder::drawTiles(std::vector<std::pair<int64_t, TileType>>& tilesTo
 /**
     Draw a tile image with a given color; Depending on depth, shade it.
 */
-void RegTexBuilder::drawTypeA(TileType tt, int depth)
+void RegTexBuilder::drawTypeA(TileDict* tileDict, Tile t, int camDirection, int depth)
 {
-	TextureLoader* tl = tex->getTextureLoader();
-	
-	int srcX = 32*std::get<0>(tt.getTextureXYZ());
-	int srcY = 32*std::get<1>(tt.getTextureXYZ());
-	nch::Color c(tt.getRGB(0), tt.getRGB(1), tt.getRGB(2));
+	//Get resources
+	std::tuple<Texture*, int, int> src = tileDict->getTileSrcFromCamDir(t, camDirection);
+	Texture* srcTex = std::get<0>(src);
+	int srcX = 32*std::get<1>(src);
+	int srcY = 32*std::get<2>(src);
 
-	//Prep texture for editing (set lock area and color)
+
 	tex->lock(dstX, dstY, blitScale, blitScale);
-	tex->setColorMod(c.r, c.g, c.b);
+	if(srcTex!=nullptr) {
+		tex->blit(srcTex, srcX, srcY);
+	} else {
+		tex->rect(dstX, dstY, blitScale, blitScale, 0, 0, 0);
+	}
+
+
 	
 	//Depending on blitScale, draw whichever size we need to
+	/*
 	if( blitScale<=1 ) {
 		tex->blit( tl->getTexture(TextureLoader::WORLD_TILE_type_a, 5), srcX/32, srcY/32 );
 	} else if( blitScale<=2 ) {
@@ -257,7 +261,8 @@ void RegTexBuilder::drawTypeA(TileType tt, int depth)
 		tex->blit( tl->getTexture(TextureLoader::WORLD_TILE_type_a, 1), srcX/2, srcY/2 );
 	} else {
 		tex->blit( tl->getTexture(TextureLoader::WORLD_TILE_type_a, 0), srcX, srcY );
-	}
+	}*/
+
 	
 	//For a positive depth (capped at 6), make the tile look darker (deeper = darker)
 	if( depth!=0 ) {

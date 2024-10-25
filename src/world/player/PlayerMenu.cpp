@@ -41,29 +41,23 @@ void PlayerMenu::init(SDLHandler* sh, GUIHandler* gh, Controls* ctrls, Player* p
 	uiOverlay.init(sdlHandler, 0, 0);
 }
 
-void PlayerMenu::tick() {
+void PlayerMenu::tick(TileDict* tileDict) {
 	//Update menu coords and dimensions
 	updateMenuCoordinates();
-	updateSandboxRGB();
+	if( mod==pmm.SANDBOX ) {
+		updateSandboxTile(tileDict);
+	}
 	
 	//When there is a state change...
 	if(lastMod!=mod) {
 		lastMod = mod;
-		pmm.putMenuInterface(guiHandler, items.getSandboxRGB(), mod);
+		pmm.putMenuInterface(guiHandler, sandboxTile.mapColor, mod);
 	}
 	
 	//If the inventory is open at all...
 	if(mod>=0) {
 		tickInventoryOpen();
-	}
-
-	//If in sandbox, set sandboxRGB to match the selection GUI.
-	if( mod==pmm.SANDBOX ) {
-		updateSandboxRGB();
-	}
-
-
-	
+	}	
 }
 
 void PlayerMenu::draw()
@@ -133,9 +127,10 @@ int PlayerMenu::getItemTexSrcY(int itemID) { return (itemID/8)*32;}
 int PlayerMenu::getModule() { return mod; }
 uint8_t PlayerMenu::getSelectedSlotX() { return invSX; }
 uint8_t PlayerMenu::getSelectedSlotY() { return invSY; }
-uint8_t PlayerMenu::getSandboxTexRed() { return items.getSandboxRGB().r; } 
-uint8_t PlayerMenu::getSandboxTexGreen() { return items.getSandboxRGB().g; } 
-uint8_t PlayerMenu::getSandboxTexBlue() { return items.getSandboxRGB().b; } 
+std::string PlayerMenu::getSandboxTileID()
+{
+	return sandboxTile.id;
+}
 
 InvItemStack PlayerMenu::getSelectedItemStack()
 {
@@ -478,8 +473,10 @@ void PlayerMenu::updateMenuCoordinates()
 	}
 }
 
-void PlayerMenu::updateSandboxRGB()
+void PlayerMenu::updateSandboxTile(TileDict* tileDict)
 {
+	/* Set current color */
+	nch::Color currentColor(255, 255, 255);
 	for( int i = 0; i<3; i++ ){
 		auto tbx = guiHandler->getGUI( BTEObject::GUI_textbox, GUIHandler::tbx_CHARACTER_item, 2000+i );
 		if(tbx!=nullptr) {
@@ -490,15 +487,43 @@ void PlayerMenu::updateSandboxRGB()
 					colorInt = 255;
 				}
 				
-				nch::Color newcolor = items.getSandboxRGB();
 				switch(i) {
-					case 0: newcolor.r = colorInt; break;
-					case 1: newcolor.g = colorInt; break;
-					case 2: newcolor.b = colorInt; break;
+					case 0: currentColor.r = colorInt; break;
+					case 1: currentColor.g = colorInt; break;
+					case 2: currentColor.b = colorInt; break;
 				}
-				items.setSandboxRGB(newcolor.r, newcolor.g, newcolor.b);
 				
 			} catch(...) { }
+		}
+	}
+
+	/* Set current resrc(x, y) */
+	int resrcX = getSelectedSlotX();
+	int resrcY = getSelectedSlotY();
+	
+	bool visionBlocking = true;
+	if(resrcY==6) visionBlocking = false;
+
+	bool solid = true;
+	if(resrcX==0 && resrcY==4) solid = false;
+
+	Tile newTile("null", solid, std::make_pair(resrcX, resrcY), currentColor, visionBlocking);
+
+	//Below block runs whenever the sandbox tile changes
+	if(sandboxTile!=newTile) {
+		//Find any tiles whose definition matches the 'newTile'.
+		std::vector<std::string> matches = tileDict->getIDsMatchingDef(newTile);
+		if(matches.size()==0) {	/* If no previous instances of this tile */
+			//Generate newTile.id
+			std::stringstream ss;
+			ss << "_sbx" << tileDict->getNumSandboxTiles();
+			newTile.id = ss.str();
+
+			//Add newTile if it doesn't already exist
+			tileDict->addTileDefUnique(sdlHandler, ss.str(), newTile);
+			sandboxTile = newTile;
+		} else {				/* If at least one matching instance found */
+			sandboxTile = tileDict->at(matches[0]);
 		}
 	}
 }

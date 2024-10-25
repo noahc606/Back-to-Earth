@@ -10,15 +10,15 @@
 #include <sstream>
 #include "DebugScreen.h"
 #include "TileMap.h"
+#include "Tile.h"
 
-LevelSave::LevelSave(std::string dir)
+LevelSave::LevelSave(std::string dir, TileDict* td)
 {
 	if(dir=="") dir = "dump";	
 	directory = dir;
+	LevelSave::td = td;
 }
 
-LevelSave::LevelSave():
-LevelSave::LevelSave(""){}
 
 std::string LevelSave::getNatFilePathFromRxyz(std::string parentDir, int64_t rX, int64_t rY, int64_t rZ)
 {
@@ -106,7 +106,6 @@ bool LevelSave::loadTileRegion(TileRegion& tr, int64_t rX, int64_t rY, int64_t r
 	if(!fsu.fileExists(lfp+".nat") || !fsu.fileExists(lfp+".nath")) {
 		return false;
 	}
-	//Get
 	
 	//Open file(s) for reading and return true at the end (since they exist).
 	nch::NoahAllocTable nat(lfp);
@@ -130,11 +129,12 @@ bool LevelSave::loadTileRegion(TileRegion& tr, int64_t rX, int64_t rY, int64_t r
 		//Each palette element is a uint64_t value (8 bytes).
 		uint64_t val = tempDS.peekXBits(64);
 		if(val!=0 && val!=0xffffffffffffffff) {
-			//Add artificial TileType with value 'val' to the TileRegion.
-			TileType tt;
-			tt.init();
-			tt.setVal(val);
-			tr.addToPaletteFast(tt);
+			//Add artificial tile with value 'val' to the TileRegion.
+			Tile t = td->at(val);
+			if(t.id=="null") {
+				t = td->at("debug_tile");
+			}
+			tr.addToPaletteFast(t);
 		}
 
 		//Clear 'tempDS' for next itration
@@ -186,13 +186,8 @@ void LevelSave::loadError(int16_t val, std::vector<int>& sxyz, std::vector<int64
 
 	if(true) {
 		nch::Log::warnv(__PRETTY_FUNCTION__, "placing debug tile\n====================", ss.str());
-		TileType tt;
-		tt.init();
-		tt.setSolid(true);
-		tt.setVisionBlocking(true);
-		tt.setTextureXY(4, 0);
-		tt.setRGB(255, 0, 255);
-		tr.setTile(sxyz[0], sxyz[1], sxyz[2], tt);
+		Tile t = td->at("debug_tile");
+		tr.setTile(sxyz[0], sxyz[1], sxyz[2], t);
 	}
 
 	if(!true) {

@@ -58,7 +58,7 @@ void PlayerMenuModules::putMenuInterface(GUIHandler* gh, nch::Color sandboxRGB, 
 	}
 	gh->removeGUIs(GUIHandler::ttp_CHARACTER_item, GUIHandler::tbx_CHARACTER_item);
 
-	int dX = 12;
+	int dX = 16+4*64;
 	int tbxDY = 26;
 	int ttpDY = tbxDY+8;
 

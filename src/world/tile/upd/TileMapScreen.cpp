@@ -35,36 +35,9 @@ void TileMapScreen::init(SDLHandler* sh, FileHandler* fh, TileMap* tm, Canvas* c
 void TileMapScreen::destroy()
 {
 	nch::Log::log("Destroying tileMapScreen...");
-	
-	//Build a list of all tile region locations
-	std::vector<std::tuple<uint64_t, uint64_t, uint64_t>> regs;
-	TileMap::t_regionMap::iterator itrRM;
-	
-	if( tileMap==nullptr || tileMap->getRegionMap()==nullptr ) {
-		return;
-	}
-	for( itrRM = tileMap->getRegionMap()->begin(); itrRM!=tileMap->getRegionMap()->end(); itrRM++ ) {
-		int rX = std::get<0>(itrRM->first);
-		int rY = std::get<1>(itrRM->first);
-		int rZ = std::get<2>(itrRM->first);
-		regs.push_back( std::make_tuple(rX, rY, rZ) );
-	}
-	
-	//Remove and unload all known tile regions
-	for( int i = 0; i<regs.size(); i++ ) {
-		auto thisReg = regs.at(i);
-		uint64_t rX = std::get<0>(thisReg);
-		uint64_t rY = std::get<1>(thisReg);
-		uint64_t rZ = std::get<2>(thisReg);
 		
-		TileRegion* tr = tileMap->getRegByRXYZ(rX, rY, rZ);
-		tileMap->saveRegion(rX, rY, rZ);
-		tileMap->unloadRegion(rX, rY, rZ);
-	}
-	
 	// Get rid of RegTexUpdates object when this is destroyed
 	tileMapUpdater.stopAllUpdates();
-	//delete regTexUpdates;
 }
 
 TileMapScreen::~TileMapScreen() { destroy(); }
@@ -200,9 +173,11 @@ void TileMapScreen::putInfo(std::stringstream& ss, int& tabs, int64_t mouseX, in
 		ss << "Draw time=" << infoDrawTime << "ms; ";
 		DebugScreen::newLine(ss);
 
-		DebugScreen::newGroup(ss, tabs, "TileMapUpdater");
-			tileMapUpdater.putInfo(ss, tabs);
-		DebugScreen::endGroup(tabs);
+		if(!true) {
+			DebugScreen::newGroup(ss, tabs, "TileMapUpdater");
+				tileMapUpdater.putInfo(ss, tabs);
+			DebugScreen::endGroup(tabs);
+		}
 	DebugScreen::endGroup(tabs);
 
 	//Camera
@@ -223,12 +198,10 @@ void TileMapScreen::putInfo(std::stringstream& ss, int& tabs, int64_t mouseX, in
 		DebugScreen::newLine(ss);
 	DebugScreen::endGroup(tabs);
 
-	regTexInfo.info(ss, tabs);
-
-	//Mouse
-	if( mouseExists ) {
-		
+	if(!true) {
+		regTexInfo.info(ss, tabs);
 	}
+	
 	
 	DebugScreen::newGroup(ss, tabs, "TileRegion");
 		long selRX = TileMap::getRegRXYZ(mouseX);
@@ -260,18 +233,21 @@ void TileMapScreen::putInfo(std::stringstream& ss, int& tabs, int64_t mouseX, in
 		}
 
 		// RegTexUpdates
-		DebugScreen::newGroup(ss, tabs, "TileMapUpdater");
-			DebugScreen::indentLine(ss, tabs);
-			ss << "numRegUpdates=" << tileMapUpdater.getRegUpdates()->size() << "; ";
-			int updateCount = 0;
-			for( TileMapUpdater::t_tileUpdates::iterator itrTU = tileMapUpdater.getTileUpdates()->begin(); itrTU!=tileMapUpdater.getTileUpdates()->end(); itrTU++ ) {
-				updateCount += itrTU->second.size();
-			}
-			ss << "numTileUpdates=" << updateCount << "; ";
-			DebugScreen::newLine(ss);
-		DebugScreen::endGroup(tabs);
+		if(!true) {
+			DebugScreen::newGroup(ss, tabs, "TileMapUpdater");
+				DebugScreen::indentLine(ss, tabs);
+				ss << "numRegUpdates=" << tileMapUpdater.getRegUpdates()->size() << "; ";
+				int updateCount = 0;
+				for( TileMapUpdater::t_tileUpdates::iterator itrTU = tileMapUpdater.getTileUpdates()->begin(); itrTU!=tileMapUpdater.getTileUpdates()->end(); itrTU++ ) {
+					updateCount += itrTU->second.size();
+				}
+				ss << "numTileUpdates=" << updateCount << "; ";
+				DebugScreen::newLine(ss);
+			DebugScreen::endGroup(tabs);
+		}
+
 		
-		if(mouseExists) {
+		if(mouseExists && true) {
 			DebugScreen::newGroup(ss, tabs, "RegTexBuilder");
 				//Top tile info
 				DebugScreen::indentLine(ss, tabs);

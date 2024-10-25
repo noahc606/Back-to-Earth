@@ -7,12 +7,12 @@
 #include "BTEObject.h"
 #include "Camera.h"
 #include "Defs.h"
-#include "FileHandler.h"
 #include "Loggable.h"
 #include "NoiseMap.h"
 #include "Planet.h"
 #include "StructureMap.h"
 #include "Texture.h"
+#include "TileDict.h"
 #include "TileRegion.h"
 
 class TileMap : public BTEObject, public Loggable
@@ -25,7 +25,7 @@ public:
 	typedef std::map<Defs::t_tripleI64, TileRegion>	t_regionMap;
 
 	/**/
-	void init(SDLHandler* sh, FileHandler* fh, Planet* pt, StructureMap* struMap, NoiseMap* nMap, std::string wdn, int64_t worldSeed);
+	void init(SDLHandler* sh, Planet* pt, StructureMap* struMap, NoiseMap* nMap, TileDict* td, std::string worldDirName);
 	void destroy();
 	/**/
 	void putInfo(std::stringstream& ss, int& tabs);
@@ -33,9 +33,11 @@ public:
 	t_regionMap* getRegionMap();
 	NoiseMap::t_baseTerrainMap* getBaseTerrainMap();
 	Planet* getPlanet();
+	TileDict* getTileDict();
+
 	//Getting TileTypes given their position
-	TileType getTile(int64_t x, int64_t y, int64_t z);
-	TileType getTileByCsXYZ(Camera* cam, int64_t csX, int64_t csY, int64_t csZ);
+	Tile getTile(int64_t x, int64_t y, int64_t z);
+	Tile getTileByCsXYZ(Camera* cam, int64_t csX, int64_t csY, int64_t csZ);
 	//Getting TileRegions given their position
 	static TileRegion* getRegByRXYZ(t_regionMap* regMap, int64_t x, int64_t y, int64_t z);
 	TileRegion* getRegByXYZ (int64_t x, int64_t y, int64_t z);
@@ -59,10 +61,10 @@ public:
 	/** TileMap manipulation */
 	//Set tile
 	//int setTile(t_regionMap& regMap, int64_t x, int64_t y, int64_t z, TileType tt);
-	int setTile(int64_t x, int64_t y, int64_t z, TileType tt);
-	int setTileByCsXYZ(Camera* cam, int64_t cx, int64_t cy, int64_t cz, TileType tt);
-	static bool setTiles(t_regionMap* regionMap, int64_t x1, int64_t y1, int64_t z1, int64_t x2, int64_t y2, int64_t z2, TileType tt);
-	bool setTiles(int64_t x1, int64_t y1, int64_t z1, int64_t x2, int64_t y2, int64_t z2, TileType tt);
+	int setTile(int64_t x, int64_t y, int64_t z, Tile t);
+	int setTileByCsXYZ(Camera* cam, int64_t cx, int64_t cy, int64_t cz, Tile t);
+	static bool setTiles(t_regionMap* regionMap, int64_t x1, int64_t y1, int64_t z1, int64_t x2, int64_t y2, int64_t z2, Tile tt, bool natural);
+	bool setTiles(int64_t x1, int64_t y1, int64_t z1, int64_t x2, int64_t y2, int64_t z2, Tile tt, bool natural);
 	void setStructureWithinReg(Structure* stru, TileRegion& tr, int64_t rX, int64_t rY, int64_t rZ);
 	//Load regions
 	int loadRegion(int64_t rX, int64_t rY, int64_t rZ);
@@ -83,5 +85,6 @@ private:
 	//World objects
 	Planet* planet = nullptr;
 	StructureMap* struMap = nullptr;
+	TileDict* tileDict = nullptr;
 	std::string saveGameName = "world_unknown";
 };

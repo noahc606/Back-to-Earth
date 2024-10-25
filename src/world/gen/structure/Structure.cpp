@@ -5,10 +5,11 @@
 
 bool Structure::suppressWarnings = false;
 
-Structure::Structure(int id, Point3X<int64_t> origin)
+Structure::Structure(int id, Point3X<int64_t> origin, TileDict* tileDict)
 {
     Structure::id = id;
     Structure::origin = origin;
+    Structure::tileDict = tileDict;
 
 
 
@@ -43,7 +44,7 @@ Structure::Structure(int id, Point3X<int64_t> origin)
     for(int64_t iRX = 0; iRX<=std::abs(bnds.c1.x-bnds.c2.x)/32; iRX++)
     for(int64_t iRY = 0; iRY<=std::abs(bnds.c1.x-bnds.c2.x)/32; iRY++)
     for(int64_t iRZ = 0; iRZ<=std::abs(bnds.c1.x-bnds.c2.x)/32; iRZ++) {
-        TileRegion tr;
+        TileRegion tr(tileDict);
         cu.insertInMap(regMap, std::make_pair(std::make_tuple(iRX, iRY, iRZ), tr));
     }
     //Based on structure ID, populate the regions with the proper tiles
@@ -51,20 +52,19 @@ Structure::Structure(int id, Point3X<int64_t> origin)
         //Crash-landed ship
         case CRASHED_SHIP: {
             //Metal
-            TileType tt0; tt0.init(); tt0.setRGB(255, 255, 255); tt0.setSolid(true); tt0.setTextureXY(1, 3); tt0.setVisionBlocking(true);
-            //Air
-            TileType tt1; tt1.init(); tt1.setRGB(0, 0, 255); tt1.setSolid(false); tt0.setVisionBlocking(false);
+            Tile t0 = tileDict->at("hab_titanium_hull");
+            Tile t1 = tileDict->at("breathable_air");
             
-            TileMap::setTiles(&regMap, 0, 0, 0, 16, 16, 5, tt0);
-            TileMap::setTiles(&regMap, 1, 1, 1, 15, 15, 4, tt1);
+            TileMap::setTiles(&regMap, 0, 0, 0, 16, 16, 5, t0, true);
+            TileMap::setTiles(&regMap, 1, 1, 1, 15, 15, 4, t1, true);
         } break;
 
         //Unknown structure - causes a Monolith to spawn
         default: {
             if(!suppressWarnings) nch::Log::warnv(__PRETTY_FUNCTION__, "using placeholder", "Tried to build structure with unknown ID '%d'", id);
             
-            TileType tt; tt.init(); tt.setRGB(50, 50, 50); tt.setSolid(true); tt.setTextureXY(2, 3); tt.setVisionBlocking(true);
-            TileMap::setTiles(&regMap, 0, 0, 0, 0, 3, 8, tt);
+            Tile x = tileDict->at("monolith");
+            TileMap::setTiles(&regMap, 0, 0, 0, 0, 3, 8, x, true);
             suppressWarnings = false;
         } break;
     }

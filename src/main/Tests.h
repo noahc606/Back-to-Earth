@@ -7,6 +7,7 @@
 #include "STexture.h"
 #include "TTexture.h"
 #include "Texture.h"
+#include "TileDict.h"
 #include "TileRegion.h"
 
 class Tests : public BTEObject, public Loggable
@@ -30,6 +31,8 @@ private:
     /**/
     /**/
     /* Testing */
+
+    TileDict* tileDict;
 
     AudioLoader* al = nullptr;
 

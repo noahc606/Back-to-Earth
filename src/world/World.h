@@ -13,6 +13,7 @@
 #include "Texture.h"
 #include "TileMap.h"
 #include "TileMapScreen.h"
+#include "WorldInteractions.h"
 #include "WorldBackground.h"
 #include "Minimap.h"
 
@@ -34,27 +35,20 @@ public:
 	Planet* getPlanet();
 	Player* getLocalPlayer();
 	PlayerMenu* getLocalPlayerMenu();
+	static Texture* getDefaultTileTexture();
 protected:
 
 private:
 	GUIHandler* guiHandler;
-	Texture defaultTile;
+	static Texture defaultTile;
 	
 	int counter = 0;
 	
-	double prevZoom = -1;
-	Player localPlayer;
-	PlayerMenu localPlayerMenu;
-	int playTime = 0;
-	
-	bool lpMenuOpen = false;
-	bool lpMenuOpenLast = false;
-	int lpMenuLastModule = -1;
-	double mouseX = 0; double mouseY = 0; double mouseZ = 0;
-	int64_t mouseXL = 0; int64_t mouseYL = 0; int64_t mouseZL = 0;
-	
+	WorldInteractions inter;
+
 	StructureMap struMap;
 	TileMap tileMap;
+	TileDict tileDict;
 	NoiseMap noiseMap;
 
 	TileMapScreen tileMapScreen;
@@ -77,10 +71,4 @@ private:
 	std::string worldDirPath;
 	std::string worldDataPath;
 	Settings::t_kvMap worldDataKVs;
-	
-	void updateMouseAndCamInfo();
-	void playerInteractions(GUIHandler& guiHandler, bool paused);
-	void playerTryPlaceTile(TileType tt, bool force);
-	void playerTryDestroyTile();
-	void setLocalPlayerMenuState(int newMenuState);
 };

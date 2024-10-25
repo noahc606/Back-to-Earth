@@ -4,7 +4,6 @@
 
 void Items::init(GUIHandler* gh, Player* pl)
 {
-	sandboxRGB = nch::Color(255, 255, 255);
     guiHandler = gh;
     player = pl;
 }
@@ -31,14 +30,6 @@ std::string Items::getItemName(int itemID)
 	case QUANTUM_EXOSUIT_LEGGINGS:	return "Quantum Exo-Suit Leggings";
 	default: 						return "???null???";
 	}
-}
-
-nch::Color Items::getSandboxRGB() { return sandboxRGB; }
-void Items::setSandboxRGB(uint8_t r, uint8_t g, uint8_t b)
-{
-    sandboxRGB.r = r;
-    sandboxRGB.g = g;
-    sandboxRGB.b = b;
 }
 
 void Items::putItemInterfaceDesc(Window* win, int dX, int ttpDY, std::string itemDesc, int rowNum)
@@ -78,17 +69,17 @@ void Items::putItemInterface(int itemID)
 
 		guiHandler->addGUI( new Tooltip(win, dX+32*00, 524+32*0+ttpDY, "X-position (meters):", GUIHandler::ttp_CHARACTER_item) );
 		TextBox* tbx1 = (TextBox*)guiHandler->addGUI( new TextBox(win, dX+32*06, 524+32*0+tbxDY, 100, TextBox::FREE_NUMBERS_INTEGERS, GUIHandler::tbx_CHARACTER_item), 1000 );
-		std::stringstream ss1; ss1 << (int)std::get<0>(player->getPos());
+		std::stringstream ss1; ss1 << (int)(player->getPos()[0]);
 		tbx1->setString( ss1.str() );
 		
 		guiHandler->addGUI( new Tooltip(win, dX+32*00, 524+32*1+ttpDY, "Y-position (meters):", GUIHandler::ttp_CHARACTER_item) );
 		TextBox* tbx2 = (TextBox*)guiHandler->addGUI( new TextBox(win, dX+32*06, 524+32*1+tbxDY, 100, TextBox::FREE_NUMBERS_INTEGERS, GUIHandler::tbx_CHARACTER_item), 1001 );
-		std::stringstream ss2; ss2 << (int)std::get<1>(player->getPos());
+		std::stringstream ss2; ss2 << (int)(player->getPos()[1]);
 		tbx2->setString( ss2.str() );
 
 		guiHandler->addGUI( new Tooltip(win, dX+32*00, 524+32*2+ttpDY, "Z-position (meters):", GUIHandler::ttp_CHARACTER_item) );
 		TextBox* tbx3 = (TextBox*)guiHandler->addGUI( new TextBox(win, dX+32*06, 524+32*2+tbxDY, 100, TextBox::FREE_NUMBERS_INTEGERS, GUIHandler::tbx_CHARACTER_item), 1002 );
-		std::stringstream ss3; ss3 << (int)std::get<2>(player->getPos());
+		std::stringstream ss3; ss3 << (int)(player->getPos()[2]);
 		tbx3->setString( ss3.str() );
 		
 		guiHandler->addGUI( new Button (win, dX+32*10, 524+32*2+tbxDY, 200, "Teleport", GUIHandler::btn_CHARACTER_item), 1004 );

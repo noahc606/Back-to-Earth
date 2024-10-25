@@ -25,6 +25,7 @@ public:
     static void endGroup(int& indents);
     static void indentLine(std::stringstream& ss, int& indents);
     static void newLine(std::stringstream& ss);
+    static void newIndentedLine(std::stringstream& ss, int& indents);
     /**/
     //Foreground and Background colors
     nch::Color fg;

@@ -4,15 +4,16 @@
 #include <string>
 #include "Camera.h"
 #include "DataStream.h"
-#include "TileType.h"
+#include "Tile.h"
+#include "TileDict.h"
 
 class TileRegion : public Loggable
 {
 public:
-    typedef std::map<int16_t, TileType> t_palette;
+    typedef std::map<int16_t, Tile> t_palette;
 
     /* Init */
-    TileRegion();
+    TileRegion(TileDict* tileDict);
     virtual ~TileRegion();
     /* Info */
 	/* Getters */
@@ -27,10 +28,10 @@ public:
 	uint16_t getArtificialPaletteSize();
 	static int getPaletteSizeBucket(int size);
 	int getArtificialPaletteSizeBucket();
-	TileType getPaletteElement(int16_t key);
+	Tile getPaletteElement(int16_t key);
 	//Get tile info
 	int16_t getTileKey(int x, int y, int z);
-	TileType getTile(int x, int y, int z);
+	Tile getTile(int x, int y, int z);
 	//Get Region info
 	bool beenModifiedSinceLoad();
 	int getRegTexState();
@@ -39,18 +40,18 @@ public:
 	//Check palette
 	bool assertDefaultTileExists(t_palette& pal);
 	//Add to palette
-    int16_t addToPalette(TileType tile, t_palette& pal, bool natural);
-    int16_t addToPalette(TileType tile, t_palette& pal);
-    int16_t addToPalette(TileType tile, bool natural);
-    int16_t addToPalette(TileType tile);
-    int16_t addToPaletteFast(TileType tile, bool natural);
-    int16_t addToPaletteFast(TileType tile);
+    int16_t addToPalette(Tile tile, t_palette& pal, bool natural);
+    int16_t addToPalette(Tile tile, t_palette& pal);
+    int16_t addToPalette(Tile tile, bool natural);
+    int16_t addToPalette(Tile tile);
+    int16_t addToPaletteFast(Tile tile, bool natural);
+    int16_t addToPaletteFast(Tile tile);
     	
 	/**/
     //Set tiles
-    void setTile         (int x, int y, int z,                       TileType tile);
+    void setTile         (int x, int y, int z,                       Tile tile);
     void setTile         (int x, int y, int z,                       int16_t paletteIndex);
-    void setTiles        (int x1,int y1,int z1,int x2,int y2,int z2, TileType tile);
+    void setTiles        (int x1,int y1,int z1,int x2,int y2,int z2, Tile tile);
     void setTiles        (int x1,int y1,int z1,int x2,int y2,int z2, int16_t paletteIndex);
 	//Resetting
 	void resetPalette();
@@ -79,6 +80,7 @@ public:
 protected:
 
 private:
+    TileDict* tileDict;
     t_palette palette;
     int16_t tiles[32][32][32];
 	bool modifiedSinceLoad = false;

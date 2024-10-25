@@ -1,5 +1,6 @@
 #include "InvItemStack.h"
 #include "TextOld.h"
+#include "Tile.h"
 
 InvItemStack::InvItemStack(){}
 InvItemStack::InvItemStack(int type, int count)
@@ -30,7 +31,8 @@ void InvItemStack::drawCount(SDLHandler* sdlHandler, int drawX, int drawY)
 
 void InvItemStack::drawEDTileType(SDLHandler* sdlHandler, int drawX, int drawY)
 {
-    TileType tt;
+    /*
+    Tile tt;
     tt.setVal(extraData);
 
     sdlHandler->setColorMod(TextureLoader::WORLD_TILE_type_a, tt.getRGB(0), tt.getRGB(1), tt.getRGB(2));
@@ -39,7 +41,7 @@ void InvItemStack::drawEDTileType(SDLHandler* sdlHandler, int drawX, int drawY)
     SDL_Rect dst; dst.x = drawX+14; dst.y = drawY+14; dst.w = 32; dst.h = 32;
     sdlHandler->renderCopy(TextureLoader::WORLD_TILE_type_a, &src, &dst);
 
-    //tt.getRGB()
+    //tt.getRGB()*/
 }
 
 int InvItemStack::getType() { return type; }

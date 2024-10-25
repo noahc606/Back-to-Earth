@@ -5,6 +5,7 @@
 #include "InvItemStack.h"
 #include "Player.h"
 #include "PlayerMenuModules.h"
+#include "TileDict.h"
 #include <map>
 
 class PlayerMenu {
@@ -12,7 +13,7 @@ public:
 	/**/
 	/**/
 	void init(SDLHandler* sh, GUIHandler* gh, Controls* ctrls, Player* pl);
-	void tick();
+	void tick(TileDict* tileDict);
 	void draw();
 	/**/
 	bool inventorySlotExists(int x, int y);
@@ -23,9 +24,7 @@ public:
 	int getModule();
 	uint8_t getSelectedSlotX();
 	uint8_t getSelectedSlotY(); 
-	uint8_t getSandboxTexRed();
-	uint8_t getSandboxTexGreen();
-	uint8_t getSandboxTexBlue();
+	std::string getSandboxTileID();
 	InvItemStack getSelectedItemStack();
 	/**/
 	void giveItemStack(InvItemStack iis);
@@ -44,7 +43,7 @@ private:
 	int getSlotHoveringY();
 	/**/
 	void updateMenuCoordinates();
-	void updateSandboxRGB();
+	void updateSandboxTile(TileDict* tileDict);
 	void selectInventorySlot(int x, int y);
 	void setInventorySlotItem(int x, int y, int i);
 	void setInventorySlotItemStack(int x, int y, InvItemStack iis);
@@ -80,6 +79,8 @@ private:
 	Texture uiOverlay;
 	Texture heldItem;
 	Items items;
+	Tile sandboxTile;
+	uint64_t numSandboxTilesCreated = 0;
 
 	int playerGamemode = 0;
 };
