@@ -14,9 +14,9 @@ World::World(std::string dirName)
 	if(dirName=="") {
 		dirName = "world1";
 	}
-	worldDirName = dirName;
-	worldDirPath = "saved/games/"+worldDirName;
-	worldDataPath = worldDirPath+"/data.txt";
+	inter.worldDirName = dirName;
+	inter.worldDirPath = "saved/games/"+inter.worldDirName;
+	inter.worldDataPath = inter.worldDirPath+"/data.txt";
 }
 
 void World::init(SDLHandler* sh, GUIHandler* gh, FileHandler* fh, Controls* ctrls)
@@ -28,11 +28,12 @@ void World::init(SDLHandler* sh, GUIHandler* gh, FileHandler* fh, Controls* ctrl
 
 	/* INIT 0a: Files/directories */
 	// Create world files and directories
-	fileHandler->createBTEDir(worldDirPath);
-	fileHandler->createBTEDir(worldDirPath+"/tilemap/default");
-	fileHandler->createBTEDir(worldDirPath+"/tiledict");
-	if (!fh->fileExists(worldDataPath) ) {
-		fh->cEditFile(worldDataPath);
+	fileHandler->createBTEDir(inter.worldDirPath);
+	fileHandler->createBTEDir(inter.worldDirPath+"/missions");
+	fileHandler->createBTEDir(inter.worldDirPath+"/tilemap/default");
+	fileHandler->createBTEDir(inter.worldDirPath+"/tiledict");
+	if (!fh->fileExists(inter.worldDataPath) ) {
+		fh->cEditFile(inter.worldDataPath);
 		fh->saveCloseFile();
 	}
 
@@ -47,36 +48,36 @@ void World::init(SDLHandler* sh, GUIHandler* gh, FileHandler* fh, Controls* ctrl
 	Settings::kv(&lwd, "worldSeed", "0");
 	Settings::kv(&lwd, "worldName", "world1");
 	//Build loaded world settings into worldDataKVs
-	worldDataKVs = fileHandler->readTxtFileKVs(worldDataPath);
-	fh->getSettings()->loadNewMapIntoOld(&lwd, worldDataKVs);
-	worldDataKVs = lwd;
+	inter.worldDataKVs = fileHandler->readTxtFileKVs(inter.worldDataPath);
+	fh->getSettings()->loadNewMapIntoOld(&lwd, inter.worldDataKVs);
+	inter.worldDataKVs = lwd;
 		
 	//Store information in variables
-	std::string pMode = Settings::get(worldDataKVs, "playerGameMode");
-	double px = Settings::getNum(worldDataKVs, "playerX");
-	double py = Settings::getNum(worldDataKVs, "playerY");
-	double pz = Settings::getNum(worldDataKVs, "playerZ");
-	int64_t worldSeed = Settings::getI64(worldDataKVs, "worldSeed");
-	double plntRot = Settings::getNum(worldDataKVs, "planetRotation");
+	std::string pMode = Settings::get(inter.worldDataKVs, "playerGameMode");
+	double px = Settings::getNum(inter.worldDataKVs, "playerX");
+	double py = Settings::getNum(inter.worldDataKVs, "playerY");
+	double pz = Settings::getNum(inter.worldDataKVs, "playerZ");
+	int64_t worldSeed = Settings::getI64(inter.worldDataKVs, "worldSeed");
+	double plntRot = Settings::getNum(inter.worldDataKVs, "planetRotation");
 	nch::Log::log("Loaded save data: player(%f, %f, %f); planetRotation=%f\n", px, py, pz, plntRot);
 	std::cout << "Seed: " << worldSeed << "\n";
 
 	/* INIT 1: Planet */
 	//Planet
+	tileDict.init(sh, inter.worldDirName, "default");
 	planet.init(plntRot);
 
 	/* INIT 2: Player */
-	inter.initPlayerEtc(sdlHandler, guiHandler, fileHandler, controls, std::make_tuple(px, py, pz), pMode);
-	
+	inter.initPlayerEtc(sdlHandler, guiHandler, fileHandler, controls, &tileDict, std::make_tuple(px, py, pz), pMode);
+
 	/* INIT 3: Graphical */
 	initCanvases();
 	wbg.init(sdlHandler, inter.localPlayer.getCamera(), &planet);
 
 	/* INIT 4: StructureMap, TileMap, TileMapScreen, Minimap */
-	tileDict.init(sh, worldDirName, "default");
 	noiseMap.init(worldSeed);
 	struMap.init(&noiseMap, &tileDict, inter.localPlayer.getCamera(), 6);
-	tileMap.init(sdlHandler, &planet, &struMap, &noiseMap, &tileDict, worldDirName);
+	tileMap.init(sdlHandler, &planet, &struMap, &noiseMap, &tileDict, inter.worldDirName);
 	tileMapScreen.init(sdlHandler, fileHandler, &tileMap, &csTileMap);
 	minimap.init(sdlHandler, inter.localPlayer.getCamera(), &tileMap);
 
@@ -109,15 +110,15 @@ void World::initCanvases()
 World::~World()
 {
 	// Save world objects
-	Settings::t_kvMap wdKVs = worldDataKVs;
+	Settings::t_kvMap wdKVs = inter.worldDataKVs;
 	Settings::kv(&wdKVs, "planetRotation", planet.getRotationRaw() );
-	Settings::kv(&wdKVs, "playerX", inter.localPlayer.getPos()[0] );
-	Settings::kv(&wdKVs, "playerY", inter.localPlayer.getPos()[1] );
-	Settings::kv(&wdKVs, "playerZ", inter.localPlayer.getPos()[2] );
-	fileHandler->saveSettings(wdKVs, worldDataPath);
+	Settings::kv(&wdKVs, "playerX", inter.localPlayer.getPos()[0]+0.5 );
+	Settings::kv(&wdKVs, "playerY", inter.localPlayer.getPos()[1]+0.5 );
+	Settings::kv(&wdKVs, "playerZ", inter.localPlayer.getPos()[2]-1 );
+	fileHandler->saveSettings(wdKVs, inter.worldDataPath);
 
 	// Save player inventory
-	inter.localPlayerMenu.save(fileHandler, worldDataPath);
+	inter.localPlayerMenu.getInventory()->save(inter.worldDirPath);
 
 	// Save TileMap (deals w/ TileDict saving, region saving is done elsewhere)
 	tileMap.destroy();
@@ -128,6 +129,8 @@ World::~World()
 	csEntities.destroy();
 	csDebug.destroy();
 }
+
+void World::drawLocalPlayerMenu() { inter.drawLocalPlayerMenu(); }
 
 void World::draw(bool debugOn)
 {
@@ -220,31 +223,40 @@ void World::tickWorldObjs()
 void World::tickWorldPlayer()
 {
 	int pt = inter.playTime;
-	if( pt==200 || pt==60*60*10 || pt==60*60*20 ) {
+	if( pt==200 || pt%36000==0 ) {
 		AudioLoader* al = sdlHandler->getAudioLoader();
 		srand(time(NULL));
 
 		std::vector<int> gameplayTracks = {
-			AudioLoader::MUSIC_kc_50_million_year_trip,
 			AudioLoader::MUSIC_kc_alien_ruins,
 			AudioLoader::MUSIC_kc_digital_sunset,
+			AudioLoader::MUSIC_kc_last_stop,
 			AudioLoader::MUSIC_kc_nuclear_winter,
 			AudioLoader::MUSIC_kc_space_dust,
 			AudioLoader::MUSIC_kc_the_witching_hour,
 		};
-		al->playOnce(gameplayTracks[(rand()%6)]);
+
+		
+		if(rand()%100==0) {	/* Rare tracks */
+			int rare = rand();
+			if(rare%2==0) al->playOnce(AudioLoader::MUSIC_kc_50_million_year_trip);
+			if(rare%2==1) al->playOnce(AudioLoader::MUSIC_kc_distant_planet);
+		
+		} else {			/* Common tracks */
+			al->playOnce(gameplayTracks[(rand()%6)]);
+		}
 	}
 	
 	inter.localPlayer.collision(&tileMap);
 	inter.localPlayer.tick(&tileMap);
 
 	//Tick player menu
-	inter.localPlayerMenu.tick(&tileDict);
+	inter.localPlayerMenu.tick();
 
 	//Control player state based on menu items
-	if( inter.localPlayerMenu.getInventorySlotItemType(-4, 2)==Items::QUANTUM_EXOSUIT_HELMET &&
-		inter.localPlayerMenu.getInventorySlotItemType(-4, 3)==Items::QUANTUM_EXOSUIT_BODY &&
-		inter.localPlayerMenu.getInventorySlotItemType(-4, 4)==Items::QUANTUM_EXOSUIT_LEGGINGS
+	if( inter.localPlayerMenu.getInventory()->getSlotItemType(0, -4, 2)==Items::QUANTUM_EXOSUIT_HELMET &&
+		inter.localPlayerMenu.getInventory()->getSlotItemType(0, -4, 3)==Items::QUANTUM_EXOSUIT_BODY &&
+		inter.localPlayerMenu.getInventory()->getSlotItemType(0, -4, 4)==Items::QUANTUM_EXOSUIT_LEGGINGS
 	) {
 		inter.localPlayer.setSpaceSuitState(Player::SpaceSuitStates::STABLE);
 	} else {

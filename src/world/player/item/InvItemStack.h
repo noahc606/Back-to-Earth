@@ -1,23 +1,23 @@
 #pragma once
 #include "SDLHandler.h"
+#include "TileDict.h"
 
 class InvItemStack {
 public:
     InvItemStack();
     InvItemStack(int type, int count);
-    InvItemStack(int type, int count, int64_t extraData);
+    InvItemStack(int type, int count, std::string extraData);
 
     void drawCount(SDLHandler* sdlHandler, int drawX, int drawY);
-    void drawEDTileType(SDLHandler* sdlHandler, int drawX, int drawY);
+    void drawEDTileType(SDLHandler* sdlHandler, TileDict* td, int drawX, int drawY);
 
     int getType();
     int getCount();
-    int64_t getExtraData();
-
-
+    std::string getExtraData();
+    std::string toString();
 
 private:
     int type = -1;
-    int count = 0;  //negative values counted as infinity
-    int64_t extraData = 0;    //Tile type to place IF this is a tile item
+    int count = 0;                  //negative values counted as infinity
+    std::string extraData = "";     //Extra data
 };

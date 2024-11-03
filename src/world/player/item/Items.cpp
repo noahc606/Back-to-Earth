@@ -28,6 +28,7 @@ std::string Items::getItemName(int itemID)
 	case QUANTUM_EXOSUIT_HELMET:	return "Quantum Exo-Suit Helmet (Infinite Atmosphere)";
 	case QUANTUM_EXOSUIT_BODY:		return "Quantum Exo-Suit Body";
 	case QUANTUM_EXOSUIT_LEGGINGS:	return "Quantum Exo-Suit Leggings";
+	case SLEDGEHAMMER:				return "Sledgehammer";
 	default: 						return "???null???";
 	}
 }

@@ -24,12 +24,11 @@ void TileMapScreen::init(SDLHandler* sh, FileHandler* fh, TileMap* tm, Canvas* c
 	cam = csTileMap->getCamera();
 
 	//TileMapUpdater: Governs the addition/removal of tile updates and region updates. Also reponsible for loading and unloading of regions.
-	tileMapUpdater.init(sdlHandler, tileMap, csTileMap);
+	screenUpdater.init(sdlHandler, tileMap, csTileMap);
 	//RegTexInfo: This object tracks useful information
-	regTexInfo.init(sdlHandler, &tileMapUpdater, csTileMap);
+	regTexInfo.init(sdlHandler, &screenUpdater, csTileMap);
 
-	//tileMapUpdater.updateMapMoved(fileHandler, currentDimPath, loadDistH, loadDistV);
-	tileMapUpdater.updateMapVisible(loadDist);
+	screenUpdater.updateMapVisible(loadDist);
 }
 
 void TileMapScreen::destroy()
@@ -37,7 +36,7 @@ void TileMapScreen::destroy()
 	nch::Log::log("Destroying tileMapScreen...");
 		
 	// Get rid of RegTexUpdates object when this is destroyed
-	tileMapUpdater.stopAllUpdates();
+	screenUpdater.stopAllUpdates();
 }
 
 TileMapScreen::~TileMapScreen() { destroy(); }
@@ -116,12 +115,12 @@ void TileMapScreen::tick()
 		}
 		
 		// Update different parts of the map under different conditions
-		if( doUpdMapVisible )   tileMapUpdater.updateMapVisible(doMapBlackout, loadDist);
-		if( doUpdMapTicked )    tileMapUpdater.updateMapToFINISHED_GENERATING(fileHandler, loadDist);
-		if( doUpdMapMoved )     tileMapUpdater.updateMapMoved(fileHandler, loadDist);
+		if( doUpdMapVisible )   screenUpdater.updateMapVisible(doMapBlackout, loadDist);
+		if( doUpdMapTicked )    screenUpdater.updateMapToFINISHED_GENERATING(fileHandler, loadDist);
+		if( doUpdMapMoved )     screenUpdater.updateMapMoved(fileHandler, loadDist);
 		if( doUpdMapIdle ) {
-			tileMapUpdater.updateMapToSHOULD_UPDATE(loadDist);
-			tileMapUpdater.updateMapToUPDATED(loadDist);
+			screenUpdater.updateMapToSHOULD_UPDATE(loadDist);
+			screenUpdater.updateMapToUPDATED(loadDist);
 		}
 	}
 	// Get elapsed time in MS
@@ -175,7 +174,7 @@ void TileMapScreen::putInfo(std::stringstream& ss, int& tabs, int64_t mouseX, in
 
 		if(!true) {
 			DebugScreen::newGroup(ss, tabs, "TileMapUpdater");
-				tileMapUpdater.putInfo(ss, tabs);
+				screenUpdater.putInfo(ss, tabs);
 			DebugScreen::endGroup(tabs);
 		}
 	DebugScreen::endGroup(tabs);
@@ -234,11 +233,11 @@ void TileMapScreen::putInfo(std::stringstream& ss, int& tabs, int64_t mouseX, in
 
 		// RegTexUpdates
 		if(!true) {
-			DebugScreen::newGroup(ss, tabs, "TileMapUpdater");
+			DebugScreen::newGroup(ss, tabs, "ScreenUpdater");
 				DebugScreen::indentLine(ss, tabs);
-				ss << "numRegUpdates=" << tileMapUpdater.getRegUpdates()->size() << "; ";
+				ss << "numRegUpdates=" << screenUpdater.getRegUpdates()->size() << "; ";
 				int updateCount = 0;
-				for( TileMapUpdater::t_tileUpdates::iterator itrTU = tileMapUpdater.getTileUpdates()->begin(); itrTU!=tileMapUpdater.getTileUpdates()->end(); itrTU++ ) {
+				for( auto itrTU = screenUpdater.getTileUpdates()->begin(); itrTU!=screenUpdater.getTileUpdates()->end(); itrTU++ ) {
 					updateCount += itrTU->second.size();
 				}
 				ss << "numTileUpdates=" << updateCount << "; ";
@@ -277,7 +276,7 @@ void TileMapScreen::putInfo(std::stringstream& ss, int& tabs)
 	putInfo(ss, tabs, 0, 0, 0, false);
 }
 
-TileMapUpdater* TileMapScreen::getUpdater()
+ScreenUpdater* TileMapScreen::getUpdater()
 {
-	return &tileMapUpdater;
+	return &screenUpdater;
 }

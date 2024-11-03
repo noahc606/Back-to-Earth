@@ -11,7 +11,7 @@
 #include "STexture.h"
 #include "TileIterator.h"
 #include "TileMap.h"
-#include "TileMapUpdater.h"
+#include "ScreenUpdater.h"
 #include "TileRegion.h"
 
 class TileMapScreen : public BTEObject
@@ -28,7 +28,7 @@ public:
     void putInfo(std::stringstream& ss, int& tabs, int64_t mouseX, int64_t mouseY, int64_t mouseZ, bool mouseExists);
     void putInfo(std::stringstream& ss, int& tabs, int64_t mouseX, int64_t mouseY, int64_t mouseZ);
     void putInfo(std::stringstream& ss, int& tabs);
-    TileMapUpdater* getUpdater();
+    ScreenUpdater* getUpdater();
     /**/
     static const int regionSize = 32;                   //Size of region in tiles
     static const int tileSize = 32;                     //Size of a tile in pixels
@@ -42,7 +42,7 @@ private:
 	Canvas* csTileMap = nullptr;                    //Canvas object depicting the TileMap
 	
     RegTexInfo regTexInfo;
-    TileMapUpdater tileMapUpdater;
+    ScreenUpdater screenUpdater;
 
 	int camRX = 0; int camRY = 0; int camRZ = 0;	//Coordinates of region which the center of the screen occupies. e.g. As player moves regionSize tiles to the right, cameraRX increases by 1.
 	int camL = 0;                                   //Layer which the camera occupies

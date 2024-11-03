@@ -9,14 +9,19 @@
 WorldInteractions::WorldInteractions(){}
 WorldInteractions::~WorldInteractions(){}
 
-void WorldInteractions::initPlayerEtc(SDLHandler* sh, GUIHandler* gh, FileHandler* fh, Controls* ctrls, std::tuple<double, double, double> pXYZ, std::string pMode)
+void WorldInteractions::initPlayerEtc(SDLHandler* sh, GUIHandler* gh, FileHandler* fh, Controls* ctrls, TileDict* td, std::tuple<double, double, double> pXYZ, std::string pMode)
 {
+	sdlHandler = sh;
+
 	//Player
 	localPlayer.init(sh, gh, fh->getSettings(), ctrls);
 	localPlayer.setModeFromStr(pMode);
 	localPlayer.setPos(std::get<0>(pXYZ)-0.5, std::get<1>(pXYZ)-0.5, std::get<2>(pXYZ));
 	//Player menus
-	localPlayerMenu.init(sh, gh, ctrls, &localPlayer);
+	localPlayerMenu.init(sh, gh, ctrls, &localPlayer, td);
+	localPlayerMenu.getInventory()->load(td, worldDirPath);
+
+	missionHolder.init(worldDirName);	
 }
 
 void WorldInteractions::draw(Canvas& csInteractions)
@@ -28,6 +33,17 @@ void WorldInteractions::draw(Canvas& csInteractions)
 	int64_t csy = localPlayer.getCamera()->getCsYFromPos(32*mouseXL, 32*mouseYL, 32*mouseZL);	// ...
 	csInteractions.rcopyNI(csx, csy, 32, 32);													// Draw tile selector
 	csInteractions.draw();
+}
+
+void WorldInteractions::drawLocalPlayerMenu()
+{
+	//Draw player within menu if player's menu is open
+	if(localPlayerMenu.getInventory()->getMod()>=0) {
+		localPlayer.drawCharInMenu();
+	}
+	
+	//Draw specific menu elements
+	localPlayerMenu.draw(missionHolder);
 }
 
 void WorldInteractions::updateMouseAndCamInfo(Canvas& csInteractions, TileMap* tileMap)
@@ -103,7 +119,7 @@ void WorldInteractions::playerInteractions(SDLHandler* sdlHandler, GUIHandler& g
 			if(lpMenuLastModule<0) lpMenuLastModule = 0;
 			setLocalPlayerMenuState(lpMenuLastModule);
 		} else {
-			lpMenuLastModule = localPlayerMenu.getModule();
+			lpMenuLastModule = localPlayerMenu.getInventory()->getMod();
 			setLocalPlayerMenuState(-1);
 		}
 	}
@@ -134,10 +150,12 @@ void WorldInteractions::playerInteractions(SDLHandler* sdlHandler, GUIHandler& g
 				playerTryDestroyTile(tms, tm);
 			} break;
 			case Player::Action::SURV_Place_Tile: {
-				InvItemStack iis = localPlayerMenu.getSelectedItemStack();
+				InvItemStack iis = localPlayerMenu.getInventory()->getSelItemStack();
 				if( iis.getType()==Items::WORLDTILE ) {
-					Tile t = tm->getTileDict()->at("hab_titanium_hull");
-					playerTryPlaceTile(tms, tm, t, false);
+					Tile t = tm->getTileDict()->at(iis.getExtraData());
+					if(t.id!="null") {
+						playerTryPlaceTile(tms, tm, t, false);
+					}
 				}
 			} break;
 		}
@@ -193,10 +211,22 @@ void WorldInteractions::playerTryPlaceTile(TileMapScreen* tms, TileMap* tm, Tile
 		}
 	}
 
-	//If we are destroying a tile in survival mode
-	if(canPlace && !localPlayer.inGodMode() && tLast.solid && tLast.id!="null" && force) {
-		//InvItemStack iis(Items::WORLDTILE, 1, tLast);
-		//localPlayerMenu.giveItemStack(iis);
+	//If just destroyed a tile...
+	if(canPlace && tLast.solid && tLast.id!="null" && force) {
+		//Play sound
+		AudioLoader* al = sdlHandler->getAudioLoader();
+ 			switch(tLast.material) {
+			case Tile::Material::METAL: { al->play(AudioLoader::SFX_WORLD_DESTROY_metal_1+(std::rand()%3)); } break;
+			case Tile::Material::ROCK: 	{ al->play(AudioLoader::SFX_WORLD_DESTROY_rock_1+(std::rand()%3)); } break;
+			case Tile::Material::SAND: 	{ al->play(AudioLoader::SFX_WORLD_DESTROY_sand_1+(std::rand()%3)); } break;
+			case Tile::Material::SOIL: 	{ al->play(AudioLoader::SFX_WORLD_DESTROY_soil_1+(std::rand()%3)); } break;
+		}
+		
+ 		//In survival mode, add item to inventory
+		if(!localPlayer.inGodMode()) {
+			InvItemStack iis(Items::WORLDTILE, 1, tLast.id);
+			localPlayerMenu.giveItemStack(iis);		
+		}
 	}
 
 	//Add a 3x3 of tile updates regardless of tile placed or not

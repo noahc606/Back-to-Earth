@@ -141,19 +141,9 @@ void BTE::draw()
 	//Draw GUIHandler
 	guiHandler.draw();
 	
-	//Draw player within world
+	//Draw player menu if within world
 	if(world!=nullptr) {
-		Player* localPlayer = world->getLocalPlayer();
-		PlayerMenu* localPlayerMenu = world->getLocalPlayerMenu();
-		if( localPlayer!=nullptr ) {
-			//Draw player within menu if player's menu is open
-			if( localPlayerMenu->getModule()>=0 ) {
-				localPlayer->drawCharInMenu();
-			}
-			
-			//Draw specific menu elements
-			localPlayerMenu->draw();
-		}
+		world->drawLocalPlayerMenu();
 	}
 	
 	debugScreen.drawMain();		//Draw debugscreen if applicable

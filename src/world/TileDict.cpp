@@ -4,6 +4,38 @@
 #include "TextureLoader.h"
 #include "World.h"
 
+std::map<std::string, Tile> TileDict::baseTiles = {
+{ "debug_tile", Tile("debug_tile", R"({
+    "id": "debug_tile",
+    "skipRendering": false,
+    "solid": true,
+    "material": "rock",
+    "textureHolder": "tile_type_a",
+    "textureSpecs": [ { "type": "all", "src": [4, 0], "color": [255, 0, 255] } ]
+})"_json) },
+{ "null",                   Tile("null",                    R"({ "skipRendering": true, "solid": false })"_json) },
+{ "generic_air",            Tile("generic_air",             R"({ "skipRendering": true, "solid": false })"_json) },
+{ "breathable_air",         Tile("breathable_air",          R"({ "skipRendering": true, "solid": false })"_json) },
+{ "accrio_air",             Tile("accrio_air",              R"({ "skipRendering": true, "solid": false })"_json) },
+{ "hera_air",               Tile("hera_air",                R"({ "skipRendering": true, "solid": false })"_json) },
+{ "accrio_regolith",        Tile("accrio_regolith",         R"({ "material": "soil", "textureSpecs": [ { "type": "all", "src": [1, 5], "color": [204, 153,   0] } ] })"_json) },
+{ "accrio_soil",            Tile("accrio_soil",             R"({ "material": "soil", "textureSpecs": [ { "type": "all", "src": [3, 1], "color": [128,  50,   0] } ] })"_json) },
+{ "accrio_rock",            Tile("accrio_rock",             R"({ "material": "rock", "textureSpecs": [ { "type": "all", "src": [2, 1], "color": [190, 150, 100] } ] })"_json) },
+{ "accrio_silt",            Tile("accrio_silt",             R"({ "material": "sand", "textureSpecs": [ { "type": "all", "src": [2, 5], "color": [110,  90,  40] } ] })"_json) },
+{ "hera_seabed_regolith",   Tile("hera_seabed_regolith",    R"({ "material": "soil", "textureSpecs": [ { "type": "all", "src": [2, 1], "color": [150, 190, 100] } ] })"_json) },
+{ "hera_seabed_soil",       Tile("hera_seabed_soil",        R"({ "material": "soil", "textureSpecs": [ { "type": "all", "src": [4, 1], "color": [150, 190, 100] } ] })"_json) },
+{ "hera_seabed_rock",       Tile("hera_seabed_rock",        R"({ "material": "rock", "textureSpecs": [ { "type": "all", "src": [2, 1], "color": [150, 190, 100] } ] })"_json) },
+{ "hera_limestone",         Tile("hera_limestone",          R"({ "material": "rock", "textureSpecs": [ { "type": "all", "src": [0, 1], "color": [190, 180, 160] } ] })"_json) },
+{ "hera_icesheet",          Tile("hera_icesheet",           R"({ "material": "rock", "textureSpecs": [ { "type": "all", "src": [3, 3], "color": [ 20, 180, 140] } ], "mapColor": [60, 220, 180] })"_json) },
+{ "granite",                Tile("granite",                 R"({ "material": "rock", "textureSpecs": [ { "type": "all", "src": [1, 1], "color": [120,  80,  70] } ] })"_json) },
+{ "hera_seawater",          Tile("hera_seawater",           R"({ "textureSpecs": [ { "type": "all", "src": [0, 4], "color": [20, 180, 140] } ] })"_json) },
+{ "magma",                  Tile("magma",                   R"({ "solid": false, "material": "rock", "textureSpecs": [ { "type": "all", "src": [0, 4], "color": [255, 40, 40] } ] })"_json) },
+{ "aerospace_acrylic_glass",Tile("aerospace_acrylic_glass", R"({ "material": "rock", "textureSpecs": [ { "type": "all", "src": [0, 6], "color": [ 64,  64,  48], "visionBlocking": false } ] })"_json) },
+{ "hab_titanium_hull",      Tile("hab_titanium_hull",       R"({ "material": "metal","textureSpecs": [ { "type": "all", "src": [0, 3], "color": [255, 255, 255] } ] })"_json) },
+{ "hab_futuristic_hull",    Tile("hab_futuristic_hull",     R"({ "material": "metal","textureSpecs": [ { "type": "all", "src": [2, 3], "color": [  0, 255, 200] } ] })"_json) },
+{ "monolith",               Tile("monolith",                R"({ "material": "metal","textureSpecs": [ { "type": "all", "src": [2, 3], "color": [ 50,  50,  50] } ] })"_json) },
+};
+
 TileDict::TileDict(){}
 TileDict::~TileDict() {
     saveTileDict();
@@ -12,21 +44,19 @@ TileDict::~TileDict() {
 void TileDict::init(SDLHandler* sh, std::string saveGameName, std::string instanceID)
 {
     /* Store save and instance info */
-    TileDict::instanceID = instanceID;
+    TileDict::sdlHandler = sh;
     TileDict::saveGameName = saveGameName;
+    TileDict::instanceID = instanceID;
 
     /* Get corresponding TileDict JSON file */
     std::string jsonpath = "backtoearth/saved/games/"+saveGameName+"/tiledict/"+instanceID+".json";
 
-    //Get already-existing Json from file
+    //Try to get Json data from file
     nlohmann::json dictJson;
     std::ifstream jsonstream(jsonpath);
     try {
-        dictJson = nlohmann::json::parse(jsonstream);    
-    //If json doesn't exist, build base tile definitions
-    } catch(...) {
-        dictJson = getBaseTileDictJson();
-    }
+        dictJson = nlohmann::json::parse(jsonstream);
+    } catch(...) {}
     jsonstream.close();
 
     /* Build 'dict' */
@@ -50,9 +80,13 @@ void TileDict::init(SDLHandler* sh, std::string saveGameName, std::string instan
         }
     }
 
+    //Rebuild base tile definitions (overwrites whatever was retrieved before)
+    for(auto itr = baseTiles.begin(); itr!=baseTiles.end(); itr++) {
+        setTileDef(itr->first, itr->second);
+    }
 
     /* Build 'tileAtlases', 'tileSrcDefs', and 'atlasObjDefs'. */
-    rebuildAtlasesEtcFromDict(sh);
+    rebuildAtlasesEtcFromDict();
 }
 
 Tile TileDict::at(std::string tileID)
@@ -74,39 +108,16 @@ Tile TileDict::at(uint64_t idx)
     return Tile();
 }
 
-nlohmann::json TileDict::getBaseTileDictJson()
+Tile TileDict::getBaseTileDef(std::string baseTileID)
 {
-    return R"(
-        {"tileDict":[
-        {
-            "id": "debug_tile",
-            "skipRendering": false,
-            "solid": true,
-            "textureHolder": "tile_type_a",
-            "textureSpecs": [ { "type": "all", "src": [4, 0], "color": [255, 0, 255] } ]
-        },
-        { "id": "null", "skipRendering": true, "solid": false },
-        { "id": "generic_air", "skipRendering": true, "solid": false },
-        { "id": "breathable_air", "skipRendering": true, "solid": false },
-        { "id": "accrio_air", "skipRendering": true, "solid": false },
-        { "id": "hera_air", "skipRendering": true, "solid": false },
-        { "id": "accrio_regolith",          "textureSpecs": [ { "type": "all", "src": [1, 5], "color": [204, 153, 0] } ] },
-        { "id": "accrio_soil",              "textureSpecs": [ { "type": "all", "src": [3, 1], "color": [128, 50, 0] } ] },
-        { "id": "accrio_rock",              "textureSpecs": [ { "type": "all", "src": [2, 1], "color": [190, 150, 100] } ] },
-        { "id": "accrio_silt",              "textureSpecs": [ { "type": "all", "src": [2, 5], "color": [110, 90, 40] } ] },
-        { "id": "hera_seabed_regolith",     "textureSpecs": [ { "type": "all", "src": [2, 1], "color": [150, 190, 100] } ] },
-        { "id": "hera_seabed_soil",         "textureSpecs": [ { "type": "all", "src": [4, 1], "color": [150, 190, 100] } ] },
-        { "id": "hera_seabed_rock",         "textureSpecs": [ { "type": "all", "src": [2, 1], "color": [150, 190, 100] } ] },
-        { "id": "hera_limestone",           "textureSpecs": [ { "type": "all", "src": [0, 1], "color": [190, 180, 160] } ] },
-        { "id": "hera_seawater",            "textureSpecs": [ { "type": "all", "src": [0, 4], "color": [20, 180, 140] } ] },
-        { "id": "hera_icesheet",            "textureSpecs": [ { "type": "all", "src": [3, 3], "color": [20, 180, 140] } ], "mapColor": [60, 220, 180] },
-        { "id": "granite",                  "textureSpecs": [ { "type": "all", "src": [1, 1], "color": [120, 80, 70] } ] },
-        { "id": "magma",  "solid": false,   "textureSpecs": [ { "type": "all", "src": [0, 4], "color": [255, 40, 40] } ] },
-        { "id": "aerospace_acrylic_glass",  "textureSpecs": [ { "type": "all", "src": [0, 6], "color": [64, 64, 48], "visionBlocking": false } ] },
-        { "id": "hab_titanium_hull",        "textureSpecs": [ { "type": "all", "src": [0, 3], "color": [255, 255, 255] } ] },
-        { "id": "monolith",                 "textureSpecs": [ { "type": "all", "src": [2, 3], "color": [50, 50, 50] } ] }
-        ]}
-    )"_json;
+    try {
+        Tile res = baseTiles[baseTileID];
+
+        return res;
+    } catch(...) {}
+
+    nch::Log::log("WARNING");
+    return Tile();
 }
 
 std::vector<std::string> TileDict::getIDsMatchingDef(Tile tileDef)
@@ -156,21 +167,41 @@ uint64_t TileDict::getNumericID(std::string id)
     return -1;
 }
 
-void TileDict::drawAtlas(SDLHandler* sh, int idx) { tileAtlases[idx].drawSheet(); }
+void TileDict::drawAtlas(int idx) { tileAtlases[idx].drawSheet(); }
 
-bool TileDict::addTileDef(SDLHandler* sh, std::string tileID, Tile tileDef)
+bool TileDict::setTileDef(std::string tileID, Tile tileDef)
 {
-    if(!addToDict(tileID, tileDef)) return false;
-    addToAtlasEtc(sh, tileID, tileDef);
+    //If ID doesn't exist, try to add tile def as normal.
+    if(dict.find(tileID)==dict.end()) {
+        return addTileDef(tileID, tileDef);
+    }
+
+    //If duplicate tileID exists which has the SAME DEFINITION, ignore.
+    if(at(tileID)==tileDef) {
+        return false;
+    }
+
+    //If duplicate tileID exists WITHOUT same definition, remove and replace.
+    dict.erase(tileID);
+    dict.insert(std::make_pair(tileID, tileDef));
+    addToAtlasEtc(tileID, tileDef);
+
     return true;
 }
 
-bool TileDict::addTileDefUnique(SDLHandler* sh, std::string tileID, Tile tileDef)
+bool TileDict::addTileDef(std::string tileID, Tile tileDef)
+{
+    if(!addToDict(tileID, tileDef)) return false;
+    addToAtlasEtc(tileID, tileDef);
+    return true;
+}
+
+bool TileDict::addTileDefUnique(std::string tileID, Tile tileDef)
 {
     if(getIDsMatchingDef(tileDef).size()>0) {
         return false;
     }
-    bool res = addTileDef(sh, tileID, tileDef);
+    bool res = addTileDef(tileID, tileDef);
     return res;
 }
 
@@ -191,6 +222,7 @@ void TileDict::saveTileDict()
         tileDictEnt["id"] = itr->second;
         tileDictEnt["skipRendering"] = t.skipRendering;
         tileDictEnt["solid"] = t.solid;
+        tileDictEnt["material"] = Tile::materialTypeToStr(t.material);
         tileDictEnt["textureHolder"] = t.textureHolder;
         tileDictEnt["mapColor"] = t.mapColor.getRGBTriple();
         //Create and set texture specs
@@ -198,7 +230,7 @@ void TileDict::saveTileDict()
         std::vector<Tile::TexSpec> tss = t.textureSpecs;
         for(int j = 0; j<tss.size(); j++) {
             nlohmann::json texSpecEnt;
-            texSpecEnt["type"] = Tile::renderFacesTypeToStr(tss[j].type);
+            texSpecEnt["type"] = Tile::renderFaceTypeToStr(tss[j].type);
             texSpecEnt["src"] = tss[j].aod.resrc;
             texSpecEnt["color"] = tss[j].aod.color.getRGBTriple();
             texSpecEnt["visionBlocking"] = tss[j].aod.visionBlocking;
@@ -236,18 +268,8 @@ bool TileDict::addToDict(std::string tileID, Tile tileDef)
     }
     return true;
 }
-void TileDict::addToAtlasEtc(SDLHandler* sh, std::string tileID, Tile tileDef)
+void TileDict::addToAtlasEtc(std::string tileID, Tile tileDef)
 {
-    /* Update 'tileAtlases' if needed */
-    //Make sure we have enough spritesheets to hold every tile.
-    //Every sheet will be 1024x1024, each containing 1024 (32x32) squares.
-    int numSheets = dict.size()/1024+1;
-    if(tileAtlases.size()<numSheets) {
-        SpriteSheet ta;
-        tileAtlases.pushBack(ta);
-        tileAtlases[tileAtlases.size()-1].init(sh, 32*32, 32*32);
-    }
-
     /* Update */
     //Go thru this tile's 't.textureSpecs' and append 'tileSrcDefs' and 'atlasObjDefs'.
     auto itr = dict.find(tileID);
@@ -258,30 +280,30 @@ void TileDict::addToAtlasEtc(SDLHandler* sh, std::string tileID, Tile tileDef)
         /* Go thru all 'textureSpecs' of this Tile to build 'tsd'. */
         for(int j = 0; j<tile.textureSpecs.size(); j++) {
             Texture tex;
-            tex.init(sh, 32, 32);
+            tex.init(sdlHandler, 32, 32);
 
             //Try to insert atlasObjDef (may create new image or use an old one). Store location of the atlasObjDef.
             int beforeSize = atlasObjDefs.size();
-            std::tuple<int, int, int> aodLoc = insertAtlasObj(sh, tile.textureSpecs[j].aod);
+            std::tuple<int, int, int> aodLoc = insertAtlasObj(tile.textureSpecs[j].aod);
             int afterSize = atlasObjDefs.size();
 
             //Based on the face to be rendered (all or WENSUD) build the appropriate tex within 'texes'.
-            Tile::RenderFaces face = tile.textureSpecs[j].type;
+            Tile::RenderFace face = tile.textureSpecs[j].type;
             switch(face) {
-                case Tile::RenderFaces::ALL: {
-                    appendTexFromSpecs(sh, tex, tile.textureSpecs[j]);
+                case Tile::RenderFace::ALL: {
+                    appendTexFromSpecs(tex, tile.textureSpecs[j]);
                     for(int k = 0; k<6; k++) {
                         tsd.loc[k] = aodLoc;
                     }
                 } break;
-                case Tile::RenderFaces::WEST: case Tile::RenderFaces::NORTH: case Tile::RenderFaces::UP:
-                case Tile::RenderFaces::EAST: case Tile::RenderFaces::SOUTH: case Tile::RenderFaces::DOWN: {
-                    appendTexFromSpecs(sh, tex, tile.textureSpecs[j]);
+                case Tile::RenderFace::WEST: case Tile::RenderFace::NORTH: case Tile::RenderFace::UP:
+                case Tile::RenderFace::EAST: case Tile::RenderFace::SOUTH: case Tile::RenderFace::DOWN: {
+                    appendTexFromSpecs(tex, tile.textureSpecs[j]);
                     tsd.loc[face-1] = aodLoc;
                 } break;
                 default: {
                     nch::Log::warnv(__PRETTY_FUNCTION__, "using default tile texture", "Encountered unknown texSpec.type %d from definition of \"%s\"", face, itr->first.c_str());
-                    TextureBuilder tb(sh);
+                    TextureBuilder tb(sdlHandler);
                     tb.buildDefaultTile(tex);
                     for(int k = 0; k<6; k++) {
                         tsd.loc[k] = aodLoc;
@@ -291,7 +313,16 @@ void TileDict::addToAtlasEtc(SDLHandler* sh, std::string tileID, Tile tileDef)
 
             //If a new atlas object was just added...
             if(beforeSize!=afterSize) {
-                TextureLoader* tl = sh->getTextureLoader();
+                /* Update 'tileAtlases' if needed */
+                //Make sure we have enough spritesheets to hold every tile.
+                //Every sheet will be 1024x1024, each containing 1024 (32x32) squares.
+                if(tileAtlases.size()<std::get<2>(aodLoc)+1) {
+                    SpriteSheet ta;
+                    tileAtlases.pushBack(ta);
+                    tileAtlases[tileAtlases.size()-1].init(sdlHandler, 32*32, 32*32);
+                }
+
+                TextureLoader* tl = sdlHandler->getTextureLoader();
                 SpriteSheet* ss = &tileAtlases[std::get<2>(aodLoc)];
                 SDL_Texture* stex = tex.getSDLTexture();
                 ss->addSpriteToFixedSizeSheet(stex, 0, 0);
@@ -303,21 +334,22 @@ void TileDict::addToAtlasEtc(SDLHandler* sh, std::string tileID, Tile tileDef)
         tileSrcDefs.insert(std::make_pair(itr->first, tsd));
     }
 }
-void TileDict::rebuildAtlasesEtcFromDict(SDLHandler* sh)
+
+void TileDict::rebuildAtlasesEtcFromDict()
 {
     tileAtlases.clear();
     tileSrcDefs.clear();
     atlasObjDefs.clear();
 
     for(auto itr = dict.begin(); itr!=dict.end(); itr++) {
-        addToAtlasEtc(sh, itr->first, itr->second);
+        addToAtlasEtc(itr->first, itr->second);
     }
 }
-void TileDict::appendTexFromSpecs(SDLHandler* sh, Texture& tex, Tile::TexSpec ts)
+void TileDict::appendTexFromSpecs(Texture& tex, Tile::TexSpec ts)
 {
     //Draw default tile tex if VB
     if(ts.aod.visionBlocking) {
-        TextureBuilder tb(sh);
+        TextureBuilder tb(sdlHandler);
         tb.buildDefaultTile(tex);
     }
 
@@ -326,7 +358,7 @@ void TileDict::appendTexFromSpecs(SDLHandler* sh, Texture& tex, Tile::TexSpec ts
     tex.lock();
     tex.blit(TextureLoader::WORLD_TILE_type_a, ts.aod.resrc.first*32, ts.aod.resrc.second*32);
 }
-std::tuple<int, int, int> TileDict::insertAtlasObj(SDLHandler* sh, Tile::AtlasObjDef& aod)
+std::tuple<int, int, int> TileDict::insertAtlasObj(Tile::AtlasObjDef& aod)
 {
     //Search list for atlasObjDef.
     int64_t foundDupeAt = atlasObjDefs.size();      //foundDupeAt=aODs.size() indicates none found within list.

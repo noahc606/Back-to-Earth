@@ -22,8 +22,12 @@ void Tests::init(SDLHandler* sh, FileHandler* fh, Controls* ctrls)
     assetList(fileHandler);
     al = sdlHandler->getAudioLoader();
 
-    tileDict = new TileDict();
-    tileDict->init(sdlHandler, "levelsave2", "default");
+    //MissionHolder mh;
+    //mh.init("missiontests");
+    mh.init("missiontests");
+
+
+
 }
 
 Tests::~Tests(){}
@@ -38,15 +42,10 @@ void Tests::draw()
     ss << "3) Press [ENTER].";
     TextOld::draw(sdlHandler, ss.str(), sdlHandler->getWidth()/2-180, sdlHandler->getHeight()/2-36, 2);
 
-    //tex.draw();
-    SDL_RenderCopy(sdlHandler->getRenderer(), tex.getSDLTexture(), NULL, NULL);
-    
-    tileDict->drawAtlas(sdlHandler, 0);
-
-    //tex.draw();
-
     double scale = 2;
     
+    mh.draw(sdlHandler, 0, 0);
+
     //tex.setDrawScale(scale);
     //tex.setDrawPos(sdlHandler->getWidth()/2-tex.getTexWidth()*scale/2, sdlHandler->getHeight()/2-tex.getTexHeight()*scale/2);
 }

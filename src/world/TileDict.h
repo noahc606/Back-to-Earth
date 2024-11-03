@@ -21,22 +21,23 @@ public:
     ~TileDict();
 
     void init(SDLHandler* sh, std::string saveGameName, std::string instanceID);
-    void drawAtlas(SDLHandler* sh, int idx);
+    void drawAtlas(int idx);
 
     Tile at(std::string tileID);
     Tile at(uint64_t idx);
-    static nlohmann::json getBaseTileDictJson();
+    Tile getBaseTileDef(std::string baseTileID);
     std::vector<std::string> getIDsMatchingDef(Tile tileDef);
     std::tuple<Texture*, int, int> getTileSrcFromCamDir(Tile tileDef, int camDirection);
     uint64_t getNumSandboxTiles();
     uint64_t getNumericID(std::string id);
     
-
-    bool addTileDef(SDLHandler* sh, std::string tileID, Tile tileDef);
-    bool addTileDefUnique(SDLHandler* sh, std::string tileID, Tile tileDef);
+    bool setTileDef(std::string tileID, Tile tileDef);
+    bool addTileDef(std::string tileID, Tile tileDef);
+    bool addTileDefUnique(std::string tileID, Tile tileDef);
     void saveTileDict();
 
 private:
+    SDLHandler* sdlHandler;
     std::string saveGameName = "world_unknown";
     std::string instanceID = "default";
     
@@ -57,9 +58,11 @@ private:
     uint64_t numSandboxTiles = 0;
     uint64_t numTiles = 0;
 
-    void rebuildAtlasesEtcFromDict(SDLHandler* sh);
+    static std::map<std::string, Tile> baseTiles;
+
+    void rebuildAtlasesEtcFromDict();
     bool addToDict(std::string tileID, Tile tileDef);
-    void addToAtlasEtc(SDLHandler* sh, std::string tileID, Tile tileDef);
-    void appendTexFromSpecs(SDLHandler* sh, Texture& tex, Tile::TexSpec specs);
-    std::tuple<int, int, int> insertAtlasObj(SDLHandler* sh, Tile::AtlasObjDef& aod);
+    void addToAtlasEtc(std::string tileID, Tile tileDef);
+    void appendTexFromSpecs(Texture& tex, Tile::TexSpec specs);
+    std::tuple<int, int, int> insertAtlasObj(Tile::AtlasObjDef& aod);
 };

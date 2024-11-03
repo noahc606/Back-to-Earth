@@ -8,7 +8,7 @@ class RegTexInfo
 {
 public:
     virtual ~RegTexInfo();
-	void init(SDLHandler* sh, TileMapUpdater* tm, Canvas* cs);
+	void init(SDLHandler* sh, ScreenUpdater* su, Canvas* cs);
 	
     static std::vector<std::pair<int64_t, Tile>> camTilesToDrawHere(TileIterator& ti, int camDirection, int maxChecks);
     static std::pair<int64_t, Tile> camTopVisionBlockingTile(TileIterator& ti, int camDirection, int maxChecks);

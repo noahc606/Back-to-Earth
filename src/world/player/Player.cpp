@@ -118,7 +118,6 @@ void Player::tick(TileMap* tm)
 	if(spaceSuitState!=SpaceSuitStates::STABLE) {
 		oxygen -= 0.015;
 		AudioLoader* al = sdlHandler->getAudioLoader();
-		//al->playOnce(AudioLoader::SFX_WORLD_air_release_1);
 	} else {
 		oxygen += 0.1;
 	}
@@ -476,4 +475,14 @@ void Player::setModeFromStr(std::string newGameMode)
 void Player::setSpaceSuitState(int sss)
 {
 	Player::spaceSuitState = sss;
+
+	if(spaceSuitState==STABLE) {
+		playedSpaceSuitHiss = false;
+	} else {
+		if(!playedSpaceSuitHiss) {
+			playedSpaceSuitHiss = true;
+			AudioLoader* al = sdlHandler->getAudioLoader();
+			al->playOnce(AudioLoader::SFX_WORLD_air_release_1);
+		}
+	}
 }

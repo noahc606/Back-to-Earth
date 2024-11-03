@@ -8,22 +8,11 @@
 
 PlayerMenuModules::PlayerMenuModules()
 {
-	widgetsGroupList.insert(std::make_pair(Player::SURVIVAL, std::vector<int>({ PLASMA_MATTER_TRANSFORMER, MISSION_LOG, CRAFTING })));
-	widgetsGroupList.insert(std::make_pair(Player::HARDCORE, std::vector<int>({ PLASMA_MATTER_TRANSFORMER, MISSION_LOG, CRAFTING })));
-	widgetsGroupList.insert(std::make_pair(Player::SANDBOX,  std::vector<int>({ PLASMA_MATTER_TRANSFORMER, SANDBOX, CRAFTING })));
+	widgetsGroupList.insert(std::make_pair(Player::SURVIVAL, std::vector<int>({ BACKPACK, PLASMA_MATTER_TRANSFORMER, MISSION_LOG, CRAFTING })));
+	widgetsGroupList.insert(std::make_pair(Player::HARDCORE, std::vector<int>({ BACKPACK, PLASMA_MATTER_TRANSFORMER, MISSION_LOG, CRAFTING })));
+	widgetsGroupList.insert(std::make_pair(Player::SANDBOX,  std::vector<int>({ BACKPACK, PLASMA_MATTER_TRANSFORMER, SANDBOX })));
 }
 PlayerMenuModules::~PlayerMenuModules(){}
-
-int PlayerMenuModules::widgetClicked(int playerGamemode, int shx, int shy)
-{
-	int res = -1;
-	std::vector<int> widgetIDs = widgetsGroupList[playerGamemode];
-	if(shy>=0 && shy<widgetIDs.size()) {
-		res = widgetIDs[shy];
-	}
-
-	return res;
-}
 
 void PlayerMenuModules::drawWidgets(SDLHandler* sh, int playerGamemode, int selectedWidgetID, int isx, int isy, int odx, int ody)
 {
@@ -48,6 +37,67 @@ void PlayerMenuModules::drawWidgets(SDLHandler* sh, int playerGamemode, int sele
 	SDL_Rect isrc; isrc.x = 7*32; isrc.y = 0; isrc.w = 32; isrc.h = 32;
 	SDL_Rect idst; idst.x = (isx+ix*64+odx); idst.y = (isy+swid*64+ody); idst.w = 64; idst.h = 64;
 	sh->renderCopy(TextureLoader::PLAYER_modules, &isrc, &idst);
+}
+
+void PlayerMenuModules::drawModuleSandbox(Texture& uiOverlay, SDL_Rect invRect, int invSX, int invSY)
+{
+	uiOverlay.clear();
+	uiOverlay.setTexDimensions(invRect.w, invRect.h);
+	uiOverlay.setDrawPos(invRect.x, invRect.y);
+	uiOverlay.setDrawScale(2);
+	
+	uiOverlay.lock();
+	uiOverlay.blit(TextureLoader::WORLD_TILE_type_a);
+	
+	//Selected Slot Outline
+	if( invSX!=-1 && invSY!=-1 ) {
+		uiOverlay.lock(invSX*32, invSY*32, 32, 32);
+		uiOverlay.blit(TextureLoader::GUI_player_interactions, 0, 0 );
+	}
+}
+
+void PlayerMenuModules::drawModuleMissionLog(SDLHandler* sh, SDL_Rect invRect, MissionHolder& mh)
+{
+	sh->setRenderDrawColor(nch::Color(0, 0, 0));
+	sh->renderFillRect(invRect.x, invRect.y, invRect.w*2, invRect.h*2);
+
+	mh.draw(sh, invRect.x, invRect.y);
+}
+
+std::string PlayerMenuModules::getWidgetHoverText(int playerGameMode, int shx, int shy)
+{
+	std::string res = "???null???";
+	if(shx!=8) {
+		return res;
+	}
+
+	auto itr = widgetsGroupList.find(playerGameMode);
+	if(itr!=widgetsGroupList.end()) {
+		
+		if(shy>=0 && shy<itr->second.size()) {
+			switch(itr->second[shy]) {
+				case BACKPACK: 					{ res = "Backpack"; } break;
+				case PLASMA_MATTER_TRANSFORMER: { res = "Plasma-Matter Transformer"; } break;
+				case MISSION_LOG: 				{ res = "Mission Log"; } break;
+				case CRAFTING: 					{ res = "Crafting"; } break;
+				case SANDBOX: 					{ res = "Sandbox"; } break;
+				case STARMAP: 					{ res = "Starmap"; } break;
+			}
+		}
+	}
+
+	return res;
+}
+
+int PlayerMenuModules::widgetClicked(int playerGamemode, int shx, int shy)
+{
+	int res = -1;
+	std::vector<int> widgetIDs = widgetsGroupList[playerGamemode];
+	if(shy>=0 && shy<widgetIDs.size()) {
+		res = widgetIDs[shy];
+	}
+
+	return res;
 }
 
 void PlayerMenuModules::putMenuInterface(GUIHandler* gh, nch::Color sandboxRGB, int widgetID)

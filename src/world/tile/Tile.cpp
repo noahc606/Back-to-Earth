@@ -12,7 +12,8 @@ Tile::Tile(std::string id, bool solid, std::pair<int, int> resrc, nch::Color col
     nlohmann::json tileDef;
     tileDef["id"] = id;
     tileDef["solid"] = solid;
-    
+    tileDef["material"] = ROCK;
+
     nlohmann::json texSpecJson;
     texSpecJson["type"] = "all";
     texSpecJson["src"] = { resrc.first, resrc.second };
@@ -26,7 +27,11 @@ Tile::Tile(std::string id, bool solid, std::pair<int, int> resrc, nch::Color col
 Tile::Tile(){}
 Tile::~Tile(){}
 
-bool Tile::operator==(Tile& other)
+/*
+    NOTE: TileA==TileB does NOT imply TileA.id==TileB.id.
+    Only the "tile definition" (set of properties which does not include ID) has to be the same.
+*/
+bool Tile::operator==(const Tile& other)
 {
     //Check (# of texture specs) mismatch
     if(textureSpecs.size()!=other.textureSpecs.size()) {
@@ -47,13 +52,14 @@ bool Tile::operator==(Tile& other)
     //Check tileDict properties for mismatches
     if(skipRendering!=other.skipRendering) return false;
     if(solid!=other.solid) return false;
+    if(material!=other.material) return false;
     if(textureHolder!=other.textureHolder) return false;
 
     //If no mismatches found, return true
     return true;
 }
 
-bool Tile::operator!=(Tile& other)
+bool Tile::operator!=(const Tile& other)
 {
     return !((*this)==other);
 }
@@ -65,51 +71,71 @@ bool Tile::isVisionBlocking(int camDirection)
     for(int i = 0; i<textureSpecs.size(); i++) {
         TexSpec ts = textureSpecs[i];
         
-        if((ts.type==RenderFaces::ALL || ts.type==camDirection) && ts.aod.visionBlocking) {
+        if((ts.type==RenderFace::ALL || ts.type==camDirection) && ts.aod.visionBlocking) {
             return true;
         }
     }
     return false;
 }
 
-Tile::RenderFaces Tile::strToRenderFacesType(std::string rfStr)
+Tile::RenderFace Tile::strToRenderFaceType(std::string rfStr)
 {
-    if(rfStr=="all")    return RenderFaces::ALL;
-    if(rfStr=="west")   return RenderFaces::WEST;
-    if(rfStr=="east")   return RenderFaces::EAST;
-    if(rfStr=="north")  return RenderFaces::NORTH;
-    if(rfStr=="south")  return RenderFaces::SOUTH;
-    if(rfStr=="up")     return RenderFaces::UP;
-    if(rfStr=="down")   return RenderFaces::DOWN;
-    return RenderFaces::UNKNOWN;
+    if(rfStr=="all")    return RenderFace::ALL;
+    if(rfStr=="west")   return RenderFace::WEST;
+    if(rfStr=="east")   return RenderFace::EAST;
+    if(rfStr=="north")  return RenderFace::NORTH;
+    if(rfStr=="south")  return RenderFace::SOUTH;
+    if(rfStr=="up")     return RenderFace::UP;
+    if(rfStr=="down")   return RenderFace::DOWN;
+    return RenderFace::UNKNOWN;
 }
 
-std::string Tile::renderFacesTypeToStr(Tile::RenderFaces rf)
+std::string Tile::renderFaceTypeToStr(Tile::RenderFace rf)
 {
     switch(rf) {
-        case RenderFaces::ALL:   return "all";
-        case RenderFaces::WEST:  return "west";
-        case RenderFaces::EAST:  return "east";
-        case RenderFaces::NORTH: return "north";
-        case RenderFaces::SOUTH: return "south";
-        case RenderFaces::UP:    return "up";
-        case RenderFaces::DOWN:  return "down";
+        case RenderFace::ALL:   return "all";
+        case RenderFace::WEST:  return "west";
+        case RenderFace::EAST:  return "east";
+        case RenderFace::NORTH: return "north";
+        case RenderFace::SOUTH: return "south";
+        case RenderFace::UP:    return "up";
+        case RenderFace::DOWN:  return "down";
     }
     return "unknown";
 }
 
-Tile::RenderFaces Tile::camDirToRenderFace(int camDir)
+Tile::RenderFace Tile::camDirToRenderFace(int camDir)
 {
     switch(camDir)
     {
-        case Camera::WEST:  return RenderFaces::EAST;
-        case Camera::EAST:  return RenderFaces::WEST;
-        case Camera::NORTH: return RenderFaces::SOUTH;
-        case Camera::SOUTH: return RenderFaces::NORTH;
-        case Camera::UP:    return RenderFaces::DOWN;
-        case Camera::DOWN:  return RenderFaces::UP;
+        case Camera::WEST:  return RenderFace::EAST;
+        case Camera::EAST:  return RenderFace::WEST;
+        case Camera::NORTH: return RenderFace::SOUTH;
+        case Camera::SOUTH: return RenderFace::NORTH;
+        case Camera::UP:    return RenderFace::DOWN;
+        case Camera::DOWN:  return RenderFace::UP;
     }
-    return RenderFaces::UNKNOWN;
+    return RenderFace::UNKNOWN;
+}
+
+Tile::Material Tile::strToMaterialType(std::string mtStr)
+{
+    if(mtStr=="metal") return METAL;
+    if(mtStr=="rock") return ROCK;
+    if(mtStr=="soil") return SOIL;
+    if(mtStr=="sand") return SAND;
+    return GENERIC;
+}
+
+std::string Tile::materialTypeToStr(Material m)
+{
+    switch(m) {
+        case METAL: return "metal";
+        case ROCK: return "rock";
+        case SOIL: return "soil";
+        case SAND: return "sand";
+    }
+    return "generic";
 }
 
 void Tile::construct(std::string id, nlohmann::json tileDef)
@@ -118,9 +144,10 @@ void Tile::construct(std::string id, nlohmann::json tileDef)
 
     /* Get properties within the tileDef json, load them into vars */
     //Simple properties
-    try { skipRendering = tileDef["skipRendering"]; }   catch(...) {}
-    try { solid = tileDef["solid"]; }                   catch(...) {}
-    try { textureHolder = tileDef["textureHolder"]; }  catch(...) {}
+    try { skipRendering = tileDef["skipRendering"]; }           catch(...) {}
+    try { solid = tileDef["solid"]; }                           catch(...) {}
+    try { material = strToMaterialType(tileDef["material"]); }  catch(...) {}
+    try { textureHolder = tileDef["textureHolder"]; }           catch(...) {}
     
     bool mapColorChanged = false;
     try {
@@ -143,9 +170,9 @@ void Tile::construct(std::string id, nlohmann::json tileDef)
             TexSpec ts = TexSpec();
             
             //Populate as many fields as possible (warn if error)
-            try { ts.type = strToRenderFacesType(ctrj["type"]); }               catch(...) {}
-            try { ts.aod.visionBlocking = (ctrj["visionBlocking"]); }            catch(...) {}
-            try { ts.aod.resrc = std::make_pair(ctrj["src"][0], ctrj["src"][1]); } catch(...) {}
+            try { ts.type = strToRenderFaceType(ctrj["type"]); }                    catch(...) {}
+            try { ts.aod.visionBlocking = (ctrj["visionBlocking"]); }               catch(...) {}
+            try { ts.aod.resrc = std::make_pair(ctrj["src"][0], ctrj["src"][1]); }  catch(...) {}
             try {
                 ts.aod.color = nch::Color(
                     (uint8_t)ctrj["color"][0],

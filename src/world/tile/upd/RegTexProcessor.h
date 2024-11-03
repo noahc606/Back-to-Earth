@@ -1,11 +1,11 @@
 #pragma once
 #include "TileIterator.h"
-#include "TileMapUpdater.h"
+#include "ScreenUpdater.h"
 
 class RegTexProcessor
 {
 public:
-    void init(SDLHandler* sh, Canvas* cs, TileMapUpdater* tmu);
+    void init(SDLHandler* sh, Canvas* cs, ScreenUpdater* tmu);
 
     void processRegions(Camera* cam, int loadDist, int rtUpdatesToDo);
     void processRegionLayer(TileIterator& ti, int64_t sRX, int64_t sRY, int64_t sRZ, Camera* cam, int rtUpdatesToDo);
@@ -21,5 +21,5 @@ private:
     
     Camera* cam = nullptr;
     TileMap* tileMap = nullptr;
-    TileMapUpdater* tileMapUpdater = nullptr;
+    ScreenUpdater* screenUpdater = nullptr;
 };

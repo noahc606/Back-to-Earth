@@ -5,8 +5,11 @@
 
 class Tile {
 public:
-    enum RenderFaces {
+    enum RenderFace {
         UNKNOWN, WEST, EAST, NORTH, SOUTH, UP, DOWN, ALL
+    };
+    enum Material {
+        GENERIC, METAL, ROCK, SOIL, SAND
     };
     struct AtlasObjDef {
         bool visionBlocking = true;
@@ -14,7 +17,7 @@ public:
         nch::Color color = nch::Color(255, 0, 255);
     };
     struct TexSpec {
-        RenderFaces type = RenderFaces::ALL;
+        RenderFace type = RenderFace::ALL;
         AtlasObjDef aod;
     };
     
@@ -22,17 +25,20 @@ public:
     Tile(std::string id, bool solid, std::pair<int, int> resrc, nch::Color color, bool visionBlocking);
     Tile();
     ~Tile();
-    static RenderFaces strToRenderFacesType(std::string rfStr);
-    static std::string renderFacesTypeToStr(RenderFaces rf);
-    static RenderFaces camDirToRenderFace(int camDir);
+    static RenderFace strToRenderFaceType(std::string rfStr);
+    static std::string renderFaceTypeToStr(RenderFace rf);
+    static RenderFace camDirToRenderFace(int camDir);
+    static Material strToMaterialType(std::string mtStr);
+    static std::string materialTypeToStr(Material m);
 
-    bool operator==(Tile& other);
-    bool operator!=(Tile& other);
+    bool operator==(const Tile& other);
+    bool operator!=(const Tile& other);
     bool isVisionBlocking(int renderFace);
 
     std::string id = "null";
     bool skipRendering = false;
     bool solid = true;
+    Material material = GENERIC;
     nch::Color mapColor = nch::Color(0, 0, 0);
     std::string textureHolder = "tile_type_a";
     std::vector<TexSpec> textureSpecs = {

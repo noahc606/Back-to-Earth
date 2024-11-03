@@ -230,6 +230,7 @@ void AudioLoader::addMixChunks()
 	addMixChunk(MUSIC_kc_alien_ruins, "music/kc/alien_ruins", "mp3", true);
 	addMixChunk(MUSIC_kc_digital_sunset, "music/kc/digital_sunset", "mp3", true);
 	addMixChunk(MUSIC_kc_distant_planet, "music/kc/distant_planet", "mp3", true);
+	addMixChunk(MUSIC_kc_last_stop, "music/kc/last_stop", "mp3", true);
 	addMixChunk(MUSIC_kc_nuclear_winter, "music/kc/nuclear_winter", "mp3", true);
 	addMixChunk(MUSIC_kc_space_dust, "music/kc/space_dust", "mp3", true);
 	addMixChunk(MUSIC_kc_the_witching_hour, "music/kc/the_witching_hour", "mp3", true);
@@ -240,11 +241,27 @@ void AudioLoader::addMixChunks()
 	addMixChunk(MUSIC_mercury, "music/mercury", "mp3", true);
 	addMixChunk(MUSIC_space_travel, "music/space_travel", "mp3", true);
 	
+	addMixChunk(SFX_WORLD_DESTROY_sand_1, "world/destroy/sand_1", "mp3");
+	addMixChunk(SFX_WORLD_DESTROY_sand_2, "world/destroy/sand_2", "mp3");
+	addMixChunk(SFX_WORLD_DESTROY_sand_3, "world/destroy/sand_3", "mp3");
+
+	addMixChunk(SFX_WORLD_DESTROY_soil_1, "world/destroy/soil_1", "mp3");
+	addMixChunk(SFX_WORLD_DESTROY_soil_2, "world/destroy/soil_2", "mp3");
+	addMixChunk(SFX_WORLD_DESTROY_soil_3, "world/destroy/soil_3", "mp3");
+
+	addMixChunk(SFX_WORLD_DESTROY_rock_1, "world/destroy/rock_1", "mp3");
+	addMixChunk(SFX_WORLD_DESTROY_rock_2, "world/destroy/rock_2", "mp3");
+	addMixChunk(SFX_WORLD_DESTROY_rock_3, "world/destroy/rock_3", "mp3");
+
+	addMixChunk(SFX_WORLD_DESTROY_metal_1, "world/destroy/metal_1", "mp3");
+	addMixChunk(SFX_WORLD_DESTROY_metal_2, "world/destroy/metal_2", "mp3");
+	addMixChunk(SFX_WORLD_DESTROY_metal_3, "world/destroy/metal_3", "mp3");
+
 	addMixChunk(SFX_WORLD_distant_explosion, "world/distant_explosion", "mp3");
 	addMixChunk(SFX_WORLD_heartbeat, "world/heartbeat");
 	addMixChunk(SFX_WORLD_implosion, "world/implosion", "mp3");
 	addMixChunk(SFX_WORLD_plasma_cannon, "world/plasma_cannon", "mp3");
-	addMixChunk(SFX_WORLD_air_release_1, "world/air_release_1", "ogg");
+	addMixChunk(SFX_WORLD_air_release_1, "world/air_release_1", "mp3");
 }
 
 /**

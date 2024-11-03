@@ -6,15 +6,15 @@
 #include "TileMapScreen.h"
 #include "Timer.h"
 
-void RegTexInfo::init(SDLHandler* sh, TileMapUpdater* tmu, Canvas* cs)
+void RegTexInfo::init(SDLHandler* sh, ScreenUpdater* su, Canvas* cs)
 {
     RegTexInfo::sdlHandler = sh;
-    RegTexInfo::tileMap = tmu->getTileMap();
+    RegTexInfo::tileMap = su->getTileMap();
 	RegTexInfo::csTileMap = cs;
 
 	RegTexInfo::cam = csTileMap->getCamera();
 
-	regTexProcessor.init(sdlHandler, csTileMap, tmu);
+	regTexProcessor.init(sdlHandler, csTileMap, su);
 }
 
 RegTexInfo::~RegTexInfo(){}

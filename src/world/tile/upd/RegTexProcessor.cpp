@@ -3,12 +3,12 @@
 #include "RegTexBuilder.h"
 #include "RegTexInfo.h"
 
-void RegTexProcessor::init(SDLHandler* sh, Canvas* cs, TileMapUpdater* tmu)
+void RegTexProcessor::init(SDLHandler* sh, Canvas* cs, ScreenUpdater* tmu)
 {
 	sdlHandler = sh;
 	csTileMap = cs;
 	cam = csTileMap->getCamera();
-	tileMapUpdater = tmu;
+	screenUpdater = tmu;
 	tileMap = tmu->getTileMap();
 }
 
@@ -60,7 +60,7 @@ void RegTexProcessor::processRegionLayer(TileIterator& ti, int64_t csRX, int64_t
     int sl = TileMap::getRegSubPos(cam->getLayer());
 
 	/** Get 'ru' (region updates collection) */
-	auto rus = tileMapUpdater->getRegUpdates();
+	auto rus = screenUpdater->getRegUpdates();
 	auto ruXY = rus->find(std::make_pair(csRX, csRY));
 	//Build a region marked for update
 	if(ruXY!=rus->end()) {
@@ -69,10 +69,10 @@ void RegTexProcessor::processRegionLayer(TileIterator& ti, int64_t csRX, int64_t
 	}
 
     /** Get 'tu' (tile updates collection) located within this region */
-    auto tu = tileMapUpdater->getTUsByRXY(csRX, csRY);
+    auto tu = screenUpdater->getTUsByRXY(csRX, csRY);
     //Delete empty or null update collections
     if(tu==nullptr || tu->size()==0) {
-		tileMapUpdater->getTileUpdates()->erase(std::make_pair(csRX, csRY));
+		screenUpdater->getTileUpdates()->erase(std::make_pair(csRX, csRY));
         return;
     }
 
@@ -96,7 +96,7 @@ void RegTexProcessor::processRegionLayer(TileIterator& ti, int64_t csRX, int64_t
 	}
 	
 	//Go through each individual update in 'rtu' and perform the regTexUpdate().
-	for( TileMapUpdater::t_updates::iterator itr = tu->begin(); itr!=tu->end(); itr=tu->begin() ) {
+	for( ScreenUpdater::t_updates::iterator itr = tu->begin(); itr!=tu->end(); itr=tu->begin() ) {
 		//Increment updates.
 		numUpdates++;
 		//Set TileIterator to the position of the tu

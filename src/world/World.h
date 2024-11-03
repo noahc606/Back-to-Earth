@@ -26,6 +26,7 @@ public:
 	void init(SDLHandler* sh, GUIHandler* gh, FileHandler* fh, Controls* ctrls);
 	void initCanvases();
 	/**/
+	void drawLocalPlayerMenu();
 	void draw(bool debugOn);
 	void tick(bool paused, GUIHandler& guiHandler);
 	void tickWorldObjs();
@@ -40,35 +41,26 @@ protected:
 
 private:
 	GUIHandler* guiHandler;
-	static Texture defaultTile;
-	
+	static Texture defaultTile;	
 	int counter = 0;
-	
-	WorldInteractions inter;
+	double performanceCounter = 0;
 
+	/* World Interactions */
+	WorldInteractions inter;
+	/* World Tiles */
+	Planet planet;
 	StructureMap struMap;
 	TileMap tileMap;
 	TileDict tileDict;
 	NoiseMap noiseMap;
-
+	/* World Graphics */
 	TileMapScreen tileMapScreen;
 	RegTexInfo regTexInfo;
-	
+	WorldBackground wbg;
+	Minimap minimap;
 	Canvas csTileMap;
 	Canvas csATileMap;
 	Canvas csInteractions;
 	Canvas csEntities;
 	Canvas csDebug;
-	
-	
-	double performanceCounter = 0;
-	
-	Planet planet;
-	WorldBackground wbg;
-	Minimap minimap;
-	
-	std::string worldDirName;
-	std::string worldDirPath;
-	std::string worldDataPath;
-	Settings::t_kvMap worldDataKVs;
 };

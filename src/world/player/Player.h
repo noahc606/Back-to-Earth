@@ -100,6 +100,7 @@ private:
 	double water = 100; double maxWater = 100;
 	double oxygen = 100; double maxOxygen = 100;
 	int spaceSuitState = 0;
+	bool playedSpaceSuitHiss = false;
 
 	//Supernatural properties
 	int gameMode = SANDBOX;
