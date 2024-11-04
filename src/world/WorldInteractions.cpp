@@ -247,3 +247,28 @@ void WorldInteractions::setLocalPlayerMenuState(int newMenuState)
 {
 	localPlayerMenu.setModule(newMenuState);
 }
+
+void WorldInteractions::playMusic()
+{
+	AudioLoader* al = sdlHandler->getAudioLoader();
+	srand(time(NULL));
+
+	std::vector<int> commonTracks = {
+		AudioLoader::MUSIC_kc_alien_ruins,
+		AudioLoader::MUSIC_kc_digital_sunset,
+		AudioLoader::MUSIC_kc_last_stop,
+		AudioLoader::MUSIC_kc_nuclear_winter,
+		AudioLoader::MUSIC_kc_space_dust,
+		AudioLoader::MUSIC_kc_the_witching_hour,
+	};
+
+	
+	if(rand()%100==0) {	/* Rare tracks */
+		int rare = rand();
+		if(rare%2==0) al->playOnce(AudioLoader::MUSIC_kc_50_million_year_trip);
+		if(rare%2==1) al->playOnce(AudioLoader::MUSIC_kc_distant_planet);
+	
+	} else {			/* Common tracks */
+		al->playOnce(commonTracks[(rand()%6)]);
+	}
+}

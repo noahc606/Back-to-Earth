@@ -23,6 +23,7 @@ public:
 	void playerTryPlaceTile(TileMapScreen* tms, TileMap* tm, Tile t, bool force);
 	void playerTryDestroyTile(TileMapScreen* tms, TileMap* tm);
 	void setLocalPlayerMenuState(int newMenuState);
+	void playMusic();
 
 	SDLHandler* sdlHandler;
 

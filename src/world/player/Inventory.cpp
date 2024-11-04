@@ -60,7 +60,7 @@ bool Inventory::slotExists(int x, int y)
 	switch(mod) {
 		case pmm.BACKPACK: 					{ return slotExists(0, x, y); } break;
 		case pmm.PLASMA_MATTER_TRANSFORMER: { return slotExists(1, x, y); } break;
-		case pmm.CRAFTING: 					{ return (y==0 || y==1) && (x>=0 && x<=7) && slotExists(0, x, y); } break;
+		case pmm.CRAFTING: 					{ return (y==0) && (x>=0 && x<=7) && slotExists(0, x, y); } break;
 		case pmm.SANDBOX:					{ return slotExists(100, x, y); }
 	}
 

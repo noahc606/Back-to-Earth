@@ -428,19 +428,9 @@ void GUIBuilder::buildCharacterMenu(GUIHandler& gh, int gamemode)
         int w = 13;
         int h = 10;
 
-        /*
-            's': Scroll through buttons representing other menu options
-            'd': Brief Character description. Can be clicked on to view even more info
-            'c': Character menu which is dynamic
-            'x': Character graphic. Translucent background
-            'e': Essential info. 3 graphics which represent Health, nutrition, oxygen + buttons
-                 to view specifics of these 3 graphics. More on the right half.
-            'b': Bottom tab for extra pages (next/prev)
-
-        */
         WindowData* wd = new WindowData(w, h);
         wd->setPanelData(0, "ddddhhhhhhhhw");
-        wd->setPanelData(1, "cccchhhhhhhhw");
+        wd->setPanelData(1, "cccciiiiiiiiw");
         wd->setPanelData(2, "cccciiiiiiiiw");
         wd->setPanelData(3, "cccciiiiiiiiw");
         wd->setPanelData(4, "cccciiiiiiiiw");
@@ -454,7 +444,7 @@ void GUIBuilder::buildCharacterMenu(GUIHandler& gh, int gamemode)
         wd->setPanelColor('i', nch::Color(0, 255, 0, 240) );     //[I]nventory
         wd->setPanelColor('h', nch::Color(255, 120, 40, 240) );  //[H]otbar
         wd->setPanelColor('c', nch::Color(0, 0, 0, 240) );       //[C]haracter
-        wd->setPanelColor('a', nch::Color(0, 255, 255, 240) );     //[A]ctions from items
+        wd->setPanelColor('a', nch::Color(0, 255, 255, 240) );   //[A]ctions from items
         wd->setPanelColor('w', nch::Color(130, 210, 180, 240) ); //[W]orkstation tabs (crafting, assembling, etc.)
 
         gh.addGUI(new Window( ch, cv, wd, gh.win_CHARACTER ));

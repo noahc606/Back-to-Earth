@@ -131,7 +131,7 @@ void PlayerMenu::giveItemStack(InvItemStack iis)
 		locToUse = 0;
 	}
 
-	//Try to find the same item type
+	//Try to find a slot w/ the same item type
 	for(int x = 0; x<8; x++)
 	for(int y = 0; y<8; y++) {
 		InvItemStack tempIIS = inv.getSlotItemStack(locToUse, x, y);
@@ -140,7 +140,13 @@ void PlayerMenu::giveItemStack(InvItemStack iis)
 			tempIIS.getCount()<1024
 		) {
 			if(tempIIS.getCount()>=0) {
-				inv.setSlotItemStack(locToUse, x, y, InvItemStack(iis.getType(), tempIIS.getCount()+1, iis.getExtraData()));
+				int extraCount = tempIIS.getCount()+iis.getCount()-1024;
+				if(extraCount>0) {
+					inv.setSlotItemStack(locToUse, x, y, InvItemStack(iis.getType(), tempIIS.getCount()+iis.getCount()-extraCount, iis.getExtraData()));
+					giveItemStack(InvItemStack(iis.getType(), extraCount, iis.getExtraData()));
+				} else {
+					inv.setSlotItemStack(locToUse, x, y, InvItemStack(iis.getType(), tempIIS.getCount()+iis.getCount(), iis.getExtraData()));
+				}
 			}
 			return;
 		}
@@ -151,7 +157,7 @@ void PlayerMenu::giveItemStack(InvItemStack iis)
 	for(int y = 0; y<8; y++) {
 		InvItemStack tempIIS = inv.getSlotItemStack(locToUse, x, y);
 		if(tempIIS.getType()==-1) {
-			inv.setSlotItemStack(locToUse, x, y, InvItemStack(iis.getType(), 1, iis.getExtraData()));
+			inv.setSlotItemStack(locToUse, x, y, InvItemStack(iis.getType(), iis.getCount(), iis.getExtraData()));
 			return;
 		}
 	}
@@ -185,7 +191,8 @@ void PlayerMenu::tickInventoryOpen()
 	if( controls->isPressed("HARDCODE_RIGHT_CLICK") ) {
 		controls->stopPress("HARDCODE_RIGHT_CLICK", __PRETTY_FUNCTION__);	//Stop click
 
-		if(inv.slotExists(shx, shy)) {									//If we clicked outside of the inventory, do nothing.
+		//If we clicked outside of the inventory, do nothing.
+		if(inv.slotExists(shx, shy)) {
 			//If the clicked slot was already selected, reset selection
 			if( inv.getSelX()==shx && inv.getSelY()==shy && inv.getSelLoc()==inv.getSlotLoc(shx, shy)) {
 				inv.selectSlot(-1, -1);
@@ -201,6 +208,8 @@ void PlayerMenu::tickInventoryOpen()
 	//Upon LEFT click...
 	if( controls->isPressed("HARDCODE_LEFT_CLICK") ) {
 		controls->stopPress("HARDCODE_LEFT_CLICK", __PRETTY_FUNCTION__);
+
+		bool canSwitchModule = true;
 
 		//If we clicked inside the inventory...
 		if(inv.slotExists(shx, shy)) {
@@ -219,12 +228,13 @@ void PlayerMenu::tickInventoryOpen()
 
 			itemHeldShouldUpdate = true;
 		} else {
-			giveItemStack(inv.getHeldItemStack());
-			inv.setHeldItemStack(InvItemStack(-1, 0));
+			if(inv.getHeldItemStack().getType()!=-1) {
+				canSwitchModule = false;
+			}
 		}
 
 		//If we clicked a potential module widget...
-		if(shx==8) {
+		if(shx==8 && canSwitchModule) {
 			int res = inv.getPMM()->widgetClicked(playerGamemode, shx, shy);
 			if(res!=-1) {
 				setModule(res);

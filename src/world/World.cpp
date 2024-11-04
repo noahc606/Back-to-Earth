@@ -45,6 +45,7 @@ void World::init(SDLHandler* sh, GUIHandler* gh, FileHandler* fh, Controls* ctrl
 	Settings::kv(&lwd, "playerX", "0");
 	Settings::kv(&lwd, "playerY", "0");
 	Settings::kv(&lwd, "playerZ", "-64");
+	Settings::kv(&lwd, "playTime", 0);
 	Settings::kv(&lwd, "worldSeed", "0");
 	Settings::kv(&lwd, "worldName", "world1");
 	//Build loaded world settings into worldDataKVs
@@ -57,6 +58,7 @@ void World::init(SDLHandler* sh, GUIHandler* gh, FileHandler* fh, Controls* ctrl
 	double px = Settings::getNum(inter.worldDataKVs, "playerX");
 	double py = Settings::getNum(inter.worldDataKVs, "playerY");
 	double pz = Settings::getNum(inter.worldDataKVs, "playerZ");
+	inter.playTime = Settings::getNum(inter.worldDataKVs, "playTime");
 	int64_t worldSeed = Settings::getI64(inter.worldDataKVs, "worldSeed");
 	double plntRot = Settings::getNum(inter.worldDataKVs, "planetRotation");
 	nch::Log::log("Loaded save data: player(%f, %f, %f); planetRotation=%f\n", px, py, pz, plntRot);
@@ -115,6 +117,7 @@ World::~World()
 	Settings::kv(&wdKVs, "playerX", inter.localPlayer.getPos()[0]+0.5 );
 	Settings::kv(&wdKVs, "playerY", inter.localPlayer.getPos()[1]+0.5 );
 	Settings::kv(&wdKVs, "playerZ", inter.localPlayer.getPos()[2]-1 );
+	Settings::kv(&wdKVs, "playTime", inter.playTime );
 	fileHandler->saveSettings(wdKVs, inter.worldDataPath);
 
 	// Save player inventory
@@ -223,28 +226,8 @@ void World::tickWorldObjs()
 void World::tickWorldPlayer()
 {
 	int pt = inter.playTime;
-	if( pt==200 || pt%36000==0 ) {
-		AudioLoader* al = sdlHandler->getAudioLoader();
-		srand(time(NULL));
-
-		std::vector<int> gameplayTracks = {
-			AudioLoader::MUSIC_kc_alien_ruins,
-			AudioLoader::MUSIC_kc_digital_sunset,
-			AudioLoader::MUSIC_kc_last_stop,
-			AudioLoader::MUSIC_kc_nuclear_winter,
-			AudioLoader::MUSIC_kc_space_dust,
-			AudioLoader::MUSIC_kc_the_witching_hour,
-		};
-
-		
-		if(rand()%100==0) {	/* Rare tracks */
-			int rare = rand();
-			if(rare%2==0) al->playOnce(AudioLoader::MUSIC_kc_50_million_year_trip);
-			if(rare%2==1) al->playOnce(AudioLoader::MUSIC_kc_distant_planet);
-		
-		} else {			/* Common tracks */
-			al->playOnce(gameplayTracks[(rand()%6)]);
-		}
+	if( pt==200 || (pt>0 && pt%36000==0) ) {
+		inter.playMusic();
 	}
 	
 	inter.localPlayer.collision(&tileMap);
