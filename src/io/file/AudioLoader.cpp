@@ -41,7 +41,7 @@ void AudioLoader::init(std::string resourcePath)
     //MIX default format = signed 16 bit
     //2 channels (Stereo)
     //1024 byte chunks
-    init(resourcePath, 22050, MIX_DEFAULT_FORMAT, 2);
+    init(resourcePath, 48000, MIX_DEFAULT_FORMAT, 2);
 }
 
 void AudioLoader::tick()

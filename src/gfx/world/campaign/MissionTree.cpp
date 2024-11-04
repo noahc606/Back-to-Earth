@@ -263,8 +263,6 @@ void MissionTree::updateNodesByLayer(int layer)
             }
         }
 
-        printf("Layer: %d\n", layer);
-
         //Add split location
         starts.push_back(currSplitX);
         currSplitX += (maxX-minX);

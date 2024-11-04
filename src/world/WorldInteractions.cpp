@@ -225,7 +225,7 @@ void WorldInteractions::playerTryPlaceTile(TileMapScreen* tms, TileMap* tm, Tile
  		//In survival mode, add item to inventory
 		if(!localPlayer.inGodMode()) {
 			InvItemStack iis(Items::WORLDTILE, 1, tLast.id);
-			localPlayerMenu.giveItemStack(iis);		
+			localPlayerMenu.giveItemStack(iis);
 		}
 	}
 

@@ -198,25 +198,26 @@ void Inventory::setHeldItemStack(InvItemStack iis) { heldStack = iis; }
 
 void Inventory::decrementSelectedItemStack()
 {
-	InvItemStack iss = getSlotItemStack(sx, sy);
+	InvItemStack iss = getSlotItemStack(sl, sx, sy);
 	if(iss.getType()==-1 || iss.getCount()==0) {
 		return;
 	}
 
 	if(iss.getCount()>1) {
-		setSlotItemStack(sx, sy, InvItemStack(iss.getType(), iss.getCount()-1, iss.getExtraData()));
+		setSlotItemStack(sl, sx, sy, InvItemStack(iss.getType(), iss.getCount()-1, iss.getExtraData()));
 	} else if(iss.getCount()==1) {
-		setSlotItemStack(sx, sy, InvItemStack(-1, 0));
+		setSlotItemStack(sl, sx, sy, InvItemStack(-1, 0));
 	} else {
-		setSlotItemStack(sx, sy, InvItemStack(iss.getType(), -1, iss.getExtraData()));
+		setSlotItemStack(sl, sx, sy, InvItemStack(iss.getType(), -1, iss.getExtraData()));
 	}
 
 	
-	selectedStack = getSlotItemStack(sx, sy);
-	if(getSlotItemStack(sx, sy).getCount()==0) {
+	selectedStack = getSlotItemStack(sl, sx, sy);
+	if(getSlotItemStack(sl, sx, sy).getCount()==0) {
 		selectedStack = InvItemStack(-1, 0);
 		sx = -1;
 		sy = -1;
+		sl = -1;
 	}
 }
 

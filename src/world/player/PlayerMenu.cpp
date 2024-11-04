@@ -119,20 +119,29 @@ void PlayerMenu::decrementSelectedItemStack()
 
 void PlayerMenu::giveItemStack(InvItemStack iis)
 {
-	//TODO account for IIS counts other than 1
 	if(iis.getType()==-1) {
 		return;
+	}
+
+	//Find location item should be stored
+	int locToUse = -1;
+	if(iis.getType()==Items::WORLDTILE) {
+		locToUse = 1;
+	} else {
+		locToUse = 0;
 	}
 
 	//Try to find the same item type
 	for(int x = 0; x<8; x++)
 	for(int y = 0; y<8; y++) {
-		InvItemStack tempIIS = inv.getSlotItemStack(x, y);
+		InvItemStack tempIIS = inv.getSlotItemStack(locToUse, x, y);
 		if( tempIIS.getType()==iis.getType() &&
 			tempIIS.getExtraData()==iis.getExtraData() &&
 			tempIIS.getCount()<1024
 		) {
-			inv.setSlotItemStack(1, x, y, InvItemStack(iis.getType(), tempIIS.getCount()+1, iis.getExtraData()));
+			if(tempIIS.getCount()>=0) {
+				inv.setSlotItemStack(locToUse, x, y, InvItemStack(iis.getType(), tempIIS.getCount()+1, iis.getExtraData()));
+			}
 			return;
 		}
 	}
@@ -140,9 +149,9 @@ void PlayerMenu::giveItemStack(InvItemStack iis)
 	//Try to find an empty slot
 	for(int x = 0; x<8; x++)
 	for(int y = 0; y<8; y++) {
-		InvItemStack tempIIS = inv.getSlotItemStack(x, y);
+		InvItemStack tempIIS = inv.getSlotItemStack(locToUse, x, y);
 		if(tempIIS.getType()==-1) {
-			inv.setSlotItemStack(x, y, InvItemStack(iis.getType(), 1, iis.getExtraData()));
+			inv.setSlotItemStack(locToUse, x, y, InvItemStack(iis.getType(), 1, iis.getExtraData()));
 			return;
 		}
 	}
@@ -192,19 +201,26 @@ void PlayerMenu::tickInventoryOpen()
 	//Upon LEFT click...
 	if( controls->isPressed("HARDCODE_LEFT_CLICK") ) {
 		controls->stopPress("HARDCODE_LEFT_CLICK", __PRETTY_FUNCTION__);
-		
+
 		//If we clicked inside the inventory...
 		if(inv.slotExists(shx, shy)) {
-			if(inv.getHeldItemStack().getType()==-1) {		//If no item is being held: pick up the item in this slot and clear the slot
-				inv.setHeldItemStack(inv.getSlotItemStack(shx, shy));
-				inv.setSlotItemStack(shx, shy, InvItemStack(-1, 0));
-			} else {				//If an item is being held: put the item in the slot and set the held item to be whatever was in the slot.
-				InvItemStack temp = inv.getSlotItemStack(shx, shy);
-				inv.setSlotItemStack(shx, shy, inv.getHeldItemStack());
+			int locToUse = inv.getSlotLoc(shx, shy);
+
+			if(inv.getHeldItemStack().getType()==-1) {
+				//If no item is being held: pick up the item in this slot and clear the slot
+				inv.setHeldItemStack(inv.getSlotItemStack(locToUse, shx, shy));
+				inv.setSlotItemStack(locToUse, shx, shy, InvItemStack(-1, 0));
+			} else {
+				//If an item is being held: put the item in the slot and set the held item to be whatever was in the slot.
+				InvItemStack temp = inv.getSlotItemStack(locToUse, shx, shy);
+				inv.setSlotItemStack(locToUse, shx, shy, inv.getHeldItemStack());
 				inv.setHeldItemStack(temp);
 			}
 
 			itemHeldShouldUpdate = true;
+		} else {
+			giveItemStack(inv.getHeldItemStack());
+			inv.setHeldItemStack(InvItemStack(-1, 0));
 		}
 
 		//If we clicked a potential module widget...
