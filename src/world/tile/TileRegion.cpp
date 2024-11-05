@@ -59,6 +59,8 @@ void TileRegion::putInfo(std::stringstream& ss, int& tabs, int subX, int subY, i
 		std::stringstream st; st << "Selected Tile: " << t.id;
 		DebugScreen::newGroup(ss, tabs, st.str());
 			DebugScreen::indentLine(ss, tabs);
+			ss << "material=" << t.material;
+			DebugScreen::newIndentedLine(ss, tabs);
 			ss << "skipRendering=" << t.skipRendering;
 			DebugScreen::newIndentedLine(ss, tabs);
 			ss << "solid=" << t.solid;

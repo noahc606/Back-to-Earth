@@ -1,4 +1,5 @@
 #include "InvItemStack.h"
+#include "PlayerMenu.h"
 #include "TextOld.h"
 #include "Tile.h"
 
@@ -14,6 +15,22 @@ InvItemStack::InvItemStack(int type, int count, std::string extraData)
     InvItemStack::type = type;
     InvItemStack::count = count;
     InvItemStack::extraData = extraData;
+}
+
+void InvItemStack::draw(SDLHandler* sdlHandler, TileDict* td, int drawX, int drawY)
+{
+    if(type==-1) return;
+
+    //Draw the item...
+    SDL_Rect isrc; isrc.x = PlayerMenu::getItemTexSrcX(type)+1; isrc.y = PlayerMenu::getItemTexSrcY(type)+1; isrc.w = 30; isrc.h = 30;
+    SDL_Rect idst; idst.x = drawX; idst.y = drawY; idst.w = 60; idst.h = 60;
+    if(type!=Items::WORLDTILE) {
+        sdlHandler->renderCopy(TextureLoader::PLAYER_items, &isrc, &idst);
+    } else {
+        drawEDTileType(sdlHandler, td, idst.x, idst.y);
+    }
+
+    drawCount(sdlHandler, drawX, drawY);
 }
 
 void InvItemStack::drawCount(SDLHandler* sdlHandler, int drawX, int drawY)

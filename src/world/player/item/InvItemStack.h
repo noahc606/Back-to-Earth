@@ -8,6 +8,7 @@ public:
     InvItemStack(int type, int count);
     InvItemStack(int type, int count, std::string extraData);
 
+    void draw(SDLHandler* sdlHandler, TileDict* td, int drawX, int drawY);
     void drawCount(SDLHandler* sdlHandler, int drawX, int drawY);
     void drawEDTileType(SDLHandler* sdlHandler, TileDict* td, int drawX, int drawY);
 

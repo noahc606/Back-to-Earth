@@ -11,7 +11,6 @@ void PlayerMenu::init(SDLHandler* sh, GUIHandler* gh, Controls* ctrls, Player* p
 	guiHandler = gh;
 	controls = ctrls;
 	tileDict = td;
-
 	sandboxTile = tileDict->getBaseTileDef("hab_futuristic_hull");
 
 	items.init(guiHandler, pl);
@@ -24,6 +23,8 @@ void PlayerMenu::init(SDLHandler* sh, GUIHandler* gh, Controls* ctrls, Player* p
 			}
 		}
 	}
+
+	hotbar.init(getInventory());
 
 	uiOverlay.init(sdlHandler, 0, 0);
 }
@@ -38,7 +39,9 @@ void PlayerMenu::tick() {
 	//If the inventory is open at all...
 	if(inv.getMod()>=0) {
 		tickInventoryOpen();
-	}	
+	}
+
+	hotbar.tick(controls);
 }
 
 void PlayerMenu::draw(MissionHolder& mh)
@@ -106,6 +109,11 @@ void PlayerMenu::draw(MissionHolder& mh)
 	drawHoverText();
 }
 
+void PlayerMenu::drawHotbar()
+{
+	hotbar.draw(sdlHandler, tileDict);
+}
+
 int PlayerMenu::getItemTexSrcX(int itemID) { return (itemID%8)*32; }
 int PlayerMenu::getItemTexSrcY(int itemID) { return (itemID/8)*32;}
 
@@ -132,8 +140,8 @@ void PlayerMenu::giveItemStack(InvItemStack iis)
 	}
 
 	//Try to find a slot w/ the same item type
-	for(int x = 0; x<8; x++)
-	for(int y = 0; y<8; y++) {
+	for(int y = 0; y<8; y++)
+	for(int x = 0; x<8; x++) {
 		InvItemStack tempIIS = inv.getSlotItemStack(locToUse, x, y);
 		if( tempIIS.getType()==iis.getType() &&
 			tempIIS.getExtraData()==iis.getExtraData() &&
@@ -153,8 +161,8 @@ void PlayerMenu::giveItemStack(InvItemStack iis)
 	}
 
 	//Try to find an empty slot
-	for(int x = 0; x<8; x++)
-	for(int y = 0; y<8; y++) {
+	for(int y = 0; y<8; y++)
+	for(int x = 0; x<8; x++) {
 		InvItemStack tempIIS = inv.getSlotItemStack(locToUse, x, y);
 		if(tempIIS.getType()==-1) {
 			inv.setSlotItemStack(locToUse, x, y, InvItemStack(iis.getType(), iis.getCount(), iis.getExtraData()));
@@ -304,16 +312,9 @@ void PlayerMenu::drawInventoryElements(int oscillation)
 			}
 
 			//Draw the item...
-			int itemID = inv.getSlotItemType(ix, iy);
-			SDL_Rect isrc; isrc.x = getItemTexSrcX(itemID)+1; isrc.y = getItemTexSrcY(itemID)+1; isrc.w = 30; isrc.h = 30;
-			SDL_Rect idst; idst.x = (inv.getScrX()+ix*64+inv.getUIODX()); idst.y = (inv.getScrY()+iy*64+inv.getUIODY()); idst.w = 60; idst.h = 60;
-			if(inv.getSlotItemType(ix, iy)!=Items::WORLDTILE) {
-				sdlHandler->renderCopy(TextureLoader::PLAYER_items, &isrc, &idst);
-			} else {
-				inv.getSlotItemStack(ix, iy).drawEDTileType(sdlHandler, tileDict, idst.x, idst.y);
-			}
-			
-			inv.getSlotItemStack(ix, iy).drawCount(sdlHandler, inv.getScrX()+ix*64+inv.getUIODX(), inv.getScrY()+iy*64+inv.getUIODY());
+			inv.getSlotItemStack(ix, iy).draw(
+				sdlHandler, tileDict, inv.getScrX()+ix*64+inv.getUIODX(), inv.getScrY()+iy*64+inv.getUIODY()
+			);
 		} else {
 			sdlHandler->setRenderDrawColor(box3);
 			sdlHandler->renderFillRect(inv.getScrX()+ix*64+inv.getUIODX(), inv.getScrY()+iy*64+inv.getUIODY(), 64, 64);

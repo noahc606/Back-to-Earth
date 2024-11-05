@@ -51,6 +51,16 @@ Settings::Settings()
 		kv(s, "HARDCODE_LEFT_CLICK", "MOUSE_LEFT");
 		kv(s, "HARDCODE_MIDDLE_CLICK", "MOUSE_MIDDLE");
 		kv(s, "HARDCODE_RIGHT_CLICK", "MOUSE_RIGHT");
+
+		kv(s, "HOTBAR_1", SDLK_1);
+		kv(s, "HOTBAR_2", SDLK_2);
+		kv(s, "HOTBAR_3", SDLK_3);
+		kv(s, "HOTBAR_4", SDLK_4);
+		kv(s, "HOTBAR_5", SDLK_5);
+		kv(s, "HOTBAR_6", SDLK_6);
+		kv(s, "HOTBAR_7", SDLK_7);
+		kv(s, "HOTBAR_8", SDLK_8);
+		kv(s, "HOTBAR_SWITCH", SDLK_BACKQUOTE);
 	}
 
     /** Number keys */

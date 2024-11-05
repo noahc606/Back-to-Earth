@@ -1,6 +1,7 @@
 #pragma once
 #include "SDLHandler.h"
 #include "GUIHandler.h"
+#include "Hotbar.h"
 #include "Inventory.h"
 #include "InvItemStack.h"
 #include "Items.h"
@@ -17,6 +18,7 @@ public:
 	void init(SDLHandler* sh, GUIHandler* gh, Controls* ctrls, Player* pl, TileDict* td);
 	void tick();
 	void draw(MissionHolder& mh);
+	void drawHotbar();
 	/**/
 	static int getItemTexSrcX(int itemID);
 	static int getItemTexSrcY(int itemID);
@@ -48,6 +50,8 @@ private:
 	
 	int playerGamemode = 0;
 	Inventory inv;
+	Hotbar hotbar;
+	
 	Texture uiOverlay;
 	Texture heldItem;
 	bool itemUIShouldUpdate = true;

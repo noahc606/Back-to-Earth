@@ -178,6 +178,7 @@ void World::draw(bool debugOn)
 	/* Drawing misc. */
 	// 1 - HUDs
 	inter.localPlayer.drawHUD();
+	inter.localPlayerMenu.drawHotbar();
 	minimap.draw();
 }
 
