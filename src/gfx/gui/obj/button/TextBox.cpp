@@ -218,18 +218,36 @@ void TextBox::resetActionID(std::string methodName)
     actionID = -1;
 }
 
-void TextBox::resetEnteredData()
+void TextBox::resetSettingData(int stngMapIndex)
 {
+	//Get helper objects
     Settings* stngs = fileHandler->getSettings();
-    Settings::t_kvMap defaultCtrls = stngs->getDefaultSettings(Settings::controls);
-    std::string key = stngs->getKey( defaultCtrls, getExtraID());
-    std::string val = stngs->get( defaultCtrls, key);
+    Settings::t_kvMap defaultMap = stngs->getDefaultSettings(stngMapIndex);
+	if(defaultMap.size()==0) {
+		nch::Log::warn(__PRETTY_FUNCTION__, "Nonexistent setting map '%d' retrieved from resetting textbox ID '%d'.", stngMapIndex, getID());
+		return;
+	}
 
-    stngs->kv(Settings::TextFiles::controls, key, val);
-    fileHandler->saveSettings(Settings::controls);
+	//Get key and default value
+    std::string key = stngs->getKey( stngs->getKvMap(stngMapIndex), getExtraID());
+    std::string defval = stngs->get( defaultMap, key);
 
-    setCB = ControlBinding(stngs->get(defaultCtrls, key));
+	//Set default value
+    stngs->kv(stngMapIndex, key, defval);
+    fileHandler->saveSettings(stngMapIndex);
 
+	//Set control
+	switch(stngMapIndex) {
+		case Settings::controls: {
+			setCB = ControlBinding(defval);
+		} break;
+		case Settings::character: {
+			nch::Color defCol;
+			defCol.setFromB10Str(defval);
+			setString(defCol.toStringB16(false));
+		} break;
+	}
+    
     deselect();
 }
 

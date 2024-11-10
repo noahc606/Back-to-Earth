@@ -476,8 +476,16 @@ void GUIHandler::resetGUIs(int extraID)
     for( GUI* gui : guis ) {
         if( gui->getType()==BTEObject::GUI_textbox ) {
             TextBox* tbx = (TextBox*)gui;
+
+            Window* pw = tbx->getParentWindow();
+            int smi = -1;
+            switch(pw->getID()) {
+                case win_CONTROLS:              smi = Settings::controls; break;
+                case win_CHARACTER_SETTINGS:    smi = Settings::character; break;
+            }
+
             if( tbx->getExtraID()==extraID ) {
-                tbx->resetEnteredData();
+                tbx->resetSettingData(smi);
             }
         }
     }

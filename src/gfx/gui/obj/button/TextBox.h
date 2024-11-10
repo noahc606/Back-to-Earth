@@ -28,7 +28,7 @@ public:
 	bool hasInvalidInput();
     /**/
     void resetActionID(std::string methodName);
-    void resetEnteredData();
+    void resetSettingData(int kvMapIndex);
     void setEntered(bool entered);
     void setString(std::string s);
 	bool validateString();

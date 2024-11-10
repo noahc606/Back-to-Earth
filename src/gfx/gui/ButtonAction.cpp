@@ -162,7 +162,8 @@ void ButtonAction::populateSettingUIInfo(GUIHandler* gh, int& currentWindowID, i
                 std::make_pair(GUIHandler::tbx_CHARACTER_SETTINGS_set_val, 5),
                 std::make_pair(GUIHandler::tbx_CHARACTER_SETTINGS_set_val, 6),
             };
-            objKeys = { "hair", "skin", "eyes", "mouth", "shirt", "leggings", "shoes" };
+            //Alphabetical order:
+            objKeys = { "eyes", "hair", "leggings", "mouth", "shirt", "shoes", "skin" };
             settingFileID = Settings::TextFiles::character;
         } break;
         case gh->ID::win_CONTROLS: {

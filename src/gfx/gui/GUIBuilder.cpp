@@ -168,7 +168,6 @@ void GUIBuilder::buildMainControls(GUIHandler& gh, FileHandler& fh)
 	ctrls.push_back( std::make_pair("Jump", "PLAYER_JUMP") );
 	ctrls.push_back( std::make_pair("Switch Hotbar", "HOTBAR_SWITCH") );
 
-
 	//Add objects from the list above to the window
 	for(unsigned int i = 0; i<ctrls.size(); i++) {
         std::pair<std::string, std::string> elem = ctrls.at(i);
@@ -290,7 +289,8 @@ void GUIBuilder::buildMainCharacter(GUIHandler& gh, FileHandler& fh)
 		std::pair<std::string, std::string> elem = uis.at(i);
 		std::string name = elem.first;
 		std::string stng = elem.second;
-
+        int ctrlIndex = settings->find( settings->getKvMap(Settings::character), stng);
+        
         //Get x and y pos from indexes
         int xPos = 462;
         int yPos = 130+i*32;
@@ -304,13 +304,13 @@ void GUIBuilder::buildMainCharacter(GUIHandler& gh, FileHandler& fh)
         nch::Color color; color.setFromB10Str(settings->get(Settings::character, stng));
 
         //Add GUIs
-		gh.addGUI(new Tooltip(w, xPos, yPos+10, name+":", gh.ttp_CHARACTER_SETTINGS_tooltip), i);
-        gh.addGUI(new ColorSelector(w, xPos+96, yPos, color, gh.csr_CHARACTER_SETTINGS_set_val), i);
-		TextBox* colorTBX = (TextBox*)gh.addGUI(new TextBox(w, xPos+96+34, yPos, 144, TextBox::FREE_HEX_BASIC, gh.tbx_CHARACTER_SETTINGS_set_val), i);
+		gh.addGUI(new Tooltip(w, xPos, yPos+10, name+":", gh.ttp_CHARACTER_SETTINGS_tooltip), ctrlIndex);
+        gh.addGUI(new ColorSelector(w, xPos+96, yPos, color, gh.csr_CHARACTER_SETTINGS_set_val), ctrlIndex);
+		TextBox* colorTBX = (TextBox*)gh.addGUI(new TextBox(w, xPos+96+34, yPos, 144, TextBox::FREE_HEX_BASIC, gh.tbx_CHARACTER_SETTINGS_set_val), ctrlIndex);
         colorTBX->setString(color.toStringB16(false));
         colorTBX->setColorInput(true);
 
-		gh.addGUI(new CheckBox(w, xPos+96+180, yPos, "", CheckBox::CBX_RESET, true, gh.cbx_CHARACTER_SETTINGS_set_defaults), i);
+		gh.addGUI(new CheckBox(w, xPos+96+180, yPos, "", CheckBox::CBX_RESET, true, gh.cbx_CHARACTER_SETTINGS_set_defaults), ctrlIndex);
 	}
 	
     //Add back button

@@ -224,7 +224,7 @@ std::string Settings::getKey(t_kvMap kvMap, int index)
 	}
 	
 	std::stringstream ss;
-	ss << "Failed to find the key-value pair at " << index << " in the key-value set";
+	ss << "Failed to find the key-value pair at index " << index << " in the key-value set";
 	nch::Log::warn(__PRETTY_FUNCTION__, ss.str(), "returning \"null\"");
 	return "null";
 }
