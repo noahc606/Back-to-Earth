@@ -255,6 +255,7 @@ void TextureLoader::load()
 			addSurface("gui/font/robot");
 			addSurface("gui/button");
 			addSurface("gui/cursor");
+			addSurface("gui/player_camera");
 			addSurface("gui/player_interactions");
 			addSurface("gui/window");
 			addSurface("gui/save_selector");

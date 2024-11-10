@@ -1,5 +1,7 @@
 #pragma once
+#include <string>
 #include "BTEObject.h"
+
 
 class Camera : public BTEObject
 {
@@ -10,6 +12,8 @@ public:
     void init(SDLHandler* sh, Controls* ctrls);
     /**/
     void tick();
+	void draw();
+	void drawSelectionFromSrc(SDL_Rect& src, int type);
     /**/
     bool getInfo();
     double getX(); double getY(); double getZ();
@@ -32,6 +36,7 @@ public:
     static int getScreenSemiWidthReg(SDLHandler* sh, int tileScale);    int getScreenSemiWidthReg();
     static int getScreenSemiHeightReg(SDLHandler* sh, int tileScale);   int getScreenSemiHeightReg();
 
+	int getOppositeDirection();
 	int getDirection();
 	int coordinateHasDepth(int coord);
 	int chd(int coord);
@@ -64,6 +69,8 @@ public:
 protected:
 
 private:
+	int getDirFromSelection();
+
     double x = 0; double y = 0; double z = 0;
 
     int zoomIndex = 0; double zoom = 1;
@@ -78,4 +85,13 @@ private:
 
     bool focused = false;
     bool freecam = false;
+
+	SDL_Rect selBoxSrc;
+	SDL_Rect selBoxDst;
+	bool holdingModifier = false;
+	bool camModUp = false;
+	bool camModRight = false;
+	bool camModDown = false;
+	bool camModLeft = false;
+	bool camModBack = false;
 };

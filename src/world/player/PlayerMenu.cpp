@@ -352,35 +352,35 @@ void PlayerMenu::drawHoverText()
 	//Draw item name if applicable...
 	std::string itemName = Items::getItemName(type);
 	if(itemName!="???null???") {		
-		int trw = TextOld::draw(sdlHandler, itemName, mx, my, 2);
+		int trw = TextOld::draw(sdlHandler, itemName, mx, my-20, 2);
 
 		SDL_Rect tr;
-		tr.x = (controls->getMouseX()-6)/2*2;
-		tr.y = (controls->getMouseY()-6)/2*2;
+		tr.x = (controls->getMouseX()-2)/2*2;
+		tr.y = (controls->getMouseY()-26)/2*2;
 		tr.w = trw/2*2+12;
 		tr.h = 7*2+12;
 		
 		sdlHandler->setRenderDrawColor(nch::Color(0, 0, 0, 128));
 		sdlHandler->renderFillRect(&tr);
 
-		TextOld::draw(sdlHandler, itemName, mx, my, 2);
+		TextOld::draw(sdlHandler, itemName, mx, my-20, 2);
 	}
 
 	//Draw special hovertext if applicable...
 	std::string special = inv.getPMM()->getWidgetHoverText(playerGamemode, shx, shy);
 	if(special!="???null???") {
-		int trw = TextOld::draw(sdlHandler, special, mx, my, 2);
+		int trw = TextOld::draw(sdlHandler, special, mx, my-20, 2);
 
 		SDL_Rect tr;
-		tr.x = (mx-6)/2*2;
-		tr.y = (my-6)/2*2;
+		tr.x = (mx-2)/2*2;
+		tr.y = (my-26)/2*2;
 		tr.w = trw/2*2+12;
 		tr.h = 7*2+12;
 		
 		sdlHandler->setRenderDrawColor(nch::Color(0, 0, 0, 128));
 		sdlHandler->renderFillRect(&tr);
 
-		TextOld::draw(sdlHandler, special, mx, my, 2, nch::Color(0, 255, 255), nch::Color(0, 0, 0, 0));
+		TextOld::draw(sdlHandler, special, mx, my-20, 2, nch::Color(0, 255, 255), nch::Color(0, 0, 0, 0));
 	}
 }
 

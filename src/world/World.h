@@ -59,7 +59,6 @@ private:
 	WorldBackground wbg;
 	Minimap minimap;
 	Canvas csTileMap;
-	Canvas csATileMap;
 	Canvas csInteractions;
 	Canvas csEntities;
 	Canvas csDebug;

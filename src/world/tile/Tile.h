@@ -39,6 +39,7 @@ public:
     bool skipRendering = false;
     bool solid = true;
     Material material = GENERIC;
+    int tileEntityID = 0;
     nch::Color mapColor = nch::Color(0, 0, 0);
     std::string textureHolder = "tile_type_a";
     std::vector<TexSpec> textureSpecs = {

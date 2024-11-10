@@ -159,9 +159,6 @@ void World::draw(bool debugOn)
 	// 3 - Entities
 	csEntities.clearCanvas();
 	inter.localPlayer.draw(&csEntities, debugOn);
-	
-	//csEntities.setSourceTex(TextureLoader::missing, 0, 0);
-	//csEntities.rcopy(mouseXL*32, mouseYL*32, 32, 32);
 	csEntities.draw();
 
 	// 4 - Interactions
@@ -180,6 +177,8 @@ void World::draw(bool debugOn)
 	inter.localPlayer.drawHUD();
 	inter.localPlayerMenu.drawHotbar();
 	minimap.draw();
+	inter.localPlayer.getCamera()->draw();
+	
 }
 
 void World::tick(bool paused, GUIHandler& guiHandler)

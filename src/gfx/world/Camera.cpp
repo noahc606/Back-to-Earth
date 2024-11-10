@@ -9,41 +9,161 @@ Camera::~Camera(){}
 void Camera::init(SDLHandler* sh, Controls* ctrls)
 {
     BTEObject::init(sh, nullptr, ctrls);
+
+	selBoxSrc.x = 138; selBoxSrc.y = 138;
+	selBoxSrc.w = 254; selBoxSrc.h = 254;
 }
 
 void Camera::tick()
 {
-    if(!focused) {
-		/* Control zoom */
-		if(controls->isHeld("MAP_USE_ZOOM")) {
-			int mw = controls->getMouseWheel();
-			zoomIndex += mw;
+	if(focused) return;
 
-			int cz = 10;    //Closest possible zoom
-			int fz = -10;   //Furthest possible zoom
+	/* Control zoom */
+	if(controls->isHeld("MAP_USE_ZOOM")) {
+		int mw = controls->getMouseWheel();
+		zoomIndex += mw;
 
-			if(zoomIndex>=cz) zoomIndex = cz;
-			if(zoomIndex<=fz) zoomIndex = fz;
+		int cz = 10;    //Closest possible zoom
+		int fz = -10;   //Furthest possible zoom
 
-			if(mw!=0) controls->resetWheel(__PRETTY_FUNCTION__);
-		}
-		double original = 1.5;
-		double extremes = 7;
-		zoom = original*pow( pow(extremes, 0.1), zoomIndex );
-		//Round zoom to the next hundredth
-		zoom = ceil(zoom*100.0)/100.0;
-		
-		/* Control direction */
-		if(controls->isPressed("MAP_CHANGE_DIR")) {
-			
-			direction++;
-			if(direction>=6) {
-				direction = 0;
+		if(zoomIndex>=cz) zoomIndex = cz;
+		if(zoomIndex<=fz) zoomIndex = fz;
+
+		if(mw!=0) controls->resetWheel(__PRETTY_FUNCTION__);
+	}
+	double original = 1.5;
+	double extremes = 7;
+	zoom = original*pow( pow(extremes, 0.1), zoomIndex );
+	//Round zoom to the next hundredth
+	zoom = ceil(zoom*100.0)/100.0;
+	
+
+
+	/* Control map direction */
+	//Turn on hold modifier
+	if(controls->isPressed("MAP_CHANGE_DIR")) {
+		controls->stopPress("MAP_CHANGE_DIR", __PRETTY_FUNCTION__);
+		holdingModifier = true;
+
+
+		SDL_WarpMouseInWindow(sdlHandler->getWindow(), sdlHandler->getWidth()/4*2, sdlHandler->getHeight()/4*2);
+	}
+	//Turn off hold modifier, change direction
+	if(controls->isReleased("MAP_CHANGE_DIR")) {
+		controls->stopRelease("MAP_CHANGE_DIR", __PRETTY_FUNCTION__);
+		direction = getDirFromSelection();
+		holdingModifier = false;
+	}
+
+	camModUp = false;
+	camModRight = false;
+	camModDown = false;
+	camModLeft = false;
+	camModBack = false;
+	if(holdingModifier) {
+		int mx = controls->getMouseX()/2*2;
+		int my = controls->getMouseY()/2*2;
+		int scx = sdlHandler->getWidth()/4*2;
+		int scy = sdlHandler->getHeight()/4*2;
+
+		//Update direction selection box
+		SDL_Rect sbs = selBoxSrc;
+		selBoxDst.x = scx-sbs.w;
+		selBoxDst.y = scy-sbs.h;
+		selBoxDst.w = sbs.w*2;
+		selBoxDst.h = sbs.h*2;
+		SDL_Rect sbd = selBoxDst;
+
+		//If the mouse is over the direction selection UI
+		if(mx>sbd.x+2 && mx<=sbd.x+sbd.w-2 && my>sbd.y+2 && my<=sbd.y+sbd.h-2) {
+
+			int dmx = mx-scx;
+			int dmy = my-scy;
+
+
+			//Backwards
+			bool withinCenter = false;
+			if(mx>scx-108 && mx<=scx+108 && my>scy-108 && my<=scy+108) {
+				withinCenter = true;
+				if(!(mx>scx-38 && mx<=scx+38 && my>scy-38 && my<=scy+38)) {
+					camModBack = true;
+				}
 			}
-			
-			controls->stopPress("MAP_CHANGE_DIR", __PRETTY_FUNCTION__);
+					
+			if(!withinCenter) {
+				if(dmy>=dmx && dmy<=-dmx) { camModLeft = true;	}	//Left
+				if(dmy<=dmx && dmy>=-dmx) { camModRight = true;	}	//Right
+				if(dmy<dmx && dmy<-dmx)   { camModUp = true;	}	//Up
+				if(dmy>dmx && dmy>-dmx)   { camModDown = true; 	}	//Down
+			}
 		}
-    }
+	}
+}
+
+void Camera::draw()
+{
+	if(!holdingModifier) return;
+	int texID = TextureLoader::GUI_player_camera;
+	int scx = sdlHandler->getWidth()/4*2;
+	int scy = sdlHandler->getHeight()/4*2;
+
+	//Draw direction selection box
+	sdlHandler->renderCopy(texID, &selBoxSrc, &selBoxDst);
+	
+	//Draw hovered element within selBox
+	SDL_Rect src; SDL_Rect dst;
+
+	if(camModBack)	{ src.x = 0; 	src.y = 0; 	 src.w = 108; src.h = 108; drawSelectionFromSrc(src, 0); }
+	else 			{ src.x = 422; 	src.y = 0; 	 src.w = 108; src.h = 108; drawSelectionFromSrc(src, 0); }
+	if(camModLeft)  { src.x = 67; 	src.y = 140; src.w = 71;  src.h = 250; drawSelectionFromSrc(src, 1); }
+	else 			{ src.x = 0; 	src.y = 140; src.w = 67;  src.h = 250; drawSelectionFromSrc(src, 2); }
+	if(camModRight) { src.x = 392; 	src.y = 140; src.w = 71;  src.h = 250; drawSelectionFromSrc(src, 3); }
+	else 			{ src.x = 463; 	src.y = 140; src.w = 67;  src.h = 250; drawSelectionFromSrc(src, 4); }
+	if(camModUp) 	{ src.x = 140; 	src.y = 67;  src.w = 250; src.h = 71;  drawSelectionFromSrc(src, 5); }
+	else 			{ src.x = 140; 	src.y = 0;   src.w = 250; src.h = 67;  drawSelectionFromSrc(src, 6); }
+	if(camModDown) 	{ src.x = 140; 	src.y = 392; src.w = 250; src.h = 71;  drawSelectionFromSrc(src, 7); }
+	else 			{ src.x = 140; 	src.y = 463; src.w = 250; src.h = 67;  drawSelectionFromSrc(src, 8); }
+}
+
+void Camera::drawSelectionFromSrc(SDL_Rect& src, int type) {
+	int scx = sdlHandler->getWidth()/4*2;
+	int scy = sdlHandler->getHeight()/4*2;
+	int texID = TextureLoader::GUI_player_camera;
+
+	int dx = 0;
+	int dy = 0;
+	switch(type) {
+		case 1: dx = -181; break;
+		case 2: dx = -181; break;
+		case 3: dx = 181; break;
+		case 4: dx = 181; break;
+		case 5: dy = -181; break;
+		case 6: dy = -181; break;
+		case 7: dy = 181; break;
+		case 8: dy = 181; break;
+	}
+	
+	SDL_Rect dst;
+	dst.x = scx-src.w+dx;
+	dst.y = scy-src.h+dy;
+	dst.w = src.w*2;
+	dst.h = src.h*2;
+
+	sdlHandler->renderCopy(texID, &src, &dst);
+
+	/* Text */
+	int mx = controls->getMouseX()/2*2;
+	int my = controls->getMouseY()/2*2;
+
+	int trw = TextOld::draw(sdlHandler, directionToString(getDirFromSelection()), mx, my-20, 2);
+	SDL_Rect tr;
+	tr.x = (mx-2)/2*2;
+	tr.y = (my-26)/2*2;
+	tr.w = trw/2*2+12;
+	tr.h = 7*2+12;	
+	sdlHandler->setRenderDrawColor(nch::Color(0, 0, 0, 128));
+	sdlHandler->renderFillRect(&tr);
+	TextOld::draw(sdlHandler, directionToString(getDirFromSelection()), mx, my-20, 2, nch::Color(255, 255, 0), nch::Color(0, 0, 0, 0));
 }
 
 double Camera::getX() { return x; }
@@ -122,7 +242,18 @@ int Camera::getScreenSemiWidthReg() { return getScreenSemiWidthReg(sdlHandler, g
 int Camera::getScreenSemiHeightReg(SDLHandler* sh, int tileScale) { return getScreenHeightReg(sh, tileScale)/2+1; }
 int Camera::getScreenSemiHeightReg() { return getScreenSemiHeightReg(sdlHandler, getTileScale()); }
 
-
+int Camera::getOppositeDirection()
+{
+	switch(direction) {
+		case NORTH: return SOUTH; break;
+		case SOUTH: return NORTH; break;
+		case EAST: 	return WEST; break;
+		case WEST: 	return EAST; break;
+		case UP: 	return DOWN; break;
+		case DOWN: 	return UP; break;
+	}
+	return -1;
+}
 int Camera::getDirection() { return direction; }
 int Camera::coordinateHasDepth(int coord)
 {
@@ -163,3 +294,38 @@ bool Camera::isFreecam() { return freecam; }
 
 void Camera::setXYZ(double p_x, double p_y, double p_z) { x = p_x; y = p_y; z = p_z;  }
 void Camera::setFocused(bool p_focused) { focused = p_focused; }
+
+int Camera::getDirFromSelection()
+{
+	int res = direction;
+	bool u = false;
+
+	//Backwards
+	if(camModBack) {
+		return getOppositeDirection();
+	}
+
+	//Up, right, down, left
+	switch(res) {
+		case NORTH: case SOUTH: {
+			if(camModUp) 	return UP;
+			if(camModRight) return EAST;
+			if(camModDown) 	return DOWN;
+			if(camModLeft) 	return WEST;
+		} break;
+		case WEST: case EAST: {
+			if(camModUp) 	return UP;
+			if(camModRight) return NORTH;
+			if(camModDown) 	return DOWN;
+			if(camModLeft) 	return SOUTH;
+		} break;
+		case UP: case DOWN: {
+			if(camModUp) 	return NORTH;
+			if(camModRight) return EAST;
+			if(camModDown) 	return SOUTH;
+			if(camModLeft) 	return WEST;
+		} break;
+	}
+
+	return res;
+}

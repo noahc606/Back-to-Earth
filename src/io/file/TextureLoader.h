@@ -39,6 +39,7 @@ public:
 		GUI_FONT_robot,
 		GUI_button,
 		GUI_cursor,
+		GUI_player_camera,
 		GUI_player_interactions,
 		GUI_window,
 		GUI_save_selector,
