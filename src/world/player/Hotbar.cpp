@@ -26,7 +26,7 @@ void Hotbar::tick(Controls* ctrls)
 	if(!ctrls->isHeld("MAP_USE_ZOOM")) {
 		int mw = ctrls->getMouseWheel();
 		if(mw!=0) {
-			selectedSlot += mw;
+			selectedSlot -= mw;
 			while(selectedSlot<0) selectedSlot += 8;
 			while(selectedSlot>7) selectedSlot -= 8;
 			ctrls->resetWheel(__PRETTY_FUNCTION__);

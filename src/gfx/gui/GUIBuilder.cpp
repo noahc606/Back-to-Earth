@@ -166,6 +166,9 @@ void GUIBuilder::buildMainControls(GUIHandler& gh, FileHandler& fh)
 	ctrls.push_back( std::make_pair("Crouch", "PLAYER_CROUCH") );
 	ctrls.push_back( std::make_pair("Sprint", "PLAYER_SPRINT") );
 	ctrls.push_back( std::make_pair("Jump", "PLAYER_JUMP") );
+	ctrls.push_back( std::make_pair("Switch Hotbar", "HOTBAR_SWITCH") );
+
+
 	//Add objects from the list above to the window
 	for(unsigned int i = 0; i<ctrls.size(); i++) {
         std::pair<std::string, std::string> elem = ctrls.at(i);

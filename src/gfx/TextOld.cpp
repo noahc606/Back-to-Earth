@@ -171,6 +171,22 @@ int TextOld::draw(SDLHandler* sdlHandler, Texture* tex, std::string s, int x, in
     return res;
 }
 
+void TextOld::drawBoxed(SDLHandler* sdlHandler, std::string s, int x, int y, const nch::Color& fg)
+{
+	int trw = TextOld::draw(sdlHandler, s, x, y, 2);
+
+	SDL_Rect tr;
+	tr.x = (x-2)/2*2;
+	tr.y = (y-6)/2*2;
+	tr.w = trw/2*2+12;
+	tr.h = 7*2+12;	
+    
+	sdlHandler->setRenderDrawColor(nch::Color(0, 0, 0, 128));
+    sdlHandler->renderFillRect(&tr);
+
+	TextOld::draw(sdlHandler, s, x, y, 2, fg, nch::Color(0, 0, 0, 0));
+}
+
 /**
     Draws a string of length n in O(n) time and doesn't require the creation of any TextOld object.
     Perfectly fine for small to medium sized strings (n<~200).

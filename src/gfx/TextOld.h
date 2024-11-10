@@ -16,6 +16,7 @@ public:
     void draw(const nch::Color& fg);
     void draw();
     static int draw(SDLHandler* sdlHandler, Texture* tex, std::string s, int x, int y, int scale, const nch::Color& fg, const nch::Color& bg, int fontType);
+    static void drawBoxed(SDLHandler* sdlHandler, std::string s, int x, int y, const nch::Color& fg);
     static int draw(SDLHandler* sdlHandler, std::string s, int x, int y, int scale, const nch::Color& fg, const nch::Color& bg, int fontType);
     static int draw(SDLHandler* sdlHandler, std::string s, int x, int y, int scale, const nch::Color& fg, const nch::Color& bg);
     static int draw(SDLHandler* sdlHandler, std::string s, int x, int y, int scale);

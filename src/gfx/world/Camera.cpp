@@ -8,7 +8,8 @@ Camera::~Camera(){}
 
 void Camera::init(SDLHandler* sh, Controls* ctrls)
 {
-    BTEObject::init(sh, nullptr, ctrls);
+	sdlHandler = sh;
+	controls = ctrls;
 
 	selBoxSrc.x = 138; selBoxSrc.y = 138;
 	selBoxSrc.w = 254; selBoxSrc.h = 254;
@@ -155,15 +156,7 @@ void Camera::drawSelectionFromSrc(SDL_Rect& src, int type) {
 	int mx = controls->getMouseX()/2*2;
 	int my = controls->getMouseY()/2*2;
 
-	int trw = TextOld::draw(sdlHandler, directionToString(getDirFromSelection()), mx, my-20, 2);
-	SDL_Rect tr;
-	tr.x = (mx-2)/2*2;
-	tr.y = (my-26)/2*2;
-	tr.w = trw/2*2+12;
-	tr.h = 7*2+12;	
-	sdlHandler->setRenderDrawColor(nch::Color(0, 0, 0, 128));
-	sdlHandler->renderFillRect(&tr);
-	TextOld::draw(sdlHandler, directionToString(getDirFromSelection()), mx, my-20, 2, nch::Color(255, 255, 0), nch::Color(0, 0, 0, 0));
+	TextOld::drawBoxed(sdlHandler, "Facing: "+directionToString(getDirFromSelection()), mx, my-20, nch::Color(255, 255, 0));
 }
 
 double Camera::getX() { return x; }

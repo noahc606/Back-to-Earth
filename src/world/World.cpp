@@ -178,7 +178,6 @@ void World::draw(bool debugOn)
 	inter.localPlayerMenu.drawHotbar();
 	minimap.draw();
 	inter.localPlayer.getCamera()->draw();
-	
 }
 
 void World::tick(bool paused, GUIHandler& guiHandler)

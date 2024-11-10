@@ -1,9 +1,9 @@
 #pragma once
 #include <string>
-#include "BTEObject.h"
+#include "Controls.h"
+#include "SDLHandler.h"
 
-
-class Camera : public BTEObject
+class Camera
 {
 public:
     /**/
@@ -69,6 +69,9 @@ public:
 protected:
 
 private:
+	SDLHandler* sdlHandler;
+	Controls* controls;
+
 	int getDirFromSelection();
 
     double x = 0; double y = 0; double z = 0;
