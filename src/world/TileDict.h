@@ -52,9 +52,12 @@ private:
     std::map<std::string, Tile> dict;
     std::map<std::string, uint64_t> numericDict;
     std::map<uint64_t, std::string> numericDictEx;
+    
+    //Tile atlas + atlas src definitions
     std::unordered_map<std::string, TileSrcDef> tileSrcDefs;
     nch::ArrayList<SpriteSheet> tileAtlases;
-    nch::ArrayList<Tile::AtlasObjDef> atlasObjDefs;
+    //Atlas objects list
+    std::vector<std::vector<Tile::AtlasObjDef>> atlasObjDefs;
     uint64_t numSandboxTiles = 0;
     uint64_t numTiles = 0;
 
@@ -64,5 +67,5 @@ private:
     bool addToDict(std::string tileID, Tile tileDef);
     void addToAtlasEtc(std::string tileID, Tile tileDef);
     void appendTexFromSpecs(Texture& tex, Tile::TexSpec specs);
-    std::tuple<int, int, int> insertAtlasObj(Tile::AtlasObjDef& aod);
+    std::tuple<int, int, int> insertAtlasObj(std::vector<Tile::AtlasObjDef>& aods);
 };

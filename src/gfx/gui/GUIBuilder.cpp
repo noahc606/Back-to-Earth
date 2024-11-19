@@ -466,44 +466,86 @@ void GUIBuilder::buildColorSelector(GUIHandler& gh, Window* parentWindow, int ex
 {
     gh.setWindowActiveState(parentWindow, false);
 
-    WindowData* wd = new WindowData(10, 8, "Color Selection", "");
-    wd->setPanelData(0, "xxxxxxxxxx");
-    wd->setPanelData(1, "oooooooooo");
-    wd->setPanelData(2, "oooooooooo");
-    wd->setPanelData(3, "oooooooooo");
-    wd->setPanelData(4, "oooooooooo");
-    wd->setPanelData(5, "oooooooooo");
-    wd->setPanelData(6, "oooooooooo");
-    wd->setPanelData(7, "oooooooooo");
-    wd->setPanelData(8, "xxxxxxxxxx");
+    WindowData* wd = new WindowData(11, 8, "Color Selection", "");
+    wd->setPanelData(0, "xxxxxxxxxxx");
+    wd->setPanelData(1, "ooooooooooo");
+    wd->setPanelData(2, "ooooooooooo");
+    wd->setPanelData(3, "ooooooooooo");
+    wd->setPanelData(4, "ooooooooooo");
+    wd->setPanelData(5, "ooooooooooo");
+    wd->setPanelData(6, "ooooooooooo");
+    wd->setPanelData(7, "ooooooooooo");
+    wd->setPanelData(8, "xxxxxxxxxxx");
     wd->setPanelColor('x', nch::Color(0, 0, 200, 240) );
     wd->setPanelColor('o', nch::Color(150, 105, 55, 240) );
 
-    int width = 300;
+    int width = 240;
     Window* win = new Window(ch, cv, wd, GUIHandler::win_COLORSELECTOR);
-    Button* btn = new Button( win, ch, wd->getHeight()*64+32-70, width, "Back", gh.btn_COLORSELECTOR_back);
+    Button* btn = new Button( win, ch, wd->getHeight()*64+32-70, width, "Set", gh.btn_COLORSELECTOR_back);
+    gh.addGUI(new Button( win, ch, wd->getHeight()*64+32-70, width, "Cancel", gh.btn_COLORSELECTOR_back));
     ColorSelector* csr = (ColorSelector*)gh.getGUI(BTEObject::GUI_colorselect, GUIHandler::csr_CHARACTER_SETTINGS_set_val, extraID);
+
+
     TextBox* tbx = (TextBox*)gh.getGUI(BTEObject::GUI_textbox, GUIHandler::tbx_CHARACTER_SETTINGS_set_val, extraID);
+    nch::Color c;
+    c.setFromB16Str(tbx->getString()+"00");
+    auto hsv = c.getHSV();
+    csr->setHue(hsv[0]);
+    csr->setSat(hsv[1]);
+    csr->setVal(hsv[2]);
+
 
     wd->setSpecialType(WindowData::COLOR_SELECTOR, csr);
     gh.addGUI(win, extraID);
     gh.addGUI(btn, extraID);
 
-    Slider* sdr = (Slider*)gh.addGUI(new Slider(win, 64, 96, 0, 360, "0", GUIHandler::sdr_COLORSELECTOR_set_hue), extraID);
-    sdr->setNumSpaces(128);
-    
-    //Get textbox's color in HSV
-    nch::Color c;
-    c.setFromB16Str(tbx->getString()+"00");
-    auto hsv = c.getHSV();
+    //Hue
+    int dx = 332;
+    int dyf = 54;
+    std::vector<std::string> groups = {"H:", "S:", "V:", "R:", "G:", "B:"};
+    for(int i = 1; i<=6; i++) {
+        
+        switch(i) {
+            case 1: {
+                gh.addGUI(new Tooltip(win, 384, 64+32*i, "Hue-Saturation-Value", gh.ttp_GENERIC));
+            } break;
+            case 2: {
 
-    //Set slider value
-    std::stringstream ss;
-    ss << hsv[0];
-    sdr->setSelectorVal(ss.str());
+            } break;
+            case 3: {
 
-    csr->setSat(hsv[1]);
-    csr->setVal(hsv[2]);
+            } break;
+            case 4: {
+                gh.addGUI(new Tooltip(win, 384, 64+32*i, "Red-Green-Blue", gh.ttp_GENERIC));
+            } break;
+            case 5: {
+            } break;
+            case 6: {
+            } break;
+        }
+        if(i==4) dyf += 64;
+        
+        gh.addGUI(new Tooltip(win, dx-24, 92+32*i+dyf, groups[i-1], gh.ttp_GENERIC));
+        Slider* sdr0 = (Slider*)gh.addGUI(new Slider(win, dx, 82+32*i+dyf, 0, 360, "0", gh.sdr_COLORSELECTOR_set_hue), extraID);
+        sdr0->setNumSpaces(128);
+        gh.addGUI(new TextBox(win, dx+258, 82+32*i+dyf, 72, gh.tbx_GRAPHICS_SETTINGS_maxFps ) );
+        gh.addGUI(new CheckBox(win, dx+332, 82+32*i+dyf, "", CheckBox::CBX_RESET, true, gh.cbx_CONTROLS_set_defaults), 123456);
+
+        switch(i) {
+            case 1: {
+                std::stringstream ss; ss << csr->getHue();
+                sdr0->setSelectorVal(ss.str());
+            } break;
+            case 2: {
+                std::stringstream ss; ss << csr->getSat();
+                sdr0->setSelectorVal(ss.str());
+            } break;
+            case 3: {
+                std::stringstream ss; ss << csr->getVal();
+                sdr0->setSelectorVal(ss.str());
+            } break;
+        }
+    }
 
     gh.onWindowUpdate();
 }

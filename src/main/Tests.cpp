@@ -22,9 +22,11 @@ void Tests::init(SDLHandler* sh, FileHandler* fh, Controls* ctrls)
     assetList(fileHandler);
     al = sdlHandler->getAudioLoader();
 
+    td.init(sdlHandler, "hardcoreparkour", "default");
+
     //MissionHolder mh;
     //mh.init("missiontests");
-    mh.init("missiontests");
+    //mh.init("missiontests");
 
 
 
@@ -45,6 +47,11 @@ void Tests::draw()
     double scale = 2;
     
     mh.draw(sdlHandler, 0, 0);
+
+    td.drawAtlas(0);
+
+    Tile hfh = td.at("hab_futuristic_hull");
+    auto ts = td.getTileSrcFromCamDir(hfh, 0);
 
     //tex.setDrawScale(scale);
     //tex.setDrawPos(sdlHandler->getWidth()/2-tex.getTexWidth()*scale/2, sdlHandler->getHeight()/2-tex.getTexHeight()*scale/2);

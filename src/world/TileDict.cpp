@@ -1,5 +1,6 @@
 #include "TileDict.h"
 #include <nch/cpp-utils/log.h>
+#include <nch/sdl-utils/timer.h>
 #include "TextureBuilder.h"
 #include "TextureLoader.h"
 #include "World.h"
@@ -18,6 +19,9 @@ std::map<std::string, Tile> TileDict::baseTiles = {
 { "breathable_air",         Tile("breathable_air",          R"({ "skipRendering": true, "solid": false })"_json) },
 { "accrio_air",             Tile("accrio_air",              R"({ "skipRendering": true, "solid": false })"_json) },
 { "hera_air",               Tile("hera_air",                R"({ "skipRendering": true, "solid": false })"_json) },
+{ "accrio_native_copper_1", Tile("accrio_native_copper_1",  R"({ "material": "rock", "textureSpecs": [ { "type": "all", "src": [2, 1], "color": [190, 150, 100] }, { "type": "all", "src": [0, 7], "color": [179, 72, 0], "visionBlocking": false } ] })"_json) },
+{ "accrio_native_copper_2", Tile("accrio_native_copper_2",  R"({ "material": "rock", "textureSpecs": [ { "type": "all", "src": [2, 1], "color": [190, 150, 100] }, { "type": "all", "src": [1, 7], "color": [179, 72, 0], "visionBlocking": false } ] })"_json) },
+{ "accrio_native_copper_3", Tile("accrio_native_copper_3",  R"({ "material": "rock", "textureSpecs": [ { "type": "all", "src": [2, 1], "color": [190, 150, 100] }, { "type": "all", "src": [2, 7], "color": [179, 72, 0], "visionBlocking": false } ] })"_json) },
 { "accrio_regolith",        Tile("accrio_regolith",         R"({ "material": "soil", "textureSpecs": [ { "type": "all", "src": [1, 5], "color": [204, 153,   0] } ] })"_json) },
 { "accrio_soil",            Tile("accrio_soil",             R"({ "material": "soil", "textureSpecs": [ { "type": "all", "src": [3, 1], "color": [128,  50,   0] } ] })"_json) },
 { "accrio_rock",            Tile("accrio_rock",             R"({ "material": "rock", "textureSpecs": [ { "type": "all", "src": [2, 1], "color": [190, 150, 100] } ] })"_json) },
@@ -32,7 +36,7 @@ std::map<std::string, Tile> TileDict::baseTiles = {
 { "magma",                  Tile("magma",                   R"({ "solid": false, "material": "rock", "textureSpecs": [ { "type": "all", "src": [0, 4], "color": [255, 40, 40] } ] })"_json) },
 { "aerospace_acrylic_glass",Tile("aerospace_acrylic_glass", R"({ "material": "rock", "textureSpecs": [ { "type": "all", "src": [0, 6], "color": [ 64,  64,  48], "visionBlocking": false } ] })"_json) },
 { "hab_titanium_hull",      Tile("hab_titanium_hull",       R"({ "material": "metal","textureSpecs": [ { "type": "all", "src": [0, 3], "color": [255, 255, 255] } ] })"_json) },
-{ "hab_futuristic_hull",    Tile("hab_futuristic_hull",     R"({ "material": "metal","textureSpecs": [ { "type": "all", "src": [2, 3], "color": [  0, 255, 200] } ] })"_json) },
+{ "hab_futuristic_hull",    Tile("hab_futuristic_hull",     R"({ "material": "metal","textureSpecs": [ { "type": "all", "src": [6, 3], "color": [  0, 255, 200] } ] })"_json) },
 { "monolith",               Tile("monolith",                R"({ "material": "metal","textureSpecs": [ { "type": "all", "src": [2, 3], "color": [ 50,  50,  50] } ] })"_json) },
 };
 
@@ -86,6 +90,7 @@ void TileDict::init(SDLHandler* sh, std::string saveGameName, std::string instan
     }
 
     /* Build 'tileAtlases', 'tileSrcDefs', and 'atlasObjDefs'. */
+    nch::Timer t("TileDict atlas rebuild", true);
     rebuildAtlasesEtcFromDict();
 }
 
@@ -270,69 +275,77 @@ bool TileDict::addToDict(std::string tileID, Tile tileDef)
 }
 void TileDict::addToAtlasEtc(std::string tileID, Tile tileDef)
 {
-    /* Update */
     //Go thru this tile's 't.textureSpecs' and append 'tileSrcDefs' and 'atlasObjDefs'.
     auto itr = dict.find(tileID);
-    if(itr!=dict.end()) {
-        Tile tile = itr->second;
-        TileSrcDef tsd;
-        
-        /* Go thru all 'textureSpecs' of this Tile to build 'tsd'. */
+    if(itr==dict.end()) { return; }
+
+    //Try to optimize: If all tile.textureSpecs.faces==ALL, we know we only need one texture.
+    Tile tile = itr->second;
+    int numDifferentFaces = 1;
+    for(int i = 0; i<tile.textureSpecs.size(); i++) {
+        if(tile.textureSpecs[i].type!=Tile::RenderFace::ALL) {
+            numDifferentFaces = 6;
+            break;
+        }
+    }
+
+    /* Go thru all 'textureSpecs' of this Tile to build 'tsd.loc[0-5]'. */
+    TileSrcDef tsd;
+    for(int i = 0; i<numDifferentFaces; i++) {
+        //Texture used by this face
+        Texture tex; tex.init(sdlHandler, 32, 32);
+        //AtlasObjectDefs used by this face
+        std::vector<Tile::AtlasObjDef> aods;
+
+        //Go thru all textureSpecs that match this face: 1) insert atlasObjectDef; 2) append tex
         for(int j = 0; j<tile.textureSpecs.size(); j++) {
-            Texture tex;
-            tex.init(sdlHandler, 32, 32);
-
-            //Try to insert atlasObjDef (may create new image or use an old one). Store location of the atlasObjDef.
-            int beforeSize = atlasObjDefs.size();
-            std::tuple<int, int, int> aodLoc = insertAtlasObj(tile.textureSpecs[j].aod);
-            int afterSize = atlasObjDefs.size();
-
-            //Based on the face to be rendered (all or WENSUD) build the appropriate tex within 'texes'.
             Tile::RenderFace face = tile.textureSpecs[j].type;
             switch(face) {
                 case Tile::RenderFace::ALL: {
+                    aods.push_back(tile.textureSpecs[j].aod);
                     appendTexFromSpecs(tex, tile.textureSpecs[j]);
-                    for(int k = 0; k<6; k++) {
-                        tsd.loc[k] = aodLoc;
-                    }
                 } break;
                 case Tile::RenderFace::WEST: case Tile::RenderFace::NORTH: case Tile::RenderFace::UP:
                 case Tile::RenderFace::EAST: case Tile::RenderFace::SOUTH: case Tile::RenderFace::DOWN: {
-                    appendTexFromSpecs(tex, tile.textureSpecs[j]);
-                    tsd.loc[face-1] = aodLoc;
-                } break;
-                default: {
-                    nch::Log::warnv(__PRETTY_FUNCTION__, "using default tile texture", "Encountered unknown texSpec.type %d from definition of \"%s\"", face, itr->first.c_str());
-                    TextureBuilder tb(sdlHandler);
-                    tb.buildDefaultTile(tex);
-                    for(int k = 0; k<6; k++) {
-                        tsd.loc[k] = aodLoc;
+                    if(face-1==i) {
+                        aods.push_back(tile.textureSpecs[j].aod);
+                        appendTexFromSpecs(tex, tile.textureSpecs[j]);
                     }
                 } break;
             }
-
-            //If a new atlas object was just added...
-            if(beforeSize!=afterSize) {
-                /* Update 'tileAtlases' if needed */
-                //Make sure we have enough spritesheets to hold every tile.
-                //Every sheet will be 1024x1024, each containing 1024 (32x32) squares.
-                if(tileAtlases.size()<std::get<2>(aodLoc)+1) {
-                    SpriteSheet ta;
-                    tileAtlases.pushBack(ta);
-                    tileAtlases[tileAtlases.size()-1].init(sdlHandler, 32*32, 32*32);
-                }
-
-                TextureLoader* tl = sdlHandler->getTextureLoader();
-                SpriteSheet* ss = &tileAtlases[std::get<2>(aodLoc)];
-                SDL_Texture* stex = tex.getSDLTexture();
-                ss->addSpriteToFixedSizeSheet(stex, 0, 0);
-                
-            }
         }
 
-        /* Add 'tsd' to 'tileSrcDefs' */
-        tileSrcDefs.insert(std::make_pair(itr->first, tsd));
+        //Find location within atlas of this 'aods' (or get the newly added location if it didn't exist)
+        int beforeSize = atlasObjDefs.size();
+        std::tuple<int, int, int> aodLoc = insertAtlasObj(aods);
+        int afterSize = atlasObjDefs.size();
+
+        //If a new atlas object was just added...
+        if(beforeSize!=afterSize) {
+            /* Update 'tileAtlases' if needed */
+            //Make sure we have enough spritesheets to hold every tile.
+            //Every sheet will be 1024x1024, each containing 1024 (32x32) squares.
+            if(tileAtlases.size()<std::get<2>(aodLoc)+1) {
+                SpriteSheet ta;
+                tileAtlases.pushBack(ta);
+                tileAtlases[tileAtlases.size()-1].init(sdlHandler, 32*32, 32*32);
+            }
+
+            TextureLoader* tl = sdlHandler->getTextureLoader();
+            SpriteSheet* ss = &tileAtlases[std::get<2>(aodLoc)];
+            SDL_Texture* stex = tex.getSDLTexture();
+            ss->addSpriteToFixedSizeSheet(stex, 0, 0);
+        }
+        
+        //Store aodLoc within new tileSrcDef.
+        tsd.loc[i] = aodLoc;
     }
+
+    //If numDifferentFaces==1, clone all the faces from tsd[0]
+    if(numDifferentFaces==1) for(int i = 1; i<6; i++) tsd.loc[i] = tsd.loc[0];
+
+    //Add 'tsd' to 'tileSrcDefs'
+    tileSrcDefs.insert(std::make_pair(tileID, tsd));
 }
 
 void TileDict::rebuildAtlasesEtcFromDict()
@@ -358,16 +371,25 @@ void TileDict::appendTexFromSpecs(Texture& tex, Tile::TexSpec ts)
     tex.lock();
     tex.blit(TextureLoader::WORLD_TILE_type_a, ts.aod.resrc.first*32, ts.aod.resrc.second*32);
 }
-std::tuple<int, int, int> TileDict::insertAtlasObj(Tile::AtlasObjDef& aod)
+std::tuple<int, int, int> TileDict::insertAtlasObj(std::vector<Tile::AtlasObjDef>& aods)
 {
     //Search list for atlasObjDef.
     int64_t foundDupeAt = atlasObjDefs.size();      //foundDupeAt=aODs.size() indicates none found within list.
     for(int i = 0; i<atlasObjDefs.size(); i++) {
-        if(
-            atlasObjDefs[i].color==aod.color &&
-            atlasObjDefs[i].resrc==aod.resrc &&
-            atlasObjDefs[i].visionBlocking==aod.visionBlocking
-        ) {
+        if(aods.size()!=atlasObjDefs[i].size()) continue;
+        bool allMatching = true;
+        for(int j = 0; j<aods.size(); j++) {
+            if(
+                allMatching && (
+                atlasObjDefs[i][j].color          != aods[j].color ||
+                atlasObjDefs[i][j].resrc          != aods[j].resrc ||
+                atlasObjDefs[i][j].visionBlocking != aods[j].visionBlocking
+            ) ) {
+                allMatching = false;
+            }
+        }
+
+        if(allMatching) {
             foundDupeAt = i;
             break;
         }
@@ -380,7 +402,7 @@ std::tuple<int, int, int> TileDict::insertAtlasObj(Tile::AtlasObjDef& aod)
     
     //If this is a unique atlasObjDef, add it.
     if(foundDupeAt==atlasObjDefs.size()) {
-        atlasObjDefs.pushBack(aod);
+        atlasObjDefs.push_back(aods);
     }
 
     //Return location where the (new or old) atlasObjDef would be within the 'tileAtlas' spritesheets.

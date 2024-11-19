@@ -33,6 +33,7 @@ private:
     /* Testing */
 
     MissionHolder mh;
+    TileDict td;
 
     AudioLoader* al = nullptr;
 

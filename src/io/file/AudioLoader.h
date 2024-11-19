@@ -61,6 +61,7 @@ public:
         SFX_WORLD_distant_explosion,
 		SFX_WORLD_heartbeat,
 		SFX_WORLD_implosion,
+        SFX_WORLD_PLACE_solid_1, SFX_WORLD_PLACE_solid_2, SFX_WORLD_PLACE_solid_3,
 		SFX_WORLD_plasma_cannon,
         SFX_WORLD_air_release_1,
 

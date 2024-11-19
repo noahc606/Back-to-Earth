@@ -19,6 +19,7 @@ void Terrain::genericRegion(TileRegion& tr, int rX, int rY, int rZ, bool natural
     float z = rZ*32;
 
     int air = tr.addToPalette(tDict->at("accrio_air"), natural);
+    int copper_1 = tr.addToPalette(tDict->at("accrio_native_copper_1"), natural);
     int regolith = tr.addToPalette(tDict->at("accrio_regolith"), natural);
     int soil = tr.addToPalette(tDict->at("accrio_soil"), natural);
     int rock = tr.addToPalette(tDict->at("accrio_rock"), natural);
@@ -42,6 +43,8 @@ void Terrain::genericRegion(TileRegion& tr, int rX, int rY, int rZ, bool natural
                     tr.setTile(sx, sy, sz, rock);
                 } else if(ld>1700) {                //Asthenosphere (liquid-ish)
                     tr.setTile(sx, sy, sz, magma);
+                } else if(ld>20) {                   //Crust 2
+                    tr.setTile(sx, sy, sz, copper_1);
                 } else if(ld>5) {                   //Crust
                     tr.setTile(sx, sy, sz, rock);
                 } else

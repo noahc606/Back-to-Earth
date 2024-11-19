@@ -166,20 +166,10 @@ void WorldInteractions::playerTryPlaceTile(TileMapScreen* tms, TileMap* tm, Tile
 {
 	Camera* cam = localPlayer.getCamera();
 	
-	int64_t mouseCsXL = mouseXL;
-	int64_t mouseCsYL = mouseYL;
-	int64_t mouseCsZL = mouseZL;
+	int64_t mouseCsXL = mouseXL; int64_t mouseCsYL = mouseYL; int64_t mouseCsZL = mouseZL;
 	switch(localPlayer.getCamera()->getAxis()) {
-		case Camera::X: {
-			mouseCsXL = mouseYL;
-			mouseCsYL = mouseZL;
-			mouseCsZL = mouseXL;
-		} break;
-		case Camera::Y: {
-			mouseCsXL = mouseXL;
-			mouseCsYL = mouseZL;
-			mouseCsZL = mouseYL;
-		} break;
+		case Camera::X: { mouseCsXL = mouseYL; mouseCsYL = mouseZL; mouseCsZL = mouseXL; } break;
+		case Camera::Y: { mouseCsXL = mouseXL; mouseCsYL = mouseZL; mouseCsZL = mouseYL; } break;
 	}
 
 	//Try to place tile
@@ -211,7 +201,7 @@ void WorldInteractions::playerTryPlaceTile(TileMapScreen* tms, TileMap* tm, Tile
 		}
 	}
 
-	//If just destroyed a tile...
+	//If player just destroyed a tile...
 	if(canPlace && tLast.solid && tLast.id!="null" && force) {
 		//Play sound
 		AudioLoader* al = sdlHandler->getAudioLoader();
@@ -227,6 +217,12 @@ void WorldInteractions::playerTryPlaceTile(TileMapScreen* tms, TileMap* tm, Tile
 			InvItemStack iis(Items::WORLDTILE, 1, tLast.id);
 			localPlayerMenu.giveItemStack(iis);
 		}
+	}
+
+	//If player just placed a tile...
+	if(canPlace && !force) {
+		AudioLoader* al = sdlHandler->getAudioLoader();
+		al->play(AudioLoader::SFX_WORLD_PLACE_solid_1+(std::rand()%3));
 	}
 
 	//Add a 3x3 of tile updates regardless of tile placed or not

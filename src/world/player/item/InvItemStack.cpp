@@ -59,7 +59,8 @@ void InvItemStack::drawEDTileType(SDLHandler* sdlHandler, TileDict* td, int draw
     src.x = srcX; src.y = srcY; src.w = 32; src.h = 32;
     SDL_Rect dst;
     dst.x = drawX+14; dst.y = drawY+14; dst.w = 32; dst.h = 32;
-    
+
+    if(srcTex==nullptr) return;
     SDL_RenderCopy(sdlHandler->getRenderer(), srcTex->getSDLTexture(), &src, &dst);
 }
 

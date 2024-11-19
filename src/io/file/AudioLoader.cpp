@@ -260,6 +260,9 @@ void AudioLoader::addMixChunks()
 	addMixChunk(SFX_WORLD_distant_explosion, "world/distant_explosion", "mp3");
 	addMixChunk(SFX_WORLD_heartbeat, "world/heartbeat");
 	addMixChunk(SFX_WORLD_implosion, "world/implosion", "mp3");
+	addMixChunk(SFX_WORLD_PLACE_solid_1, "world/place/solid_1", "mp3");
+	addMixChunk(SFX_WORLD_PLACE_solid_2, "world/place/solid_2", "mp3");
+	addMixChunk(SFX_WORLD_PLACE_solid_3, "world/place/solid_3", "mp3");
 	addMixChunk(SFX_WORLD_plasma_cannon, "world/plasma_cannon", "mp3");
 	addMixChunk(SFX_WORLD_air_release_1, "world/air_release_1", "mp3");
 }

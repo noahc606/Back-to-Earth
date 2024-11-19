@@ -198,11 +198,8 @@ void Window::tick()
     } break;
 
     case WindowData::COLOR_SELECTOR: {
-        int wtw = windowTex.getTexWidth();
-        int wth = windowTex.getTexHeight();
-
         ColorSelector* cs = (ColorSelector*)winData->getRelatedUI();
-        cs->updateColAreaXY(sX+wtw/2-100, sY+wth-100);
+        cs->updateColAreaXY(sX+32, sY+160);
         cs->setSelectorWindow(this);
     } break;
 
@@ -238,8 +235,8 @@ void Window::updateColorSelectorUI(double hue)
 
     int wtw = windowTex.getTexWidth();
     int wth = windowTex.getTexHeight();
-    int uiX = wtw/4-50; int uiW = 128;
-    int uiY = wth/2-50; int uiH = 128;
+    int uiX = 16; int uiW = 128;
+    int uiY = 80; int uiH = 128;
 
     //Color gradient
     for(int ix = 0; ix<uiW; ix++) {
