@@ -220,7 +220,7 @@ void WorldInteractions::playerTryPlaceTile(TileMapScreen* tms, TileMap* tm, Tile
 	}
 
 	//If player just placed a tile...
-	if(canPlace && !force) {
+	if(canPlace && !force && tLast.id!=t.id) {
 		AudioLoader* al = sdlHandler->getAudioLoader();
 		al->play(AudioLoader::SFX_WORLD_PLACE_solid_1+(std::rand()%3));
 	}
