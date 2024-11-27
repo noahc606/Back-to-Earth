@@ -92,7 +92,7 @@ void Minimap::updateTerrainPartial(int64_t startX, int64_t endX)
 	}
 
 	//Loop through every region within bounds
-	for(TileRegion* tr = ti.peekRegion(); !ti.atEnd(); ti.nextRegion()) {
+	for(TileRegion* tr = ti.peekRegion(); !ti.atEnd(); tr = ti.nextRegion()) {
 		if(tr==nullptr) {
 			continue;
 		}

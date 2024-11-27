@@ -6,6 +6,7 @@
 #include "Terrain.h"
 #include "TileIterator.h"
 #include "Tile.h"
+#include <nch/sdl-utils/timer.h>
 
 void TileMap::init(SDLHandler* sh, Planet* pt, StructureMap* struMap, NoiseMap* nMap, TileDict* td, std::string saveGameName)
 {
@@ -212,11 +213,12 @@ bool TileMap::setTiles(t_regionMap* rm, int64_t x1, int64_t y1, int64_t z1, int6
 	//If any regions within that volume are unloaded, operation should fail.
 	TileIterator ti(rm);
 	if(ti.setBounds(x1, y1, z1, x2, y2, z2)!=0) {
+		nch::Log::warnv(__PRETTY_FUNCTION__, "doing nothing", "Could not place tiles within unloaded area (%d, %d, %d) <-> (%d, %d, %d)", x1, y1, z1, x2, y2, z2);
 		return false;
 	}
 	
 	//Fill the appropriate volumes within all contained regions
-	for(TileRegion* tr = ti.peekRegion(); !ti.atEnd(); ti.nextRegion()) {
+	for(TileRegion* tr = ti.peekRegion(); !ti.atEnd(); tr = ti.nextRegion()) {
 		int16_t id = tr->addToPalette(t, natural);
 		tr->setTiles(ti.gbs(0), ti.gbs(1), ti.gbs(2), ti.ges(0), ti.ges(1), ti.ges(2), id);
 	}
@@ -232,28 +234,61 @@ bool TileMap::setTiles(int64_t x1, int64_t y1, int64_t z1, int64_t x2, int64_t y
 
 void TileMap::setStructureWithinReg(Structure* stru, TileRegion& tr, int64_t rX, int64_t rY, int64_t rZ)
 {
-	//Log::log("Building structure within RXYZ(%d, %d, %d)", rX, rY, rZ);
-
 	//Get relevant structure bounds and world bounds
-	Point3X<int64_t> so = stru->getOrigin();
-	Box3X<int64_t> wb(rX*32, rY*32, rZ*32, rX*32+31, rY*32+31, rZ*32+31);
+	Vec3X<int64_t> so = stru->getOrigin();																	//[S]tructure [O]rigin (min xyz location)
+	Vec3X<int64_t> sb = stru->getBounds();																	//[S]tructure [B]ounds
+	Box3X<int64_t> wb(rX*32, rY*32, rZ*32, rX*32+31, rY*32+31, rZ*32+31);									//[W]orld [B]ounds			(32*32*32)
+	Box3X<int64_t> ucb(wb.c1.x-so.x, wb.c1.y-so.y, wb.c1.z-so.z, wb.c2.x-so.x, wb.c2.y-so.y, wb.c2.z-so.z);	//[U]n[C]lipped [B]ounds	(32*32*32)
+	Box3X<int64_t> cb = ucb.intersection(Box3X<int64_t>(0, 0, 0, sb.x-1, sb.y-1, sb.z-1));					//[C]lipped [B]ounds		(a*b*c)
+	if(cb==Box3X<int64_t>(0, 0, 0, 0, 0, 0)) {
+		Box3X<int64_t> sbb = stru->getBoundingBox();
+		nch::Log::errorv(
+			__PRETTY_FUNCTION__,
+			"empty intersection",
+			"Failed to work with structure bounds: (%d, %d, %d) <-> (%d, %d, %d)",
+			sbb.c1.x, sbb.c1.y, sbb.c1.z, sbb.c2.x, sbb.c2.y, sbb.c2.z
+		);
+	}
+	Box3X<int64_t> wfb(																						//[W]orld [F]inal [B]ounds	(a*b*c)
+		getRegSubPos(cb.c1.x+so.x), getRegSubPos(cb.c1.y+so.y), getRegSubPos(cb.c1.z+so.z),
+		getRegSubPos(cb.c2.x+so.x), getRegSubPos(cb.c2.y+so.y), getRegSubPos(cb.c2.z+so.z)
+	);
 	
 	//TileIterator thru Structure (tiS).
 	//Set bounds within tiS to be the part of the structure to be generated (32x32x32 regardless of whether near an edge or not)
 	TileIterator tiS(stru->getRegionMap());
-	tiS.setBounds(
-		wb.c1.x-so.x, wb.c1.y-so.y, wb.c1.z-so.z,
-		wb.c2.x-so.x, wb.c2.y-so.y, wb.c2.z-so.z
-	);
+	tiS.setTrackerMode(tiS.SINGLE);
+	if(tiS.setBounds(cb.c1.x, cb.c1.y, cb.c1.z, cb.c2.x, cb.c2.y, cb.c2.z)==-1) {
+		nch::Log::errorv(__PRETTY_FUNCTION__, "Structure bounds contains unloaded regions", "Failed to set TileIterator bounds");
+	}
 
-	tiS.setTrackerSub(tiS.gbs(0), tiS.gbs(1), tiS.gbs(2));
-	for(int sx = 0; sx<32; sx++)
-	for(int sy = 0; sy<32; sy++)
-	for(int sz = 0; sz<32; sz++) {
-		Tile tisTile = tiS.peekTrackedTile(sx, sy, sz);
-		if(tisTile.id!="null") {
-			int16_t idx = tr.addToPalette(tisTile, true);
-			tr.setTile(sx, sy, sz, idx);
+	for(TileRegion* tir = tiS.peekRegion(); !tiS.atEnd(); tir = tiS.nextRegion()) {		
+		//Build palette lookup map (from tir's palIdx -> tr's palIdx)
+		std::map<int16_t, int16_t> paletteMatches;
+		for(int16_t i = 0; i<(int16_t)tir->getPaletteSizeNatural(); i++) {
+			int16_t tirIdx = i;
+			int16_t trIdx = tr.addToPalette(tir->getPaletteElement(i), true);
+			paletteMatches.insert(std::make_pair(tirIdx, trIdx));
+		}
+
+		//Place the relevant tile volume from this structure into the current world region.
+		int64_t wtDX = tiS.gip(0)-cb.c1.x, wtDY = tiS.gip(1)-cb.c1.y, wtDZ = tiS.gip(2)-cb.c1.z;	//[W]orld [T]ile [D]elta[XYZ] (0-31)
+		for(int64_t idsx = 0; idsx<=tiS.ges(0)-tiS.gbs(0); idsx++)
+		for(int64_t idsy = 0; idsy<=tiS.ges(1)-tiS.gbs(1); idsy++)
+		for(int64_t idsz = 0; idsz<=tiS.ges(2)-tiS.gbs(2); idsz++) {
+			//Get the current tile index from the structure corresponding to this position
+			int16_t tirIdx = tir->getTileKey(tiS.gbs(0)+idsx, tiS.gbs(1)+idsy, tiS.gbs(2)+idsz);
+			Vec3X<int64_t> dst(wfb.c1.x+idsx+wtDX, wfb.c1.y+idsy+wtDY, wfb.c1.z+idsz+wtDZ);
+			
+			//If this is a non-null tile, place something in the world.
+			if(tirIdx!=0) {
+				try {
+					int16_t idx = paletteMatches.at(tirIdx);
+					tr.setTile(dst.x, dst.y, dst.z, idx);
+				} catch(std::out_of_range) {
+					nch::Log::errorv(__PRETTY_FUNCTION__, "Failed to place structure tile within world", "Palette index out of range");
+				}
+			}
 		}
 	}
 }
@@ -276,7 +311,7 @@ int TileMap::loadRegion(int64_t rX, int64_t rY, int64_t rZ)
 		tr.setRegTexState(tr.GENERATING);
 		terra.populateRegion(tr, rX, rY, rZ);
 		tr.setRegTexState(tr.FINISHED_GENERATING);
-		
+
 		//Place tiles that are part of structures
 		std::vector<Structure*> regStructures = struMap->getStructuresInRXYZ(rX, rY, rZ);
 		for(Structure* stru : regStructures) {

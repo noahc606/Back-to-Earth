@@ -206,15 +206,13 @@ bool TileRegion::assertDefaultTileExists(t_palette& pal)
 	return true;
 }
 
-int16_t TileRegion::addToPalette( Tile tile, t_palette& pal, bool natural)
+int16_t TileRegion::addToPalette(Tile tile, t_palette& pal, bool natural)
 {
 	//Preliminary checking
 	assertDefaultTileExists(pal);
 	
 	//Already created default tile
-	if( tile.id=="null" ) {
-		return 0;
-	}
+	if( tile.id=="null" ) { return 0; }
 	
 	//Mark this region as being modified IF natural==false.
 	if(!natural) {

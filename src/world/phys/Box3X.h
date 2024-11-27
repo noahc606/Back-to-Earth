@@ -1,6 +1,6 @@
 #pragma once
 #include "Real.h"
-#include "Point3X.h"
+#include "Vec3X.h"
 
 template <typename T> class Box3X
 {
@@ -22,7 +22,7 @@ public:
 /*
     Does this box contain point 'p' (may be on edges/faces)?
 */
-    bool contains(Point3X<T> p) {
+    bool contains(Vec3X<T> p) {
         return (
             c1.x<=p.x && p.x<=c2.x &&
             c1.y<=p.y && p.y<=c2.y &&
@@ -56,6 +56,28 @@ public:
     }
 
     /*
+        Get the intersection between this box and box 'b'.
+        If there is no intersection, return Box(0, 0, 0, 0, 0, 0);
+    */
+    Box3X<T> intersection(Box3X<T> b) {
+        if(!intersects(b)) {
+            return Box3X(0, 0, 0, 0, 0, 0);
+        }
+
+        T rx1 = c1.x, rx2 = b.c2.x;
+        T ry1 = c1.y, ry2 = b.c2.y;
+        T rz1 = c1.z, rz2 = b.c2.z;
+        if(b.c1.x>c1.x) rx1 = b.c1.x;
+        if(b.c2.x>c2.x) rx2 = c2.x;
+        if(b.c1.y>c1.y) ry1 = b.c1.y;
+        if(b.c2.y>c2.y) ry2 = c2.y;
+        if(b.c1.z>c1.z) rz1 = b.c1.z;
+        if(b.c2.z>c2.z) rz2 = c2.z;
+
+        return Box3X(rx1, ry1, rz1, rx2, ry2, rz2);
+    }
+
+    /*
         Same as intersects(), but vertices/edges/faces DON'T count
     */
     bool collides(Box3X<T> b) {
@@ -80,8 +102,8 @@ public:
         );
     }
 
-    Point3X<T> c1; //Corner 1
-    Point3X<T> c2; //Corner 2
+    Vec3X<T> c1; //Corner 1
+    Vec3X<T> c2; //Corner 2
 protected:
 
 private:

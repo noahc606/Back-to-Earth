@@ -248,12 +248,8 @@ Tile TileIterator::peekTrackedTile(int offsetX, int offsetY, int offsetZ)
 
     TileRegion* tr = nearbyTileRegions[1+regOffset[0]][1+regOffset[1]][1+regOffset[2]];
 
-    if(tr!=nullptr) {
-
-        return tr->getTile(posInReg[0], posInReg[1], posInReg[2]);
-    } else {
-        return Tile();
-    }
+    if(tr!=nullptr) { return tr->getTile(posInReg[0], posInReg[1], posInReg[2]); }
+    else            { return Tile(); }
 }
 
 TileRegion* TileIterator::peekRegion() { return nearbyTileRegions[1][1][1]; }

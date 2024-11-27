@@ -185,8 +185,8 @@ void WorldInteractions::playerTryPlaceTile(TileMapScreen* tms, TileMap* tm, Tile
 
 	double placeDist = 0;
 	if(localPlayer.getAction()==Player::SURV_Destroy_Tile || localPlayer.getAction()==Player::SURV_Place_Tile) {
-		Point3X<double> canvasCam(localPlayer.getCamera()->getCsX(), localPlayer.getCamera()->getCsY(), localPlayer.getCamera()->getCsZ());
-		Point3X<double> canvasMouse(mouseCsXL, mouseCsYL, mouseCsZL);
+		Vec3X<double> canvasCam(localPlayer.getCamera()->getCsX(), localPlayer.getCamera()->getCsY(), localPlayer.getCamera()->getCsZ());
+		Vec3X<double> canvasMouse(mouseCsXL, mouseCsYL, mouseCsZL);
 		placeDist = Vec3F::dist(canvasCam.x, canvasCam.y, canvasCam.z, canvasMouse.x, canvasMouse.y, canvasMouse.z);
 	}
 	if(placeDist>4.) {

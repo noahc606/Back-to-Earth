@@ -6,6 +6,7 @@
 #include "World.h"
 
 std::map<std::string, Tile> TileDict::baseTiles = {
+//Technical
 { "debug_tile", Tile("debug_tile", R"({
     "id": "debug_tile",
     "skipRendering": false,
@@ -15,36 +16,37 @@ std::map<std::string, Tile> TileDict::baseTiles = {
     "textureSpecs": [ { "type": "all", "src": [4, 0], "color": [255, 0, 255] } ]
 })"_json) },
 { "null",                   Tile("null",                    R"({ "skipRendering": true, "solid": false })"_json) },
-{ "generic_air",            Tile("generic_air",             R"({ "skipRendering": true, "solid": false })"_json) },
-{ "breathable_air",         Tile("breathable_air",          R"({ "skipRendering": true, "solid": false })"_json) },
+
+//Natural (part of terrain)
 { "accrio_air",             Tile("accrio_air",              R"({ "skipRendering": true, "solid": false })"_json) },
-{ "hera_air",               Tile("hera_air",                R"({ "skipRendering": true, "solid": false })"_json) },
 { "accrio_native_copper_1", Tile("accrio_native_copper_1",  R"({ "material": "rock", "textureSpecs": [ { "type": "all", "src": [2, 1], "color": [190, 150, 100] }, { "type": "all", "src": [0, 7], "color": [179, 72, 0], "visionBlocking": false } ] })"_json) },
 { "accrio_native_copper_2", Tile("accrio_native_copper_2",  R"({ "material": "rock", "textureSpecs": [ { "type": "all", "src": [2, 1], "color": [190, 150, 100] }, { "type": "all", "src": [1, 7], "color": [179, 72, 0], "visionBlocking": false } ] })"_json) },
 { "accrio_native_copper_3", Tile("accrio_native_copper_3",  R"({ "material": "rock", "textureSpecs": [ { "type": "all", "src": [2, 1], "color": [190, 150, 100] }, { "type": "all", "src": [2, 7], "color": [179, 72, 0], "visionBlocking": false } ] })"_json) },
 { "accrio_regolith",        Tile("accrio_regolith",         R"({ "material": "soil", "textureSpecs": [ { "type": "all", "src": [1, 5], "color": [204, 153,   0] } ] })"_json) },
-{ "accrio_soil",            Tile("accrio_soil",             R"({ "material": "soil", "textureSpecs": [ { "type": "all", "src": [3, 1], "color": [128,  50,   0] } ] })"_json) },
 { "accrio_rock",            Tile("accrio_rock",             R"({ "material": "rock", "textureSpecs": [ { "type": "all", "src": [2, 1], "color": [190, 150, 100] } ] })"_json) },
 { "accrio_silt",            Tile("accrio_silt",             R"({ "material": "sand", "textureSpecs": [ { "type": "all", "src": [2, 5], "color": [110,  90,  40] } ] })"_json) },
-{ "hera_seabed_regolith",   Tile("hera_seabed_regolith",    R"({ "material": "soil", "textureSpecs": [ { "type": "all", "src": [2, 1], "color": [150, 190, 100] } ] })"_json) },
-{ "hera_seabed_soil",       Tile("hera_seabed_soil",        R"({ "material": "soil", "textureSpecs": [ { "type": "all", "src": [4, 1], "color": [150, 190, 100] } ] })"_json) },
-{ "hera_seabed_rock",       Tile("hera_seabed_rock",        R"({ "material": "rock", "textureSpecs": [ { "type": "all", "src": [2, 1], "color": [150, 190, 100] } ] })"_json) },
-{ "hera_limestone",         Tile("hera_limestone",          R"({ "material": "rock", "textureSpecs": [ { "type": "all", "src": [0, 1], "color": [190, 180, 160] } ] })"_json) },
+{ "accrio_soil",            Tile("accrio_soil",             R"({ "material": "soil", "textureSpecs": [ { "type": "all", "src": [3, 1], "color": [128,  50,   0] } ] })"_json) },
+{ "hera_air",               Tile("hera_air",                R"({ "skipRendering": true, "solid": false })"_json) },
 { "hera_icesheet",          Tile("hera_icesheet",           R"({ "material": "rock", "textureSpecs": [ { "type": "all", "src": [3, 3], "color": [ 20, 180, 140] } ], "mapColor": [60, 220, 180] })"_json) },
-{ "granite",                Tile("granite",                 R"({ "material": "rock", "textureSpecs": [ { "type": "all", "src": [1, 1], "color": [120,  80,  70] } ] })"_json) },
+{ "hera_limestone",         Tile("hera_limestone",          R"({ "material": "rock", "textureSpecs": [ { "type": "all", "src": [0, 1], "color": [190, 180, 160] } ] })"_json) },
+{ "hera_seabed_regolith",   Tile("hera_seabed_regolith",    R"({ "material": "soil", "textureSpecs": [ { "type": "all", "src": [2, 1], "color": [150, 190, 100] } ] })"_json) },
+{ "hera_seabed_rock",       Tile("hera_seabed_rock",        R"({ "material": "rock", "textureSpecs": [ { "type": "all", "src": [2, 1], "color": [150, 190, 100] } ] })"_json) },
+{ "hera_seabed_soil",       Tile("hera_seabed_soil",        R"({ "material": "soil", "textureSpecs": [ { "type": "all", "src": [4, 1], "color": [150, 190, 100] } ] })"_json) },
 { "hera_seawater",          Tile("hera_seawater",           R"({ "textureSpecs": [ { "type": "all", "src": [0, 4], "color": [20, 180, 140] } ] })"_json) },
+{ "granite",                Tile("granite",                 R"({ "material": "rock", "textureSpecs": [ { "type": "all", "src": [1, 1], "color": [120,  80,  70] } ] })"_json) },
 { "magma",                  Tile("magma",                   R"({ "solid": false, "material": "rock", "textureSpecs": [ { "type": "all", "src": [0, 4], "color": [255, 40, 40] } ] })"_json) },
+
+//Structures (part of structures)
 { "aerospace_acrylic_glass",Tile("aerospace_acrylic_glass", R"({ "material": "rock", "textureSpecs": [ { "type": "all", "src": [0, 6], "color": [ 64,  64,  48], "visionBlocking": false } ] })"_json) },
+{ "artificial_air",         Tile("artificial_air",          R"({ "skipRendering": true, "solid": false })"_json) },
 { "hab_titanium_hull",      Tile("hab_titanium_hull",       R"({ "material": "metal","textureSpecs": [ { "type": "all", "src": [0, 3], "color": [255, 255, 255] } ] })"_json) },
 { "hab_futuristic_hull",    Tile("hab_futuristic_hull",     R"({ "material": "metal","textureSpecs": [ { "type": "all", "src": [6, 3], "color": [  0, 255, 200] } ] })"_json) },
 { "monolith",               Tile("monolith",                R"({ "material": "metal","textureSpecs": [ { "type": "all", "src": [2, 3], "color": [ 50,  50,  50] } ] })"_json) },
+
 };
 
 TileDict::TileDict(){}
-TileDict::~TileDict() {
-    saveTileDict();
-}
-
+TileDict::~TileDict() { saveTileDict(); }
 void TileDict::init(SDLHandler* sh, std::string saveGameName, std::string instanceID)
 {
     /* Store save and instance info */

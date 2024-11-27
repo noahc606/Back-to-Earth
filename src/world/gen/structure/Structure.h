@@ -9,23 +9,29 @@ class Structure
 public:
     enum IDs {
         MONOLITH = -999,
-        CRASHED_SHIP = 2,  
+        HAB = 2,
+        CAVE_SMALL,
+        CAVE_MEDIUM,
+        CAVE_LARGE,
     };
 
-    Structure(int id, Point3X<int64_t> origin, TileDict* tileDict);
+    Structure(int id, Vec3X<int64_t> origin, TileDict* tileDict);
     ~Structure();
 
     int getID();
-    Point3X<int64_t> getOrigin();
-    Box3X<int64_t> getBounds();
+    Vec3X<int64_t> getOrigin();
+    Vec3X<int64_t> getBounds();
+    Box3X<int64_t> getBoundingBox();
     std::map<Defs::t_tripleI64, TileRegion>* getRegionMap();
     static void suppressNextWarning();
 
 private:
 
+    void buildRegMap();
+
     int id = -1;
-    Point3X<int64_t> origin;
-    Box3X<int64_t> bnds;    //Bounds
+    Vec3X<int64_t> origin;
+    Vec3X<int64_t> bounds;    //Bounds of this structure represented by XYZ dimensions. {a, b, c} represents a a*b*c box.
     std::map<Defs::t_tripleI64, TileRegion> regMap;
     TileDict* tileDict;
 

@@ -8,6 +8,12 @@
 
 const int64_t StructureMap::msrs = 4;
 
+StructureMap::StructureMap(){}
+StructureMap::~StructureMap()
+{
+
+}
+
 void StructureMap::init(NoiseMap* nMap, TileDict* tDict, Camera* cam, int64_t loadDist)
 {
     StructureMap::nMap = nMap;
@@ -60,12 +66,14 @@ void StructureMap::putInfo(std::stringstream& ss, int& tabs)
 std::vector<Structure*> StructureMap::getStructuresInRXYZ(int64_t rX, int64_t rY, int64_t rZ)
 {
     std::vector<Structure*> res;
-    for(Structure* stru : structures) {
-        Box3X<int64_t> regBox;
-        regBox.c1 = Point3X<int64_t>(rX*32, rY*32, rZ*32);
-        regBox.c2 = Point3X<int64_t>(rX*32+31, rY*32+31, rZ*32+31);
+    for(int i = 0; i<structures.size(); i++) {
+        Structure* stru = &structures.at(i);
 
-        if(stru->getBounds().intersects(regBox)) {
+        Box3X<int64_t> regBox;
+        regBox.c1 = Vec3X<int64_t>(rX*32, rY*32, rZ*32);
+        regBox.c2 = Vec3X<int64_t>(rX*32+31, rY*32+31, rZ*32+31);
+
+        if(stru->getBoundingBox().intersects(regBox)) {
             res.push_back(stru);
         }
     }
@@ -120,9 +128,9 @@ void StructureMap::populateSpecificRegions(int64_t rX, int64_t rY, int64_t rZ, N
     int64_t avgTerrainZ = rhm->avgHeight;
 
     if(rX==0 && rY==0 && rZ==TileMap::getRegRXYZ(avgTerrainZ)) {
-        nch::Log::log("Generated ship @ xyz(%d, %d, %d)", x, y, avgTerrainZ);
-        Point3X<int64_t> shipOrigin(x, y, avgTerrainZ);
-        structures.push_back(new Structure(Structure::CRASHED_SHIP, shipOrigin, tDict));
+        Vec3X<int64_t> o(x, y, avgTerrainZ);
+        nch::Log::log("Generated hab @ xyz(%d, %d, %d)", o.x, o.y, o.z);
+        structures.pushBack(new Structure(Structure::HAB, o, tDict));
     }
 }
 
@@ -137,8 +145,19 @@ void StructureMap::populateStructuresPerRegion(int64_t rX, int64_t rY, int64_t r
         int64_t avgTerrainZ = rhm->avgHeight;
         if(rZ==TileMap::getRegRXYZ(avgTerrainZ)) {
             Structure::suppressNextWarning();
-            Structure* mono = new Structure(Structure::MONOLITH, Point3X<int64_t>(x, y, avgTerrainZ-9), tDict);
-            structures.push_back(mono);
+            Structure* mono = new Structure(Structure::MONOLITH, Vec3X<int64_t>(x, y, avgTerrainZ-9), tDict);
+            structures.pushBack(mono);
+        }
+    }
+
+    srand(rand());
+
+    //Large (max 100x100x100 area) cave starting point (1 in 50)
+    if(rand()%50==0) {
+        int64_t avgTerrainZ = rhm->avgHeight;
+        if(rZ>=TileMap::getRegRXYZ(avgTerrainZ)) {
+            Structure* caveL = new Structure(Structure::CAVE_LARGE, Vec3X<int64_t>(x-50, y-50, z-50), tDict);
+            structures.pushBack(caveL);
         }
     }
 }

@@ -10,6 +10,9 @@
 
 class StructureMap : Loggable {
 public:
+    StructureMap();
+    ~StructureMap();
+
     void init(NoiseMap* nMap, TileDict* tDict, Camera* cam, int64_t loadDist);
     void tick();
     void drawDebugOverlay(Canvas* csInteractions);
@@ -30,7 +33,7 @@ private:
     NoiseMap* nMap = nullptr;
     TileDict* tDict = nullptr;
     int64_t loadDist = 0;
-    std::vector<Structure*>             structures;
+    nch::ArrayList<Structure>           structures;
     std::map<Defs::t_tripleI64, bool>   populatedRegions;
     
     Camera* cam = nullptr;

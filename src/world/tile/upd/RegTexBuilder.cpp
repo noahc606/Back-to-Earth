@@ -240,7 +240,8 @@ void RegTexBuilder::drawTypeA(TileDict* tileDict, Tile t, int camDirection, int 
 
 	tex->lock(dstX, dstY, blitScale, blitScale);
 	if(srcTex!=nullptr) {
-		tex->blit(srcTex, srcX, srcY);
+		if(t.id!="null")
+			tex->blit(srcTex, srcX, srcY);
 	} else {
 		tex->rect(dstX, dstY, blitScale, blitScale, 0, 0, 0);
 	}
