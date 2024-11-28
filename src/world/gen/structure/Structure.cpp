@@ -49,9 +49,7 @@ Structure::Structure(int id, Vec3X<int64_t> origin, TileDict* tileDict)
 
 Structure::~Structure()
 {
-    while(regMap.size()>0) {
-        regMap.erase(regMap.begin());
-    }
+    while(regMap.size()>0) { regMap.erase(regMap.begin()); }
 }
 
 int Structure::getID() { return id; }

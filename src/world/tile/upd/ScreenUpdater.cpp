@@ -74,10 +74,7 @@ int ScreenUpdater::addTileUpdates(int64_t csX0, int64_t csY0, int64_t csX1, int6
 /*
  * Create a 3x3 of tile updates at the specified position
  */
-int ScreenUpdater::addTileUpdates(int64_t csX, int64_t csY)
-{
-    return addTileUpdates(csX-1, csY-1, csX+1, csY+1);
-}
+int ScreenUpdater::addTileUpdates(int64_t csX, int64_t csY) { return addTileUpdates(csX-1, csY-1, csX+1, csY+1); }
 
 /*
  * Fully update a region by ensuring that all tile columns in the region (32*32) get an update

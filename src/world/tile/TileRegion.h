@@ -15,19 +15,19 @@ public:
     /* Init */
     TileRegion(TileDict* tileDict);
     virtual ~TileRegion();
+
     /* Info */
-	/* Getters */
     //Get TileRegion info
     void putPaletteInfo(std::stringstream& ss, int& tabs, bool natural);
 	void putInfo(std::stringstream& ss, int& tabs);
 	void putInfo(std::stringstream& ss, int& tabs, int subX, int subY, int subZ);
     std::string getInfo(int subX, int subY, int subZ);
 	void printInfoTileIndices();
-	uint16_t getPaletteSize();
-	uint16_t getPaletteSizeNatural();
-	uint16_t getArtificialPaletteSize();
-	static int getPaletteSizeBucket(int size);
-	int getArtificialPaletteSizeBucket();
+	bool assertDefaultTileExists(t_palette& pal);
+
+    /* Getters */
+	uint16_t getPaletteSize();  uint16_t getPaletteSizeNatural();   uint16_t getPaletteSizeArtificial();
+	static int getPaletteSizeBucket(int size);                      int getArtificialPaletteSizeBucket();
 	Tile getPaletteElement(int16_t key);
 	//Get tile info
 	int16_t getTileKey(int x, int y, int z);
@@ -37,8 +37,6 @@ public:
 	int getRegTexState();
 	
 	/* Mutators */
-	//Check palette
-	bool assertDefaultTileExists(t_palette& pal);
 	//Add to palette
     int16_t addToPalette(Tile tile, t_palette& pal, bool natural);
     int16_t addToPalette(Tile tile, t_palette& pal);
@@ -46,8 +44,6 @@ public:
     int16_t addToPalette(Tile tile);
     int16_t addToPaletteFast(Tile tile, bool natural);
     int16_t addToPaletteFast(Tile tile);
-    	
-	/**/
     //Set tiles
     void setTile         (int x, int y, int z,                       Tile tile);
     void setTile         (int x, int y, int z,                       int16_t paletteIndex);
@@ -60,7 +56,8 @@ public:
     //Set region state/priority
     void setRegTexState(int p_rts);
     void resetRegTexState();
-	//Used in level saving
+
+    /* SPECIAL - Level saving */
     void compress();
     void dumpPaletteData(DataStream& ds, uint8_t dataBitsPerTile);
     void dumpTileData(DataStream& ds, uint8_t dataBitsPerTile);

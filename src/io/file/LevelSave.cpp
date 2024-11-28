@@ -53,7 +53,7 @@ void LevelSave::saveTileRegion(TileRegion& tr, int64_t rX, int64_t rY, int64_t r
 	std::string sfp = getNatFilePathFromRxyz(directory, rX, rY, rZ);
 	std::string headerTriple = getNatHeaderTriple(rX, rY, rZ);
 	//Get region's palette size
-	uint8_t dataBitsPerTile = tr.getPaletteSizeBucket( tr.getArtificialPaletteSize()+1 );
+	uint8_t dataBitsPerTile = tr.getPaletteSizeBucket( tr.getPaletteSizeArtificial()+1 );
 
 	/* Execute the save operation */
 	//If region has no artificial tiles (dataBitsPerTile==0), nothing to save.
@@ -149,7 +149,7 @@ bool LevelSave::loadTileRegion(TileRegion& tr, int64_t rX, int64_t rY, int64_t r
 
 	//Build tiles from datastream, iterating through 'dataBitsPerTile' # of bits at a time.
 	uint8_t dataBitsPerTile = dbptBytes[0];			//Get data bits per tile
-	uint16_t aps = tr.getArtificialPaletteSize();	//Get # of newly-built palette's artificial elements.
+	uint16_t aps = tr.getPaletteSizeArtificial();	//Get # of newly-built palette's artificial elements.
 	for(int sx = 0; sx<32; sx++) {
 		for(int sy = 0; sy<32; sy++) {
 			for(int sz = 0; sz<32; sz++) {

@@ -14,10 +14,6 @@ void Hotbar::tick(Controls* ctrls)
 
 		if(ctrls->isPressed(ss.str())) {
 			selectedSlot = i-1;
-
-			if(activePMT) 	{	inv->selectSlot(1, i-1, 0); }
- 			else 			{	inv->selectSlot(0, i-1, 0);	}
-
 			ctrls->stopPress(ss.str(), __PRETTY_FUNCTION__);
 		}
 	}
@@ -33,12 +29,17 @@ void Hotbar::tick(Controls* ctrls)
 		}
 	}
 
+	//Switch hotbar
 	if(ctrls->isPressed("HOTBAR_SWITCH")) {
 		if(activePMT) 	{ activePMT = false; }
 		else 			{ activePMT = true; }
 		
 		ctrls->stopPress("HOTBAR_SWITCH", __PRETTY_FUNCTION__);
 	}
+
+	//Update item selected depending on hotbar
+	if(activePMT) 	{	inv->selectSlot(1, selectedSlot, 0); }
+	else 			{	inv->selectSlot(0, selectedSlot, 0); }
 }
 
 void Hotbar::draw(SDLHandler* sh, TileDict* td)
