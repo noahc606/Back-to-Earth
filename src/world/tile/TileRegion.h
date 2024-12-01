@@ -6,6 +6,7 @@
 #include "DataStream.h"
 #include "Tile.h"
 #include "TileDict.h"
+#include "TileRegionArray.h"
 
 class TileRegion : public Loggable
 {
@@ -13,6 +14,7 @@ public:
     typedef std::map<int16_t, Tile> t_palette;
 
     /* Init */
+    TileRegion(TileDict* tileDict, size_t bitsize);
     TileRegion(TileDict* tileDict);
     virtual ~TileRegion();
 
@@ -22,7 +24,6 @@ public:
 	void putInfo(std::stringstream& ss, int& tabs);
 	void putInfo(std::stringstream& ss, int& tabs, int subX, int subY, int subZ);
     std::string getInfo(int subX, int subY, int subZ);
-	void printInfoTileIndices();
 	bool assertDefaultTileExists(t_palette& pal);
 
     /* Getters */
@@ -79,7 +80,8 @@ protected:
 private:
     TileDict* tileDict;
     t_palette palette;
-    int16_t tiles[32][32][32];
+    TileRegionArray* tiles = nullptr;
+
 	bool modifiedSinceLoad = false;
 
     int regTexState = UNGENERATED;

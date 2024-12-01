@@ -32,6 +32,7 @@ private:
     int id = -1;
     Vec3X<int64_t> origin;
     Vec3X<int64_t> bounds;    //Bounds of this structure represented by XYZ dimensions. {a, b, c} represents a a*b*c box.
+    size_t bitsize;
     std::map<Defs::t_tripleI64, TileRegion> regMap;
     TileDict* tileDict;
 

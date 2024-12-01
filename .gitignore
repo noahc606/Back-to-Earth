@@ -3,6 +3,7 @@ BTE.workspace
 /.vscode
 /bin/backtoearth/dump
 /bin/backtoearth/saved/games
+/bin/backtoearth/saved/games_backup
 /bin/backtoearth/saved/logs
 /bin/backtoearth/saved/screenshots
 /bin/backtoearth/saved/settings

@@ -14,14 +14,17 @@
 /**
 (X+, Y+, Z+) = (East, South, Down)
 */
-TileRegion::TileRegion(TileDict* tileDict)
+TileRegion::TileRegion(TileDict* tileDict, size_t bitsize)
 {
 	TileRegion::tileDict = tileDict;
+	TileRegion::tiles = new TileRegionArray(bitsize);
+
 	resetPalette();
 	resetTiles();
 }
+TileRegion::TileRegion(TileDict* tileDict): TileRegion(tileDict, 16) {}
 
-TileRegion::~TileRegion(){}
+TileRegion::~TileRegion() { if(tiles==nullptr) delete tiles; }
 
 void TileRegion::putPaletteInfo(std::stringstream& ss, int& tabs, bool natural)
 {
@@ -73,11 +76,7 @@ void TileRegion::putInfo(std::stringstream& ss, int& tabs, int subX, int subY, i
 	}
 	DebugScreen::endGroup(tabs);
 }
-
-void TileRegion::putInfo(std::stringstream& ss, int& tabs)
-{
-	putInfo(ss, tabs, -1, -1, -1);
-}
+void TileRegion::putInfo(std::stringstream& ss, int& tabs) { putInfo(ss, tabs, -1, -1, -1); }
 
 std::string TileRegion::getInfo(int subX, int subY, int subZ)
 {
@@ -85,24 +84,6 @@ std::string TileRegion::getInfo(int subX, int subY, int subZ)
 	int tabs = 0;
 	putInfo(ss, tabs, subX, subY, subZ);
 	return ss.str();
-}
-
-void TileRegion::printInfoTileIndices()
-{
-	std::stringstream ss;
-	for( int z = 0; z<32; z++ ) {
-		ss << "Z Layer " << z << ":\n";
-		for( int y = 0; y<32; y++ ) {
-			ss << "y=" << y << ": { ";
-			for( int x = 0; x<32; x++ ) {
-				ss << tiles[x][y][z] << " ";
-			}
-			ss << "} ";
-		}
-		ss << "\n\n";
-	}
-	
-	nch::Log::log(ss.str());
 }
 
 uint16_t TileRegion::getPaletteSize() { return palette.size(); }
@@ -160,9 +141,8 @@ Tile TileRegion::getPaletteElement(int16_t key)
 
 int16_t TileRegion::getTileKey( int x, int y, int z )
 {
-	//Negative key indicates artificial tile. Positive index indicates natural tile. 0 always = space = 0x0000000000000000.
-	int16_t palKey = tiles[x][y][z];
-	return palKey;
+	//Negative key indicates artificial tile. Positive index indicates natural tile. 0 always = null.
+	return tiles->at(x, y, z);
 }
 
 Tile TileRegion::getTile( int x, int y, int z )
@@ -262,30 +242,22 @@ int16_t TileRegion::addToPaletteFast(Tile tile) { return addToPaletteFast(tile, 
 		-This is expensive when used in multidimensional loops - use setTiles() to fill any rectangular-prism-area with a single type of tile.
 		-Use setTile(int, int, int, int) whenever you want to place tiles directly from the palette (for example, during region generation).
 */
-void TileRegion::setTile( int x, int y, int z, Tile tile ) { tiles[x][y][z] = addToPalette(tile); }
+void TileRegion::setTile( int x, int y, int z, Tile tile ) { tiles->set(x, y, z, addToPalette(tile)); }
 
 /**
 	A faster setTile function that copies a tile from the palette directly and places it somewhere.
 	Cannot be used to generate a new tile (again, only tiles from the palette can be used).
 */
-void TileRegion::setTile( int x, int y, int z, int16_t paletteIndex )
-{
-	tiles[x][y][z] = paletteIndex;
-}
+void TileRegion::setTile(int x, int y, int z, int16_t paletteIndex) { tiles->set(x, y, z, paletteIndex); }
 
-void TileRegion::setTiles( int x1, int y1, int z1, int x2, int y2, int z2, Tile tile )
-{
-	setTiles( addToPalette(tile), x1, y1, z1, x2, y2, z2 );
-}
+void TileRegion::setTiles(int x1, int y1, int z1, int x2, int y2, int z2, Tile tile) { setTiles(addToPalette(tile), x1, y1, z1, x2, y2, z2); }
 
-void TileRegion::setTiles( int x1, int y1, int z1, int x2, int y2, int z2, int16_t paletteIndex )
+void TileRegion::setTiles(int x1, int y1, int z1, int x2, int y2, int z2, int16_t paletteIndex)
 {
-	for( int x = x1; x<=x2; x++ ) {
-		for( int y = y1; y<=y2; y++ ) {
-			for( int z = z1; z<=z2; z++ ) {
-				tiles[x][y][z] = paletteIndex;
-			}
-		}
+	for( int x = x1; x<=x2; x++ )
+	for( int y = y1; y<=y2; y++ )
+	for( int z = z1; z<=z2; z++ ) {
+		tiles->set(x, y, z, paletteIndex);
 	}
 }
 
@@ -303,33 +275,17 @@ void TileRegion::resetPalette()
 
 void TileRegion::resetArtificialPalette()
 {
-	if( !assertDefaultTileExists(palette) ) {
-		return;
-	}
+	if( !assertDefaultTileExists(palette) ) { return; }
 	
 	t_palette::iterator pitr = palette.find(0);
-	while( palette.begin()!=pitr ) {
+	while(palette.begin()!=pitr) {
 		palette.erase( palette.begin() );
 	}
 }
 
-void TileRegion::resetTiles()
-{
-	//Fill region with empty tile
-	for( int x = 0; x<32; x++ ) {
-		for(int y = 0; y<32; y++ ) {
-			for(int z = 0; z<32; z++ ) {
-				tiles[x][y][z] = 0;
-			}
-		}
-	}
-}
+void TileRegion::resetTiles() { tiles->reset(); }
 
-void TileRegion::setRegTexState(int p_rts)
-{
-	regTexState = p_rts;
-}
-
+void TileRegion::setRegTexState(int p_rts) { regTexState = p_rts; }
 void TileRegion::resetRegTexState() { regTexState = 0; }
 
 /**

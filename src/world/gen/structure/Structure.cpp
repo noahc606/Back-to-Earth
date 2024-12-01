@@ -16,9 +16,9 @@ Structure::Structure(int id, Vec3X<int64_t> origin, TileDict* tileDict)
     Structure::tileDict = tileDict;
    //Set the bounds of the structure based on its maximum size AND THEN build regMap.
     switch(id) {
-        case HAB:           { bounds = Vec3X<int64_t>(16, 16, 16); } break;
-        case CAVE_LARGE:    { bounds = Vec3X<int64_t>(128, 128, 128); } break;
-        default:            { bounds = Vec3X<int64_t>(1, 4, 9); } break;
+        case HAB:           { bounds = Vec3X<int64_t>(16, 16, 16);      bitsize = 4; } break;
+        case CAVE_LARGE:    { bounds = Vec3X<int64_t>(128, 128, 128);   bitsize = 1; } break;
+        default:            { bounds = Vec3X<int64_t>(1, 4, 9);         bitsize = 1; } break;
     }
     buildRegMap();
 
@@ -73,7 +73,7 @@ void Structure::buildRegMap()
     for(int64_t iRX = 0; iRX<=bounds.x/32; iRX++)
     for(int64_t iRY = 0; iRY<=bounds.y/32; iRY++)
     for(int64_t iRZ = 0; iRZ<=bounds.z/32; iRZ++) {
-        TileRegion tr(tileDict);
+        TileRegion tr(tileDict, bitsize);
         cu.insertInMap(regMap, std::make_pair(std::make_tuple(iRX, iRY, iRZ), tr));
     }
 }

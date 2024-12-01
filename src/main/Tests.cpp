@@ -1,5 +1,6 @@
 #include "Tests.h"
 #include "CampaignCreation.h"
+#include "TileRegionArray.h"
 
 Tests::Tests(){}
 
@@ -19,17 +20,28 @@ void Tests::init(SDLHandler* sh, FileHandler* fh, Controls* ctrls)
 	fileHandler = fh;
 	controls = ctrls;
 
-    assetList(fileHandler);
-    al = sdlHandler->getAudioLoader();
 
-    td.init(sdlHandler, "hardcoreparkour", "default");
+    TileRegionArray tra(16);
 
-    //MissionHolder mh;
-    //mh.init("missiontests");
-    //mh.init("missiontests");
+    tra.set(0, 0, 0, 15);
+    tra.set(1, 1, 1, 11);
+    tra.set(2, 2, 2, 6);
+    tra.set(3, 3, 3, -432);
+    tra.set(4, 4, 4, 32767);
+    tra.set(3, 4, 4, 32768);
+    tra.set(2, 4, 4, 32767);
+    tra.set(1, 4, 4, 32767);
 
-
-
+    for(int iz = 0; iz<32; iz++) {
+        printf("\n\n\n======== Layer %d ========\n", iz);
+        for(int iy = 0; iy<32; iy++) {
+            for(int ix = 0; ix<32; ix++) {
+                printf("%d ", tra.at(ix, iy, iz));
+            }
+            printf("\n");
+        }
+    }
+    
 }
 
 Tests::~Tests(){}
@@ -43,18 +55,6 @@ void Tests::draw()
     ss << "2) Type in \"gs 0\"\n";
     ss << "3) Press [ENTER].";
     TextOld::draw(sdlHandler, ss.str(), sdlHandler->getWidth()/2-180, sdlHandler->getHeight()/2-36, 2);
-
-    double scale = 2;
-    
-    mh.draw(sdlHandler, 0, 0);
-
-    td.drawAtlas(0);
-
-    Tile hfh = td.at("hab_futuristic_hull");
-    auto ts = td.getTileSrcFromCamDir(hfh, 0);
-
-    //tex.setDrawScale(scale);
-    //tex.setDrawPos(sdlHandler->getWidth()/2-tex.getTexWidth()*scale/2, sdlHandler->getHeight()/2-tex.getTexHeight()*scale/2);
 }
 
 void Tests::tick(){}
