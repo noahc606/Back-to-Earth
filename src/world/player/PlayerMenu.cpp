@@ -39,9 +39,9 @@ void PlayerMenu::tick() {
 	//If the inventory is open at all...
 	if(inv.getMod()>=0) {
 		tickInventoryOpen();
+	} else {
+		hotbar.tick(controls);
 	}
-
-	hotbar.tick(controls);
 }
 
 void PlayerMenu::draw(MissionHolder& mh)
