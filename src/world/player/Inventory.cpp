@@ -35,9 +35,9 @@ int Inventory::getUIODY() { return uiOverlayDY; }
 int Inventory::getWidth() { return w; }
 int Inventory::getHeight() { return h; }
 
-uint8_t Inventory::getSelLoc() { return sl; }
-uint8_t Inventory::getSelX() { return sx; }
-uint8_t Inventory::getSelY() { return sy; }
+int8_t Inventory::getSelLoc() { return sl; }
+int8_t Inventory::getSelX() { return sx; }
+int8_t Inventory::getSelY() { return sy; }
 
 InvItemStack Inventory::getSelItemStack() { return selectedStack; }
 

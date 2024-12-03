@@ -35,10 +35,21 @@ void PlayerMenu::tick() {
 	if( inv.getMod()==PlayerMenuModules::SANDBOX ) {
 		updateSandboxTile();
 	}
-	
+
+	//If inventory module changes from -1 to >=0...
+	if(lastInvMod!=inv.getMod()) {
+		if(lastInvMod==-1 && inv.getMod()>=0) {
+			auto lsis = hotbar.getLastSelectedInvSlot();
+			inv.selectSlot(std::get<0>(lsis), std::get<1>(lsis), std::get<2>(lsis));
+		}
+
+		lastInvMod = inv.getMod();
+	}
+
 	//If the inventory is open at all...
 	if(inv.getMod()>=0) {
 		tickInventoryOpen();
+		hotbar.setLastSelectedInvSlot(inv.getSelLoc(), inv.getSelX(), inv.getSelY());
 	} else {
 		hotbar.tick(controls);
 	}

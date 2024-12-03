@@ -3,7 +3,11 @@
 Hotbar::Hotbar(){}
 Hotbar::~Hotbar(){}
 
-void Hotbar::init(Inventory* inv) { Hotbar::inv = inv; }
+void Hotbar::init(Inventory* inv)
+{
+	Hotbar::inv = inv;
+	lastSelectedISlot = std::make_tuple(-1, -1, -1);
+}
 
 void Hotbar::tick(Controls* ctrls)
 {
@@ -13,7 +17,7 @@ void Hotbar::tick(Controls* ctrls)
 		ss << "HOTBAR_" << i;
 
 		if(ctrls->isPressed(ss.str())) {
-			selectedSlot = i-1;
+			selectedHBSlot = i-1;
 			ctrls->stopPress(ss.str(), __PRETTY_FUNCTION__);
 		}
 	}
@@ -22,9 +26,9 @@ void Hotbar::tick(Controls* ctrls)
 	if(!ctrls->isHeld("MAP_USE_ZOOM")) {
 		int mw = ctrls->getMouseWheel();
 		if(mw!=0) {
-			selectedSlot -= mw;
-			while(selectedSlot<0) selectedSlot += 8;
-			while(selectedSlot>7) selectedSlot -= 8;
+			selectedHBSlot -= mw;
+			while(selectedHBSlot<0) selectedHBSlot += 8;
+			while(selectedHBSlot>7) selectedHBSlot -= 8;
 			ctrls->resetWheel(__PRETTY_FUNCTION__);
 		}
 	}
@@ -38,8 +42,8 @@ void Hotbar::tick(Controls* ctrls)
 	}
 
 	//Update item selected depending on hotbar
-	if(activePMT) 	{	inv->selectSlot(1, selectedSlot, 0); }
-	else 			{	inv->selectSlot(0, selectedSlot, 0); }
+	if(activePMT) 	{	inv->selectSlot(1, selectedHBSlot, 0); }
+	else 			{	inv->selectSlot(0, selectedHBSlot, 0); }
 }
 
 void Hotbar::draw(SDLHandler* sh, TileDict* td)
@@ -109,8 +113,12 @@ void Hotbar::draw(SDLHandler* sh, TileDict* td)
 
 	//Selected slot (in top row)
 	SDL_Rect src; src.x = 168; src.y = 160; src.w = 36; src.h = 36;
-	SDL_Rect dst; dst.x = hbX+selectedSlot*36*2; dst.y = hbY; dst.w = 36*2; dst.h = 36*2;
+	SDL_Rect dst; dst.x = hbX+selectedHBSlot*36*2; dst.y = hbY; dst.w = 36*2; dst.h = 36*2;
 	sh->renderCopy(texID, &src, &dst);
 
 	//sdlHandler->setRenderDrawColor()    
 }
+
+
+std::tuple<int8_t, int8_t, int8_t> Hotbar::getLastSelectedInvSlot() { return lastSelectedISlot; }
+void Hotbar::setLastSelectedInvSlot(int8_t sl, int8_t sx, int8_t sy) { lastSelectedISlot = std::make_tuple(sl, sx, sy); }

@@ -18,9 +18,9 @@ public:
 	int getScrX(); int getScrY();
 	int getUIODX(); int getUIODY();
 	int getWidth(); int getHeight();
-	uint8_t getSelLoc();
-	uint8_t getSelX();
-	uint8_t getSelY();
+	int8_t getSelLoc();
+	int8_t getSelX();
+	int8_t getSelY();
 	InvItemStack getSelItemStack();
 	bool slotExists(int loc, int x, int y);
 	bool slotExists(int x, int y);
@@ -51,7 +51,7 @@ private:
 	//Slots
 	std::map<int, std::map<std::pair<int, int>, InvItemStack>> inv;
 	//Selection &  Holding
-	int sl, sx, sy = -1;		//(L)ocation, X, Y of the currently selected inventory slot
+	int8_t sl, sx, sy = -1;		//(L)ocation, X, Y of the currently selected inventory slot
 	InvItemStack heldStack;     //Currently held item stack
 	InvItemStack selectedStack; //Currently selected item stack (right click)
 	//Player Menu Modules

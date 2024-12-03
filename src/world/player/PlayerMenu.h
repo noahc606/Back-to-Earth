@@ -50,6 +50,7 @@ private:
 	
 	int playerGamemode = 0;
 	Inventory inv;
+	int lastInvMod = -1;
 	Hotbar hotbar;
 	
 	Texture uiOverlay;
