@@ -9,6 +9,8 @@
 #include "TextureLoader.h"
 #include "TileMap.h"
 
+using namespace nch;
+
 const double Player::unit = 0.03125; // 0.03125 = 1/32
 
 Player::Player() { }
@@ -153,15 +155,15 @@ void Player::tick(TileMap* tm)
 	//Special actions in godMode
 	if( godMode ) {
 		if( controls->isHeld("HARDCODE_RIGHT_CLICK") ) {
-			action = Action::GM_Place_Tile;
+			action = Action::GM_Apply;
 		} else if( controls->isHeld("HARDCODE_LEFT_CLICK") ) {
-			action = Action::GM_Destroy_Tile;
+			action = Action::GM_Interact;
 		}
 	} else {
 		if( controls->isHeld("HARDCODE_RIGHT_CLICK") ) {
-			action = Action::SURV_Place_Tile;
+			action = Action::SURV_Apply;
 		} else if( controls->isHeld("HARDCODE_LEFT_CLICK") ) {
-			action = Action::SURV_Destroy_Tile;
+			action = Action::SURV_Interact;
 		}
 	}
 //Set whether player is controllable
@@ -388,9 +390,9 @@ void Player::putInfo(std::stringstream& ss, int& tabs)
 
 int Player::getAction() { return action; }
 
-Box3X<double> Player::getBounds(int bbt)
+Box3<double> Player::getBounds(int bbt)
 {
-	Box3X<double> b3d;
+	Box3<double> b3d;
 	b3d.c1.x = x-unit*11.;	b3d.c2.x = x+unit*11.;
 	b3d.c1.y = y-unit*11.;	b3d.c2.y = y+unit*11.;
 	b3d.c1.z = z+4.*unit;	b3d.c2.z = z+2;
@@ -431,7 +433,7 @@ Box3X<double> Player::getBounds(int bbt)
 
 	return b3d;
 }
-Box3X<double> Player::getBounds() { return getBounds(MAIN); }
+Box3<double> Player::getBounds() { return getBounds(MAIN); }
 
 
 std::vector<double> Player::getPos() { return { x, y, z }; }

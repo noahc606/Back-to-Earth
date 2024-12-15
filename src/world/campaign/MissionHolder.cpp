@@ -3,7 +3,6 @@
 #include <nch/cpp-utils/fs-utils.h>
 #include <nch/cpp-utils/log.h>
 #include <fstream>
-#include "Box3X.h"
 
 MissionHolder::MissionHolder(){}
 MissionHolder::MissionHolder(std::string saveGameName) { init(saveGameName); }

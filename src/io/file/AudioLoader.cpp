@@ -228,6 +228,7 @@ void AudioLoader::addMixChunks()
 	
 	addMixChunk(MUSIC_kc_50_million_year_trip, "music/kc/50_million_year_trip", "mp3", true);
 	addMixChunk(MUSIC_kc_alien_ruins, "music/kc/alien_ruins", "mp3", true);
+	addMixChunk(MUSIC_kc_astronomy, "music/kc/astronomy", "mp3", true);
 	addMixChunk(MUSIC_kc_digital_sunset, "music/kc/digital_sunset", "mp3", true);
 	addMixChunk(MUSIC_kc_distant_planet, "music/kc/distant_planet", "mp3", true);
 	addMixChunk(MUSIC_kc_last_stop, "music/kc/last_stop", "mp3", true);
@@ -265,6 +266,7 @@ void AudioLoader::addMixChunks()
 	addMixChunk(SFX_WORLD_PLACE_solid_3, "world/place/solid_3", "mp3");
 	addMixChunk(SFX_WORLD_plasma_cannon, "world/plasma_cannon", "mp3");
 	addMixChunk(SFX_WORLD_air_release_1, "world/air_release_1", "mp3");
+	addMixChunk(SFX_WORLD_antimatter_explosion, "world/antimatter_explosion", "mp3");
 }
 
 /**

@@ -51,4 +51,5 @@ private:
     static void trackEvents(); //Track SDL_Events to handle keyboard/mouse input, program exit requests, etc.
     static void tick();        //Update game objects at 60 times a second.
     static void draw();        //Draw game objects at 120 times a second.
+    static void reloadAssets();
 };

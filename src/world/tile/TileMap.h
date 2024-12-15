@@ -1,9 +1,9 @@
 #pragma once
 #include <map>
+#include <nch/math-utils/box3.h>
 #include <set>
 #include <string>
 #include <tuple>
-#include "Box3X.h"
 #include "BTEObject.h"
 #include "Camera.h"
 #include "Defs.h"
@@ -37,7 +37,7 @@ public:
 
 	//Getting TileTypes given their position
 	Tile getTile(int64_t x, int64_t y, int64_t z);
-	Tile getTileByCsXYZ(Camera* cam, int64_t csX, int64_t csY, int64_t csZ);
+	Tile getTileByCsXYZ(Camera* cam, nch::Vec3<int64_t> cspos);
 	//Getting TileRegions given their position
 	static TileRegion* getRegByRXYZ(t_regionMap* regMap, int64_t x, int64_t y, int64_t z);
 	TileRegion* getRegByXYZ (int64_t x, int64_t y, int64_t z);
@@ -55,12 +55,11 @@ public:
 	static void convRxyzToLSRxyz (int64_t& rx, int64_t& ry, int64_t& rz);
 	
 	//Collision
-	bool collides( Box3X<double> b, int64_t& cx, int64_t& cy, int64_t& cz );
-	bool collides( Box3X<double> b );
+	bool collides(nch::Box3<double> b, int64_t& cx, int64_t& cy, int64_t& cz);
+	bool collides(nch::Box3<double> b);
 
 	/** TileMap manipulation */
 	//Set tile
-	//int setTile(t_regionMap& regMap, int64_t x, int64_t y, int64_t z, TileType tt);
 	int setTile(int64_t x, int64_t y, int64_t z, Tile t);
 	int setTileByCsXYZ(Camera* cam, int64_t cx, int64_t cy, int64_t cz, Tile t);
 	static bool setTiles(t_regionMap* regionMap, int64_t x1, int64_t y1, int64_t z1, int64_t x2, int64_t y2, int64_t z2, Tile tt, bool natural);
@@ -70,7 +69,6 @@ public:
 	int loadRegion(int64_t rX, int64_t rY, int64_t rZ);
 	int loadRegionByCsRXYZ(int camAxis, int64_t csRX, int64_t csRY, int64_t csRZ);
 	int loadRegions(int64_t rX1, int64_t rY1, int64_t rZ1, int64_t rX2, int64_t rY2, int64_t rZ2);
-	int forceLoadRegion(int64_t rX, int64_t rY, int64_t rZ);
 	int saveRegion(int64_t rX, int64_t rY, int64_t rZ);
 	int unloadRegion(int64_t rX, int64_t rY, int64_t rZ);
 

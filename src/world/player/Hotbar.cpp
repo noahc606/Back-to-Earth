@@ -3,9 +3,9 @@
 Hotbar::Hotbar(){}
 Hotbar::~Hotbar(){}
 
-void Hotbar::init(Inventory* inv)
+void Hotbar::init(InventoryHolder* invhdr)
 {
-	Hotbar::inv = inv;
+	Hotbar::invhdr = invhdr;
 	lastSelectedISlot = std::make_tuple(-1, -1, -1);
 }
 
@@ -42,8 +42,8 @@ void Hotbar::tick(Controls* ctrls)
 	}
 
 	//Update item selected depending on hotbar
-	if(activePMT) 	{	inv->selectSlot(1, selectedHBSlot, 0); }
-	else 			{	inv->selectSlot(0, selectedHBSlot, 0); }
+	if(activePMT) 	{	invhdr->selectSlot(1, selectedHBSlot, 0); }
+	else 			{	invhdr->selectSlot(0, selectedHBSlot, 0); }
 }
 
 void Hotbar::draw(SDLHandler* sh, TileDict* td)
@@ -71,7 +71,7 @@ void Hotbar::draw(SDLHandler* sh, TileDict* td)
 
 		int loc = 0;
 		if(activePMT) loc = 1;
-		InvItemStack iis = inv->getSlotItemStack(loc, i, 0);
+		ItemStack is = invhdr->getSlotItemStack(loc, i, 0);
 
 		//Square background
 		SDL_Rect src2 = src;
@@ -79,14 +79,14 @@ void Hotbar::draw(SDLHandler* sh, TileDict* td)
 		SDL_Rect dst2 = dst;
 		dst2.x += (2*2); dst2.y += (2*2);
 		dst2.w -= (4*2); dst2.h -= (4*2);
-		if(iis.getType()==-1) {
+		if(is.getType()==-1) {
 			src2.x = 32; sh->renderCopy(texID, &src2, &dst2);
 		} else {
 			src2.x = 64; sh->renderCopy(texID, &src2, &dst2);
 		}
 
 		//Item count
-		iis.draw(sh, td, dst.x+6, dst.y+6);
+		is.draw(sh, td, dst.x+6, dst.y+6);
 	}
 	
 	//Inactive slots (bottom row)
@@ -107,8 +107,8 @@ void Hotbar::draw(SDLHandler* sh, TileDict* td)
 
 		int loc = 1;
 		if(activePMT) loc = 0;
-		InvItemStack iis = inv->getSlotItemStack(loc, i, 0);
-		iis.draw(sh, td, dst.x+6, dst.y+6);
+		ItemStack is = invhdr->getSlotItemStack(loc, i, 0);
+		is.draw(sh, td, dst.x+6, dst.y+6);
 	}
 
 	//Selected slot (in top row)
@@ -121,4 +121,7 @@ void Hotbar::draw(SDLHandler* sh, TileDict* td)
 
 
 std::tuple<int8_t, int8_t, int8_t> Hotbar::getLastSelectedInvSlot() { return lastSelectedISlot; }
+bool Hotbar::isPMTActive() { return activePMT; }
+
+
 void Hotbar::setLastSelectedInvSlot(int8_t sl, int8_t sx, int8_t sy) { lastSelectedISlot = std::make_tuple(sl, sx, sy); }

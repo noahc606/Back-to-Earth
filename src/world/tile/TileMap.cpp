@@ -8,6 +8,8 @@
 #include "Tile.h"
 #include <nch/sdl-utils/timer.h>
 
+using namespace nch;
+
 void TileMap::init(SDLHandler* sh, Planet* pt, StructureMap* struMap, NoiseMap* nMap, TileDict* td, std::string saveGameName)
 {
 	sdlHandler = sh;
@@ -22,7 +24,7 @@ void TileMap::init(SDLHandler* sh, Planet* pt, StructureMap* struMap, NoiseMap* 
 
 void TileMap::destroy()
 {
-    nch::Log::log(__PRETTY_FUNCTION__, "Deleting TileMap.");
+    nch::Log::log("Destroying TileMap.");
 
 	//Build a list of all tile region locations
 	std::vector<std::tuple<uint64_t, uint64_t, uint64_t>> regs;
@@ -89,13 +91,10 @@ Tile TileMap::getTile(int64_t x, int64_t y, int64_t z)
     //If tr==null
     return Tile();
 }
-Tile TileMap::getTileByCsXYZ(Camera* cam, int64_t csX, int64_t csY, int64_t csZ)
+Tile TileMap::getTileByCsXYZ(Camera* cam, Vec3<int64_t> cspos)
 {
-	switch(cam->getAxis()) {
-		case Camera::X: return getTile(csZ, csX, csY); break;
-		case Camera::Y: return getTile(csX, csZ, csY); break;
-	}
-	return getTile(csX, csY, csZ);
+	Vec3<int64_t> wpos = cam->getWorldPosFromCsPos(cspos);
+	return getTile(wpos.x, wpos.y, wpos.z);
 }
 
 TileRegion* TileMap::getRegByXYZ(int64_t x, int64_t y, int64_t z)
@@ -141,7 +140,7 @@ void TileMap::convRxyzToLSRxyz(int64_t& rx, int64_t& ry, int64_t& rz) { rx = con
 /*
 	Do any tiles in the TileMap collide with Box 'b'?
 */
-bool TileMap::collides(Box3X<double> b, int64_t& cx, int64_t& cy, int64_t& cz)
+bool TileMap::collides(Box3<double> b, int64_t& cx, int64_t& cy, int64_t& cz)
 {
     TileIterator ti(this);
 
@@ -168,7 +167,7 @@ bool TileMap::collides(Box3X<double> b, int64_t& cx, int64_t& cy, int64_t& cz)
 					int64_t y = ti.getItrReg(1)*32+sy;
 					int64_t z = ti.getItrReg(2)*32+sz;
 					//Build tileBox and check for collision against it
-					Box3X<double> tileBox(x, y, z, x+1, y+1, z+1);
+					Box3<double> tileBox(x, y, z, x+1, y+1, z+1);
 					if(b.collides(tileBox)) {
 						cx = x; cy = y; cz = z;
 						return true;
@@ -181,7 +180,7 @@ bool TileMap::collides(Box3X<double> b, int64_t& cx, int64_t& cy, int64_t& cz)
 	return false;
 }
 
-bool TileMap::collides(Box3X<double> b)
+bool TileMap::collides(Box3<double> b)
 {
 	int64_t x, y, z = 0;
 	return collides(b, x, y, z);
@@ -235,13 +234,13 @@ bool TileMap::setTiles(int64_t x1, int64_t y1, int64_t z1, int64_t x2, int64_t y
 void TileMap::setStructureWithinReg(Structure* stru, TileRegion& tr, int64_t rX, int64_t rY, int64_t rZ)
 {
 	//Get relevant structure bounds and world bounds
-	Vec3X<int64_t> so = stru->getOrigin();																	//[S]tructure [O]rigin (min xyz location)
-	Vec3X<int64_t> sb = stru->getBounds();																	//[S]tructure [B]ounds
-	Box3X<int64_t> wb(rX*32, rY*32, rZ*32, rX*32+31, rY*32+31, rZ*32+31);									//[W]orld [B]ounds			(32*32*32)
-	Box3X<int64_t> ucb(wb.c1.x-so.x, wb.c1.y-so.y, wb.c1.z-so.z, wb.c2.x-so.x, wb.c2.y-so.y, wb.c2.z-so.z);	//[U]n[C]lipped [B]ounds	(32*32*32)
-	Box3X<int64_t> cb = ucb.intersection(Box3X<int64_t>(0, 0, 0, sb.x-1, sb.y-1, sb.z-1));					//[C]lipped [B]ounds		(a*b*c)
-	if(cb==Box3X<int64_t>(0, 0, 0, 0, 0, 0)) {
-		Box3X<int64_t> sbb = stru->getBoundingBox();
+	Vec3<int64_t> so = stru->getOrigin();																	//[S]tructure [O]rigin (min xyz location)
+	Vec3<int64_t> sb = stru->getBounds();																	//[S]tructure [B]ounds
+	Box3<int64_t> wb(rX*32, rY*32, rZ*32, rX*32+31, rY*32+31, rZ*32+31);									//[W]orld [B]ounds			(32*32*32)
+	Box3<int64_t> ucb(wb.c1.x-so.x, wb.c1.y-so.y, wb.c1.z-so.z, wb.c2.x-so.x, wb.c2.y-so.y, wb.c2.z-so.z);	//[U]n[C]lipped [B]ounds	(32*32*32)
+	Box3<int64_t> cb = ucb.intersection(Box3<int64_t>(0, 0, 0, sb.x-1, sb.y-1, sb.z-1));					//[C]lipped [B]ounds		(a*b*c)
+	if(cb==Box3<int64_t>(0, 0, 0, 0, 0, 0)) {
+		Box3<int64_t> sbb = stru->getBoundingBox();
 		nch::Log::errorv(
 			__PRETTY_FUNCTION__,
 			"empty intersection",
@@ -249,7 +248,7 @@ void TileMap::setStructureWithinReg(Structure* stru, TileRegion& tr, int64_t rX,
 			sbb.c1.x, sbb.c1.y, sbb.c1.z, sbb.c2.x, sbb.c2.y, sbb.c2.z
 		);
 	}
-	Box3X<int64_t> wfb(																						//[W]orld [F]inal [B]ounds	(a*b*c)
+	Box3<int64_t> wfb(																						//[W]orld [F]inal [B]ounds	(a*b*c)
 		getRegSubPos(cb.c1.x+so.x), getRegSubPos(cb.c1.y+so.y), getRegSubPos(cb.c1.z+so.z),
 		getRegSubPos(cb.c2.x+so.x), getRegSubPos(cb.c2.y+so.y), getRegSubPos(cb.c2.z+so.z)
 	);
@@ -258,7 +257,7 @@ void TileMap::setStructureWithinReg(Structure* stru, TileRegion& tr, int64_t rX,
 	//Set bounds within tiS to be the part of the structure to be generated (32x32x32 regardless of whether near an edge or not)
 	TileIterator tiS(stru->getRegionMap());
 	tiS.setTrackerMode(tiS.SINGLE);
-	if(tiS.setBounds(cb.c1.x, cb.c1.y, cb.c1.z, cb.c2.x, cb.c2.y, cb.c2.z)==-1) {
+	if(tiS.setBounds(cb)==-1) {
 		nch::Log::errorv(__PRETTY_FUNCTION__, "Structure bounds contains unloaded regions", "Failed to set TileIterator bounds");
 	}
 
@@ -278,7 +277,7 @@ void TileMap::setStructureWithinReg(Structure* stru, TileRegion& tr, int64_t rX,
 		for(int64_t idsz = 0; idsz<=tiS.ges(2)-tiS.gbs(2); idsz++) {
 			//Get the current tile index from the structure corresponding to this position
 			int16_t tirIdx = tir->getTileKey(tiS.gbs(0)+idsx, tiS.gbs(1)+idsy, tiS.gbs(2)+idsz);
-			Vec3X<int64_t> dst(wfb.c1.x+idsx+wtDX, wfb.c1.y+idsy+wtDY, wfb.c1.z+idsz+wtDZ);
+			Vec3<int64_t> dst(wfb.c1.x+idsx+wtDX, wfb.c1.y+idsy+wtDY, wfb.c1.z+idsz+wtDZ);
 			
 			//If this is a non-null tile, place something in the world.
 			if(tirIdx!=0) {
@@ -363,24 +362,6 @@ int TileMap::loadRegions(int64_t rX1, int64_t rY1, int64_t rZ1, int64_t rX2, int
 
 	//Return result
 	return res;
-}
-
-/**
- * 	Used for debug purposes. Loads the region specified by rX, rY, and rZ, except it loads the artificial tiles (from file) no matter what.
- */
-int TileMap::forceLoadRegion(int64_t rX, int64_t rY, int64_t rZ)
-{
-	std::stringstream ss;
-	ss << "Forceloading region (" << rX << ", " << rY << ", " << rZ << ")";
-	nch::Log::log(ss.str());
-	
-	loadRegion(rX, rY, rZ);
-	TileRegion* tr = getRegByRXYZ(rX, rY, rZ);
-	if( tr!=nullptr ) {
-		tr->load(saveGameName, rX, rY, rZ);
-		return 1;
-	}
-	return -1;
 }
 
 int TileMap::saveRegion(int64_t rX, int64_t rY, int64_t rZ)

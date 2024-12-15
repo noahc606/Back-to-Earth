@@ -27,6 +27,20 @@ public:
     void reset();
 
 private:
+    int16_t at1(int x, int y, int z);
+    int16_t at2(int x, int y, int z);
+    int16_t at4(int x, int y, int z);
+    int16_t at8(int x, int y, int z);
+    int16_t atX(int x, int y, int z);    
+    void set1(int x, int y, int z, int16_t val);
+    void set2(int x, int y, int z, int16_t val);
+    void set4(int x, int y, int z, int16_t val);
+    void set8(int x, int y, int z, int16_t val);
+    void setX(int x, int y, int z, int16_t val);
+
+
+    int16_t (TileRegionArray::*atp)(int, int, int) = nullptr;
+    void (TileRegionArray::*setp)(int, int, int, int16_t) = nullptr;
     size_t bitsize = 16;
     Tiles1Bit* t1 = nullptr;
     Tiles2Bit* t2 = nullptr;

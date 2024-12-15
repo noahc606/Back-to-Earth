@@ -3,6 +3,8 @@
 #include "Atmosphere.h"
 #include "Timer.h"
 
+using namespace nch;
+
 void WorldBackground::init(SDLHandler* sh, Camera* cam, Planet* plnt) {
     sdlHandler = sh;
     camera = cam;
@@ -58,11 +60,11 @@ void WorldBackground::renderSkyPartial(int pxCol)
     float aspectRatio = width/float(height); 
     float fov = 65; 
     float angle = std::tan(fov*M_PI/180*0.5f); 
-    Vec3F orig(0, atmosphere.planetRadius-camera->getZ(), 0);   //Position
+    Vec3<float> orig(0, atmosphere.planetRadius-camera->getZ(), 0);   //Position
 // Create 2D array of Vec3F, with accessor 'p'
-    Vec3F* image = new Vec3F[height];               // Create 1D array of vectors whose (x,y,z) components will be transformed into (r,g,b).
-    memset(image, 0x0, sizeof(Vec3F)*height);       // Allocate appropriate amount of memory for 'image' array.
-    Vec3F* p = image;                               // Create accessor for 'image' array.
+    Vec3<float>* image = new Vec3<float>[height];     //Create 1D array of vectors whose (x,y,z) components will be transformed into (r,g,b).
+    memset(image, 0x0, sizeof(Vec3<float>)*height);   //Allocate appropriate amount of memory for 'image' array.
+    Vec3<float>* p = image;                     //Create accessor for 'image' array.
 
 /* Building texture */
     // Build column of Vec3F pixels.
@@ -70,15 +72,15 @@ void WorldBackground::renderSkyPartial(int pxCol)
         //Build normalized vector which represents light direction
         float rayX = (2*(pxCol+0.5f)/float(width)-1)*aspectRatio*angle; 
         float rayY = (1-(y+0.5f)/float(height)*2)*angle; 
-        Vec3F dir(rayX, rayY, -1);
-        Vec3F::normalize(dir);
+        Vec3<float> dir(rayX, rayY, -1);
+        dir.normalize();
 
         float t0, t1, tMax = Atmosphere::inf;
         //If ray DOES intersect with planet...
         if (Atmosphere::raySphereIntersect(orig, dir, atmosphere.planetRadius, t0, t1) && t1 > 0) {
             //Compute light from planet surface
             tMax = std::max(0.f, t0);
-            *p = Vec3F(0.25, 0.10, 0.05);  //Ground color at this point
+            *p = Vec3<float>(0.25, 0.10, 0.05);  //Ground color at this point
         //If ray does NOT intersect with planet...
         } else {
             //Compute light from atmosphere
@@ -146,7 +148,7 @@ void WorldBackground::tick()
     //Angle: 0=noon, 90=sunset, 180=midnight, 270=sunrise
     float thetaYD = planet->getPartOfDayAccurate(360)+180.;
     float thetaYR = thetaYD*(M_PI/180.f);
-    sunDirection = Vec3F(0, cos(thetaYR), -sin(thetaYR));
+    sunDirection = Vec3<float>(0, cos(thetaYR), -sin(thetaYR));
 }
 
 void WorldBackground::draw() {

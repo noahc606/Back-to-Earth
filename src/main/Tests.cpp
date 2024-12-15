@@ -19,29 +19,6 @@ void Tests::init(SDLHandler* sh, FileHandler* fh, Controls* ctrls)
 	sdlHandler = sh;
 	fileHandler = fh;
 	controls = ctrls;
-
-
-    TileRegionArray tra(16);
-
-    tra.set(0, 0, 0, 15);
-    tra.set(1, 1, 1, 11);
-    tra.set(2, 2, 2, 6);
-    tra.set(3, 3, 3, -432);
-    tra.set(4, 4, 4, 32767);
-    tra.set(3, 4, 4, 32768);
-    tra.set(2, 4, 4, 32767);
-    tra.set(1, 4, 4, 32767);
-
-    for(int iz = 0; iz<32; iz++) {
-        printf("\n\n\n======== Layer %d ========\n", iz);
-        for(int iy = 0; iy<32; iy++) {
-            for(int ix = 0; ix<32; ix++) {
-                printf("%d ", tra.at(ix, iy, iz));
-            }
-            printf("\n");
-        }
-    }
-    
 }
 
 Tests::~Tests(){}

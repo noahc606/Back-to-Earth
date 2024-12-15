@@ -77,9 +77,6 @@ MainLoop::~MainLoop()
 	}
 }
 
-//void MainLoop::init();
-//void MainLoop::destroy();
-
 int MainLoop::getCurrentTPS() { return currentTPS; }
 double MainLoop::getCurrentMSPT() { return currentMSPT; }
 int MainLoop::getCurrentPTPS() { return (int)(1000.0/currentMSPT); }
@@ -230,6 +227,10 @@ void MainLoop::trackEvents()
                 }
             } break;
 
+            case SDL_RENDER_TARGETS_RESET: {
+                reloadAssets();
+            } break;
+
             //Any other event (vast majority will be related to moving mouse, keyboard, etc)
             default: {
                 //Track input events in the Controls class
@@ -259,14 +260,7 @@ void MainLoop::tick()
 
     if( controls.isPressed("FUNC_9") ) {
         nch::Log::log("Reloading Back to Earth assets...");
-
-        //Reload all resources and track how much time it takes
-        {
-            nch::Timer t("reloading all resources");
-            sdlHandler.getTextureLoader()->reload();
-            fileHandler.reloadSettings();
-        }
-
+        reloadAssets();
         controls.stopPress("FUNC_9", __PRETTY_FUNCTION__);
     }
 
@@ -294,4 +288,12 @@ void MainLoop::draw()
     bte.draw();
 
     SDL_RenderPresent( sdlHandler.getRenderer() );
+}
+
+void MainLoop::reloadAssets()
+{
+    //Reload all resources and track how much time it takes
+    nch::Timer t("reloading all resources");
+    sdlHandler.getTextureLoader()->reload();
+    fileHandler.reloadSettings();
 }

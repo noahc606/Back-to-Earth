@@ -2,10 +2,13 @@
 #include <nch/cpp-utils/log.h>
 #include "Camera.h"
 
-Tile::Tile(std::string id, nlohmann::json tileDef)
+Tile::Tile(std::string id, nlohmann::json tileDef, bool tileEntity)
 {
     construct(id, tileDef);
+    Tile::tileEntity = tileEntity;
 }
+
+Tile::Tile(std::string id, nlohmann::json tileDef): Tile::Tile(id, tileDef, false){}
 
 Tile::Tile(std::string id, bool solid, std::pair<int, int> resrc, nch::Color color, bool visionBlocking)
 {
@@ -53,6 +56,8 @@ bool Tile::operator==(const Tile& other)
     if(skipRendering!=other.skipRendering) return false;
     if(solid!=other.solid) return false;
     if(material!=other.material) return false;
+    if(tileEntity!=other.tileEntity) return false;
+    if(mapColor!=other.mapColor) return false;
     if(textureHolder!=other.textureHolder) return false;
 
     //If no mismatches found, return true
@@ -78,9 +83,26 @@ bool Tile::isVisionBlocking(int camDirection)
     return false;
 }
 
+Tile& Tile::operator=(const Tile& other)
+{
+    id = other.id;
+    skipRendering = other.skipRendering;
+    solid = other.solid;
+    material = other.material;
+    tileEntity = other.tileEntity;
+    mapColor = other.mapColor;
+    textureHolder = other.textureHolder;
+    textureSpecs = other.textureSpecs;
+
+    return (*this);
+}
+
 Tile::RenderFace Tile::strToRenderFaceType(std::string rfStr)
 {
     if(rfStr=="all")    return RenderFace::ALL;
+    if(rfStr=="x")    return RenderFace::X;
+    if(rfStr=="y")    return RenderFace::Y;
+    if(rfStr=="z")    return RenderFace::Z;
     if(rfStr=="west")   return RenderFace::WEST;
     if(rfStr=="east")   return RenderFace::EAST;
     if(rfStr=="north")  return RenderFace::NORTH;
@@ -137,6 +159,14 @@ std::string Tile::materialTypeToStr(Material m)
     }
     return "generic";
 }
+
+int Tile::getTextureHolderID()
+{
+    if(textureHolder=="tile_type_a") return 0;
+    if(textureHolder=="tile_type_b") return 1;
+    return 0;
+}
+
 
 void Tile::construct(std::string id, nlohmann::json tileDef)
 {

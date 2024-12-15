@@ -18,6 +18,7 @@ std::map<std::string, Tile> TileDict::baseTiles = {
 { "null",                   Tile("null",                    R"({ "skipRendering": true, "solid": false })"_json) },
 
 //Natural (part of terrain)
+{ "generic_air",            Tile("generic_air",             R"({ "skipRendering": true, "solid": false })"_json) },
 { "accrio_air",             Tile("accrio_air",              R"({ "skipRendering": true, "solid": false })"_json) },
 { "accrio_native_copper_1", Tile("accrio_native_copper_1",  R"({ "material": "rock", "textureSpecs": [ { "type": "all", "src": [2, 1], "color": [190, 150, 100] }, { "type": "all", "src": [0, 7], "color": [179, 72, 0], "visionBlocking": false } ] })"_json) },
 { "accrio_native_copper_2", Tile("accrio_native_copper_2",  R"({ "material": "rock", "textureSpecs": [ { "type": "all", "src": [2, 1], "color": [190, 150, 100] }, { "type": "all", "src": [1, 7], "color": [179, 72, 0], "visionBlocking": false } ] })"_json) },
@@ -42,6 +43,20 @@ std::map<std::string, Tile> TileDict::baseTiles = {
 { "hab_titanium_hull",      Tile("hab_titanium_hull",       R"({ "material": "metal","textureSpecs": [ { "type": "all", "src": [0, 3], "color": [255, 255, 255] } ] })"_json) },
 { "hab_futuristic_hull",    Tile("hab_futuristic_hull",     R"({ "material": "metal","textureSpecs": [ { "type": "all", "src": [6, 3], "color": [  0, 255, 200] } ] })"_json) },
 { "monolith",               Tile("monolith",                R"({ "material": "metal","textureSpecs": [ { "type": "all", "src": [2, 3], "color": [ 50,  50,  50] } ] })"_json) },
+
+//Tile Entities
+{ "antimatter_warhead",     Tile("antimatter_warhead",      R"({ "material": "metal", "textureHolder": "tile_type_b", "textureSpecs": [
+    { "type": "x", "src": [6, 0], "visionBlocking": false },
+    { "type": "y", "src": [7, 0], "visionBlocking": false },
+    { "type": "up", "src": [7, 1], "visionBlocking": false },
+    { "type": "down", "src": [6, 1], "visionBlocking": false }
+] })"_json) },
+{ "plasma_matter_storage",  Tile("plasma_matter_storage",   R"({ "material": "metal", "textureHolder": "tile_type_b", "textureSpecs": [
+    { "type": "x", "src": [2, 0], "visionBlocking": false },
+    { "type": "y", "src": [3, 0], "visionBlocking": false },
+    { "type": "up", "src": [3, 1] },
+    { "type": "down", "src": [2, 1] }
+] })"_json) },
 
 };
 
@@ -303,15 +318,22 @@ void TileDict::addToAtlasEtc(std::string tileID, Tile tileDef)
         for(int j = 0; j<tile.textureSpecs.size(); j++) {
             Tile::RenderFace face = tile.textureSpecs[j].type;
             switch(face) {
-                case Tile::RenderFace::ALL: {
+                case Tile::ALL: {
                     aods.push_back(tile.textureSpecs[j].aod);
-                    appendTexFromSpecs(tex, tile.textureSpecs[j]);
+                    appendTexFromSpecs(tex, tile.textureSpecs[j], tile.getTextureHolderID());
                 } break;
-                case Tile::RenderFace::WEST: case Tile::RenderFace::NORTH: case Tile::RenderFace::UP:
-                case Tile::RenderFace::EAST: case Tile::RenderFace::SOUTH: case Tile::RenderFace::DOWN: {
+                case Tile::WEST: case Tile::NORTH: case Tile::UP:
+                case Tile::EAST: case Tile::SOUTH: case Tile::DOWN: {
                     if(face-1==i) {
                         aods.push_back(tile.textureSpecs[j].aod);
-                        appendTexFromSpecs(tex, tile.textureSpecs[j]);
+                        appendTexFromSpecs(tex, tile.textureSpecs[j], tile.getTextureHolderID());
+                    }
+                } break;
+                case Tile::X: case Tile::Y: case Tile::Z:
+                {
+                    if((face-8)*2==i || (face-8)*2+1==i) {
+                        aods.push_back(tile.textureSpecs[j].aod);
+                        appendTexFromSpecs(tex, tile.textureSpecs[j], tile.getTextureHolderID());
                     }
                 } break;
             }
@@ -360,7 +382,7 @@ void TileDict::rebuildAtlasesEtcFromDict()
         addToAtlasEtc(itr->first, itr->second);
     }
 }
-void TileDict::appendTexFromSpecs(Texture& tex, Tile::TexSpec ts)
+void TileDict::appendTexFromSpecs(Texture& tex, Tile::TexSpec ts, int textureHolderID)
 {
     //Draw default tile tex if VB
     if(ts.aod.visionBlocking) {
@@ -371,7 +393,7 @@ void TileDict::appendTexFromSpecs(Texture& tex, Tile::TexSpec ts)
     tex.setColorMod(ts.aod.color);
     tex.setBlendMode(SDL_BLENDMODE_BLEND);
     tex.lock();
-    tex.blit(TextureLoader::WORLD_TILE_type_a, ts.aod.resrc.first*32, ts.aod.resrc.second*32);
+    tex.blit(TextureLoader::WORLD_TILE_type_a+textureHolderID, ts.aod.resrc.first*32, ts.aod.resrc.second*32);
 }
 std::tuple<int, int, int> TileDict::insertAtlasObj(std::vector<Tile::AtlasObjDef>& aods)
 {

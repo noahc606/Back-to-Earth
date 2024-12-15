@@ -1,7 +1,9 @@
 #pragma once
+#include <nch/math-utils/vec3.h>
 #include <string>
 #include "Controls.h"
 #include "SDLHandler.h"
+
 
 class Camera
 {
@@ -20,11 +22,17 @@ public:
 	int64_t getCsRX(); int64_t getCsRY(); int64_t getCsRZ();
 	int64_t getRX(); int64_t getRY(); int64_t getRZ();
 	int64_t getLayer(int c); int64_t getLayer();	
-	double getCsX(); double getCsY(); double getCsZ();
-	double getCsXFromPos(double px, double py, double pz);
-	double getCsYFromPos(double px, double py, double pz);
-	double getCsZFromPos(double px, double py, double pz);
-
+	nch::Vec3<double> getCsPos();
+	template<typename T> nch::Vec3<T> getCsPosFromWorldPos(nch::Vec3<T> wpos) {
+		return nch::Vec3<T>(getAxis()==X ? wpos.y : wpos.x, getAxis()==Z ? wpos.y : wpos.z, getAxis()==X ? wpos.x : (getAxis()==Y ? wpos.y : wpos.z));
+	}
+	template<typename T> nch::Vec3<T> getWorldPosFromCsPos(nch::Vec3<T> cspos) {
+		switch(getAxis()) {
+			case Camera::X: return nch::Vec3<T>(cspos.z, cspos.x, cspos.y);
+			case Camera::Y: return nch::Vec3<T>(cspos.x, cspos.z, cspos.y);
+		}
+		return nch::Vec3<T>(cspos.x, cspos.y, cspos.z);
+	}
 
 	//Zoom/Scale/Screen stuff
 	int getZoomIndex(); double getZoom();

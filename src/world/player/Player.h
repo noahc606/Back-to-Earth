@@ -17,10 +17,10 @@ class Player : public BTEObject, public Loggable
 public:
 	enum Action {
 		NONE,
-		GM_Place_Tile,
-		GM_Destroy_Tile,
-		SURV_Place_Tile,
-		SURV_Destroy_Tile,
+		GM_Interact,
+		GM_Apply,
+		SURV_Interact,
+		SURV_Apply,
 	};
 
 	enum BoundingBoxType {
@@ -61,8 +61,8 @@ public:
 	void putInfo(std::stringstream& ss, int& tabs);
 	/**/
 	int getAction();
-	Box3X<double> getBounds(int bbt);
-	Box3X<double> getBounds();
+	nch::Box3<double> getBounds(int bbt);
+	nch::Box3<double> getBounds();
 	bool getCollideState();
 	std::vector<double> getPos();
 	std::vector<double> getVelComponents();

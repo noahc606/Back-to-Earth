@@ -60,6 +60,7 @@ private:
         CMD_debug,
         CMD_gs,
         CMD_tele,
+        CMD_boom,
     };
 
     enum ParseTypes {

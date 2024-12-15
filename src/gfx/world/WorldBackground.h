@@ -2,7 +2,7 @@
 #include "Camera.h"
 #include "Planet.h"
 #include "STexture.h"
-#include "Vec3F.h"
+#include <nch/math-utils/vec3.h>
 
 class WorldBackground
 {
@@ -24,7 +24,7 @@ private:
     STexture skyTex;    //Sky               - #2
     STexture celTex;    //Celestial objects - #3
 
-    Vec3F sunDirection;
+    nch::Vec3<float> sunDirection;
 
     //Parameters deciding when sky is supposed to change visually
     int64_t skyUpdateIntervalMS = 5000;

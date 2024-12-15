@@ -11,7 +11,8 @@ std::vector<std::string> Commands::commandList = {
     "ksv",
     "debug",
     "gs",
-    "tele"
+    "tele",
+    "boom",
 };
 
 bool Commands::surpressingMessages = false;
@@ -95,6 +96,9 @@ int Commands::executeCMD(std::string cmd)
                         nch::Log::log(errorMissingArg(2, args[0]));
                         return -1;
                     }
+                } break;
+                case CMD_boom: {
+                    cKV("~cmd.boom", 1);
                 } break;
             }
 

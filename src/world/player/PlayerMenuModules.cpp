@@ -10,11 +10,17 @@ PlayerMenuModules::PlayerMenuModules()
 {
 	widgetsGroupList.insert(std::make_pair(Player::SURVIVAL, std::vector<int>({ BACKPACK, PLASMA_MATTER_TRANSFORMER, MISSION_LOG, CRAFTING })));
 	widgetsGroupList.insert(std::make_pair(Player::HARDCORE, std::vector<int>({ BACKPACK, PLASMA_MATTER_TRANSFORMER, MISSION_LOG, CRAFTING })));
-	widgetsGroupList.insert(std::make_pair(Player::SANDBOX,  std::vector<int>({ BACKPACK, PLASMA_MATTER_TRANSFORMER, SANDBOX })));
+	widgetsGroupList.insert(std::make_pair(Player::SANDBOX,  std::vector<int>({ BACKPACK, PLASMA_MATTER_TRANSFORMER, STARMAP, SANDBOX })));
 }
 PlayerMenuModules::~PlayerMenuModules(){}
 
-void PlayerMenuModules::drawWidgets(SDLHandler* sh, int playerGamemode, int selectedWidgetID, int isx, int isy, int odx, int ody)
+void PlayerMenuModules::setDrawPos(int scrX, int scrY)
+{
+	PlayerMenuModules::scrX = scrX;
+	PlayerMenuModules::scrY = scrY;
+}
+
+void PlayerMenuModules::drawWidgets(SDLHandler* sh, int playerGamemode, int selectedWidgetID)
 {
 	std::vector<int> widgetIDs = widgetsGroupList[playerGamemode];
 	int ix = 8;
@@ -23,7 +29,7 @@ void PlayerMenuModules::drawWidgets(SDLHandler* sh, int playerGamemode, int sele
 	for(int i = 0; i<widgetIDs.size(); i++) {
 		int iy = i;
 		SDL_Rect isrc; isrc.x = PlayerMenu::getItemTexSrcX(widgetIDs[i]); isrc.y = PlayerMenu::getItemTexSrcY(widgetIDs[i]); isrc.w = 32; isrc.h = 32;
-		SDL_Rect idst; idst.x = (isx+ix*64+odx); idst.y = (isy+iy*64+ody); idst.w = 64; idst.h = 64;
+		SDL_Rect idst; idst.x = (scrX+ix*64); idst.y = (scrY+iy*64); idst.w = 64; idst.h = 64;
 		sh->renderCopy(TextureLoader::PLAYER_modules, &isrc, &idst);
 	}
 
@@ -35,7 +41,7 @@ void PlayerMenuModules::drawWidgets(SDLHandler* sh, int playerGamemode, int sele
 		}
 	}
 	SDL_Rect isrc; isrc.x = 7*32; isrc.y = 0; isrc.w = 32; isrc.h = 32;
-	SDL_Rect idst; idst.x = (isx+ix*64+odx); idst.y = (isy+swid*64+ody); idst.w = 64; idst.h = 64;
+	SDL_Rect idst; idst.x = (scrX+ix*64); idst.y = (scrY+swid*64); idst.w = 64; idst.h = 64;
 	sh->renderCopy(TextureLoader::PLAYER_modules, &isrc, &idst);
 }
 

@@ -121,7 +121,7 @@ World::~World()
 	fileHandler->saveSettings(wdKVs, inter.worldDataPath);
 
 	// Save player inventory
-	inter.localPlayerMenu.getInventory()->save(inter.worldDirPath);
+	inter.localPlayerMenu.getInventoryHolder()->save(inter.worldDirPath);
 
 	// Save TileMap (deals w/ TileDict saving, region saving is done elsewhere)
 	tileMap.destroy();
@@ -201,7 +201,7 @@ void World::tick(bool paused, GUIHandler& guiHandler)
 
 	/** Interactions with world */
 	inter.updateMouseAndCamInfo(csInteractions, &tileMap);
-	inter.playerInteractions(sdlHandler, guiHandler, controls, &tileMapScreen, &tileMap, paused);
+	inter.playerController(&tileMapScreen, &tileMap, paused);
 
 	performanceCounter = t.getElapsedTimeMS();
 	inter.playTime++;
@@ -236,9 +236,9 @@ void World::tickWorldPlayer()
 	inter.localPlayerMenu.tick();
 
 	//Control player state based on menu items
-	if( inter.localPlayerMenu.getInventory()->getSlotItemType(0, -4, 2)==Items::QUANTUM_EXOSUIT_HELMET &&
-		inter.localPlayerMenu.getInventory()->getSlotItemType(0, -4, 3)==Items::QUANTUM_EXOSUIT_BODY &&
-		inter.localPlayerMenu.getInventory()->getSlotItemType(0, -4, 4)==Items::QUANTUM_EXOSUIT_LEGGINGS
+	if( inter.localPlayerMenu.getInventoryHolder()->getSlotItemType(0, -4, 2)==Items::QUANTUM_EXOSUIT_HELMET &&
+		inter.localPlayerMenu.getInventoryHolder()->getSlotItemType(0, -4, 3)==Items::QUANTUM_EXOSUIT_BODY &&
+		inter.localPlayerMenu.getInventoryHolder()->getSlotItemType(0, -4, 4)==Items::QUANTUM_EXOSUIT_LEGGINGS
 	) {
 		inter.localPlayer.setSpaceSuitState(Player::SpaceSuitStates::STABLE);
 	} else {
@@ -252,7 +252,7 @@ void World::putInfo(std::stringstream& ss, int& tabs)
 
 	//Mouse Info
 	DebugScreen::indentLine(ss, tabs);
-	ss << "Mouse(xyz)=(" << inter.mouseX << ", " << inter.mouseY << ", " << inter.mouseZ << "); ";
+	ss << "Mouse(xyz)=" << inter.mousePosD.toString() << "; ";
 	DebugScreen::newLine(ss);
 	
 	DebugScreen::indentLine(ss, tabs);
@@ -283,7 +283,7 @@ void World::putInfo(std::stringstream& ss, int& tabs)
 
 	//TileMapScreen
 	DebugScreen::newGroup(ss, tabs, "tileMapScreen");
-	tileMapScreen.putInfo(ss, tabs, inter.mouseXL, inter.mouseYL, inter.mouseZL);
+	tileMapScreen.putInfo(ss, tabs, inter.mousePosI.x, inter.mousePosI.y, inter.mousePosI.z);
 	DebugScreen::endGroup(tabs);
 
 	//Canvas

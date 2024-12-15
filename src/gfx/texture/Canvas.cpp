@@ -36,8 +36,8 @@ void Canvas::tick()
     // Get csRX and csRY from the camera
 	int64_t csRX = 0;
     int64_t csRY = 0;
-    csRX = TileMap::getRegRXYZ(camera->getCsX());
-    csRY = TileMap::getRegRXYZ(camera->getCsY());
+    csRX = TileMap::getRegRXYZ(camera->getCsPos().x);
+    csRY = TileMap::getRegRXYZ(camera->getCsPos().y);
 
     //Loads textures (which will initially be empty) one at a time per tick.
     //Unloads all textures that are too far away.
@@ -90,7 +90,7 @@ void Canvas::tick()
         tex->setDrawPos(0, 0);                                                                  //Reset location of tex
         tex->translate( tX*((double)defaultTexSize)*zoom, tY*((double)defaultTexSize)*zoom );   //Translate according to the world region's physical location
         if(moveWithCamera)
-            tex->translate( -camera->getCsX()*tileScale, -camera->getCsY()*tileScale );         //Translate according to location of the camera
+            tex->translate( -camera->getCsPos().x*tileScale, -camera->getCsPos().y*tileScale ); //Translate according to location of the camera
         tex->translate( sdlHandler->getWidth()/2, sdlHandler->getHeight()/2 );                  //Translate so that the center of the screen corresponds to (0, 0) if camera(x, y) = (0, 0).
 
         /** Other info */
@@ -101,8 +101,8 @@ void Canvas::tick()
         //Find where the mouse is pointing to in the world
 		mouseX = ((controls->getMouseX()-sdlHandler->getWidth()/2.0 )/(double)ts)/cf;
 		mouseY = ((controls->getMouseY()-sdlHandler->getHeight()/2.0 )/(double)ts)/cf;
-        mouseX += camera->getCsX();
-        mouseY += camera->getCsY();
+        mouseX += camera->getCsPos().x;
+        mouseY += camera->getCsPos().y;
     }
 }
 
@@ -216,10 +216,7 @@ Texture* Canvas::getTex(long rX, long rY)
     return nullptr;
 }
 
-std::tuple<double, double> Canvas::getMouseXY()
-{
-    return std::make_tuple ( mouseX, mouseY );
-}
+std::tuple<double, double> Canvas::getMouseXY() { return std::make_tuple(mouseX, mouseY); }
 
 bool Canvas::isFrameFinished() { return frameFinished; }
 
@@ -412,8 +409,8 @@ bool Canvas::shouldRendRect(int64_t dx, int64_t dy, int64_t dw, int64_t dh)
         return false;
 
     if( croppingRendering ) {
-        int cx = camera->getCsX()*32;
-        int cy = camera->getCsY()*32;
+        int cx = camera->getCsPos().x*32;
+        int cy = camera->getCsPos().y*32;
         int sw = sdlHandler->getWidth()/2.0/zoom;
         int sh = sdlHandler->getHeight()/2.0/zoom;
 

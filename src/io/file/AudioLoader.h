@@ -42,6 +42,7 @@ public:
 		
 		MUSIC_kc_50_million_year_trip,
 		MUSIC_kc_alien_ruins,
+		MUSIC_kc_astronomy,
 		MUSIC_kc_digital_sunset,
 		MUSIC_kc_distant_planet,
         MUSIC_kc_last_stop,
@@ -64,6 +65,7 @@ public:
         SFX_WORLD_PLACE_solid_1, SFX_WORLD_PLACE_solid_2, SFX_WORLD_PLACE_solid_3,
 		SFX_WORLD_plasma_cannon,
         SFX_WORLD_air_release_1,
+        SFX_WORLD_antimatter_explosion,
 
 		LAST_INDEX, //Keep this last
 	};

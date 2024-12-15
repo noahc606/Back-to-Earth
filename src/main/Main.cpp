@@ -31,7 +31,8 @@ int main(int argc, char *argv[])
  * 	WinMain() is called for Windows GUI applications instead of main()
  */
 #if ( defined(_WIN32) || defined(WIN32) )
-int WinMain()
+#include <windows.h>
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
 {
     char** x = new char*[1];
     return main(0, x);

@@ -56,7 +56,8 @@ void Minimap::draw()
 	//helper text
 	
 	std::stringstream desc;
-	desc << "Camera facing " << camera->getDirectionString() << "\n" << "Press [TAB] to change";
+	desc << "Camera facing " << camera->getDirectionString() << "\n";
+	desc << "Zoom factor " << camera->getZoom() << "\n";
 	TextOld::draw(sdlHandler, desc.str(), sdlHandler->getWidth()-terrain.getTexWidth()*2, terrain.getTexHeight()*2, 2);
 }
 

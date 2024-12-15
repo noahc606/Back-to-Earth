@@ -63,6 +63,7 @@ public:
 		WORLD_region0,
 		WORLD_region1,
 		WORLD_TILE_type_a,
+		WORLD_TILE_type_b,
 		WORLD_TILE_OVERLAY_wall,
 	};
 

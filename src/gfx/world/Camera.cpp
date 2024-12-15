@@ -3,6 +3,8 @@
 #include "Canvas.h"
 #include "TileMapScreen.h"
 
+using namespace nch;
+
 Camera::Camera(){}
 Camera::~Camera(){}
 
@@ -162,9 +164,9 @@ void Camera::drawSelectionFromSrc(SDL_Rect& src, int type) {
 double Camera::getX() { return x; }
 double Camera::getY() { return y; }
 double Camera::getZ() { return z; }
-int64_t Camera::getCsRX() { return floor( getCsX()/32 ); }
-int64_t Camera::getCsRY() { return floor( getCsY()/32 ); }
-int64_t Camera::getCsRZ() { return floor( getCsZ()/32 ); }
+int64_t Camera::getCsRX() { return floor( getCsPos().x/32 ); }
+int64_t Camera::getCsRY() { return floor( getCsPos().y/32 ); }
+int64_t Camera::getCsRZ() { return floor( getCsPos().z/32 ); }
 
 
 int64_t Camera::getRX() { return floor( getX()/32 ); }
@@ -180,13 +182,7 @@ int64_t Camera::getLayer(int c)
 	}
 }
 int64_t Camera::getLayer() { return getLayer(getAxis()); }
-double Camera::getCsX() { return getCsXFromPos(x, y, z); }
-double Camera::getCsY() { return getCsYFromPos(x, y, z); }
-double Camera::getCsZ() { return getCsZFromPos(x, y, z); }
-double Camera::getCsXFromPos(double px, double py, double pz) { return (getAxis()==X ? py : px); }
-double Camera::getCsYFromPos(double px, double py, double pz) { return (getAxis()==Z ? py : pz); }
-double Camera::getCsZFromPos(double px, double py, double pz) { return (getAxis()==X ? px : (getAxis()==Y ? py : pz)); }
-
+Vec3<double> Camera::getCsPos() { return getCsPosFromWorldPos(Vec3<double>(x, y, z)); }
 
 double Camera::getZoom() { return zoom; }
 int Camera::getZoomIndex() { return zoomIndex; }

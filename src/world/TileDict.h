@@ -66,6 +66,6 @@ private:
     void rebuildAtlasesEtcFromDict();
     bool addToDict(std::string tileID, Tile tileDef);
     void addToAtlasEtc(std::string tileID, Tile tileDef);
-    void appendTexFromSpecs(Texture& tex, Tile::TexSpec specs);
+    void appendTexFromSpecs(Texture& tex, Tile::TexSpec specs, int textureHolderID);
     std::tuple<int, int, int> insertAtlasObj(std::vector<Tile::AtlasObjDef>& aods);
 };

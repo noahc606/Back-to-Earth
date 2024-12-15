@@ -14,12 +14,14 @@ public:
         SANDBOX,
         BACKPACK,
         STARMAP,
+        TILE_ENTITY,
     };
 
     PlayerMenuModules();
     ~PlayerMenuModules();
 
-    void drawWidgets(SDLHandler* sh, int playerGamemode, int selectedWidgetID, int isx, int isy, int odx, int ody);
+    void setDrawPos(int scrX, int scrY);
+    void drawWidgets(SDLHandler* sh, int playerGamemode, int selectedWidgetID);
     void drawModuleSandbox(Texture& uiOverlay, SDL_Rect invRect, int invSX, int invSY);
     void drawModuleMissionLog(SDLHandler* sh, SDL_Rect invRect, MissionHolder& mh);
 
@@ -30,4 +32,6 @@ public:
     void putMenuInterface(GUIHandler* gh, int widgetID);
 private:
     std::map<int, std::vector<int>> widgetsGroupList;
+
+    int scrX = 0, scrY = 0;
 };

@@ -690,10 +690,7 @@ int FileHandler::createDir(std::string path)
 
         int mkdirres = mkdir(fp.get().c_str());
         if(mkdirres==0) {
-            nch::Log::trbshoot(__PRETTY_FUNCTION__, "Successfully created new directory." );
             return 0;
-        } else {
-            nch::Log::trbshoot(__PRETTY_FUNCTION__, "Found or couldn't create directory \"%s\"", path.c_str());
         }
     // ...for Linux and macOS
     #elif (defined(__unix__) || defined(__unix) || (defined(__APPLE__) && defined(__MACH__)) )

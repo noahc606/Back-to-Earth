@@ -200,11 +200,11 @@ void TextureLoader::addTextures()
 void TextureLoader::addScaledTextures()
 {
 	//List of all scalable texture IDs.
-	int scalables[] = { WORLD_TILE_type_a, WORLD_TILE_OVERLAY_wall };
+	int scalables[] = { WORLD_TILE_type_a, WORLD_TILE_type_b, WORLD_TILE_OVERLAY_wall };
 
 	//Store the original render target
 	SDL_Texture* rtOld = SDL_GetRenderTarget(renderer);
-	for( int i = 0; i<2; i++ ) {
+	for( int i = 0; i<3; i++ ) {
 		/**
 			For the texture we are on, we create copies of that texture, each successive one being half the size of the last.
 			For example: a 1024x1024 texture gives a vector of textures with these sizes:
@@ -279,6 +279,7 @@ void TextureLoader::load()
 			addSurface("world/region0");
 			addSurface("world/region1");
 			addSurface("world/tile/type_a");
+			addSurface("world/tile/type_b");
 			addSurface("world/tile/overlay/wall");
 		}
 		//Create textures from all surfaces

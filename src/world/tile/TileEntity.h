@@ -1,5 +1,5 @@
 #pragma once
-#include "Inventory.h"
+//#include "Inventory.h"
 
 class TileEntity {
 public:
@@ -14,7 +14,7 @@ public:
     ~TileEntity();
 
 private:
-    Inventory* inv = nullptr;
+    //Inventory* inv = nullptr;
     int type = NONE;
 
 };

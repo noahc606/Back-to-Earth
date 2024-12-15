@@ -19,13 +19,17 @@ public:
 	void draw(Canvas& csInteractions);
 	void drawLocalPlayerMenu();
 	void updateMouseAndCamInfo(Canvas& csInteractions, TileMap* tileMap);
-	void playerInteractions(SDLHandler* sdlHandler, GUIHandler& guiHandler, Controls* controls, TileMapScreen* tms, TileMap* tm, bool paused);
+	void playerController(TileMapScreen* tms, TileMap* tm, bool paused);
+	void playerActions(TileMapScreen* tms, TileMap* tm);
+	void playerInteractTile(TileMapScreen* tms, TileMap* tm);
 	void playerTryPlaceTile(TileMapScreen* tms, TileMap* tm, Tile t, bool force);
 	void playerTryDestroyTile(TileMapScreen* tms, TileMap* tm);
 	void setLocalPlayerMenuState(int newMenuState);
 	void playMusic();
 
-	SDLHandler* sdlHandler;
+	SDLHandler* sdlHandler = nullptr;
+	GUIHandler* guiHandler = nullptr;
+	Controls* controls = nullptr;
 
 	/* Player */
 	Player localPlayer;
@@ -37,9 +41,9 @@ public:
 	bool lpMenuOpen = false;
 	bool lpMenuOpenLast = false;
 	int lpMenuLastModule = -1;
-	double mouseX = 0; double mouseY = 0; double mouseZ = 0;
-	int64_t mouseXL = 0; int64_t mouseYL = 0; int64_t mouseZL = 0;
 
+	nch::Vec3<double> mousePosD = nch::Vec3<double>(0);		//Decimal
+	nch::Vec3<int64_t> mousePosI = nch::Vec3<int64_t>(0);	//Integer
 	/* World info */
 	std::string worldDirName;
 	std::string worldDirPath;

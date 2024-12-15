@@ -5,6 +5,8 @@
 #include <string.h>
 #include <SDL2/SDL.h>
 
+using namespace nch;
+
 TileIterator::TileIterator(std::map<Defs::t_tripleI64, TileRegion>* regMap)
 {
     TileIterator::regMap = regMap;
@@ -297,7 +299,7 @@ bool TileIterator::invalidBounds() { return boundsInvalid; }
 /**
     Returns 0 if all regions selected are loaded. If not, return -1.
 */
-int TileIterator::setBounds( int64_t x1, int64_t y1, int64_t z1, int64_t x2, int64_t y2, int64_t z2 )
+int TileIterator::setBounds(int64_t x1, int64_t y1, int64_t z1, int64_t x2, int64_t y2, int64_t z2)
 {
     //Get begPos and endPos
     //Make sure x1,y1,&z1 are less than x2,y2,&z2 respectively
@@ -325,7 +327,9 @@ int TileIterator::setBounds( int64_t x1, int64_t y1, int64_t z1, int64_t x2, int
     return testSelectionLoaded();
 }
 
-int TileIterator::setBoundsByRXYZ( int64_t rX1, int64_t rY1, int64_t rZ1, int64_t rX2, int64_t rY2, int64_t rZ2 )
+int TileIterator::setBounds(Box3<int64_t> bbox) { return setBounds(bbox.c1.x, bbox.c1.y, bbox.c1.z, bbox.c2.x, bbox.c2.y, bbox.c2.z); }
+
+int TileIterator::setBoundsByRXYZ(int64_t rX1, int64_t rY1, int64_t rZ1, int64_t rX2, int64_t rY2, int64_t rZ2)
 {
     //Get begReg and endReg
     begReg[0] = rX1; endReg[0] = rX2;

@@ -51,6 +51,7 @@ public:
     bool invalidBounds();
 
     int setBounds(int64_t x1, int64_t y1, int64_t z1, int64_t x2, int64_t y2, int64_t z2);
+    int setBounds(nch::Box3<int64_t> bbox);
     int setBoundsByRXYZ(int64_t rX1, int64_t rY1, int64_t rZ1, int64_t rX2, int64_t rY2, int64_t rZ2);
     int setBoundsByRXYZ(int64_t rX, int64_t rY, int64_t rZ);
     void setTrackerMode(int mode);

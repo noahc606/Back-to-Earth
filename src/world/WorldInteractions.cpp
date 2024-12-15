@@ -1,10 +1,14 @@
 #include "WorldInteractions.h"
-#include "InvItemStack.h"
+#include <nch/cpp-utils/log.h>
+#include <nch/sdl-utils/timer.h>
+#include "ItemStack.h"
 #include "Player.h"
 #include "RegTexInfo.h"
+#include "ShapeBuilder.h"
 #include "TileMap.h"
 #include "TileIterator.h"
-#include "Vec3F.h"
+
+using namespace nch;
 
 WorldInteractions::WorldInteractions(){}
 WorldInteractions::~WorldInteractions(){}
@@ -12,6 +16,8 @@ WorldInteractions::~WorldInteractions(){}
 void WorldInteractions::initPlayerEtc(SDLHandler* sh, GUIHandler* gh, FileHandler* fh, Controls* ctrls, TileDict* td, std::tuple<double, double, double> pXYZ, std::string pMode)
 {
 	sdlHandler = sh;
+	guiHandler = gh;
+	controls = ctrls;
 
 	//Player
 	localPlayer.init(sh, gh, fh->getSettings(), ctrls);
@@ -19,26 +25,31 @@ void WorldInteractions::initPlayerEtc(SDLHandler* sh, GUIHandler* gh, FileHandle
 	localPlayer.setPos(std::get<0>(pXYZ)-0.5, std::get<1>(pXYZ)-0.5, std::get<2>(pXYZ));
 	//Player menus
 	localPlayerMenu.init(sh, gh, ctrls, &localPlayer, td);
-	localPlayerMenu.getInventory()->load(td, worldDirPath);
+	localPlayerMenu.getInventoryHolder()->load(td, worldDirPath);
 
 	missionHolder.init(worldDirName);	
 }
 
 void WorldInteractions::draw(Canvas& csInteractions)
 {
+	Vec3<int64_t> mouseCsPos = localPlayer.getCamera()->getCsPosFromWorldPos(mousePosI*32);
+
 	/* Tile selector */
 	csInteractions.clearCanvas();
-	csInteractions.setSourceTex(TextureLoader::GUI_player_interactions, 0, 0);					// Set tex src to GUI_player_interactions
-	int64_t csx = localPlayer.getCamera()->getCsXFromPos(32*mouseXL, 32*mouseYL, 32*mouseZL);	// Get location where tile selector should be
-	int64_t csy = localPlayer.getCamera()->getCsYFromPos(32*mouseXL, 32*mouseYL, 32*mouseZL);	// ...
-	csInteractions.rcopyNI(csx, csy, 32, 32);													// Draw tile selector
+	csInteractions.setSourceTex(TextureLoader::GUI_player_interactions, 0, 0);
+	
+	int64_t csx = mouseCsPos.x;					// Get location where tile selector should be
+	int64_t csy = mouseCsPos.y;					// ...
+	csInteractions.rcopyNI(csx, csy, 32, 32);	// Draw tile selector
+
+	//Draw interactions canvas
 	csInteractions.draw();
 }
 
 void WorldInteractions::drawLocalPlayerMenu()
 {
 	//Draw player within menu if player's menu is open
-	if(localPlayerMenu.getInventory()->getMod()>=0) {
+	if(localPlayerMenu.getInventoryHolder()->getMod()>=0) {
 		localPlayer.drawCharInMenu();
 	}
 	
@@ -48,155 +59,160 @@ void WorldInteractions::drawLocalPlayerMenu()
 
 void WorldInteractions::updateMouseAndCamInfo(Canvas& csInteractions, TileMap* tileMap)
 {
+	Camera* cam = localPlayer.getCamera();
+
 	//Get screen mouseX and screen mouseY both in double and in long long (int64_t) form.
-	double mouseSX = std::get<0>(csInteractions.getMouseXY());
-	int64_t mouseSXL = (int64_t)floor(mouseSX);
-	double mouseSY = std::get<1>(csInteractions.getMouseXY());
-	int64_t mouseSYL = (int64_t)floor(mouseSY);
+	Vec3<double> mouseSVD(std::get<0>(csInteractions.getMouseXY()), std::get<1>(csInteractions.getMouseXY()), cam->getLayer());
+	Vec3<int64_t> mouseSVI(std::floor(mouseSVD.x), std::floor(mouseSVD.y), std::floor(mouseSVD.z));
 
 	//Get X, Y, and Z region of camera
-	int64_t mouseSRX = TileMap::getRegRXYZ(mouseSXL);
-	int64_t mouseSRY = TileMap::getRegRXYZ(mouseSYL);
-	int64_t cSL = localPlayer.getCamera()->getLayer();
-	int64_t cSRZ = TileMap::getRegRXYZ(cSL);
-	
-	TileIterator ti(tileMap);
-	
+	Vec3<int64_t> mouseSRV(TileMap::getRegRXYZ(mouseSVI.x), TileMap::getRegRXYZ(mouseSVI.y), TileMap::getRegRXYZ(mouseSVD.z));
+	Vec3<int64_t> mouseRV = cam->getWorldPosFromCsPos(mouseSRV);
 
-	switch( localPlayer.getCamera()->getAxis() ) {
+	TileIterator ti(tileMap);
+
+	mousePosD = cam->getWorldPosFromCsPos(mouseSVD);
+	mousePosI = cam->getWorldPosFromCsPos(mouseSVI);
+	ti.setBoundsByRXYZ(mouseRV.x, mouseRV.y, mouseRV.z);
+	ti.setTrackerSub(TileMap::getRegSubPos(mouseRV.x), TileMap::getRegSubPos(mouseRV.y), TileMap::getRegSubPos(mouseRV.z));
+	
+	switch(cam->getAxis()) {
 		case Camera::X: {
-			mouseY = mouseSX;
-			mouseYL = mouseSXL;
-			mouseZ = mouseSY;
-			mouseZL = mouseSYL;
-			
-			ti.setBoundsByRXYZ( cSRZ, mouseSRX, mouseSRY );
-			ti.setTrackerSub( TileMap::getRegSubPos(cSL), TileMap::getRegSubPos(mouseSXL), TileMap::getRegSubPos(mouseSYL) );
-			
-			mouseXL = cSL+( std::get<0>(RegTexInfo::camTopSolidTile(ti, localPlayer.getCamera()->getDirection(), 32) ) );
+			mousePosI.x = cam->getLayer()+( std::get<0>(RegTexInfo::camTopSolidTile(ti, cam->getDirection(), 32) ) );
+			mousePosD.x = mousePosI.x;
 		} break;
 		case Camera::Y: {
-			mouseX = mouseSX;
-			mouseXL = mouseSXL;
-			mouseZ = mouseSY;
-			mouseZL = mouseSYL;
-			
-			ti.setBoundsByRXYZ( cSRZ, mouseSRY, mouseSRX );
-			ti.setTrackerSub( TileMap::getRegSubPos(cSL), TileMap::getRegSubPos(mouseSYL), TileMap::getRegSubPos(mouseSXL) );
-			
-			mouseYL = cSL+( std::get<0>(RegTexInfo::camTopSolidTile(ti, localPlayer.getCamera()->getDirection(), 32) ) );
+			mousePosI.y = cam->getLayer()+( std::get<0>(RegTexInfo::camTopSolidTile(ti, cam->getDirection(), 32) ) );
+			mousePosD.y = mousePosI.y;
 		} break;
 		case Camera::Z: {
-			mouseX = mouseSX;
-			mouseXL = mouseSXL;
-			mouseY = mouseSY;
-			mouseYL = mouseSYL;
-			
-			ti.setBoundsByRXYZ( TileMap::getRegRXYZ(mouseSXL), TileMap::getRegRXYZ(mouseSYL), cSRZ);
-			ti.setTrackerSub( TileMap::getRegSubPos(mouseSXL), TileMap::getRegSubPos(mouseSYL), TileMap::getRegSubPos(cSL) );
-			
-			mouseZL = cSL+( std::get<0>(RegTexInfo::camTopSolidTile(ti, localPlayer.getCamera()->getDirection(), 32) ) );
+			mousePosI.z = cam->getLayer()+( std::get<0>(RegTexInfo::camTopSolidTile(ti, cam->getDirection(), 32) ) );
+			mousePosD.z = mousePosI.z;
 		} break;
 	}
 }
 
-void WorldInteractions::playerInteractions(SDLHandler* sdlHandler, GUIHandler& guiHandler, Controls* controls, TileMapScreen* tms, TileMap* tm, bool paused)
+void WorldInteractions::playerController(TileMapScreen* tms, TileMap* tm, bool paused)
 {
 	//Control character menu state
 	if( !paused && controls->isPressed("PLAYER_INVENTORY") ) {
-		if(lpMenuOpen) {
-			lpMenuOpen = false;
-		} else {
-			lpMenuOpen = true;
-		}
+		if(lpMenuOpen) 	{ lpMenuOpen = false; }
+		else 			{ lpMenuOpen = true; }
 		controls->stopPress("PLAYER_INVENTORY", __PRETTY_FUNCTION__);
-	}
-	
+	}	
 	if( lpMenuOpenLast!=lpMenuOpen ) {
 		lpMenuOpenLast = lpMenuOpen;
 		
-		if( lpMenuOpen ) {
+		if(lpMenuOpen) {
 			if(lpMenuLastModule<0) lpMenuLastModule = 0;
 			setLocalPlayerMenuState(lpMenuLastModule);
 		} else {
-			lpMenuLastModule = localPlayerMenu.getInventory()->getMod();
+			lpMenuLastModule = localPlayerMenu.getInventoryHolder()->getMod();
 			setLocalPlayerMenuState(-1);
 		}
 	}
 
 	//Player actions
-	if( !lpMenuOpen ) {		
-		bool audio = false;
-		AudioLoader* al = sdlHandler->getAudioLoader();
-		if(al!=nullptr) {
-			audio = true;
-		}
-				
-		switch( localPlayer.getAction() )
-		{
-			case Player::Action::GM_Destroy_Tile: {
-				playerTryDestroyTile(tms, tm);
-			}; break;
-			case Player::Action::GM_Place_Tile: {
-				TileDict* td = tm->getTileDict();
-				Tile sbt = td->at(localPlayerMenu.getSandboxTileID());
-				if(sbt.id=="null") {
-					sbt = td->at("debug_tile");	
-				}
-				playerTryPlaceTile(tms, tm, sbt, false);
-			}; break;
-
-			case Player::Action::SURV_Destroy_Tile: {
-				playerTryDestroyTile(tms, tm);
-			} break;
-			case Player::Action::SURV_Place_Tile: {
-				InvItemStack iis = localPlayerMenu.getInventory()->getSelItemStack();
-				if( iis.getType()==Items::WORLDTILE ) {
-					Tile t = tm->getTileDict()->at(iis.getExtraData());
-					if(t.id!="null") {
-						playerTryPlaceTile(tms, tm, t, false);
-					}
-				}
-			} break;
-		}
+	if( !lpMenuOpen ) {
+		playerActions(tms, tm);
 	}
+
+	//Commands
+	if( Commands::cmdIntResult("boom")!=nullptr ) {
+		Commands::resetCMDEntered(__PRETTY_FUNCTION__);
+
+		sdlHandler->getAudioLoader()->play(AudioLoader::SFX_WORLD_antimatter_explosion);
+		
+		ShapeBuilder sb(tm);
+		nch::Timer t("Regional mass destruction", true);
+		sb.fillSphere(mousePosI, 128, tm->getTileDict()->at("accrio_air"));
+
+	}
+}
+
+void WorldInteractions::playerActions(TileMapScreen* tms, TileMap* tm)
+{
+	switch(localPlayer.getAction())
+	{
+		case Player::Action::GM_Apply: {
+			TileDict* td = tm->getTileDict();
+			Tile sbt = td->at(localPlayerMenu.getSandboxTileID());
+			if(sbt.id=="null") {
+				sbt = td->at("debug_tile");	
+			}
+			playerTryPlaceTile(tms, tm, sbt, false);
+		}; break;
+		case Player::Action::GM_Interact: {
+			playerTryDestroyTile(tms, tm);
+		}; break;
+
+		case Player::Action::SURV_Apply: {
+			ItemStack is = localPlayerMenu.getInventoryHolder()->getSelItemStack();
+
+			if(localPlayerMenu.isHotbarPMTActive()) {
+				Tile t;
+				if( is.getType()==Items::WORLDTILE ) 			{ t = tm->getTileDict()->at(is.getExtraData()); }
+				
+				if(t.id!="null") {
+					playerTryPlaceTile(tms, tm, t, false);
+				}
+			} else {
+				Tile t;
+				if( is.getType()==Items::ANTIMATTER_WARHEAD ) 	{ t = tm->getTileDict()->at("antimatter_warhead"); }
+				if( is.getType()==Items::PLASMA_MATTER_STORAGE ){ t = tm->getTileDict()->at("plasma_matter_storage"); }
+				if(t.id!="null") {
+					playerTryPlaceTile(tms, tm, t, false);
+				}
+			}
+		} break;
+		case Player::Action::SURV_Interact: {
+
+			if(localPlayerMenu.isHotbarPMTActive()) {
+				playerTryDestroyTile(tms, tm);
+			} else {
+				playerInteractTile(tms, tm);
+			}
+		} break;
+	}
+}
+
+void WorldInteractions::playerInteractTile(TileMapScreen* tms, TileMap* tm)
+{
+	Camera* cam = localPlayer.getCamera();
+	Vec3<int64_t> mouseCsPos = cam->getCsPosFromWorldPos(mousePosI);
+
+	tm->getTileByCsXYZ(cam, mouseCsPos);
 }
 
 void WorldInteractions::playerTryPlaceTile(TileMapScreen* tms, TileMap* tm, Tile t, bool force)
 {
 	Camera* cam = localPlayer.getCamera();
-	
-	int64_t mouseCsXL = mouseXL; int64_t mouseCsYL = mouseYL; int64_t mouseCsZL = mouseZL;
-	switch(localPlayer.getCamera()->getAxis()) {
-		case Camera::X: { mouseCsXL = mouseYL; mouseCsYL = mouseZL; mouseCsZL = mouseXL; } break;
-		case Camera::Y: { mouseCsXL = mouseXL; mouseCsYL = mouseZL; mouseCsZL = mouseYL; } break;
-	}
+	Vec3<int64_t> mouseCsPos = cam->getCsPosFromWorldPos(mousePosI);
 
-	//Try to place tile
-	Tile tLast = tm->getTileByCsXYZ(cam, mouseCsXL, mouseCsYL, cam->getLayer());
+	//Determine if we 'canPlace' the tile 't' at current position
+	Tile tLast = tm->getTileByCsXYZ(cam, mouseCsPos);
 	bool canPlace = false;
-	if( localPlayer.inGodMode() || force ) {
+	if(localPlayer.inGodMode() || force) {
 		canPlace = true;
 	} else {
-		if( !tLast.solid ) {
+		if(!tLast.solid) {
 			canPlace = true;
 		}
 	}
 
 	double placeDist = 0;
-	if(localPlayer.getAction()==Player::SURV_Destroy_Tile || localPlayer.getAction()==Player::SURV_Place_Tile) {
-		Vec3X<double> canvasCam(localPlayer.getCamera()->getCsX(), localPlayer.getCamera()->getCsY(), localPlayer.getCamera()->getCsZ());
-		Vec3X<double> canvasMouse(mouseCsXL, mouseCsYL, mouseCsZL);
-		placeDist = Vec3F::dist(canvasCam.x, canvasCam.y, canvasCam.z, canvasMouse.x, canvasMouse.y, canvasMouse.z);
+	if(localPlayer.getAction()==Player::SURV_Apply || localPlayer.getAction()==Player::SURV_Interact) {
+		placeDist = cam->getCsPos().distanceTo(mouseCsPos.toDouble());
 	}
 	if(placeDist>4.) {
 		canPlace = false;
 	}
 
 	if(canPlace) {
-		tm->setTileByCsXYZ(cam, mouseCsXL, mouseCsYL, cam->getLayer(), t);
+		if(t.id!="null")
+			tm->setTileByCsXYZ(cam, mouseCsPos.x, mouseCsPos.y, mouseCsPos.z, t);
 		
-		if(localPlayer.getAction()==Player::SURV_Place_Tile) {
+		if(localPlayer.getAction()==Player::SURV_Apply) {
 			localPlayerMenu.decrementSelectedItemStack();
 		}
 	}
@@ -214,8 +230,17 @@ void WorldInteractions::playerTryPlaceTile(TileMapScreen* tms, TileMap* tm, Tile
 		
  		//In survival mode, add item to inventory
 		if(!localPlayer.inGodMode()) {
-			InvItemStack iis(Items::WORLDTILE, 1, tLast.id);
-			localPlayerMenu.giveItemStack(iis);
+			if(tLast.id=="antimatter_warhead") {
+				ItemStack is(Items::ANTIMATTER_WARHEAD, 1, tLast.id);
+				localPlayerMenu.giveItemStack(is);
+			} else
+			if(tLast.id=="plasma_matter_storage") {
+				ItemStack is(Items::PLASMA_MATTER_STORAGE, 1, tLast.id);
+				localPlayerMenu.giveItemStack(is);
+			} else {
+				ItemStack is(Items::WORLDTILE, 1, tLast.id);
+				localPlayerMenu.giveItemStack(is);
+			}
 		}
 	}
 
@@ -226,11 +251,7 @@ void WorldInteractions::playerTryPlaceTile(TileMapScreen* tms, TileMap* tm, Tile
 	}
 
 	//Add a 3x3 of tile updates regardless of tile placed or not
-	switch(cam->getAxis()) {
-		case Camera::X: { tms->getUpdater()->addTileUpdates(mouseYL, mouseZL); } break;
-		case Camera::Y: { tms->getUpdater()->addTileUpdates(mouseXL, mouseZL); } break;
-		case Camera::Z: { tms->getUpdater()->addTileUpdates(mouseXL, mouseYL); } break;
-	}
+	tms->getUpdater()->addTileUpdates(mouseCsPos.x, mouseCsPos.y);
 }
 
 void WorldInteractions::playerTryDestroyTile(TileMapScreen* tms, TileMap* tm)
@@ -251,18 +272,19 @@ void WorldInteractions::playMusic()
 
 	std::vector<int> commonTracks = {
 		AudioLoader::MUSIC_kc_alien_ruins,
+		AudioLoader::MUSIC_kc_astronomy,
 		AudioLoader::MUSIC_kc_digital_sunset,
 		AudioLoader::MUSIC_kc_last_stop,
 		AudioLoader::MUSIC_kc_nuclear_winter,
 		AudioLoader::MUSIC_kc_space_dust,
-		AudioLoader::MUSIC_kc_the_witching_hour,
 	};
 
 	
 	if(rand()%100==0) {	/* Rare tracks */
 		int rare = rand();
-		if(rare%2==0) al->playOnce(AudioLoader::MUSIC_kc_50_million_year_trip);
-		if(rare%2==1) al->playOnce(AudioLoader::MUSIC_kc_distant_planet);
+		if(rare%3==0) al->playOnce(AudioLoader::MUSIC_kc_50_million_year_trip);
+		if(rare%3==1) al->playOnce(AudioLoader::MUSIC_kc_distant_planet);
+		if(rare%3==2) al->playOnce(AudioLoader::MUSIC_kc_the_witching_hour);
 	
 	} else {			/* Common tracks */
 		al->playOnce(commonTracks[(rand()%6)]);
