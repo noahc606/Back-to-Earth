@@ -1,6 +1,8 @@
 #include "Grid.h"
+#include <nch/math-utils/vec3.h>
 #include "RegTexInfo.h"
 
+using namespace nch;
 
 Grid::~Grid()
 {
@@ -40,12 +42,12 @@ void Grid::updateOrderFinder(SDLHandler* sh, TileMap* tm, Camera* cam, int loadD
             bool completePillar = true;
             for(int64_t icsRZ = csRZ-loadDist; icsRZ<=csRZ+loadDist; icsRZ++) {
                 if(stateToUse!=-1) {
-                    TileRegion* tr = tm->getRegByCsRXYZ(cam, csRX, csRY, icsRZ);
+                    TileRegion* tr = tm->getRegByCsRXYZ(cam, Vec3<int64_t>(csRX, csRY, icsRZ));
                     if(tr==nullptr || tr->getRegTexState()>stateToUse || !RegTexInfo::isCsRegOnScreen(cam, csRX, csRY) ) {
                         grid[x][y] = 1000;
                     }
                 } else {
-                    TileRegion* tr = tm->getRegByCsRXYZ(cam, csRX, csRY, icsRZ);
+                    TileRegion* tr = tm->getRegByCsRXYZ(cam, Vec3<int64_t>(csRX, csRY, icsRZ));
                     if(tr==nullptr ) {     
                         completePillar = false;
                     }

@@ -201,7 +201,7 @@ void RegTexInfo::drawDebugOverlay(Canvas* csDebug, int64_t csRX, int64_t csRY, i
 	for(int64_t icsRX = csRX-loadDist; icsRX<csRX+loadDist; icsRX++) {
 		for(int64_t icsRY = csRY-loadDist; icsRY<csRY+loadDist; icsRY++) {
 				//Get TileRegion
-				TileRegion* tr = tileMap->getRegByCsRXYZ(cam, icsRX, icsRY, csRZ);
+				TileRegion* tr = tileMap->getRegByCsRXYZ(cam, {icsRX, icsRY, csRZ});
 
 				//Get fill color which depends on the TileRegion's current regTexState
 				nch::Color fillColor(255, 255, 255);	//White == nullptr

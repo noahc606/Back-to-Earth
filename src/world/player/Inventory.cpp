@@ -1,18 +1,26 @@
 #include "Inventory.h"
 #include "NoahAllocTable.h"
 
+Inventory::Inventory(int type) { Inventory::type = type; }
 Inventory::Inventory(){}
 Inventory::~Inventory(){}
+
+int Inventory::getType() { return type; }
 
 bool Inventory::slotExists(int x, int y)
 {
 	bool inMain8x8 = x>=0 && x<=7 && y>=0 && y<=7;
+	bool inPMS5x8 = x>=0 && x<=7 && y>=0 && y<=4;
 	bool inBody1x3 = x==-4 && y>=2 && y<=4;
 
 	switch(type) {
+		case NONE:		{ return false; }
 		case BACKPACK: 	{ if(inMain8x8 || inBody1x3) return true; } break;
 		case PMT: 	    { if(inMain8x8) return true; } break;
 		case SANDBOX: 	{ if(inMain8x8) return true; } break;
+		
+		case TE_CABINET: 			   { if(inPMS5x8) return true; } break;
+		case TE_PLASMA_MATTER_STORAGE: { if(inPMS5x8) return true; } break;
 	}
 
 	return false;
@@ -36,10 +44,7 @@ void Inventory::setSlotItemStack(int x, int y, ItemStack is)
 	}
 }
 
-void Inventory::load()
-{
-
-}
+void Inventory::load(){}
 
 nlohmann::json Inventory::jsonify()
 {

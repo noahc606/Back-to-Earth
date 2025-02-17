@@ -1,11 +1,14 @@
 #include "CampaignCreation.h"
 #include <iostream>
 #include <nch/cpp-utils/log.h>
+#include <nch/cpp-utils/noah-alloc-table.h>
 #include <set>
 #include <sstream>
 #include "Noise.h"
 #include "RadioButton.h"
 #include "TextBox.h"
+
+using namespace nch;
 
 /*
     Creates a directory within "backtoearth/saved/games" which holds data for an individual world (campaign).
@@ -158,8 +161,13 @@ bool CampaignCreation::createWorldData(GUIHandler* gh, FileHandler* fh, std::str
     std::stringstream ssws; ssws << worldSeed;
     fh->write("worldSeed=");        fh->write(ssws.str());          fh->writeln();
     fh->write("worldName=");        fh->write(worldDisplayName);    fh->writeln();
-    fh->write("playerGameMode=");   fh->write(gamemode);            fh->writeln();
     fh->saveCloseFile();
+
+    NoahAllocTable nat("backtoearth/"+path+"playerdata");
+	nlohmann::json jMode; jMode["mode"] = gamemode;
+	auto bMode = nlohmann::json::to_bson(jMode);
+	nat.save("mode", bMode);
+    nat.close();
 
     return true;
 }

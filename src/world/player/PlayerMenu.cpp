@@ -5,6 +5,8 @@
 #include "TextBox.h"
 #include "Tooltip.h"
 
+using namespace nch;
+
 void PlayerMenu::init(SDLHandler* sh, GUIHandler* gh, Controls* ctrls, Player* pl, TileDict* td)
 {
 	sdlHandler = sh;
@@ -16,12 +18,10 @@ void PlayerMenu::init(SDLHandler* sh, GUIHandler* gh, Controls* ctrls, Player* p
 	items.init(guiHandler, pl);
 	playerGamemode = pl->getGameMode();
 
-	for( int x = -10; x<10; x++ ) {
-		for( int y = -10; y<10; y++ ) {
-			if(invhdr.slotExists(x, y)) {
-				invhdr.setSlotItem(x, y, -1);
-			}
-		}
+	for( int x = -10; x<10; x++ )
+	for( int y = -10; y<10; y++ )
+	if(invhdr.slotExists(x, y)) {
+		invhdr.setSlotItem(x, y, -1);
 	}
 
 	hotbar.init(getInventoryHolder());
@@ -38,10 +38,14 @@ void PlayerMenu::tick() {
 
 	//If inventory module changes from -1 to >=0...
 	if(lastInvMod!=invhdr.getMod()) {
+
+		//Select hotbar slot
 		if(lastInvMod==-1 && invhdr.getMod()>=0) {
 			auto lsis = hotbar.getLastSelectedInvSlot();
 			invhdr.selectSlot(std::get<0>(lsis), std::get<1>(lsis), std::get<2>(lsis));
 		}
+
+		timeMenuOpenedMS = SDL_GetTicks64();
 
 		lastInvMod = invhdr.getMod();
 	}
@@ -140,9 +144,7 @@ void PlayerMenu::decrementSelectedItemStack()
 
 void PlayerMenu::giveItemStack(ItemStack is)
 {
-	if(is.getType()==-1) {
-		return;
-	}
+	if(is.getType()==-1) return;
 
 	//Find location item should be stored
 	int locToUse = -1;
@@ -203,13 +205,37 @@ void PlayerMenu::setModule(int newMod)
 	itemUIShouldUpdate = true;
 }
 
+void PlayerMenu::setInteractingTileEntity(TileMap* tm, Vec3<int64_t> pos)
+{
+	interactingPos = pos;
+	
+	if(tm!=nullptr) {
+		TileEntity* te = tm->getTileEntity(pos);
+		if(te!=nullptr) {
+			invhdr.getPMM()->setInteractionType(te->getType());
+			invhdr.setInteractingInv(te->getInventory());
+			return;
+		}
+	}
+
+	invhdr.getPMM()->setInteractionType(TileEntity::NONE);
+	invhdr.setInteractingInv(nullptr);
+}
+
+void PlayerMenu::resetInteractingTileEntity() { setInteractingTileEntity(nullptr, Vec3<int64_t>(0, 0, 0)); }
+
 void PlayerMenu::tickInventoryOpen()
 {
+	bool allowClicking = false;
+	if(SDL_GetTicks64()-timeMenuOpenedMS>250) {
+		allowClicking = true;
+	}
+
 	int shx = getSlotHoveringX();
 	int shy = getSlotHoveringY();
 
 	//Upon RIGHT click...
-	if( controls->isPressed("HARDCODE_RIGHT_CLICK") ) {
+	if(allowClicking && controls->isPressed("HARDCODE_RIGHT_CLICK")) {
 		controls->stopPress("HARDCODE_RIGHT_CLICK", __PRETTY_FUNCTION__);	//Stop click
 
 		//If we clicked outside of the inventory, do nothing.
@@ -226,8 +252,31 @@ void PlayerMenu::tickInventoryOpen()
 		}
 	}
 
+	//Upon MIDDLE click...
+	if(allowClicking && controls->isPressed("HARDCODE_MIDDLE_CLICK")) {
+		controls->stopPress("HARDCODE_MIDDLE_CLICK", __PRETTY_FUNCTION__);
+
+		//If clicking inside the inventory...
+		if(invhdr.slotExists(shx, shy)) {
+			int locToUse = invhdr.getSlotLoc(shx, shy);
+			ItemStack his = invhdr.getHeldItemStack();
+			ItemStack iis = invhdr.getSlotItemStack(locToUse, shx, shy);
+
+			//Average out count between slot and held item (only if both stacks can stack OR if heldItem || slotItem is empty)
+			if(his.getType()==-1 || iis.getType()==-1) {
+
+			}
+
+			if(his.stacksWith(iis)) {
+				
+			}	
+		}
+
+
+	}
+
 	//Upon LEFT click...
-	if( controls->isPressed("HARDCODE_LEFT_CLICK") ) {
+	if(allowClicking && controls->isPressed("HARDCODE_LEFT_CLICK")) {
 		controls->stopPress("HARDCODE_LEFT_CLICK", __PRETTY_FUNCTION__);
 
 		bool canSwitchModule = true;
@@ -236,15 +285,32 @@ void PlayerMenu::tickInventoryOpen()
 		if(invhdr.slotExists(shx, shy)) {
 			int locToUse = invhdr.getSlotLoc(shx, shy);
 
-			if(invhdr.getHeldItemStack().getType()==-1) {
+			ItemStack heldItemStack = invhdr.getHeldItemStack();
+			if(heldItemStack.getType()==-1) {
 				//If no item is being held: pick up the item in this slot and clear the slot
 				invhdr.setHeldItemStack(invhdr.getSlotItemStack(locToUse, shx, shy));
 				invhdr.setSlotItemStack(locToUse, shx, shy, ItemStack(-1, 0));
 			} else {
-				//If an item is being held: put the item in the slot and set the held item to be whatever was in the slot.
-				ItemStack temp = invhdr.getSlotItemStack(locToUse, shx, shy);
-				invhdr.setSlotItemStack(locToUse, shx, shy, invhdr.getHeldItemStack());
-				invhdr.setHeldItemStack(temp);
+				//If an item is being held: 2 possibilities:
+
+				//1. If items exactly the same, increment count of slot item based on how many held.
+				if(heldItemStack.stacksWith(invhdr.getSlotItemStack(locToUse, shx, shy))) {
+					ItemStack temp = invhdr.getSlotItemStack(locToUse, shx, shy);
+					int finalCount = temp.getCount()+heldItemStack.getCount();
+					if(finalCount<=1024) {
+						invhdr.setSlotItemStack(locToUse, shx, shy, ItemStack(temp.getType(), finalCount, temp.getExtraData()));
+						invhdr.setHeldItemStack(ItemStack(-1, 0));
+					} else {
+						invhdr.setSlotItemStack(locToUse, shx, shy, ItemStack(temp.getType(), 1024, temp.getExtraData()));
+						invhdr.setHeldItemStack(ItemStack(heldItemStack.getType(), finalCount-1024, heldItemStack.getExtraData()));
+					}
+				
+				//2. Switch the item in the slot and the held item
+				} else {
+					ItemStack temp = invhdr.getSlotItemStack(locToUse, shx, shy);
+					invhdr.setSlotItemStack(locToUse, shx, shy, heldItemStack);
+					invhdr.setHeldItemStack(temp);
+				}
 			}
 
 			itemHeldShouldUpdate = true;
@@ -304,9 +370,9 @@ void PlayerMenu::drawInventoryElements(int oscillation)
 		if(!invhdr.slotExists(ix, iy)) { continue; }
 
 		//Rect containing 4 ridges and a 30x30 texture
-		nch::Color box1(0, 16, 32+oscillation, 100);
-		nch::Color box2(0, 0, 48+oscillation, 100);
-		nch::Color box3(0, 32, 16, 100);
+		Color box1(0, 16, 32+oscillation, 100);
+		Color box2(0, 0, 48+oscillation, 100);
+		Color box3(0, 32, 16, 100);
 		if(invhdr.getSlotItemType(ix, iy)!=-1) {
 			//Set box1, box2, box3 to be a different color if this inventory spot is selected
 			if( invhdr.getSelX()==ix && invhdr.getSelY()==iy ) {
@@ -340,8 +406,8 @@ void PlayerMenu::drawInventoryElements(int oscillation)
 		if(!invhdr.slotExists(ix, iy)) { continue; }
 
 		//Set color of inventory slot ridges
-		nch::Color ridge1(oscillation, oscillation, oscillation, 150);
-		nch::Color ridge2(255, 255, 255, 30);
+		Color ridge1(oscillation, oscillation, oscillation, 150);
+		Color ridge2(255, 255, 255, 30);
 
 		//Draw ridges
 		sdlHandler->setRenderDrawColor(ridge1);
@@ -365,13 +431,13 @@ void PlayerMenu::drawHoverText()
 	//Draw item name if applicable...
 	std::string itemName = Items::getItemName(type);
 	if(itemName!="???null???") {		
-		TextOld::drawBoxed(sdlHandler, itemName, mx, my-20, nch::Color(255, 255, 255));
+		TextOld::drawBoxed(sdlHandler, itemName, mx, my-20, Color(255, 255, 255));
 	}
 
 	//Draw special hovertext if applicable...
 	std::string special = invhdr.getPMM()->getWidgetHoverText(playerGamemode, shx, shy);
 	if(special!="???null???") {
-		TextOld::drawBoxed(sdlHandler, special, mx, my-20, nch::Color(0, 255, 255));
+		TextOld::drawBoxed(sdlHandler, special, mx, my-20, Color(0, 255, 255));
 	}
 }
 
@@ -387,7 +453,7 @@ int PlayerMenu::getSlotHoveringY() {
 void PlayerMenu::updateSandboxTile()
 {
 	/* Set current color */
-	nch::Color currentColor(255, 255, 255);
+	Color currentColor(255, 255, 255);
 	for( int i = 0; i<3; i++ ){
 		auto tbx = guiHandler->getGUI( BTEObject::GUI_textbox, GUIHandler::tbx_CHARACTER_item, 2000+i );
 		if(tbx!=nullptr) {

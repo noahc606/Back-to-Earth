@@ -10,7 +10,14 @@ InventoryHolder::InventoryHolder()
 	mod = -1;
 	reset();
 }
-InventoryHolder::~InventoryHolder(){}
+InventoryHolder::~InventoryHolder()
+{
+	auto itr = invs.begin();
+	while(itr!=invs.end()) {
+		delete itr->second;
+		itr = invs.erase(itr);
+	}
+}
 
 int InventoryHolder::getMod() { return mod; }
 PlayerMenuModules* InventoryHolder::getPMM() { return &pmm; }
@@ -21,18 +28,24 @@ int8_t InventoryHolder::getSelY() { return sy; }
 
 ItemStack InventoryHolder::getSelItemStack() { return selectedStack; }
 
-bool InventoryHolder::slotExists(int loc, int x, int y) { return invs[loc].slotExists(x, y); }
+bool InventoryHolder::slotExists(int loc, int x, int y) {
+	if(invs.find(loc)==invs.end()) return false;
+	return invs[loc]->slotExists(x, y);
+}
 bool InventoryHolder::slotExists(int x, int y)
 {
+	if(interactingInv!=nullptr) {
+		bool se = interactingInv->slotExists(x, y);				
+		
+		if(interactingInv->getType()==Inventory::TE_PLASMA_MATTER_STORAGE && 	mod==pmm.PLASMA_MATTER_TRANSFORMER) return se;
+		if(interactingInv->getType()==Inventory::BACKPACK && 					mod==pmm.BACKPACK) return se;
+	}
+
 	switch(mod) {
 		case pmm.BACKPACK: 					{ return slotExists(Inventory::Type::BACKPACK, x, y); } break;
 		case pmm.PLASMA_MATTER_TRANSFORMER: { return slotExists(Inventory::Type::PMT, x, y); } break;
 		case pmm.CRAFTING: 					{ return (y==0) && (x>=0 && x<=7) && slotExists(Inventory::Type::BACKPACK, x, y); } break;
 		case pmm.SANDBOX:					{ return slotExists(Inventory::Type::SANDBOX, x, y); } break;
-
-		case pmm.TILE_ENTITY: {
-
-		} break;
 	}
 
 	return false;
@@ -41,17 +54,35 @@ bool InventoryHolder::slotExists(int x, int y)
 int InventoryHolder::getSlotLoc(int x, int y)
 {
 	int loc = -1;
-	switch(mod) {
-		case pmm.BACKPACK: 					{ loc = 0; } break;
-		case pmm.PLASMA_MATTER_TRANSFORMER: { loc = 1; } break;
-		case pmm.CRAFTING: 					{ loc = 0; } break;
-		case pmm.SANDBOX:					{ loc = 100; } break;
+	if(interactingInv!=nullptr) {
+
+		//If PM< module open while in a TE_PMS inventory
+		if(mod==pmm.PLASMA_MATTER_TRANSFORMER && interactingInv->getType()==Inventory::TE_PLASMA_MATTER_STORAGE) {
+			loc = Inventory::TE_PLASMA_MATTER_STORAGE;
+			if(y==0) loc = Inventory::PMT;
+		}
+
+
+	} else {
+		switch(mod) {
+			case pmm.BACKPACK: 					{ loc = Inventory::BACKPACK; } break;
+			case pmm.PLASMA_MATTER_TRANSFORMER: { loc = Inventory::PMT; } break;
+			case pmm.CRAFTING: 					{ loc = Inventory::BACKPACK; } break;
+			case pmm.SANDBOX:					{ loc = Inventory::SANDBOX; } break;
+		}
 	}
+
 	if(!slotExists(x, y)) loc = -1;
 	return loc;
 }
 
-ItemStack InventoryHolder::getSlotItemStack(int loc, int x, int y) { return invs[loc].getSlotItemStack(x, y); }
+ItemStack InventoryHolder::getSlotItemStack(int loc, int x, int y) {
+	if(invs.find(loc)==invs.end()) {
+		return ItemStack(-1, 0);
+	}
+
+	return invs[loc]->getSlotItemStack(x, y);
+}
 ItemStack InventoryHolder::getSlotItemStack(int x, int y)
 {
 	int loc = getSlotLoc(x, y);
@@ -67,12 +98,14 @@ int InventoryHolder::getSlotItemType(int x, int y)
 
 ItemStack InventoryHolder::getHeldItemStack() { return heldStack; }
 
+Inventory* InventoryHolder::getInteractingInv() { return interactingInv; }
+
 void InventoryHolder::reset()
 {
 	invs.clear();
-	invs.insert( std::make_pair(Inventory::BACKPACK, Inventory()) );		//Backpack
-	invs.insert( std::make_pair(Inventory::PMT, Inventory()) );		//PMT
-	invs.insert( std::make_pair(Inventory::SANDBOX, Inventory()) );	//Sandbox
+	invs.insert( std::make_pair(Inventory::BACKPACK, 	new Inventory(Inventory::BACKPACK)) );
+	invs.insert( std::make_pair(Inventory::PMT, 		new Inventory(Inventory::PMT)) );
+	invs.insert( std::make_pair(Inventory::SANDBOX, 	new Inventory(Inventory::SANDBOX)) );
 }
 
 void InventoryHolder::setStarterItems(TileDict* td)
@@ -148,7 +181,7 @@ void InventoryHolder::setSlotItemStack(int loc, int x, int y, ItemStack is)
 		return;
 	}
 
-	invs[loc].setSlotItemStack(x, y, is);
+	invs[loc]->setSlotItemStack(x, y, is);
 }
 void InventoryHolder::setSlotItemStack(int x, int y, ItemStack is) { setSlotItemStack(0, x, y, is); }
 void InventoryHolder::setSlotItem(int loc, int x, int y, int i) { setSlotItemStack(loc, x, y, ItemStack(i, 1)); }
@@ -182,6 +215,19 @@ void InventoryHolder::decrementSelectedItemStack()
 		sy = -1;
 		sl = -1;
 	}
+}
+
+void InventoryHolder::setInteractingInv(Inventory* inv) {
+	invs.erase(Inventory::TE_CABINET);
+	invs.erase(Inventory::TE_PLASMA_MATTER_STORAGE);
+	
+	if(inv!=nullptr && inv->getType()!=Inventory::NONE) {
+		int x = 0;
+		invs.insert(std::make_pair(inv->getType(), inv));
+	}
+		
+
+	interactingInv = inv;
 }
 
 void InventoryHolder::load(TileDict* td, std::string worldDirPath)
@@ -237,7 +283,7 @@ void InventoryHolder::save(std::string worldDirPath)
 	nlohmann::json invData;
 	for(auto inv : invs) {
 
-		nlohmann::json currModSlots = inv.second.jsonify();
+		nlohmann::json currModSlots = inv.second->jsonify();
 
 		std::stringstream modTitle; modTitle << "mod" << inv.first;
 		invData[modTitle.str()] = currModSlots;

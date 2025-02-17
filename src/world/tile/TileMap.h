@@ -36,41 +36,41 @@ public:
 	TileDict* getTileDict();
 
 	//Getting TileTypes given their position
-	Tile getTile(int64_t x, int64_t y, int64_t z);
+	Tile getTile(nch::Vec3<int64_t> pos);
 	Tile getTileByCsXYZ(Camera* cam, nch::Vec3<int64_t> cspos);
+	TileEntity* getTileEntity(nch::Vec3<int64_t> pos);
 	//Getting TileRegions given their position
-	static TileRegion* getRegByRXYZ(t_regionMap* regMap, int64_t x, int64_t y, int64_t z);
-	TileRegion* getRegByXYZ (int64_t x, int64_t y, int64_t z);
-	TileRegion* getRegByRXYZ(int64_t rX, int64_t rY, int64_t rZ);
-	TileRegion* getRegByCsRXYZ(Camera* cam, int64_t csRX, int64_t csRY, int64_t csRZ);
+	static TileRegion* getRegByRXYZ(t_regionMap* regMap, nch::Vec3<int64_t> rpos);
+	TileRegion* getRegByXYZ(nch::Vec3<int64_t> pos);
+	TileRegion* getRegByRXYZ(nch::Vec3<int64_t> rpos);
+	TileRegion* getRegByCsRXYZ(Camera* cam, nch::Vec3<int64_t> csrpos);
 	//Get position within region based on xyz
 	static int64_t getRegSubPos(int64_t c);
-	static void getRegSubPos(int64_t& x, int64_t& y, int64_t& z);
+	static void getRegSubPos(nch::Vec3<int64_t>& pos);
 	//Get region coordinates based on xyz
-	static int64_t getRegRXYZ  (int64_t c);
-	static void getRegRXYZ  (int64_t& x, int64_t& y, int64_t& z);
+	static int64_t getRegRXYZ(int64_t c);
+	static void getRegRXYZ(nch::Vec3<int64_t>& rpos);
 	//Get save-region coordinates based on xyz.
-	static int64_t convRxyToLSRxy (int64_t rxOrRy);
-	static int64_t convRzToLSRz (int64_t rz);
-	static void convRxyzToLSRxyz (int64_t& rx, int64_t& ry, int64_t& rz);
+	static int64_t convRxyToLSRxy(int64_t rxOrRy);
+	static int64_t convRzToLSRz(int64_t rz);
+	static void convRxyzToLSRxyz(nch::Vec3<int64_t>& rpos);
 	
 	//Collision
-	bool collides(nch::Box3<double> b, int64_t& cx, int64_t& cy, int64_t& cz);
-	bool collides(nch::Box3<double> b);
+	bool collides(nch::Box3<double> b, nch::Vec3<int64_t>& cspos);
 
 	/** TileMap manipulation */
 	//Set tile
-	int setTile(int64_t x, int64_t y, int64_t z, Tile t);
-	int setTileByCsXYZ(Camera* cam, int64_t cx, int64_t cy, int64_t cz, Tile t);
-	static bool setTiles(t_regionMap* regionMap, int64_t x1, int64_t y1, int64_t z1, int64_t x2, int64_t y2, int64_t z2, Tile tt, bool natural);
-	bool setTiles(int64_t x1, int64_t y1, int64_t z1, int64_t x2, int64_t y2, int64_t z2, Tile tt, bool natural);
-	void setStructureWithinReg(Structure* stru, TileRegion& tr, int64_t rX, int64_t rY, int64_t rZ);
+	int setTile(nch::Vec3<int64_t> pos, Tile t);
+	int setTileByCsXYZ(Camera* cam, nch::Vec3<int64_t> cspos, Tile t);
+	static bool setTiles(t_regionMap* regionMap, nch::Vec3<int64_t> pos1, nch::Vec3<int64_t> pos2, Tile tt, bool natural);
+	bool setTiles(nch::Vec3<int64_t> pos1, nch::Vec3<int64_t> pos2, Tile tt, bool natural);
+	int setTileEntity(nch::Vec3<int64_t> pos, TileEntity* te);
+	void setStructureWithinReg(Structure* stru, TileRegion& tr, nch::Vec3<int64_t> rpos);
 	//Load regions
-	int loadRegion(int64_t rX, int64_t rY, int64_t rZ);
-	int loadRegionByCsRXYZ(int camAxis, int64_t csRX, int64_t csRY, int64_t csRZ);
-	int loadRegions(int64_t rX1, int64_t rY1, int64_t rZ1, int64_t rX2, int64_t rY2, int64_t rZ2);
-	int saveRegion(int64_t rX, int64_t rY, int64_t rZ);
-	int unloadRegion(int64_t rX, int64_t rY, int64_t rZ);
+	int loadRegion(nch::Vec3<int64_t> rpos);
+	int loadRegionByCsRXYZ(Camera* cam, nch::Vec3<int64_t> csrpos);
+	int saveRegion(nch::Vec3<int64_t> rpos);
+	int unloadRegion(nch::Vec3<int64_t> rpos);
 
 protected:
 

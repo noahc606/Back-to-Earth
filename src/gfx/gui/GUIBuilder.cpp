@@ -157,7 +157,7 @@ void GUIBuilder::buildMainControls(GUIHandler& gh, FileHandler& fh)
 	ctrls.push_back( std::make_pair("Interact With UI Element (click, toggle, etc)", "INTERACT_UI") );
 	ctrls.push_back( std::make_pair("Pause Game", "INGAME_PAUSE") );
 	ctrls.push_back( std::make_pair("Modify Map Zoom", "MAP_USE_ZOOM") );
-	ctrls.push_back( std::make_pair("Character Menu", "PLAYER_INVENTORY") );
+	ctrls.push_back( std::make_pair("Inventory", "PLAYER_OPEN_INVENTORY") );
 	ctrls.push_back( std::make_pair("Move Forward", "PLAYER_MOVE_NORTH") );
 	ctrls.push_back( std::make_pair("Move Right", "PLAYER_MOVE_EAST") );
 	ctrls.push_back( std::make_pair("Move Backward", "PLAYER_MOVE_SOUTH") );

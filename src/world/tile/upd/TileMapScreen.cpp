@@ -3,7 +3,7 @@
 #include <iostream>
 #include <math.h>
 #include <nch/cpp-utils/log.h>
-#include <nch/sdl-utils/timer.h>
+#include <nch/cpp-utils/timer.h>
 #include <sstream>
 #include "Controls.h"
 #include "DebugScreen.h"
@@ -207,7 +207,7 @@ void TileMapScreen::putInfo(std::stringstream& ss, int& tabs, int64_t mouseX, in
 		long selRY = TileMap::getRegRXYZ(mouseY);
 		long selRZ = TileMap::getRegRXYZ(mouseZ);
 
-		TileRegion* tr = tileMap->getRegByRXYZ(selRX, selRY, selRZ);
+		TileRegion* tr = tileMap->getRegByRXYZ({selRX, selRY, selRZ});
 		int msx = TileMap::getRegSubPos(mouseX);
 		int msy = TileMap::getRegSubPos(mouseY);
 		int msz = TileMap::getRegSubPos(mouseZ);

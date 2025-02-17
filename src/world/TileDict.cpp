@@ -1,6 +1,6 @@
 #include "TileDict.h"
 #include <nch/cpp-utils/log.h>
-#include <nch/sdl-utils/timer.h>
+#include <nch/cpp-utils/timer.h>
 #include "TextureBuilder.h"
 #include "TextureLoader.h"
 #include "World.h"
@@ -46,6 +46,12 @@ std::map<std::string, Tile> TileDict::baseTiles = {
 
 //Tile Entities
 { "antimatter_warhead",     Tile("antimatter_warhead",      R"({ "material": "metal", "textureHolder": "tile_type_b", "textureSpecs": [
+    { "type": "x", "src": [6, 0], "visionBlocking": false },
+    { "type": "y", "src": [7, 0], "visionBlocking": false },
+    { "type": "up", "src": [7, 1], "visionBlocking": false },
+    { "type": "down", "src": [6, 1], "visionBlocking": false }
+] })"_json) },
+{ "cabinet",                Tile("cabinet",                 R"({ "material": "metal", "textureHolder": "tile_type_b", "textureSpecs": [
     { "type": "x", "src": [6, 0], "visionBlocking": false },
     { "type": "y", "src": [7, 0], "visionBlocking": false },
     { "type": "up", "src": [7, 1], "visionBlocking": false },

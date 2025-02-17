@@ -6,21 +6,27 @@
 #include <nch/cpp-utils/fs-utils.h>
 #include <nch/cpp-utils/log.h>
 #include <nch/cpp-utils/noah-alloc-table.h>
+#include <nch/cpp-utils/string-utils.h>
 #include <set>
 #include <sstream>
 #include "DebugScreen.h"
 #include "TileMap.h"
 #include "Tile.h"
 
-LevelSave::LevelSave(std::string dir, TileDict* td)
+using namespace nch;
+
+LevelSave::LevelSave(std::string saveGameDir, TileDict* td)
 {
-	if(dir=="") dir = "dump";	
-	directory = dir;
+	if(saveGameDir=="") {
+		saveGameDir = "backtoearth/dump";
+	}
+	tilesDir = saveGameDir+"/tilemap/default";
+	poiDir = saveGameDir+"/poi/default";
 	LevelSave::td = td;
 }
 
 
-std::string LevelSave::getNatFilePathFromRxyz(std::string parentDir, int64_t rX, int64_t rY, int64_t rZ)
+std::string LevelSave::getNatLSRPathFromRxyz(int64_t rX, int64_t rY, int64_t rZ)
 {
 	//LSR = (32*16)x(32*16)x(32*4)=512x512x128 (LARGE save region). Determines which file the data is placed in.
 	
@@ -31,11 +37,18 @@ std::string LevelSave::getNatFilePathFromRxyz(std::string parentDir, int64_t rX,
 	
 	//Create file name
 	std::stringstream ss;
-	ss << parentDir << "/";
+	ss << tilesDir << "/";
 	ss << lsrX << ",";
 	ss << lsrY << ",";
 	ss << lsrZ;
 	
+	return ss.str();
+}
+
+std::string LevelSave::getNatPOIPathFromRxyz(int64_t rX, int64_t rY, int64_t rZ)
+{
+	std::stringstream ss;
+	ss << poiDir << "/" << rX << "," << rY << "," << rZ;
 	return ss.str();
 }
 
@@ -46,11 +59,11 @@ std::string LevelSave::getNatHeaderTriple(int64_t rX, int64_t rY, int64_t rZ)
 	return res.str();
 }
 
-void LevelSave::saveTileRegion(TileRegion& tr, int64_t rX, int64_t rY, int64_t rZ)
+void LevelSave::saveRegionTiles(TileRegion& tr, int64_t rX, int64_t rY, int64_t rZ)
 {
 	/* Preliminaries */
 	//Get file path and header triple
-	std::string sfp = getNatFilePathFromRxyz(directory, rX, rY, rZ);
+	std::string sfp = getNatLSRPathFromRxyz(rX, rY, rZ);
 	std::string headerTriple = getNatHeaderTriple(rX, rY, rZ);
 	//Get region's palette size
 	uint8_t dataBitsPerTile = tr.getPaletteSizeBucket( tr.getPaletteSizeArtificial()+1 );
@@ -59,7 +72,7 @@ void LevelSave::saveTileRegion(TileRegion& tr, int64_t rX, int64_t rY, int64_t r
 	//If region has no artificial tiles (dataBitsPerTile==0), nothing to save.
 	if(dataBitsPerTile==0) return;
 
-	nch::NoahAllocTable nat(sfp);
+	NoahAllocTable nat(sfp);
 	DataStream ds;
 
 	//Save palette size data
@@ -83,23 +96,39 @@ void LevelSave::saveTileRegion(TileRegion& tr, int64_t rX, int64_t rY, int64_t r
 	nat.close();
 }
 
-void LevelSave::saveTileRegion(TileMap* tm, int64_t rX, int64_t rY, int64_t rZ)
+void LevelSave::saveRegionTileEntities(TileRegion& tr, int64_t rX, int64_t rY, int64_t rZ)
 {
-	TileRegion* tr = tm->getRegByRXYZ(rX, rY, rZ);
-	if(tr!=nullptr) {
-		saveTileRegion( *tr, rX, rY, rZ );
-	} else {
-		std::stringstream ss;
-		ss << "TileRegion at (" << rX << ", " << rY << ", " << rZ << ") doesn't exist";
-		nch::Log::warn(__PRETTY_FUNCTION__, ss.str());
+	/* Preliminaries */
+	//Get file path
+	std::string sfp = getNatPOIPathFromRxyz(rX, rY, rZ);
+	//Get region's tile entity locations
+	std::vector<Vec3<int64_t>> tileEntityLocs = tr.getTileEntityLocs();
+
+	/* Execute save operation */
+	//If no tile entity locations, nothing to save.
+	if(tileEntityLocs.size()==0) return;
+
+	NoahAllocTable nat(sfp);
+	for(int i = 0; i<tileEntityLocs.size(); i++) {
+		Vec3<int64_t> teLoc = tileEntityLocs[i];
+		TileEntity* te = tr.getTileEntity(teLoc);
+		if(te==nullptr) continue;
+
+		nlohmann::json j = te->jsonify();
+		if(j.is_null()) continue;
+
+		auto teData = nlohmann::json::to_bson(j);
+		nat.save("poi"+teLoc.toArrayString()+".te", teData);
 	}
+
+	nat.close();
 }
 
-bool LevelSave::loadTileRegion(TileRegion& tr, int64_t rX, int64_t rY, int64_t rZ)
+bool LevelSave::loadRegionTiles(TileRegion& tr, int64_t rX, int64_t rY, int64_t rZ)
 {
 	/* Preliminaries */
 	//Get file path and header triple
-	std::string lfp = getNatFilePathFromRxyz(directory, rX, rY, rZ);
+	std::string lfp = getNatLSRPathFromRxyz(rX, rY, rZ);
 	std::string headerTriple = getNatHeaderTriple(rX, rY, rZ);
 	//Method returns false if file(s) don't exist.
 	nch::FsUtils fsu;
@@ -108,7 +137,7 @@ bool LevelSave::loadTileRegion(TileRegion& tr, int64_t rX, int64_t rY, int64_t r
 	}
 	
 	//Open file(s) for reading and return true at the end (since they exist).
-	nch::NoahAllocTable nat(lfp);
+	NoahAllocTable nat(lfp);
 	auto dbptBytes = nat.load("lsr"+headerTriple+".dbpt");
 	auto palBytes = nat.load("lsr"+headerTriple+".palette");
 	auto tileBytes = nat.load("lsr"+headerTriple+".tiles");
@@ -173,6 +202,39 @@ bool LevelSave::loadTileRegion(TileRegion& tr, int64_t rX, int64_t rY, int64_t r
 		}
 	}
 	
+	return true;
+}
+
+bool LevelSave::loadRegionTileEntities(TileRegion& tr, int64_t rX, int64_t rY, int64_t rZ)
+{
+	/* Preliminaries */
+	//Get file path
+	std::string lfp = getNatPOIPathFromRxyz(rX, rY, rZ);
+	//Method returns false if file(s) don't exist.
+	nch::FsUtils fsu;
+	if(!fsu.fileExists(lfp+".nat") || !fsu.fileExists(lfp+".nath")) {
+		return false;
+	}
+
+	NoahAllocTable nat(lfp);
+	std::vector<std::string> labelList = nat.getLabelList();
+	for(std::string lbl : labelList) {
+		//Get TileEntity
+		TileEntity* te = nullptr;
+		auto teDataRaw = nat.load(lbl);
+		nlohmann::json teJson = nlohmann::json::from_bson(teDataRaw);
+		te = new TileEntity(teJson);
+
+		//Get subpos within region
+		std::vector<int64_t> list = StringUtils::parseI64Array( lbl.substr(3, lbl.size()-6) );
+		Vec3<int64_t> subpos(list[0], list[1], list[2]);
+
+		//Set within TileRegion the proper TileEntity and subposition
+		tr.setTileEntity(subpos, te);
+	}
+
+	nat.close();
+
 	return true;
 }
 

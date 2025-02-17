@@ -42,4 +42,6 @@ private:
     Camera* cam = nullptr;
     int64_t camStRX = 0, camStRY = 0, camStRZ = 0;
     double lastPopTime = NAN;
+
+    bool populationDisabled = true;
 };

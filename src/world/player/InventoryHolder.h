@@ -26,6 +26,7 @@ public:
 	int getSlotItemType(int loc, int x, int y);
 	int getSlotItemType(int x, int y);
 	ItemStack getHeldItemStack();
+	Inventory* getInteractingInv();
 
 	void reset();
 	void setStarterItems(TileDict* td);
@@ -38,6 +39,7 @@ public:
 	void setSlotItem(int x, int y, int i);
 	void setHeldItemStack(ItemStack is);
 	void decrementSelectedItemStack();
+	void setInteractingInv(Inventory* inv);
 
 	void load(TileDict* td, std::string worldDirPath);
 	void save(std::string worldDirPath);
@@ -45,7 +47,7 @@ public:
 private:
 	/* Inventory feautres */
 	//Slots
-	std::map<int, Inventory> invs;
+	std::map<int, Inventory*> invs;
 	Inventory* interactingInv = nullptr;
 
 	//Selection &  Holding

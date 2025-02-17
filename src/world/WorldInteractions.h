@@ -14,7 +14,9 @@ public:
     WorldInteractions();
     ~WorldInteractions();
 
-	void initPlayerEtc(SDLHandler* sh, GUIHandler* gh, FileHandler* fh, Controls* ctrls, TileDict* td, std::tuple<double, double, double> pXYZ, std::string pMode);
+	void loadPlayerEtc(SDLHandler* sh, GUIHandler* gh, FileHandler* fh, Controls* ctrls, TileDict* td);
+
+	void savePlayerEtc();
 
 	void draw(Canvas& csInteractions);
 	void drawLocalPlayerMenu();
@@ -24,7 +26,7 @@ public:
 	void playerInteractTile(TileMapScreen* tms, TileMap* tm);
 	void playerTryPlaceTile(TileMapScreen* tms, TileMap* tm, Tile t, bool force);
 	void playerTryDestroyTile(TileMapScreen* tms, TileMap* tm);
-	void setLocalPlayerMenuState(int newMenuState);
+	void playerToggleMenu();
 	void playMusic();
 
 	SDLHandler* sdlHandler = nullptr;

@@ -1,5 +1,6 @@
 #include "Structure.h"
 #include <nch/cpp-utils/log.h>
+#include <nch/math-utils/vec3.h>
 #include "CollectionUtils.h"
 #include "ShapeBuilder.h"
 #include "TileIterator.h"
@@ -34,8 +35,8 @@ Structure::Structure(int id, Vec3<int64_t> origin, TileDict* tileDict)
             Tile t0 = tileDict->at("hab_titanium_hull");
             Tile t1 = tileDict->at("artificial_air");
             
-            TileMap::setTiles(&regMap, 0, 0, 0, 15, 15, 5, t0, true);
-            TileMap::setTiles(&regMap, 1, 1, 1, 14, 14, 4, t1, true);
+            TileMap::setTiles(&regMap, {0, 0, 0}, {15, 15, 5}, t0, true);
+            TileMap::setTiles(&regMap, {1, 1, 1}, {14, 14, 4}, t1, true);
         } break;
         case CAVE_LARGE: {
             Tile t0 = tileDict->at("accrio_air");
@@ -69,7 +70,7 @@ Structure::Structure(int id, Vec3<int64_t> origin, TileDict* tileDict)
             if(!suppressWarnings) nch::Log::warnv(__PRETTY_FUNCTION__, "using placeholder", "Tried to build structure with unknown ID '%d'", id);
             
             Tile x = tileDict->at("monolith");
-            TileMap::setTiles(&regMap, 0, 0, 0, 0, 3, 8, x, true);
+            TileMap::setTiles(&regMap, {0, 0, 0}, {0, 3, 8}, x, true);
             suppressWarnings = false;
         } break;
     }

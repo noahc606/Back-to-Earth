@@ -73,7 +73,7 @@ void WorldBackground::renderSkyPartial(int pxCol)
         float rayX = (2*(pxCol+0.5f)/float(width)-1)*aspectRatio*angle; 
         float rayY = (1-(y+0.5f)/float(height)*2)*angle; 
         Vec3<float> dir(rayX, rayY, -1);
-        dir.normalize();
+        dir = dir.normalized();
 
         float t0, t1, tMax = Atmosphere::inf;
         //If ray DOES intersect with planet...

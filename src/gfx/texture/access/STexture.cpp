@@ -1,6 +1,5 @@
 #include "STexture.h"
 #include <nch/cpp-utils/log.h>
-#include <nch/sdl-utils/timer.h>
 
 STexture::STexture(){}
 STexture::~STexture(){}

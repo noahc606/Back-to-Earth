@@ -11,6 +11,8 @@
 #include "TileMap.h"
 #include "Timer.h"
 
+using namespace nch;
+
 /**
 (X+, Y+, Z+) = (East, South, Down)
 */
@@ -139,13 +141,13 @@ Tile TileRegion::getPaletteElement(int16_t key)
 	}
 }
 
-int16_t TileRegion::getTileKey( int x, int y, int z )
+int16_t TileRegion::getTileKey(int x, int y, int z)
 {
 	//Negative key indicates artificial tile. Positive index indicates natural tile. 0 always = null.
 	return tiles->at(x, y, z);
 }
 
-Tile TileRegion::getTile( int x, int y, int z )
+Tile TileRegion::getTile(int x, int y, int z)
 {
 	int16_t key = getTileKey(x, y, z);
 	t_palette::iterator pitr = palette.find(key);
@@ -160,6 +162,15 @@ Tile TileRegion::getTile( int x, int y, int z )
 	}
 	
 	return palette[key];
+}
+
+std::vector<Vec3<int64_t>> TileRegion::getTileEntityLocs()
+{
+	std::vector<Vec3<int64_t>> res;
+	for(auto elem : tileEntities) {
+		res.push_back(Vec3<int64_t>(elem.first));
+	}
+	return res;
 }
 
 /**
@@ -354,29 +365,52 @@ void TileRegion::dumpTileData(DataStream& ds, uint8_t dataBitsPerTile)
 		-This region needs to be unloaded (compress==true). More expensive option
 		-This region is auto-saved (compress==false). Less expensive option
 */
-void TileRegion::save(std::string saveGameName, long rX, long rY, long rZ, bool p_compress)
+void TileRegion::save(std::string saveGameName, int64_t rX, int64_t rY, int64_t rZ, bool p_compress)
 {
 	//Make sure folder which contains the region files themselves exists
-	std::string regFilesDir = "backtoearth/saved/games/"+saveGameName+"/tilemap/default";
+	std::string saveGameDir = "backtoearth/saved/games/"+saveGameName;
 
 	//Compression
-	if( p_compress ) {
+	if(p_compress) {
 		nch::Timer t1;
 		compress();
 	}
 
 	//Level saving logic
-	LevelSave ls(regFilesDir, tileDict);
-	ls.saveTileRegion(*this, rX, rY, rZ);
+	LevelSave ls(saveGameDir, tileDict);
+	ls.saveRegionTiles(*this, rX, rY, rZ);
+	ls.saveRegionTileEntities(*this, rX, rY, rZ);
 }
 
-void TileRegion::save(std::string saveGameName, long rX, long rY, long rZ)
+void TileRegion::save(std::string saveGameName, int64_t rX, int64_t rY, int64_t rZ)
 {
 	save(saveGameName, rX, rY, rZ, false);
 }
 
-void TileRegion::load(std::string saveGameName, long rX, long rY, long rZ)
+void TileRegion::load(std::string saveGameName, int64_t rX, int64_t rY, int64_t rZ)
 {
-	LevelSave ls("backtoearth/saved/games/"+saveGameName+"/tilemap/default", tileDict);
-	ls.loadTileRegion(*this, rX, rY, rZ);
+	std::string saveGameDir = "backtoearth/saved/games/"+saveGameName;
+	LevelSave ls(saveGameDir, tileDict);
+	ls.loadRegionTiles(*this, rX, rY, rZ);
+	ls.loadRegionTileEntities(*this, rX, rY, rZ);
+}
+
+TileEntity* TileRegion::getTileEntity(Vec3<int64_t> subpos)
+{
+	auto itr = tileEntities.find(subpos.tuple());
+	if(itr!=tileEntities.end()) {
+		return itr->second;
+	}
+	return nullptr;
+}
+
+void TileRegion::setTileEntity(Vec3<int64_t> subpos, TileEntity* te)
+{
+	auto itr = tileEntities.find(subpos.tuple());
+	if(itr==tileEntities.end()) {
+		tileEntities.insert(std::make_pair(subpos.tuple(), te));
+	} else {
+		delete itr->second;
+		itr->second = te;
+	}
 }

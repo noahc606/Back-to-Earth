@@ -5,10 +5,8 @@
 #include "FileHandler.h"
 #include "SDLHandler.h"
 
-//Texture is a parent class of these base classes:
-//  ATexture Static texture
+//Texture is a parent class of:
 //  STexture Streaming texture
-//  TTexture Target texture (A generic Texture is basically the same as a TTexture)
 
 class Texture
 {

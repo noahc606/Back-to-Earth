@@ -10,6 +10,7 @@
 #include "PlayerMenuModules.h"
 #include "TileDict.h"
 #include <map>
+#include <nch/math-utils/vec3.h>
 
 class PlayerMenu {
 public:
@@ -38,6 +39,8 @@ public:
 	void giveItemStack(ItemStack is);
 	void decrementSelectedItemStack();
 	void setModule(int newMod);
+	void setInteractingTileEntity(TileMap* tm, nch::Vec3<int64_t> pos);
+	void resetInteractingTileEntity();
 	/**/
 private:
 	/**/
@@ -64,6 +67,8 @@ private:
 	InventoryHolder invhdr;
 	InvGfxManager invGfx;
 	int lastInvMod = -1;
+	nch::Vec3<int64_t> interactingPos;
+	uint64_t timeMenuOpenedMS = 0;
 	//Player Hotbar
 	Hotbar hotbar;
 

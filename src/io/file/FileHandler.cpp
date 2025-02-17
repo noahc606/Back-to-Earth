@@ -6,7 +6,7 @@
 #include <filesystem>
 #include <locale>
 #include <nch/cpp-utils/log.h>
-#include <nch/sdl-utils/timer.h>
+#include <nch/cpp-utils/timer.h>
 #include <SDL2/SDL_image.h>
 #include <sstream>
 #include <stdio.h>

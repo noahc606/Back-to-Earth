@@ -30,6 +30,7 @@ void World::init(SDLHandler* sh, GUIHandler* gh, FileHandler* fh, Controls* ctrl
 	// Create world files and directories
 	fileHandler->createBTEDir(inter.worldDirPath);
 	fileHandler->createBTEDir(inter.worldDirPath+"/missions");
+	fileHandler->createBTEDir(inter.worldDirPath+"/poi/default");
 	fileHandler->createBTEDir(inter.worldDirPath+"/tilemap/default");
 	fileHandler->createBTEDir(inter.worldDirPath+"/tiledict");
 	if (!fh->fileExists(inter.worldDataPath) ) {
@@ -41,11 +42,6 @@ void World::init(SDLHandler* sh, GUIHandler* gh, FileHandler* fh, Controls* ctrl
 	//Build default world settings
 	Settings::t_kvMap lwd;	//LWD = loaded world data
 	Settings::kv(&lwd, "planetRotation", 19200);
-	Settings::kv(&lwd, "playerGameMode", "sandbox");
-	Settings::kv(&lwd, "playerX", "0");
-	Settings::kv(&lwd, "playerY", "0");
-	Settings::kv(&lwd, "playerZ", "-64");
-	Settings::kv(&lwd, "playTime", 0);
 	Settings::kv(&lwd, "worldSeed", "0");
 	Settings::kv(&lwd, "worldName", "world1");
 	//Build loaded world settings into worldDataKVs
@@ -54,15 +50,8 @@ void World::init(SDLHandler* sh, GUIHandler* gh, FileHandler* fh, Controls* ctrl
 	inter.worldDataKVs = lwd;
 		
 	//Store information in variables
-	std::string pMode = Settings::get(inter.worldDataKVs, "playerGameMode");
-	double px = Settings::getNum(inter.worldDataKVs, "playerX");
-	double py = Settings::getNum(inter.worldDataKVs, "playerY");
-	double pz = Settings::getNum(inter.worldDataKVs, "playerZ");
-	inter.playTime = Settings::getNum(inter.worldDataKVs, "playTime");
 	int64_t worldSeed = Settings::getI64(inter.worldDataKVs, "worldSeed");
 	double plntRot = Settings::getNum(inter.worldDataKVs, "planetRotation");
-	nch::Log::log("Loaded save data: player(%f, %f, %f); planetRotation=%f\n", px, py, pz, plntRot);
-	std::cout << "Seed: " << worldSeed << "\n";
 
 	/* INIT 1: Planet */
 	//Planet
@@ -70,7 +59,7 @@ void World::init(SDLHandler* sh, GUIHandler* gh, FileHandler* fh, Controls* ctrl
 	planet.init(plntRot);
 
 	/* INIT 2: Player */
-	inter.initPlayerEtc(sdlHandler, guiHandler, fileHandler, controls, &tileDict, std::make_tuple(px, py, pz), pMode);
+	inter.loadPlayerEtc(sdlHandler, guiHandler, fileHandler, controls, &tileDict);
 
 	/* INIT 3: Graphical */
 	initCanvases();
@@ -114,14 +103,10 @@ World::~World()
 	// Save world objects
 	Settings::t_kvMap wdKVs = inter.worldDataKVs;
 	Settings::kv(&wdKVs, "planetRotation", planet.getRotationRaw() );
-	Settings::kv(&wdKVs, "playerX", inter.localPlayer.getPos()[0]+0.5 );
-	Settings::kv(&wdKVs, "playerY", inter.localPlayer.getPos()[1]+0.5 );
-	Settings::kv(&wdKVs, "playerZ", inter.localPlayer.getPos()[2]-1 );
-	Settings::kv(&wdKVs, "playTime", inter.playTime );
 	fileHandler->saveSettings(wdKVs, inter.worldDataPath);
 
-	// Save player inventory
-	inter.localPlayerMenu.getInventoryHolder()->save(inter.worldDirPath);
+	// Save player inventory, position, etc.
+	inter.savePlayerEtc();
 
 	// Save TileMap (deals w/ TileDict saving, region saving is done elsewhere)
 	tileMap.destroy();

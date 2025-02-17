@@ -1,6 +1,7 @@
 #include "WorldInteractions.h"
 #include <nch/cpp-utils/log.h>
-#include <nch/sdl-utils/timer.h>
+#include <nch/cpp-utils/noah-alloc-table.h>
+#include <nch/cpp-utils/timer.h>
 #include "ItemStack.h"
 #include "Player.h"
 #include "RegTexInfo.h"
@@ -13,21 +14,64 @@ using namespace nch;
 WorldInteractions::WorldInteractions(){}
 WorldInteractions::~WorldInteractions(){}
 
-void WorldInteractions::initPlayerEtc(SDLHandler* sh, GUIHandler* gh, FileHandler* fh, Controls* ctrls, TileDict* td, std::tuple<double, double, double> pXYZ, std::string pMode)
+void WorldInteractions::loadPlayerEtc(SDLHandler* sh, GUIHandler* gh, FileHandler* fh, Controls* ctrls, TileDict* td)
 {
 	sdlHandler = sh;
 	guiHandler = gh;
 	controls = ctrls;
 
-	//Player
+	/* Player Init */
 	localPlayer.init(sh, gh, fh->getSettings(), ctrls);
-	localPlayer.setModeFromStr(pMode);
-	localPlayer.setPos(std::get<0>(pXYZ)-0.5, std::get<1>(pXYZ)-0.5, std::get<2>(pXYZ));
-	//Player menus
+
+	/* Player misc. data load */
+	//Open NAT
+	NoahAllocTable nat("backtoearth/"+worldDirPath+"/playerdata");
+	//Load position
+	nlohmann::json pos = R"([0, 0, -64])"_json;
+	try { pos = nlohmann::json::from_bson(nat.load("pos"))["pos"]; } catch(...) {}
+	localPlayer.setPos(pos[0], pos[1], pos[2]);
+	//Load mode
+	nlohmann::json mode = R"("survival")"_json;
+	try{ mode = nlohmann::json::from_bson(nat.load("mode"))["mode"]; } catch(...) {}
+	localPlayer.setModeFromStr(mode);
+	//Load playtime
+	nlohmann::json pt = R"(0)"_json;
+	try { pt = nlohmann::json::from_bson(nat.load("playTime"))["playTime"]; } catch(...) {}
+	playTime = pt;
+	//Close NAT
+	nat.close();
+
+	/* Player inventory load */
+	//Inventory
 	localPlayerMenu.init(sh, gh, ctrls, &localPlayer, td);
 	localPlayerMenu.getInventoryHolder()->load(td, worldDirPath);
 
+	/* Other */
 	missionHolder.init(worldDirName);	
+}
+
+void WorldInteractions::savePlayerEtc()
+{
+	/* Misc. player info */
+	//Open NAT
+	NoahAllocTable nat("backtoearth/"+worldDirPath+"/playerdata");
+	//Save position
+	nlohmann::json jPos; jPos["pos"] = localPlayer.getPos();
+	auto bPos = nlohmann::json::to_bson(jPos);
+	nat.save("pos", bPos);
+	//Save mode
+	nlohmann::json jMode; jMode["mode"] = localPlayer.getGameModeStr();
+	auto bMode = nlohmann::json::to_bson(jMode);
+	nat.save("mode", bMode);
+	//Save playtime
+	nlohmann::json jPlayTime; jPlayTime["playTime"] = playTime;
+	auto bPlayTime = nlohmann::json::to_bson(jPlayTime);
+	nat.save("playTime", bPlayTime);
+	//NAT close
+	nat.close();
+
+	/* Player inventory */
+	localPlayerMenu.getInventoryHolder()->save(worldDirPath);
 }
 
 void WorldInteractions::draw(Canvas& csInteractions)
@@ -94,26 +138,30 @@ void WorldInteractions::updateMouseAndCamInfo(Canvas& csInteractions, TileMap* t
 
 void WorldInteractions::playerController(TileMapScreen* tms, TileMap* tm, bool paused)
 {
-	//Control character menu state
-	if( !paused && controls->isPressed("PLAYER_INVENTORY") ) {
-		if(lpMenuOpen) 	{ lpMenuOpen = false; }
-		else 			{ lpMenuOpen = true; }
-		controls->stopPress("PLAYER_INVENTORY", __PRETTY_FUNCTION__);
-	}	
+	//Control opening and closing of player menu
+	if( !paused && controls->isPressed("PLAYER_OPEN_INVENTORY") ) {
+		playerToggleMenu();
+		controls->stopPress("PLAYER_OPEN_INVENTORY", __PRETTY_FUNCTION__);
+	}
+
+	//Upon player menu opening/closing...
 	if( lpMenuOpenLast!=lpMenuOpen ) {
 		lpMenuOpenLast = lpMenuOpen;
 		
+		//Opening
 		if(lpMenuOpen) {
 			if(lpMenuLastModule<0) lpMenuLastModule = 0;
-			setLocalPlayerMenuState(lpMenuLastModule);
+			localPlayerMenu.setModule(lpMenuLastModule);
+		//Closing
 		} else {
 			lpMenuLastModule = localPlayerMenu.getInventoryHolder()->getMod();
-			setLocalPlayerMenuState(-1);
+			localPlayerMenu.setModule(-1);
+			localPlayerMenu.resetInteractingTileEntity();
 		}
 	}
 
 	//Player actions
-	if( !lpMenuOpen ) {
+	if(!lpMenuOpen) {
 		playerActions(tms, tm);
 	}
 
@@ -179,9 +227,20 @@ void WorldInteractions::playerActions(TileMapScreen* tms, TileMap* tm)
 void WorldInteractions::playerInteractTile(TileMapScreen* tms, TileMap* tm)
 {
 	Camera* cam = localPlayer.getCamera();
-	Vec3<int64_t> mouseCsPos = cam->getCsPosFromWorldPos(mousePosI);
+	std::string id = tm->getTile(mousePosI).id;
 
-	tm->getTileByCsXYZ(cam, mouseCsPos);
+	//Check if tile entity exists for this ID
+	if(TileEntity::getTypeFromID(id)==TileEntity::NONE) return;
+
+	//Try to get tile entity, or create it if nonexistent.
+	TileEntity* te = tm->getTileEntity(mousePosI);
+	if(te==nullptr) {	
+		tm->setTileEntity(mousePosI, new TileEntity(id));
+	}
+
+	nch::Log::log("Interacting with tile entity \"%s\" @ %s", id.c_str(), mousePosI.toString().c_str());
+	playerToggleMenu();
+	localPlayerMenu.setInteractingTileEntity(tm, mousePosI);
 }
 
 void WorldInteractions::playerTryPlaceTile(TileMapScreen* tms, TileMap* tm, Tile t, bool force)
@@ -210,7 +269,7 @@ void WorldInteractions::playerTryPlaceTile(TileMapScreen* tms, TileMap* tm, Tile
 
 	if(canPlace) {
 		if(t.id!="null")
-			tm->setTileByCsXYZ(cam, mouseCsPos.x, mouseCsPos.y, mouseCsPos.z, t);
+			tm->setTileByCsXYZ(cam, mouseCsPos, t);
 		
 		if(localPlayer.getAction()==Player::SURV_Apply) {
 			localPlayerMenu.decrementSelectedItemStack();
@@ -260,9 +319,10 @@ void WorldInteractions::playerTryDestroyTile(TileMapScreen* tms, TileMap* tm)
 	playerTryPlaceTile(tms, tm, t, true);
 }
 
-void WorldInteractions::setLocalPlayerMenuState(int newMenuState)
+void WorldInteractions::playerToggleMenu()
 {
-	localPlayerMenu.setModule(newMenuState);
+	if(lpMenuOpen) 	{ lpMenuOpen = false; }
+	else 			{ lpMenuOpen = true; }
 }
 
 void WorldInteractions::playMusic()

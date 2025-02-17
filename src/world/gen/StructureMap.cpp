@@ -1,6 +1,6 @@
 #include "StructureMap.h"
 #include <nch/cpp-utils/log.h>
-#include <nch/sdl-utils/timer.h>
+#include <nch/cpp-utils/timer.h>
 #include "CollectionUtils.h"
 #include "DebugScreen.h"
 #include "Noise.h"
@@ -128,6 +128,7 @@ void StructureMap::populateRegionsNear(int64_t stRX, int64_t stRY, int64_t stRZ,
 }
 
 void StructureMap::populateSpecificRegions(int64_t rX, int64_t rY, int64_t rZ, NoiseMap::RegHeightMap* rhm) {
+    
     int64_t x = rX*32, y = rY*32, z = rZ*32;
     
     int64_t avgTerrainZ = rhm->avgHeight;
@@ -141,6 +142,8 @@ void StructureMap::populateSpecificRegions(int64_t rX, int64_t rY, int64_t rZ, N
 
 void StructureMap::populateStructuresPerRegion(int64_t rX, int64_t rY, int64_t rZ, NoiseMap::RegHeightMap* rhm)
 {
+    if(populationDisabled) return;
+
     int64_t x = rX*32, y = rY*32, z = rZ*32;
     int64_t avgTerrainZ = rhm->avgHeight;
 
@@ -171,6 +174,8 @@ void StructureMap::populateStructuresPerRegion(int64_t rX, int64_t rY, int64_t r
 
 void StructureMap::populateCommonPerRegion(int64_t rX, int64_t rY, int64_t rZ, NoiseMap::RegHeightMap* rhm)
 {
+    if(populationDisabled) return;
+
     int64_t x = rX*32, y = rY*32, z = rZ*32;
     int64_t avgTerrainZ = rhm->avgHeight;
 

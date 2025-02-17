@@ -2,7 +2,7 @@
 #include <ctime>
 #include <iostream>
 #include <nch/cpp-utils/log.h>
-#include <nch/sdl-utils/timer.h>
+#include <nch/cpp-utils/timer.h>
 #include <SDL2/SDL.h>
 #include <unistd.h>
 #include "CurlHandler.h"

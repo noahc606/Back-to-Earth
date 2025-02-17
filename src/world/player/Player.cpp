@@ -336,26 +336,24 @@ void Player::collision(TileMap* tm)
 	}
 
 	//Store location of tile being collided with
-	int64_t cx = 0;
-	int64_t cy = 0;
-	int64_t cz = 0;
+	Vec3<int64_t> cpos(0);
 	
 	//Determine up/down snap (special case)
-	if(tm->collides(getBounds(LOWER), cx, cy, cz)) 	collisionSnap(cz, 64, z, snapD);
-	if(tm->collides(getBounds(UPPER), cx, cy, cz)) {
+	if(tm->collides(getBounds(LOWER), cpos)) 	collisionSnap(cpos.z, 64, z, snapD);
+	if(tm->collides(getBounds(UPPER), cpos)) {
 		//If head nearly matches up with the ceiling, teleport player to be right under the ceiling.
 		double headDepth = z+0.125;
-		if( cz+1>headDepth-0.1 && cz+1<headDepth+0.1 ) {
-			z = cz+0.875;
+		if( cpos.z+1>headDepth-0.1 && cpos.z+1<headDepth+0.1 ) {
+			z = cpos.z+0.875;
 			snapU = true;
 		}
 	}
 
 	//Determine whether to snap to SOUTH, NORTH (y), EAST, WEST (x)
-	if(tm->collides(getBounds(SOUTH), cx, cy, cz)) 	collisionSnap(cy, 10, y, snapS);
-	if(tm->collides(getBounds(NORTH), cx, cy, cz)) 	collisionSnap(cy+1, -10, y, snapN);
-	if(tm->collides(getBounds(EAST), cx, cy, cz)) 	collisionSnap(cx, 10, x, snapE);
-	if(tm->collides(getBounds(WEST), cx, cy, cz)) 	collisionSnap(cx+1, -10, x, snapW);
+	if(tm->collides(getBounds(SOUTH), cpos))	collisionSnap(cpos.y, 10, y, snapS);
+	if(tm->collides(getBounds(NORTH), cpos)) 	collisionSnap(cpos.y+1, -10, y, snapN);
+	if(tm->collides(getBounds(EAST), cpos)) 	collisionSnap(cpos.x, 10, x, snapE);
+	if(tm->collides(getBounds(WEST), cpos)) 	collisionSnap(cpos.x+1, -10, x, snapW);
 }
 
 void Player::collisionSnap(int64_t tileCoord, double depthMod, double& playerCoordRef, bool& snapRef)
@@ -442,6 +440,15 @@ double Player::getVel() { return sqrt( vx*vx + vy*vy + vz*vz ); }
 Camera* Player::getCamera() { return &camera; }
 bool Player::inGodMode() { return godMode; }
 int Player::getGameMode() { return gameMode; }
+std::string Player::getGameModeStr()
+{
+	switch(getGameMode()) {
+		case SANDBOX: 	return "sandbox";
+		case SURVIVAL: 	return "survival";
+		case HARDCORE: 	return "hardcore";
+	}
+	return "survival";
+}
 
 void Player::setPos(double x, double y, double z)
 {

@@ -1,7 +1,7 @@
 #include "TextureLoader.h"
 #include <iostream>
 #include <nch/cpp-utils/log.h>
-#include <nch/sdl-utils/timer.h>
+#include <nch/cpp-utils/timer.h>
 #include <sstream>
 #include "Controls.h"
 #include "SDLHandler.h"

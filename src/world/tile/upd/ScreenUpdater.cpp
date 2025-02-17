@@ -1,9 +1,11 @@
 #include "ScreenUpdater.h"
 #include <nch/cpp-utils/log.h>
-#include <nch/sdl-utils/timer.h>
+#include <nch/math-utils/vec3.h>
+#include <nch/cpp-utils/timer.h>
 #include "DebugScreen.h"
 #include "Grid.h"
 #include "RegTexInfo.h"
+using namespace nch;
 
 void ScreenUpdater::init(SDLHandler* sh, TileMap* tm, Canvas* cs)
 {
@@ -135,7 +137,7 @@ void ScreenUpdater::updateMapVisible(bool blackout, int loadDist)
 			for(int64_t iRZ = cam->getRZ()-loadDist; iRZ<=cam->getRZ()+loadDist; iRZ++) {
 				//If this region is visible
 				if(RegTexInfo::isRegOnScreen(cam, iRX, iRY, iRZ)) {
-					TileRegion* tr = tileMap->getRegByRXYZ(iRX, iRY, iRZ);
+					TileRegion* tr = tileMap->getRegByRXYZ(Vec3<int64_t>(iRX, iRY, iRZ));
 					if(tr!=nullptr) {
 						tr->setRegTexState(TileRegion::FINISHED_GENERATING);
 					}
@@ -155,7 +157,7 @@ void ScreenUpdater::updateMapVisible(int loadDist) { updateMapVisible(false, loa
 /**
 	Load a given region as fast as the computer can handle it (based on loadCountMax, infoRegLoadTime).
 */
-void ScreenUpdater::regPillarGenAttempt(FileHandler* fileHandler, int64_t csRX, int64_t csRY, int64_t camCsRZ, int loadDepth)
+void ScreenUpdater::regPillarGenAttempt(FileHandler* fileHandler, int64_t csRX, int64_t csRY, int64_t csRZ, int loadDepth)
 {
 	//Timer for debugging
 	nch::Timer rlt;
@@ -163,10 +165,10 @@ void ScreenUpdater::regPillarGenAttempt(FileHandler* fileHandler, int64_t csRX, 
 	//Check pillar of regions at (rX, rY)
 	for(int64_t neg = -1; neg<=1; neg += 2) {
 		for(int64_t diff = 0; diff<=loadDepth; diff++) {
-			int64_t icsRZ = camCsRZ+neg*diff;
+			int64_t icsRZ = csRZ+neg*diff;
 			
 			//If new region load was successful (regions already loaded are not == 0)
-			if( tileMap->loadRegionByCsRXYZ(cam->getAxis(), csRX, csRY, icsRZ)==0 ) {
+			if( tileMap->loadRegionByCsRXYZ(cam, Vec3<int64_t>(csRX, csRY, icsRZ))==0 ) {
 				//Increment loadCount
 				loadCount++;
 
@@ -246,7 +248,7 @@ void ScreenUpdater::updateMapToSHOULD_UPDATE(int loadDist)
 				for(int64_t jcsRX = icsRX-1; jcsRX<=icsRX+1; jcsRX++) {
 					for(int64_t jcsRY = icsRY-1; jcsRY<=icsRY+1; jcsRY++) {
 						for(int64_t jcsRZ = icsRZ-1; jcsRZ<=icsRZ+1; jcsRZ++) {
-							TileRegion* ttr = tileMap->getRegByCsRXYZ(cam, jcsRX, jcsRY, jcsRZ);
+							TileRegion* ttr = tileMap->getRegByCsRXYZ(cam, Vec3<int64_t>(jcsRX, jcsRY, jcsRZ));
 							if(ttr==nullptr || ttr->getRegTexState()<TileRegion::FINISHED_GENERATING) {
 								shouldUpdate = false;
 							}
@@ -255,7 +257,7 @@ void ScreenUpdater::updateMapToSHOULD_UPDATE(int loadDist)
 				}
 
 				//If a tile region is FINISHED_GENERATING and shouldUpdate==true, mark it as SHOULD_UPDATE
-				TileRegion* tr = tileMap->getRegByCsRXYZ(cam, icsRX, icsRY, icsRZ);
+				TileRegion* tr = tileMap->getRegByCsRXYZ(cam, Vec3<int64_t>(icsRX, icsRY, icsRZ));
 				if(tr!=nullptr && shouldUpdate) {
 					if(tr->getRegTexState()==TileRegion::FINISHED_GENERATING) {
 						tr->setRegTexState(TileRegion::SHOULD_UPDATE);
@@ -276,7 +278,7 @@ void ScreenUpdater::updateMapToUPDATED(int loadDist)
 		if(leXY.first!=-1) {
 			int64_t csRX = cam->getCsRX()-loadDist+leXY.first;
 			int64_t csRY = cam->getCsRY()-loadDist+leXY.second;
-			TileRegion* tr = tileMap->getRegByCsRXYZ(cam, csRX, csRY, cam->getCsRZ());
+			TileRegion* tr = tileMap->getRegByCsRXYZ(cam, Vec3<int64_t>(csRX, csRY, cam->getCsRZ()));
 			
 			if(tr!=nullptr) {
 				if(tr->getRegTexState()==TileRegion::SHOULD_UPDATE) {
@@ -314,8 +316,8 @@ void ScreenUpdater::updateMapMoved(FileHandler* fileHandler, int loadDist)
 
 			for( int rZ = camRZ-outlineV; rZ<=camRZ+outlineV; rZ += dRZ ) {
 				//Unload regions
-				tileMap->saveRegion(rX, rY, rZ);
-				tileMap->unloadRegion(rX, rY, rZ);
+				tileMap->saveRegion(Vec3<int64_t>(rX, rY, rZ));
+				tileMap->unloadRegion(Vec3<int64_t>(rX, rY, rZ));
 			}
 		}
 	}

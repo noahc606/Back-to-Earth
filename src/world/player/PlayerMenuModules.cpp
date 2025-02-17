@@ -30,6 +30,13 @@ void PlayerMenuModules::drawWidgets(SDLHandler* sh, int playerGamemode, int sele
 		int iy = i;
 		SDL_Rect isrc; isrc.x = PlayerMenu::getItemTexSrcX(widgetIDs[i]); isrc.y = PlayerMenu::getItemTexSrcY(widgetIDs[i]); isrc.w = 32; isrc.h = 32;
 		SDL_Rect idst; idst.x = (scrX+ix*64); idst.y = (scrY+iy*64); idst.w = 64; idst.h = 64;
+		
+		if(
+			(widgetIDs[i]==PLASMA_MATTER_TRANSFORMER && tety==TileEntity::PLASMA_MATTER_STORAGE) ||
+			(widgetIDs[i]==BACKPACK && tety==TileEntity::CABINET)
+		) {
+			isrc.y += 32;
+		}
 		sh->renderCopy(TextureLoader::PLAYER_modules, &isrc, &idst);
 	}
 
@@ -42,6 +49,7 @@ void PlayerMenuModules::drawWidgets(SDLHandler* sh, int playerGamemode, int sele
 	}
 	SDL_Rect isrc; isrc.x = 7*32; isrc.y = 0; isrc.w = 32; isrc.h = 32;
 	SDL_Rect idst; idst.x = (scrX+ix*64); idst.y = (scrY+swid*64); idst.w = 64; idst.h = 64;
+
 	sh->renderCopy(TextureLoader::PLAYER_modules, &isrc, &idst);
 }
 
@@ -105,6 +113,8 @@ int PlayerMenuModules::widgetClicked(int playerGamemode, int shx, int shy)
 
 	return res;
 }
+
+void PlayerMenuModules::setInteractionType(int tety) { PlayerMenuModules::tety = tety; }
 
 void PlayerMenuModules::putMenuInterface(GUIHandler* gh, nch::Color sandboxRGB, int widgetID)
 {

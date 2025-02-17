@@ -70,6 +70,7 @@ public:
 	Camera* getCamera();
 	bool inGodMode();
 	int getGameMode();
+	std::string getGameModeStr();
 	/**/
 	void setPos(double, double, double);
 	void setModeFromStr(std::string gameMode);

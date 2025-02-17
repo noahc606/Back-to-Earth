@@ -4,6 +4,7 @@
 #include <vector>
 #include "GUIHandler.h"
 #include "MissionHolder.h"
+#include "TileEntity.h"
 
 class PlayerMenuModules {
 public:
@@ -14,7 +15,6 @@ public:
         SANDBOX,
         BACKPACK,
         STARMAP,
-        TILE_ENTITY,
     };
 
     PlayerMenuModules();
@@ -28,10 +28,13 @@ public:
     std::string getWidgetHoverText(int playerGameMode, int shx, int shy);
     int widgetClicked(int playerGamemode, int shx, int shy);
     
+    void setInteractionType(int tety);
+
     void putMenuInterface(GUIHandler* gh, nch::Color sandboxRGB, int widgetID);
     void putMenuInterface(GUIHandler* gh, int widgetID);
 private:
     std::map<int, std::vector<int>> widgetsGroupList;
+    int tety = TileEntity::NONE;
 
     int scrX = 0, scrY = 0;
 };

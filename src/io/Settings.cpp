@@ -43,7 +43,7 @@ Settings::Settings()
 		kv(s, "PLAYER_CROUCH", SDLK_c);
 
 		//Player Interactions
-		kv(s, "PLAYER_INVENTORY", SDLK_LSHIFT);
+		kv(s, "PLAYER_OPEN_INVENTORY", SDLK_e);
 		kv(s, "PLAYER_SELECT", "MOUSE_LEFT");
 		kv(s, "PLAYER_VIEW", SDLK_v);
 

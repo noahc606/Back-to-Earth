@@ -12,10 +12,12 @@ public:
     void drawCount(SDLHandler* sdlHandler, int drawX, int drawY);
     void drawEDTileType(SDLHandler* sdlHandler, TileDict* td, int drawX, int drawY);
 
-    int getType();
-    int getCount();
-    std::string getExtraData();
+    int getType() const;
+    int getCount() const;
+    std::string getExtraData() const;
     std::string toString();
+
+    bool stacksWith(const ItemStack& is);
 
 private:
     int type = -1;

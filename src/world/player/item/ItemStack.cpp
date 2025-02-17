@@ -64,9 +64,9 @@ void ItemStack::drawEDTileType(SDLHandler* sdlHandler, TileDict* td, int drawX, 
     SDL_RenderCopy(sdlHandler->getRenderer(), srcTex->getSDLTexture(), &src, &dst);
 }
 
-int ItemStack::getType() { return type; }
-int ItemStack::getCount() { return count; }
-std::string ItemStack::getExtraData() { return extraData; }
+int ItemStack::getType() const { return type; }
+int ItemStack::getCount() const { return count; }
+std::string ItemStack::getExtraData() const { return extraData; }
 
 std::string ItemStack::toString()
 {
@@ -78,4 +78,19 @@ std::string ItemStack::toString()
     res << "}";
 
     return res.str();
+}
+
+bool ItemStack::stacksWith(const ItemStack& is)
+{
+    //If dealing with negative (treated as infinity) stack size -> false
+    if(count<0 || is.getCount()<0) {
+        return false;
+    }
+
+    //If type is -1
+    if(getCount()==0 || is.getCount()==0)
+        return true;
+
+    return getType()==is.getType() && getExtraData()==is.getExtraData();
+
 }

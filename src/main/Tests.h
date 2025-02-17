@@ -5,7 +5,6 @@
 #include "Loggable.h"
 #include "SpriteSheet.h"
 #include "STexture.h"
-#include "TTexture.h"
 #include "Texture.h"
 #include "MissionHolder.h"
 #include "TileRegion.h"

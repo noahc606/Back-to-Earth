@@ -6,7 +6,7 @@
 #include "Terrain.h"
 #include "TileIterator.h"
 #include "Tile.h"
-#include <nch/sdl-utils/timer.h>
+#include <nch/cpp-utils/timer.h>
 
 using namespace nch;
 
@@ -27,29 +27,22 @@ void TileMap::destroy()
     nch::Log::log("Destroying TileMap.");
 
 	//Build a list of all tile region locations
-	std::vector<std::tuple<uint64_t, uint64_t, uint64_t>> regs;
+	std::vector<std::tuple<int64_t, int64_t, int64_t>> regs;
 	TileMap::t_regionMap::iterator itrRM;
 	
 	if( this==nullptr || getRegionMap()==nullptr ) {
 		return;
 	}
-	for( itrRM = getRegionMap()->begin(); itrRM!=getRegionMap()->end(); itrRM++ ) {
-		int rX = std::get<0>(itrRM->first);
-		int rY = std::get<1>(itrRM->first);
-		int rZ = std::get<2>(itrRM->first);
-		regs.push_back( std::make_tuple(rX, rY, rZ) );
+	for(itrRM = getRegionMap()->begin(); itrRM!=getRegionMap()->end(); itrRM++) {
+		Vec3<int64_t> rpos = itrRM->first;
+		regs.push_back(rpos.tuple());
 	}
 	
 	//Remove and unload all known tile regions
-	for( int i = 0; i<regs.size(); i++ ) {
-		auto thisReg = regs.at(i);
-		uint64_t rX = std::get<0>(thisReg);
-		uint64_t rY = std::get<1>(thisReg);
-		uint64_t rZ = std::get<2>(thisReg);
-		
-		TileRegion* tr = getRegByRXYZ(rX, rY, rZ);
-		saveRegion(rX, rY, rZ);
-		unloadRegion(rX, rY, rZ);
+	for( int i = 0; i<regs.size(); i++ ) {		
+		TileRegion* tr = getRegByRXYZ(regs[i]);
+		saveRegion(regs[i]);
+		unloadRegion(regs[i]);
 	}
 
     //Delete elements in regionMap
@@ -80,67 +73,68 @@ TileDict* TileMap::getTileDict() { return tileDict; }
     This function will work fine in small loops but keep in mind getRegSubPos() is somewhat expensive. For large or even 3D loops (like in TileMapScreen::draw()) use a TileIterator.
 
 */
-Tile TileMap::getTile(int64_t x, int64_t y, int64_t z)
+Tile TileMap::getTile(nch::Vec3<int64_t> pos)
 {
-    TileRegion* tr = getRegByXYZ(x, y, z);
-    getRegSubPos(x, y, z);
+    TileRegion* tr = getRegByXYZ(pos);
+    getRegSubPos(pos);
 
     if( tr!=nullptr )
-        return tr->getTile(x, y, z);
-
-    //If tr==null
+        return tr->getTile(pos.x, pos.y, pos.z);
     return Tile();
 }
-Tile TileMap::getTileByCsXYZ(Camera* cam, Vec3<int64_t> cspos)
+Tile TileMap::getTileByCsXYZ(Camera* cam, Vec3<int64_t> cspos) { return getTile(cam->getWorldPosFromCsPos(cspos)); }
+
+TileEntity* TileMap::getTileEntity(nch::Vec3<int64_t> pos)
 {
-	Vec3<int64_t> wpos = cam->getWorldPosFromCsPos(cspos);
-	return getTile(wpos.x, wpos.y, wpos.z);
+	TileRegion* tr = getRegByXYZ(pos);
+	getRegSubPos(pos);
+
+	if(tr!=nullptr)
+		return tr->getTileEntity(pos);
+	return nullptr;
 }
 
-TileRegion* TileMap::getRegByXYZ(int64_t x, int64_t y, int64_t z)
+TileRegion* TileMap::getRegByXYZ(Vec3<int64_t> pos)
 {
-    getRegRXYZ(x, y, z);
-    return getRegByRXYZ(x, y, z);
+    getRegRXYZ(pos);
+    return getRegByRXYZ(pos);
 }
 
-TileRegion* TileMap::getRegByRXYZ(t_regionMap* regMap, int64_t rX, int64_t rY, int64_t rZ)
+TileRegion* TileMap::getRegByRXYZ(t_regionMap* regMap, Vec3<int64_t> rpos)
 {
-    t_regionMap::iterator itr = regMap->find( std::make_tuple(rX, rY, rZ) );
+    t_regionMap::iterator itr = regMap->find(rpos.tuple());
     if ( itr!=regMap->end() )
         return &itr->second;
     return nullptr;
 }
 
-TileRegion* TileMap::getRegByRXYZ(int64_t rX, int64_t rY, int64_t rZ) { return getRegByRXYZ(&regionMap, rX, rY, rZ); }
+TileRegion* TileMap::getRegByRXYZ(Vec3<int64_t> rpos) { return getRegByRXYZ(&regionMap, rpos); }
 
 /*
 	Get region given a canvas region location.
 	Canvas's plane is perpendicular to camera's depth axis (canvas plane matches up with screen).
 	csRZ represents traveling forward and backward in 3D space relative to the 2D canvas which fills up the screen.
 */
-TileRegion* TileMap::getRegByCsRXYZ(Camera* cam, int64_t csRX, int64_t csRY, int64_t csRZ)
+TileRegion* TileMap::getRegByCsRXYZ(Camera* cam, Vec3<int64_t> csrpos)
 {
-	switch(cam->getAxis()) {
-		case Camera::X: return getRegByRXYZ(csRZ, csRX, csRY); break;
-		case Camera::Y: return getRegByRXYZ(csRX, csRZ, csRY); break;
-	}
-	return getRegByRXYZ(csRX, csRY, csRZ);
+	Vec3<int64_t> wrpos = cam->getWorldPosFromCsPos(csrpos);
+	return getRegByRXYZ(wrpos);
 }
 
 int64_t TileMap::getRegSubPos(int64_t c) { c %= 32; if( c<0 ) c+=32; return c; }
-void TileMap::getRegSubPos(int64_t& x, int64_t& y, int64_t& z) { x = getRegSubPos(x); y = getRegSubPos(y); z = getRegSubPos(z); }
+void TileMap::getRegSubPos(Vec3<int64_t>& pos) { pos.x = getRegSubPos(pos.x); pos.y = getRegSubPos(pos.y); pos.z = getRegSubPos(pos.z); }
 
 int64_t TileMap::getRegRXYZ(int64_t c) { c = floor(c/32.0); return c; }
-void TileMap::getRegRXYZ(int64_t& x, int64_t& y, int64_t& z) { x = getRegRXYZ(x); y = getRegRXYZ(y); z = getRegRXYZ(z); }
+void TileMap::getRegRXYZ(Vec3<int64_t>& pos) { pos.x = getRegRXYZ(pos.x); pos.y = getRegRXYZ(pos.y); pos.z = getRegRXYZ(pos.z); }
 
 int64_t TileMap::convRxyToLSRxy(int64_t rxOrY) { rxOrY = floor(rxOrY/16.0); return rxOrY; }
 int64_t TileMap::convRzToLSRz(int64_t rz) { rz = floor(rz/4.0); return rz; }
-void TileMap::convRxyzToLSRxyz(int64_t& rx, int64_t& ry, int64_t& rz) { rx = convRxyToLSRxy(rx); ry = convRxyToLSRxy(ry); rz = convRzToLSRz(rz); }
+void TileMap::convRxyzToLSRxyz(Vec3<int64_t>& rpos) { rpos.x = convRxyToLSRxy(rpos.x); rpos.y = convRxyToLSRxy(rpos.y); rpos.z = convRzToLSRz(rpos.z); }
 
 /*
 	Do any tiles in the TileMap collide with Box 'b'?
 */
-bool TileMap::collides(Box3<double> b, int64_t& cx, int64_t& cy, int64_t& cz)
+bool TileMap::collides(Box3<double> b, Vec3<int64_t>& pos)
 {
     TileIterator ti(this);
 
@@ -169,7 +163,7 @@ bool TileMap::collides(Box3<double> b, int64_t& cx, int64_t& cy, int64_t& cz)
 					//Build tileBox and check for collision against it
 					Box3<double> tileBox(x, y, z, x+1, y+1, z+1);
 					if(b.collides(tileBox)) {
-						cx = x; cy = y; cz = z;
+						pos.x = x; pos.y = y; pos.z = z;
 						return true;
 					}
 				}
@@ -180,39 +174,26 @@ bool TileMap::collides(Box3<double> b, int64_t& cx, int64_t& cy, int64_t& cz)
 	return false;
 }
 
-bool TileMap::collides(Box3<double> b)
+int TileMap::setTile(Vec3<int64_t> pos, Tile t)
 {
-	int64_t x, y, z = 0;
-	return collides(b, x, y, z);
-}
-
-int TileMap::setTile(int64_t x, int64_t y, int64_t z, Tile t)
-{
-	TileRegion* tr = getRegByXYZ(x, y, z);
-	getRegSubPos(x, y, z);
+	TileRegion* tr = getRegByXYZ(pos);
+	getRegSubPos(pos);
 	if( tr!=nullptr ) {
-		tr->setTile(x, y, z, t);
+		tr->setTile(pos.x, pos.y, pos.z, t);
 		return 0;
 	}
 	return -1;
 }
 
-int TileMap::setTileByCsXYZ(Camera* cam, int64_t csX, int64_t csY, int64_t csZ, Tile t)
-{
-	switch(cam->getAxis()) {
-		case Camera::X: return setTile(csZ, csX, csY, t); break;
-		case Camera::Y: return setTile(csX, csZ, csY, t); break;
-	}
-	return setTile(csX, csY, csZ, t);
-}
+int TileMap::setTileByCsXYZ(Camera* cam, Vec3<int64_t> cspos, Tile t) { return setTile(cam->getWorldPosFromCsPos(cspos), t); }
 
-bool TileMap::setTiles(t_regionMap* rm, int64_t x1, int64_t y1, int64_t z1, int64_t x2, int64_t y2, int64_t z2, Tile t, bool natural)
+bool TileMap::setTiles(t_regionMap* rm, Vec3<int64_t> pos1, Vec3<int64_t> pos2, Tile t, bool natural)
 {
 	//Validate selected volume specified by (x1, y1, z1) -> (x2, y2, z2).
 	//If any regions within that volume are unloaded, operation should fail.
 	TileIterator ti(rm);
-	if(ti.setBounds(x1, y1, z1, x2, y2, z2)!=0) {
-		nch::Log::warnv(__PRETTY_FUNCTION__, "doing nothing", "Could not place tiles within unloaded area (%d, %d, %d) <-> (%d, %d, %d)", x1, y1, z1, x2, y2, z2);
+	if(ti.setBounds(Box3<int64_t>(pos1, pos2))!=0) {
+		nch::Log::warnv(__PRETTY_FUNCTION__, "doing nothing", "Could not place tiles within unloaded area %s <-> %s", pos1.toString().c_str(), pos2.toString().c_str());
 		return false;
 	}
 	
@@ -226,17 +207,25 @@ bool TileMap::setTiles(t_regionMap* rm, int64_t x1, int64_t y1, int64_t z1, int6
 	return true;
 }
 
-bool TileMap::setTiles(int64_t x1, int64_t y1, int64_t z1, int64_t x2, int64_t y2, int64_t z2, Tile tt, bool natural)
+bool TileMap::setTiles(Vec3<int64_t> pos1, Vec3<int64_t> pos2, Tile tt, bool natural) { return setTiles(&regionMap, pos1, pos2, tt, natural); }
+
+int TileMap::setTileEntity(Vec3<int64_t> pos, TileEntity* te)
 {
-	return setTiles(&regionMap, x1, y1, z1, x2, y2, z2, tt, natural);
+	TileRegion* tr = getRegByXYZ(pos);
+	getRegSubPos(pos);
+	if( tr!=nullptr ) {
+		tr->setTileEntity(pos, te);
+		return 0;
+	}
+	return -1;
 }
 
-void TileMap::setStructureWithinReg(Structure* stru, TileRegion& tr, int64_t rX, int64_t rY, int64_t rZ)
+void TileMap::setStructureWithinReg(Structure* stru, TileRegion& tr, Vec3<int64_t> rpos)
 {
 	//Get relevant structure bounds and world bounds
 	Vec3<int64_t> so = stru->getOrigin();																	//[S]tructure [O]rigin (min xyz location)
 	Vec3<int64_t> sb = stru->getBounds();																	//[S]tructure [B]ounds
-	Box3<int64_t> wb(rX*32, rY*32, rZ*32, rX*32+31, rY*32+31, rZ*32+31);									//[W]orld [B]ounds			(32*32*32)
+	Box3<int64_t> wb(rpos*32, rpos*32+31);																	//[W]orld [B]ounds			(32*32*32)
 	Box3<int64_t> ucb(wb.c1.x-so.x, wb.c1.y-so.y, wb.c1.z-so.z, wb.c2.x-so.x, wb.c2.y-so.y, wb.c2.z-so.z);	//[U]n[C]lipped [B]ounds	(32*32*32)
 	Box3<int64_t> cb = ucb.intersection(Box3<int64_t>(0, 0, 0, sb.x-1, sb.y-1, sb.z-1));					//[C]lipped [B]ounds		(a*b*c)
 	if(cb==Box3<int64_t>(0, 0, 0, 0, 0, 0)) {
@@ -296,89 +285,54 @@ void TileMap::setStructureWithinReg(Structure* stru, TileRegion& tr, int64_t rX,
 	Given a nonexistent region (rX, rY, rZ), create the region, generate its terrain, and load its artificial tiles from file.
 	Returns: 0 if successful, -1 if region already existed.
 */
-int TileMap::loadRegion(int64_t rX, int64_t rY, int64_t rZ)
+int TileMap::loadRegion(Vec3<int64_t> rpos)
 {
 	//Try to find the region (rX, rY, rZ).
-	t_regionMap::iterator itr = regionMap.find( std::make_tuple(rX, rY, rZ) );
+	t_regionMap::iterator itr = regionMap.find(rpos.tuple());
 	//If no region was found, create the region and process it.
-	if( itr==regionMap.end() ) {
+	if(itr==regionMap.end()) {
 		//Create Terrain and TileRegion objects
 		Terrain terra(nMap, tileDict);
 		TileRegion tr(tileDict);
 		
 		//Populate region's terrain
 		tr.setRegTexState(tr.GENERATING);
-		terra.populateRegion(tr, rX, rY, rZ);
+		terra.populateRegion(tr, rpos.x, rpos.y, rpos.z);
 		tr.setRegTexState(tr.FINISHED_GENERATING);
 
 		//Place tiles that are part of structures
-		std::vector<Structure*> regStructures = struMap->getStructuresInRXYZ(rX, rY, rZ);
+		std::vector<Structure*> regStructures = struMap->getStructuresInRXYZ(rpos.x, rpos.y, rpos.z);
 		for(Structure* stru : regStructures) {
-			setStructureWithinReg(stru, tr, rX, rY, rZ);
+			setStructureWithinReg(stru, tr, rpos);
 		}
 
 		//Place region's artificial tiles
-		tr.load(saveGameName, rX, rY, rZ);
+		tr.load(saveGameName, rpos.x, rpos.y, rpos.z);
 		
 		//Insert the region into the regionMap.
-		regionMap.insert( std::make_pair(std::make_tuple(rX, rY, rZ), tr) );
+		regionMap.insert( std::make_pair(rpos.tuple(), tr) );
 		return 0;
 	}
 	return -1;
 }
 
-int TileMap::loadRegionByCsRXYZ(int camAxis, int64_t csRX, int64_t csRY, int64_t csRZ)
+int TileMap::loadRegionByCsRXYZ(Camera* cam, Vec3<int64_t> csrpos) { return loadRegion(cam->getWorldPosFromCsPos(csrpos)); }
+
+int TileMap::saveRegion(Vec3<int64_t> rpos)
 {
-	switch(camAxis) {
-		case Camera::X: return loadRegion(csRZ, csRX, csRY); break;
-		case Camera::Y: return loadRegion(csRX, csRZ, csRY); break;
-	}
-	return loadRegion(csRX, csRY, csRZ);
-}
-
-/*
-	Load a rectangular prism of regions.
-	Warning: will cause more lag at once compared to a single loadRegion().
-	Returns: -x, where x is the number of regions that couldn't be loaded (because they already existed there)
-*/
-int TileMap::loadRegions(int64_t rX1, int64_t rY1, int64_t rZ1, int64_t rX2, int64_t rY2, int64_t rZ2)
-{
-	//Return result
-	int res = 0;
-
-	//Switch r[?]1 and r[?]2 if necessary (r[?]1 should be <= r[?]2)
-	if(rX2<rX1) { int64_t temp = rX1; rX1 = rX2; rX2 = temp; }
-	if(rY2<rY1) { int64_t temp = rY1; rY1 = rY2; rY2 = temp; }
-	if(rZ2<rZ1) { int64_t temp = rZ1; rZ1 = rZ2; rZ2 = temp; }
-
-	//Load all regions within the rectangular prism using 3D for loop
-	for(int iRX = rX1; iRX<=rX2; iRX++) {
-		for(int iRY = rY1; iRY<=rY2; iRY++) {
-			for(int iRZ = rZ1; iRZ<=rZ2; iRZ++) {
-				res += loadRegion(iRX, iRY, iRZ);
-			}
-		}
-	}
-
-	//Return result
-	return res;
-}
-
-int TileMap::saveRegion(int64_t rX, int64_t rY, int64_t rZ)
-{
-	TileRegion* tr = getRegByRXYZ(rX, rY, rZ);
+	TileRegion* tr = getRegByRXYZ(rpos);
 	
 	if( tr==nullptr ) 					{ return -99; }
 	if( !tr->beenModifiedSinceLoad() ) 	{ return -1; }
 	
-	nch::Log::debug("Saving region (%d, %d, %d) in save \"%s\"", rX, rY, rZ, saveGameName.c_str());	
-	tr->save(saveGameName, rX, rY, rZ, false);
+	nch::Log::debug("Saving region %s in save \"%s\"", rpos.toString().c_str(), saveGameName.c_str());	
+	tr->save(saveGameName, rpos.x, rpos.y, rpos.z, false);
 	return 0;
 }
 
-int TileMap::unloadRegion(int64_t rX, int64_t rY, int64_t rZ)
+int TileMap::unloadRegion(Vec3<int64_t> rpos)
 {
-	t_regionMap::iterator itr = regionMap.find( std::make_tuple(rX, rY, rZ) );
+	t_regionMap::iterator itr = regionMap.find(rpos.tuple());
 	if( itr!=regionMap.end() ) {
 		regionMap.erase(itr);
 		return 0;
